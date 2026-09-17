@@ -1,0 +1,27 @@
+# Environment variables and secrets
+.env
+*.local.env
+
+# Session / Auth cookies & temporary testing files
+cookies.txt
+test_auth_cookies.txt
+scratch_*.json
+
+# User uploads & generated logs
+uploads/mail_logs/*
+!uploads/mail_logs/.gitkeep
+uploads/avatars/*
+!uploads/avatars/.gitkeep
+
+# Operating system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# IDE / Editor folders
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace

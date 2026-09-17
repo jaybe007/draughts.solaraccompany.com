@@ -1,0 +1,98 @@
+# =============================================================================
+# NAIJA DRAUGHTS - NGINX PRODUCTION SERVER BLOCK CONFIGURATION
+# Place this file in /etc/nginx/sites-available/naijadraughts.conf
+# Enable with: sudo ln -s /etc/nginx/sites-available/naijadraughts.conf /etc/nginx/sites-enabled/
+# =============================================================================
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name yourdomain.com www.yourdomain.com;
+
+    # Redirect all HTTP requests to HTTPS
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name yourdomain.com www.yourdomain.com;
+
+    # Document Root (points to where you uploaded the codebase)
+    root /var/www/naijadraughts;
+    index index.php index.html;
+
+    # SSL Certificates (managed via Certbot Let's Encrypt)
+    # ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+    # include /etc/letsencrypt/options-ssl-nginx.conf;
+    # ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # Security Headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+
+    # Character Set
+    charset utf-8;
+
+    # Gzip Compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 10240;
+    gzip_proxied expired no-cache no-store private auth;
+    gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml application/json image/svg+xml;
+    gzip_disable "MSIE [1-6]\.";
+
+    # Request Routing
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # Static Assets Caching (CSS, JS, Images, Audio)
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|webp|svg|mp3|wav|woff|woff2|ttf)$ {
+        expires 30d;
+        access_log off;
+        add_header Cache-Control "public, no-transform";
+    }
+
+    # Pass PHP scripts to FastCGI server (PHP-FPM)
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        
+        # Adjust socket path according to your installed PHP version (e.g. 8.1, 8.2, 8.3)
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+        
+        # Buffer and timeout settings for smooth long-poll handling
+        fastcgi_buffers 16 16k;
+        fastcgi_buffer_size 32k;
+        fastcgi_read_timeout 120s;
+    }
+
+    # Deny access to hidden files (.git, .env, etc.) except ACME challenge
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+
+    # Deny access to database scripts, logs, and markdown files
+    location ~* \.(sql|md|log)$ {
+        deny all;
+    }
+
+    # Deny direct access to internal uploads/mail_logs
+    location ^~ /uploads/mail_logs/ {
+        deny all;
+    }
+
+    # Max upload size (avatar uploads, etc.)
+    client_max_body_size 10M;
+
+    # Error logging
+    error_log  /var/log/nginx/naijadraughts_error.log warn;
+    access_log /var/log/nginx/naijadraughts_access.log combined;
+}

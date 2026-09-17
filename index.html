@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nigerian Draughts (Naija Draft) - 10x10 Flying Kings Board Game</title>
+  <meta name="description" content="Play authentic Nigerian Draughts (Draft) with 10x10 board, flying kings, backward captures for men, smart AI opponent, and street-style rules.">
+  <meta http-equiv="refresh" content="0; url=index.php">
+  <script>window.location.replace("index.php");</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- Top Navigation / Header -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="flag-stripes">
+          <span class="stripe green"></span>
+          <span class="stripe white"></span>
+          <span class="stripe green"></span>
+        </div>
+        <div class="brand-text">
+          <h1 class="game-title">NAIJA DRAUGHTS</h1>
+          <span class="game-subtitle">Authentic Nigerian 10x10 Rules • Flying Kings • Compulsory Chop</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-how-to-play" class="btn btn-secondary" title="View Nigerian Draughts Rules">
+          <span class="icon">📜</span> How To Play
+        </button>
+        <button id="btn-sound-toggle" class="btn btn-icon" title="Toggle Sound Effects">
+          <span class="icon" id="sound-icon">🔊</span>
+        </button>
+        <button id="btn-flip-board" class="btn btn-icon" title="Flip Board Perspective">
+          <span class="icon">🔄</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="game-container">
+      
+      <!-- Left Panel: P2 Info & Controls -->
+      <aside class="sidebar player-card p2-card" id="card-p2">
+        <div class="player-header">
+          <div class="avatar p2-avatar">
+            <span class="piece-icon p2-seed"></span>
+          </div>
+          <div class="player-meta">
+            <h2 class="player-name" id="p2-name">Street Hustler</h2>
+            <span class="player-role" id="p2-role">Computer (AI)</span>
+          </div>
+          <div class="turn-indicator" id="p2-indicator">Active Turn</div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-box">
+            <span class="stat-label">Seeds</span>
+            <span class="stat-val" id="p2-seeds-count">20</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Kings (Oba)</span>
+            <span class="stat-val" id="p2-kings-count">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Score</span>
+            <span class="stat-val" id="p2-score">0</span>
+          </div>
+        </div>
+
+        <div class="captured-tray">
+          <span class="tray-title">Captured Seeds:</span>
+          <div class="captured-pieces-list" id="p2-captured-tray"></div>
+        </div>
+
+        <!-- Street Commentary Card -->
+        <div class="commentary-box">
+          <div class="commentary-header">
+            <span class="speaker-tag">🎙️ Naija Street Corner</span>
+          </div>
+          <p class="commentary-text" id="commentary-ticker">"Oya welcome! Place your hand on the board, make we see who sabi play pass."</p>
+        </div>
+      </aside>
+
+      <!-- Center: Board Arena -->
+      <section class="board-arena">
+        <!-- Top Quick Bar -->
+        <div class="quick-bar">
+          <div class="mode-toggles">
+            <label class="select-wrapper" title="Game Opponent Mode">
+              <span class="select-label">Mode:</span>
+              <select id="select-game-mode">
+                <option value="pve" selected>Player vs AI</option>
+                <option value="pvp">Local 2 Players</option>
+                <option value="eve">AI vs AI (Spectate)</option>
+              </select>
+            </label>
+
+            <label class="select-wrapper" id="diff-wrapper" title="AI Skill Level">
+              <span class="select-label">AI Level:</span>
+              <select id="select-ai-diff">
+                <option value="easy">Rookie (Easy)</option>
+                <option value="medium" selected>Hustler (Medium)</option>
+                <option value="hard">Oga At The Top (Hard)</option>
+              </select>
+            </label>
+
+            <label class="select-wrapper" title="Rule Variation">
+              <span class="select-label">Rules:</span>
+              <select id="select-rules-mode">
+                <option value="nigerian" selected>Naija Street (Free Choice)</option>
+                <option value="tournament">Tournament (FMJD Majority)</option>
+              </select>
+            </label>
+
+            <label class="select-wrapper" title="Board Size">
+              <span class="select-label">Board:</span>
+              <select id="select-board-size">
+                <option value="10" selected>10x10 (Naija Standard)</option>
+                <option value="8">8x8 (Casual)</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="action-buttons">
+            <button id="btn-undo-move" class="btn btn-small" title="Undo Last Move">
+              ↩️ Undo
+            </button>
+            <button id="btn-restart-game" class="btn btn-small btn-primary" title="Start New Match">
+              ⚡ New Game
+            </button>
+          </div>
+        </div>
+
+        <!-- Draught Board Frame -->
+        <div class="board-wood-frame" id="board-wood-frame">
+          <div class="board-inner" id="draughts-board">
+            <!-- Squares generated dynamically via JavaScript -->
+          </div>
+        </div>
+
+        <!-- Action Notice / Alert Banner -->
+        <div class="status-banner" id="status-banner">
+          <span id="banner-text">Game started! White to move. Compulsory capture is ON.</span>
+        </div>
+      </section>
+
+      <!-- Right Panel: P1 Info & Move Notation -->
+      <aside class="sidebar player-card p1-card" id="card-p1">
+        <div class="player-header">
+          <div class="avatar p1-avatar">
+            <span class="piece-icon p1-seed"></span>
+          </div>
+          <div class="player-meta">
+            <h2 class="player-name" id="p1-name">Champion (You)</h2>
+            <span class="player-role" id="p1-role">Player 1</span>
+          </div>
+          <div class="turn-indicator active" id="p1-indicator">Active Turn</div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-box">
+            <span class="stat-label">Seeds</span>
+            <span class="stat-val" id="p1-seeds-count">20</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Kings (Oba)</span>
+            <span class="stat-val" id="p1-kings-count">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Score</span>
+            <span class="stat-val" id="p1-score">0</span>
+          </div>
+        </div>
+
+        <div class="captured-tray">
+          <span class="tray-title">Captured Seeds:</span>
+          <div class="captured-pieces-list" id="p1-captured-tray"></div>
+        </div>
+
+        <!-- Move History Box -->
+        <div class="history-panel">
+          <div class="history-header">
+            <span>Move History</span>
+            <span class="move-count" id="move-count-badge">0 moves</span>
+          </div>
+          <div class="history-list" id="move-history-list">
+            <div class="history-empty">No moves yet. Make your opening move!</div>
+          </div>
+        </div>
+      </aside>
+
+    </main>
+  </div>
+
+  <!-- HOW TO PLAY MODAL -->
+  <div class="modal-overlay" id="rules-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="flag-icon">🇳🇬</span>
+          <h2 class="modal-title">Nigerian Draughts (Draft) Official Rules</h2>
+        </div>
+        <button class="modal-close" id="btn-close-rules">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="rule-section">
+          <h3>1. Board & Pieces</h3>
+          <p>
+            Standard Nigerian Draughts is played on a <strong>10x10 board</strong> with 50 playable dark squares. 
+            Each player starts with <strong>20 seeds (men)</strong> placed on the first 4 rows.
+          </p>
+        </div>
+
+        <div class="rule-section highlight-rule">
+          <h3>2. Backward Captures for Ordinary Seeds ("Chop Anywhere")</h3>
+          <p>
+            Ordinary pieces can only move <em>forward</em> 1 step diagonally. 
+            However, when capturing an enemy seed, <strong>ordinary seeds CAN JUMP BOTH FORWARD AND BACKWARD!</strong> 
+            This is one of the trademark features of Nigerian and International Draughts.
+          </p>
+        </div>
+
+        <div class="rule-section highlight-rule">
+          <h3>3. The Flying King ("Long King" / "Oba")</h3>
+          <p>
+            When a seed reaches the opponent's back rank, it is crowned an <strong>Oba (Flying King)</strong>.
+          </p>
+          <ul>
+            <li><strong>Movement:</strong> The King can fly any number of vacant squares along any diagonal (forward or backward).</li>
+            <li><strong>Long-Distance Capture:</strong> The King can jump over an enemy seed from a distance, and land on <em>any vacant square beyond it</em> along that diagonal!</li>
+            <li><strong>Multi-Jumps:</strong> If another capture is available from any landing square, the King continues flying and chopping!</li>
+          </ul>
+        </div>
+
+        <div class="rule-section highlight-rule">
+          <h3>4. Compulsory Capture ("You Must Chop!")</h3>
+          <p>
+            If any player has an available capture, <strong>capturing is mandatory</strong>. You cannot make a normal quiet move if a capture is possible.
+          </p>
+        </div>
+
+        <div class="rule-section">
+          <h3>5. Nigerian Street Rule vs Tournament Rule</h3>
+          <ul>
+            <li><strong>Naija Street Rules (Default):</strong> When multiple capture paths are available, you have <em>free choice</em> to pick any capture route, regardless of how many pieces each takes.</li>
+            <li><strong>Tournament Rules (FMJD):</strong> You are required to choose the path that captures the <em>maximum number</em> of pieces.</li>
+          </ul>
+        </div>
+
+        <div class="rule-section">
+          <h3>6. Winning the Game</h3>
+          <p>
+            You win by chopping all of your opponent's seeds, or by blocking them completely so they have zero legal moves remaining.
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btn-modal-got-it">Got It, Let's Play!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME OVER / VICTORY MODAL -->
+  <div class="modal-overlay" id="game-over-modal">
+    <div class="modal-card game-over-card" style="position: relative;">
+      <button class="modal-close" id="btn-close-game-over" title="Close to review final board" style="position: absolute; top: 14px; right: 18px;">&times;</button>
+      <div class="winner-trophy" id="winner-trophy-icon">🏆</div>
+      <h2 class="game-over-title" id="game-over-title">VICTORY!</h2>
+      <p class="game-over-sub" id="game-over-sub">Player 1 took all seeds!</p>
+      <div class="game-over-stats">
+        <div class="go-stat">
+          <span class="go-stat-val" id="go-moves-count">0</span>
+          <span class="go-stat-lbl">Moves</span>
+        </div>
+        <div class="go-stat">
+          <span class="go-stat-val" id="go-p1-chopped">0</span>
+          <span class="go-stat-lbl">Player 1 Chopped</span>
+        </div>
+        <div class="go-stat">
+          <span class="go-stat-val" id="go-p2-chopped">0</span>
+          <span class="go-stat-lbl">Player 2 Chopped</span>
+        </div>
+      </div>
+      <div class="game-over-actions" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <button class="btn btn-primary btn-large" id="btn-play-again">⚡ Play Rematch</button>
+        <button class="btn btn-secondary btn-large" id="btn-review-board">🔬 Review Board</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

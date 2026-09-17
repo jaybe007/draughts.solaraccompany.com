@@ -1,0 +1,78 @@
+# =============================================================================
+# NAIJA DRAUGHTS - APACHE / CPANEL SECURITY & OPTIMIZATION CONFIGURATION
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 1. Prevent Directory Indexing
+# -----------------------------------------------------------------------------
+Options -Indexes -MultiViews
+
+# -----------------------------------------------------------------------------
+# 2. Block Access to Sensitive Files & Configuration Secrets
+# -----------------------------------------------------------------------------
+<FilesMatch "^(\.env|\.git|\.htaccess|\.user\.ini|composer\.(json|lock)|package\.json|.*\.sql|.*\.md|.*\.log)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Block access to internal script & log folders directly
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Prevent direct listing of mail logs
+    RewriteRule ^uploads/mail_logs/.*$ - [F,L]
+
+    # Force HTTPS when available (uncomment if SSL is active)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# 3. Security HTTP Headers
+# -----------------------------------------------------------------------------
+<IfModule mod_headers.c>
+    # Prevent MIME type sniffing
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Prevent clickjacking
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Cross-site scripting (XSS) filter
+    Header always set X-XSS-Protection "1; mode=block"
+
+    # Strict Referrer Policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Permissions Policy
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# 4. Gzip / Deflate Compression
+# -----------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css
+    AddOutputFilterByType DEFLATE application/xml application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml application/javascript application/x-javascript
+    AddOutputFilterByType DEFLATE application/json image/svg+xml
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# 5. Browser Caching for Static Assets
+# -----------------------------------------------------------------------------
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType audio/mpeg "access plus 1 month"
+    ExpiresByType audio/wav "access plus 1 month"
+</IfModule>
