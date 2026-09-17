@@ -15,7 +15,6 @@ $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
 if (!empty($input['action'])) {
     $action = $input['action'];
 }
-
 try {
     $db = getDB();
 
