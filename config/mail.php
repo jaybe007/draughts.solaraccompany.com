@@ -15,7 +15,8 @@ define('MAIL_SMTP_USER', getenv('SMTP_USER') ?: '');
 define('MAIL_SMTP_PASS', getenv('SMTP_PASS') ?: '');
 define('MAIL_SMTP_SECURE', getenv('SMTP_SECURE') ?: 'tls'); // 'tls', 'ssl', or 'none'
 
-define('MAIL_FROM_EMAIL', getenv('MAIL_FROM') ?: 'no-reply@naijadraughts.com');
+$detectedHost = !empty($_SERVER['HTTP_HOST']) ? preg_replace('/^www\./i', '', $_SERVER['HTTP_HOST']) : 'solaraccompany.com';
+define('MAIL_FROM_EMAIL', getenv('MAIL_FROM') ?: ('no-reply@' . $detectedHost));
 define('MAIL_FROM_NAME', getenv('MAIL_FROM_NAME') ?: 'Naija Draughts Arena');
 
 // Auto-detect Dev Mode on localhost / offline environments
@@ -201,8 +202,12 @@ function sendEmail($to, $subject, $htmlBody, $textBody = '', $meta = []) {
         $headers .= "Reply-To: " . MAIL_FROM_EMAIL . "\r\n";
         $headers .= "X-Mailer: NaijaDraughtsEngine/1.0\r\n";
 
-        // Suppress warning if local sendmail is unconfigured
-        $sent = @mail($to, $subject, $htmlBody, $headers);
+        // Suppress warning if local sendmail is unconfigured; use -f for SPF alignment
+        $additionalParams = "-f " . escapeshellarg(MAIL_FROM_EMAIL);
+        $sent = @mail($to, $subject, $htmlBody, $headers, $additionalParams);
+        if (!$sent) {
+            $sent = @mail($to, $subject, $htmlBody, $headers);
+        }
     }
 
     // In dev mode, treat disk-logged email as successful

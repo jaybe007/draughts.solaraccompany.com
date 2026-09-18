@@ -132,7 +132,8 @@ try {
                 'message' => 'Account created! Please enter the 6-digit code sent to your email.',
             ];
 
-            if (MAIL_DEV_MODE) {
+            $isDevOrDebug = MAIL_DEV_MODE || (getenv('APP_DEBUG') && filter_var(getenv('APP_DEBUG'), FILTER_VALIDATE_BOOLEAN));
+            if ($isDevOrDebug) {
                 $response['dev_otp'] = $otp;
                 $response['dev_token'] = $token;
                 $response['dev_mail_log'] = $mailResult['log_file'] ?? null;
@@ -280,7 +281,8 @@ try {
                 'message' => 'A new 6-digit verification code has been sent to your email.',
             ];
 
-            if (MAIL_DEV_MODE) {
+            $isDevOrDebug = MAIL_DEV_MODE || (getenv('APP_DEBUG') && filter_var(getenv('APP_DEBUG'), FILTER_VALIDATE_BOOLEAN));
+            if ($isDevOrDebug) {
                 $response['dev_otp'] = $otp;
                 $response['dev_token'] = $token;
                 $response['dev_mail_log'] = $mailResult['log_file'] ?? null;
