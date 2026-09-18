@@ -6,6 +6,7 @@
 cookies.txt
 test_auth_cookies.txt
 scratch_*.json
+scratch/
 
 # User uploads & generated logs
 uploads/mail_logs/*

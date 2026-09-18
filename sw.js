@@ -3,11 +3,12 @@
  * Caches essential static assets for fast loading and offline play.
  */
 
-const CACHE_NAME = 'naija-draughts-v1.0';
+const CACHE_NAME = 'naija-draughts-v1.1';
 const STATIC_ASSETS = [
   './',
   './index.php',
   './game.php',
+  './puzzles.php',
   './style.css',
   './home.css',
   './puzzles.css',
@@ -16,7 +17,11 @@ const STATIC_ASSETS = [
   './js/engine50.js',
   './js/rules_engine.js',
   './js/audio.js',
-  './manifest.json'
+  './manifest.json',
+  './favicon.ico',
+  './favicon.svg',
+  './icons/icon-192.png',
+  './icons/icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {

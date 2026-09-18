@@ -64,8 +64,13 @@ Options -Indexes -MultiViews
 </IfModule>
 
 # -----------------------------------------------------------------------------
-# 5. Browser Caching for Static Assets
+# 5. MIME Types & Browser Caching for Static Assets
 # -----------------------------------------------------------------------------
+<IfModule mod_mime.c>
+    AddType application/manifest+json .webmanifest
+    AddType image/svg+xml .svg .svgz
+</IfModule>
+
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresByType text/css "access plus 1 month"
@@ -74,6 +79,9 @@ Options -Indexes -MultiViews
     ExpiresByType image/jpeg "access plus 1 month"
     ExpiresByType image/webp "access plus 1 month"
     ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 month"
+    ExpiresByType application/manifest+json "access plus 1 week"
     ExpiresByType audio/mpeg "access plus 1 month"
     ExpiresByType audio/wav "access plus 1 month"
 </IfModule>
+

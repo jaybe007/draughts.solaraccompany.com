@@ -2,8 +2,8 @@
   "name": "Naija Draughts — Authentic 10x10 Nigerian Checkers",
   "short_name": "Naija Draughts",
   "description": "Authentic Nigerian Draughts platform featuring 10x10 Flying Kings, tactical puzzles, multiplayer tournaments, and grandmaster AI bot engines.",
-  "start_url": "index.php",
-  "scope": "/",
+  "start_url": "./index.php",
+  "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#0d1117",
@@ -14,6 +14,23 @@
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
+    },
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

@@ -38,6 +38,32 @@ export class MatchReplayController {
     if (this.btnNext) this.btnNext.addEventListener('click', () => this.stepForward());
     if (this.btnEnd) this.btnEnd.addEventListener('click', () => this.goToStep(this.moves.length));
     if (this.btnExit) this.btnExit.addEventListener('click', () => this.exitReplay());
+
+    // Keyboard navigation shortcuts for replay review
+    window.addEventListener('keydown', (e) => {
+      if (!this.dock || !this.dock.classList.contains('active')) return;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        this.stepBackward();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        this.stepForward();
+      } else if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault();
+        this.toggleAutoPlay();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        this.goToStep(0);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        this.goToStep(this.moves.length);
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        this.exitReplay();
+      }
+    });
   }
 
   loadMatch(match) {
@@ -56,7 +82,8 @@ export class MatchReplayController {
     // Build board states cache & compute move quality analysis
     this.reconstructBoardStates();
     this.goToStep(0);
-    this.app.setBannerNotice(`Replay Mode: ${match.player1_name} vs ${match.player2_name}`);
+    this.renderReplayMoveHistory();
+    this.app.setBannerNotice(`Replay Mode: ${match.player1_name} vs ${match.player2_name} — Use ◀/▶ Arrow Keys or Space to play.`);
   }
 
   reconstructBoardStates() {
@@ -162,6 +189,69 @@ export class MatchReplayController {
     };
   }
 
+  renderReplayMoveHistory() {
+    if (!this.app?.dom?.moveHistoryList) return;
+    const container = this.app.dom.moveHistoryList;
+    container.innerHTML = '';
+    if (this.app.dom.moveCountBadge) {
+      this.app.dom.moveCountBadge.textContent = `${this.moves.length} moves (Review)`;
+    }
+
+    if (this.moves.length === 0) {
+      container.innerHTML = '<div class="history-empty">No moves recorded in this match.</div>';
+      return;
+    }
+
+    this.moves.forEach((m, idx) => {
+      const stepNum = idx + 1;
+      const state = this.states[stepNum];
+      const item = document.createElement('div');
+      item.className = `history-item clickable-step ${m.isCapture ? 'is-capture' : ''}`;
+      item.dataset.step = stepNum;
+
+      const fromCoord = `${String.fromCharCode(65 + m.from.c)}${this.boardSize - m.from.r}`;
+      const toCoord = `${String.fromCharCode(65 + m.to.c)}${this.boardSize - m.to.r}`;
+      const symbol = m.isCapture ? 'x' : '-';
+      const crown = m.promoted ? ' 👑' : '';
+      const pName = (m.player === PLAYER_1 || idx % 2 === 0) ? 'P1' : 'P2';
+
+      let qualityHtml = '';
+      if (state?.quality) {
+        qualityHtml = `<span class="replay-quality-pill ${state.quality.class}" title="${state.quality.label}">${state.quality.icon} ${state.quality.label}</span>`;
+      }
+
+      item.innerHTML = `
+        <div class="history-move-info" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+          <span>#${stepNum} <strong>${pName}</strong> ${fromCoord} ${symbol} ${toCoord}${crown}</span>
+          ${qualityHtml}
+        </div>
+      `;
+
+      item.addEventListener('click', () => {
+        this.pauseAutoPlay();
+        this.goToStep(stepNum);
+      });
+
+      container.appendChild(item);
+    });
+
+    this.updateActiveHistoryItem();
+  }
+
+  updateActiveHistoryItem() {
+    if (!this.app?.dom?.moveHistoryList) return;
+    const container = this.app.dom.moveHistoryList;
+    container.querySelectorAll('.history-item').forEach(el => {
+      const step = parseInt(el.dataset.step, 10);
+      if (step === this.currentStep) {
+        el.classList.add('active-step');
+        el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      } else {
+        el.classList.remove('active-step');
+      }
+    });
+  }
+
   goToStep(step) {
     if (step < 0) step = 0;
     if (step > this.states.length - 1) step = this.states.length - 1;
@@ -193,19 +283,29 @@ export class MatchReplayController {
       else sound.playMove();
     }
 
-    // Update Step label with move quality badge
+    // Update Step label with styled move quality pill
     if (this.stepLabel) {
       let qualityBadge = '';
       if (currentState.quality) {
-        qualityBadge = ` • ${currentState.quality.icon} ${currentState.quality.label}`;
+        qualityBadge = `<span class="replay-quality-pill ${currentState.quality.class}">${currentState.quality.icon} ${currentState.quality.label}</span>`;
       }
-      this.stepLabel.textContent = `Move ${this.currentStep} / ${this.moves.length}${qualityBadge}`;
+      this.stepLabel.innerHTML = `<span class="replay-step-text">Move ${this.currentStep} / ${this.moves.length}</span>${qualityBadge}`;
     }
+
+    this.updateActiveHistoryItem();
   }
 
   stepForward() {
     if (this.currentStep < this.states.length - 1) {
-      this.goToStep(this.currentStep + 1);
+      const nextStep = this.currentStep + 1;
+      const nextMove = this.moves[this.currentStep];
+      if (nextMove && this.app?.animatePieceGlide) {
+        this.app.animatePieceGlide(nextMove.from, nextMove.to, () => {
+          this.goToStep(nextStep);
+        });
+      } else {
+        this.goToStep(nextStep);
+      }
     } else {
       this.pauseAutoPlay();
     }

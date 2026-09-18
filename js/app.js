@@ -1912,11 +1912,6 @@ class NigerianDraughtsApp {
       this.timer.switchTurn(this.engine.currentTurn, prevPlayer);
     }
 
-    // Smooth piece slide animation
-    const fromSq = document.getElementById(`sq-${move.from.r}-${move.from.c}`);
-    const toSq = document.getElementById(`sq-${move.to.r}-${move.to.c}`);
-    const pieceEl = fromSq ? fromSq.querySelector('.piece') : null;
-
     const commitAndRender = () => {
       this.renderPieces();
       this.updateUI();
@@ -1940,7 +1935,20 @@ class NigerianDraughtsApp {
       }
     };
 
-    if (pieceEl && toSq) {
+    // Smooth piece slide animation
+    this.animatePieceGlide(move.from, move.to, commitAndRender);
+  }
+
+  animatePieceGlide(from, to, callback) {
+    if (!from || !to) {
+      if (typeof callback === 'function') callback();
+      return;
+    }
+    const fromSq = document.getElementById(`sq-${from.r}-${from.c}`);
+    const toSq = document.getElementById(`sq-${to.r}-${to.c}`);
+    const pieceEl = fromSq ? fromSq.querySelector('.piece') : null;
+
+    if (pieceEl && toSq && fromSq) {
       const fromRect = fromSq.getBoundingClientRect();
       const toRect = toSq.getBoundingClientRect();
       const dx = toRect.left - fromRect.left;
@@ -1949,10 +1957,10 @@ class NigerianDraughtsApp {
       pieceEl.classList.add('sliding');
       pieceEl.style.transform = `translate(${dx}px, ${dy}px)`;
       setTimeout(() => {
-        commitAndRender();
+        if (typeof callback === 'function') callback();
       }, 140);
     } else {
-      commitAndRender();
+      if (typeof callback === 'function') callback();
     }
   }
 
@@ -2035,58 +2043,61 @@ class NigerianDraughtsApp {
         return;
       }
 
-      const res = this.engine.makeMove(aiMove);
+      // Smooth AI piece slide animation
+      this.animatePieceGlide(aiMove.from, aiMove.to, () => {
+        const res = this.engine.makeMove(aiMove);
 
-      if (res.justPromoted) {
-        sound.playKing();
-        this.setCommentary('king');
-      } else if (res.isCapture) {
-        sound.playCapture();
-        this.setCommentary('capture');
-      } else {
-        sound.playMove();
-      }
+        if (res.justPromoted) {
+          sound.playKing();
+          this.setCommentary('king');
+        } else if (res.isCapture) {
+          sound.playCapture();
+          this.setCommentary('capture');
+        } else {
+          sound.playMove();
+        }
 
-      this.renderPieces();
-      this.updateUI();
+        this.renderPieces();
+        this.updateUI();
 
-      if (res.gameOver) {
-        this.isAIThinking = false;
-        this.timer?.stop();
-        this.handleGameOver(res);
-        return;
-      }
-
-      if (!res.turnEnded) {
-        // Multi-jump continues
-        this.isAIThinking = false;
-        setTimeout(() => this.scheduleAIMove(), 250);
-      } else {
-        this.isAIThinking = false;
-        const prevPlayer = mover;
-        this.timer.switchTurn(this.engine.currentTurn, prevPlayer);
-
-        // Check if next player has any legal moves available
-        const nextMoves = this.engine.getAllLegalMoves(this.engine.currentTurn);
-        if (nextMoves.length === 0 && !this.engine.gameOver) {
-          this.engine.gameOver = true;
-          this.engine.winner = prevPlayer;
-          this.engine.winReason = `Player ${this.engine.currentTurn === PLAYER_1 ? 1 : 2} has no legal moves (Locked)!`;
+        if (res.gameOver) {
+          this.isAIThinking = false;
           this.timer?.stop();
-          this.handleGameOver({
-            winner: this.engine.winner,
-            winReason: this.engine.winReason
-          });
+          this.handleGameOver(res);
           return;
         }
 
-        if (this.gameMode === 'eve') {
-          setTimeout(() => this.scheduleAIMove(), 350);
+        if (!res.turnEnded) {
+          // Multi-jump continues
+          this.isAIThinking = false;
+          setTimeout(() => this.scheduleAIMove(), 250);
         } else {
-          // Trigger Premove if queued by player
-          this.tryExecutePremove();
+          this.isAIThinking = false;
+          const prevPlayer = mover;
+          this.timer.switchTurn(this.engine.currentTurn, prevPlayer);
+
+          // Check if next player has any legal moves available
+          const nextMoves = this.engine.getAllLegalMoves(this.engine.currentTurn);
+          if (nextMoves.length === 0 && !this.engine.gameOver) {
+            this.engine.gameOver = true;
+            this.engine.winner = prevPlayer;
+            this.engine.winReason = `Player ${this.engine.currentTurn === PLAYER_1 ? 1 : 2} has no legal moves (Locked)!`;
+            this.timer?.stop();
+            this.handleGameOver({
+              winner: this.engine.winner,
+              winReason: this.engine.winReason
+            });
+            return;
+          }
+
+          if (this.gameMode === 'eve') {
+            setTimeout(() => this.scheduleAIMove(), 350);
+          } else {
+            // Trigger Premove if queued by player
+            this.tryExecutePremove();
+          }
         }
-      }
+      });
     } catch (err) {
       console.error('Error during AI calculation:', err);
       this.isAIThinking = false;
@@ -2698,15 +2709,24 @@ class NigerianDraughtsApp {
       if (room.move_history_json) {
         const remoteMoves = JSON.parse(room.move_history_json);
         if (Array.isArray(remoteMoves) && remoteMoves.length > this.engine.moveHistory.length) {
-          if (room.board_state_json) {
-            this.engine.board = JSON.parse(room.board_state_json);
+          const latestMove = remoteMoves[remoteMoves.length - 1];
+          const applyRemote = () => {
+            if (room.board_state_json) {
+              this.engine.board = JSON.parse(room.board_state_json);
+            }
+            this.engine.moveHistory = remoteMoves;
+            this.engine.currentTurn = parseInt(room.current_turn, 10);
+            sound.playMove();
+            this.renderPieces();
+            this.updateUI();
+            this.tryExecutePremove();
+          };
+
+          if (latestMove && latestMove.from && latestMove.to) {
+            this.animatePieceGlide(latestMove.from, latestMove.to, applyRemote);
+          } else {
+            applyRemote();
           }
-          this.engine.moveHistory = remoteMoves;
-          this.engine.currentTurn = parseInt(room.current_turn, 10);
-          sound.playMove();
-          this.renderPieces();
-          this.updateUI();
-          this.tryExecutePremove();
         }
       }
     } catch (err) {}
