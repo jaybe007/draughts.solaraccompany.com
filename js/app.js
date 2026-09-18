@@ -33,6 +33,10 @@ class NigerianDraughtsApp {
     this.onlineRoomCode = null;
     this.onlinePlayerRole = 'p1';
     this.onlinePollingInterval = null;
+    this.premove = null; // Queued { from: { r, c }, to: { r, c } }
+    this.premoveSource = null; // { r, c }
+    this.lastPingMs = 35;
+    this.isPremoveExecuting = false;
 
     // Street commentaries
     this.commentaryMap = {
@@ -137,6 +141,14 @@ class NigerianDraughtsApp {
       const paramAnalysis = urlParams.get('analysis');
       const paramDiff = urlParams.get('diff');
       const paramView = urlParams.get('view');
+
+      const paramReplay = urlParams.get('replay') || urlParams.get('match');
+      if (paramReplay) {
+        setTimeout(() => {
+          this.loadAndReplayMatch(paramReplay);
+        }, 400);
+        return;
+      }
 
       if (paramRoom) {
         this.initOnlineRoomMode(paramRoom, paramRole);
@@ -310,6 +322,16 @@ class NigerianDraughtsApp {
       moveHistoryList: document.getElementById('move-history-list'),
       moveCountBadge: document.getElementById('move-count-badge'),
 
+      // World-Class Competitive Controls
+      evalBar: document.getElementById('board-eval-bar'),
+      evalBarFill: document.getElementById('eval-bar-fill'),
+      evalBarScore: document.getElementById('eval-bar-score'),
+      pingIndicator: document.getElementById('network-ping-indicator'),
+      pingText: document.getElementById('ping-text'),
+      btnShareMatchLink: document.getElementById('btn-share-match-link'),
+      btnCopyPdnMatch: document.getElementById('btn-copy-pdn-match'),
+      toastContainer: document.getElementById('toast-container'),
+
       // Players
       p1Card: document.getElementById('card-p1'),
       p2Card: document.getElementById('card-p2'),
@@ -406,6 +428,13 @@ class NigerianDraughtsApp {
       btnCloseGameOver: document.getElementById('btn-close-game-over'),
       btnReviewBoard: document.getElementById('btn-review-board'),
       winnerTrophyIcon: document.getElementById('winner-trophy-icon'),
+      goAccuracyPanel: document.getElementById('go-accuracy-panel'),
+      goP1Accuracy: document.getElementById('go-p1-accuracy'),
+      goP2Accuracy: document.getElementById('go-p2-accuracy'),
+      goBestCount: document.getElementById('go-best-count'),
+      goInaccCount: document.getElementById('go-inacc-count'),
+      goMistakeCount: document.getElementById('go-mistake-count'),
+      goBlunderCount: document.getElementById('go-blunder-count'),
 
       // Online Room
       onlineRoomBanner: document.getElementById('online-room-banner'),
@@ -454,6 +483,21 @@ class NigerianDraughtsApp {
     // Online Room Actions
     this.dom.btnCopyRoomLink?.addEventListener('click', () => this.copyRoomLink());
     this.dom.btnResignRoom?.addEventListener('click', () => this.resignOnlineRoom());
+
+    // Share Match Replay URL
+    this.dom.btnShareMatchLink?.addEventListener('click', () => this.shareMatchLink());
+
+    // Copy Standard PDN Notation
+    this.dom.btnCopyPdnMatch?.addEventListener('click', () => this.copyPDNToClipboard());
+
+    // Right-Click on Board cancels queued Premove
+    this.dom.boardInner?.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      if (this.premove || this.premoveSource) {
+        this.clearPremove();
+        this.showToast('Premove cancelled', 'info');
+      }
+    });
 
     // Game Setup: 1P vs 2P segmented toggle
     this.dom.btnSetupType1p?.addEventListener('click', () => {
@@ -676,6 +720,9 @@ class NigerianDraughtsApp {
     });
     this.dom.btnReviewBoard?.addEventListener('click', () => {
       this.closeModal(this.dom.gameOverModal);
+      if (this.lastCompletedMatch && this.replayController) {
+        this.replayController.loadMatch(this.lastCompletedMatch);
+      }
     });
 
     // Auth
@@ -1632,6 +1679,93 @@ class NigerianDraughtsApp {
     lines.forEach(l => l.remove());
   }
 
+  handlePremoveClick(r, c) {
+    const myPlayer = (this.gameMode === 'room_online' && this.onlinePlayerRole === 'p2') ? PLAYER_2 : PLAYER_1;
+    const clickedPiece = this.engine.board[r][c];
+
+    // If player clicks their own seed/king, select it as premove source
+    if (clickedPiece && clickedPiece.player === myPlayer) {
+      this.clearPremove();
+      this.premoveSource = { r, c };
+      const sq = document.getElementById(`sq-${r}-${c}`);
+      if (sq) sq.classList.add('premove-source');
+      sound.playMove();
+      this.setBannerNotice('⚡ Premove: Piece selected. Now click destination square to queue your move.');
+      return;
+    }
+
+    // If premove piece already selected, set destination target
+    if (this.premoveSource) {
+      if (r === this.premoveSource.r && c === this.premoveSource.c) {
+        this.clearPremove();
+        return;
+      }
+
+      if (this.engine.isDarkSquare(r, c)) {
+        this.premove = {
+          from: { r: this.premoveSource.r, c: this.premoveSource.c },
+          to: { r, c }
+        };
+        this.premoveSource = null;
+        this.renderPremove();
+        sound.playMove();
+        this.showToast('⚡ Premove Queued! Will execute instantly on your turn.', 'success');
+        this.setBannerNotice('⚡ Premove queued! Right-click anywhere on the board to cancel.');
+        return;
+      }
+    }
+
+    this.clearPremove();
+  }
+
+  renderPremove() {
+    this.clearPremoveHighlights();
+    if (!this.premove) return;
+
+    const fromSq = document.getElementById(`sq-${this.premove.from.r}-${this.premove.from.c}`);
+    const toSq = document.getElementById(`sq-${this.premove.to.r}-${this.premove.to.c}`);
+    if (fromSq) fromSq.classList.add('premove-source');
+    if (toSq) toSq.classList.add('premove-target');
+  }
+
+  clearPremoveHighlights() {
+    document.querySelectorAll('.premove-source, .premove-target').forEach(el => {
+      el.classList.remove('premove-source', 'premove-target');
+    });
+  }
+
+  clearPremove() {
+    this.premove = null;
+    this.premoveSource = null;
+    this.clearPremoveHighlights();
+  }
+
+  tryExecutePremove() {
+    if (!this.premove || this.isPremoveExecuting) return;
+    const myPlayer = (this.gameMode === 'room_online' && this.onlinePlayerRole === 'p2') ? PLAYER_2 : PLAYER_1;
+    if (this.engine.currentTurn !== myPlayer || this.engine.gameOver) {
+      return;
+    }
+
+    const queued = { ...this.premove };
+    this.clearPremove();
+
+    const legalMoves = this.engine.getAllLegalMoves(myPlayer);
+    const matchingMove = legalMoves.find(
+      m => m.from.r === queued.from.r && m.from.c === queued.from.c &&
+           m.to.r === queued.to.r && m.to.c === queued.to.c
+    );
+
+    if (matchingMove) {
+      this.isPremoveExecuting = true;
+      this.showToast('⚡ Premove Executed with 0ms delay!', 'success');
+      this.executePlayerMove(matchingMove);
+      this.isPremoveExecuting = false;
+    } else {
+      this.clearPremove();
+    }
+  }
+
   handleSquareClick(r, c) {
     // If analysis mode is active, forward click to analysis palette
     if (this.analysisController && this.analysisController.isActive) {
@@ -1641,19 +1775,20 @@ class NigerianDraughtsApp {
 
     if (this.engine.gameOver || this.isAIThinking) return;
 
-    if (this.gameMode === 'pve' && this.engine.currentTurn === PLAYER_2) {
+    // PREMOVE LOGIC: When it is opponent's turn in PvE or Online Match
+    const isPveOpponent = (this.gameMode === 'pve' && this.engine.currentTurn === PLAYER_2);
+    const isOnlineOpponent = (this.gameMode === 'room_online' && (
+      (this.onlinePlayerRole === 'p1' && this.engine.currentTurn === PLAYER_2) ||
+      (this.onlinePlayerRole === 'p2' && this.engine.currentTurn === PLAYER_1)
+    ));
+
+    if (isPveOpponent || isOnlineOpponent) {
+      this.handlePremoveClick(r, c);
       return;
     }
 
-    if (this.gameMode === 'room_online') {
-      const isMyTurn = (this.onlinePlayerRole === 'p1' && this.engine.currentTurn === PLAYER_1) ||
-                       (this.onlinePlayerRole === 'p2' && this.engine.currentTurn === PLAYER_2);
-      if (!isMyTurn) {
-        sound.playError();
-        this.setBannerNotice("Opponent's turn! Please wait for them to make a move.", true);
-        return;
-      }
-    }
+    // Normal Turn Play: Clear any stale premove
+    this.clearPremove();
 
     const clickedPiece = this.engine.board[r][c];
     const currentTurn = this.engine.currentTurn;
@@ -1738,6 +1873,13 @@ class NigerianDraughtsApp {
       return;
     }
 
+    // Mobile tactile haptics on capture / promotion
+    if (res.isCapture && 'vibrate' in navigator) {
+      try { navigator.vibrate([35, 15, 35]); } catch (e) {}
+    } else if (res.justPromoted && 'vibrate' in navigator) {
+      try { navigator.vibrate([60, 25, 80]); } catch (e) {}
+    }
+
     if (res.justPromoted) {
       sound.playKing();
       this.setCommentary('king');
@@ -1770,25 +1912,47 @@ class NigerianDraughtsApp {
       this.timer.switchTurn(this.engine.currentTurn, prevPlayer);
     }
 
-    this.renderPieces();
-    this.updateUI();
+    // Smooth piece slide animation
+    const fromSq = document.getElementById(`sq-${move.from.r}-${move.from.c}`);
+    const toSq = document.getElementById(`sq-${move.to.r}-${move.to.c}`);
+    const pieceEl = fromSq ? fromSq.querySelector('.piece') : null;
 
-    if (this.gameMode === 'room_online') {
-      this.sendRoomMove(res);
-    }
+    const commitAndRender = () => {
+      this.renderPieces();
+      this.updateUI();
 
-    if (res.gameOver) {
-      this.timer.stop();
-      this.handleGameOver(res);
-      return;
-    }
-
-    if (res.turnEnded) {
-      if (this.gameMode === 'pve' && this.engine.currentTurn === PLAYER_2) {
-        this.scheduleAIMove();
-      } else if (this.gameMode === 'eve') {
-        this.scheduleAIMove();
+      if (this.gameMode === 'room_online') {
+        this.sendRoomMove(res);
       }
+
+      if (res.gameOver) {
+        this.timer.stop();
+        this.handleGameOver(res);
+        return;
+      }
+
+      if (res.turnEnded) {
+        if (this.gameMode === 'pve' && this.engine.currentTurn === PLAYER_2) {
+          this.scheduleAIMove();
+        } else if (this.gameMode === 'eve') {
+          this.scheduleAIMove();
+        }
+      }
+    };
+
+    if (pieceEl && toSq) {
+      const fromRect = fromSq.getBoundingClientRect();
+      const toRect = toSq.getBoundingClientRect();
+      const dx = toRect.left - fromRect.left;
+      const dy = toRect.top - fromRect.top;
+
+      pieceEl.classList.add('sliding');
+      pieceEl.style.transform = `translate(${dx}px, ${dy}px)`;
+      setTimeout(() => {
+        commitAndRender();
+      }, 140);
+    } else {
+      commitAndRender();
     }
   }
 
@@ -1918,6 +2082,9 @@ class NigerianDraughtsApp {
 
         if (this.gameMode === 'eve') {
           setTimeout(() => this.scheduleAIMove(), 350);
+        } else {
+          // Trigger Premove if queued by player
+          this.tryExecutePremove();
         }
       }
     } catch (err) {
@@ -1932,6 +2099,8 @@ class NigerianDraughtsApp {
         const res = this.engine.makeMove(fallback);
         this.renderPieces();
         this.updateUI();
+        this.tryExecutePremove();
+      }
         if (res.gameOver) {
           this.timer?.stop();
           this.handleGameOver(res);
@@ -2108,6 +2277,7 @@ class NigerianDraughtsApp {
       }
     }
 
+    this.updateEvaluationBar(stats);
     this.evaluateTrapRadar();
   }
 
@@ -2313,6 +2483,34 @@ class NigerianDraughtsApp {
     this.dom.goP1Chopped.textContent = this.engine.capturedPieces[PLAYER_1].length;
     this.dom.goP2Chopped.textContent = this.engine.capturedPieces[PLAYER_2].length;
 
+    // Build completed match object for replay & automated accuracy review
+    const currentMatch = {
+      player1_name: this.currentUser ? this.currentUser.username : 'Player 1',
+      player2_name: isPvE ? `Grandmaster Engine (${this.aiDifficulty})` : (this.dom.p2Name?.textContent || 'Player 2'),
+      board_size: this.boardSize,
+      rule_mode: this.ruleMode,
+      move_history: [...this.engine.moveHistory],
+      result: res.winner === PLAYER_1 ? 'p1_won' : (res.winner === PLAYER_2 ? 'p2_won' : 'draw')
+    };
+    this.lastCompletedMatch = currentMatch;
+
+    if (this.replayController) {
+      try {
+        this.replayController.loadMatch(currentMatch);
+        const summary = this.replayController.analysisSummary;
+        if (summary) {
+          if (this.dom.goP1Accuracy) this.dom.goP1Accuracy.textContent = `${summary.p1Accuracy}%`;
+          if (this.dom.goP2Accuracy) this.dom.goP2Accuracy.textContent = `${summary.p2Accuracy}%`;
+          if (this.dom.goBestCount) this.dom.goBestCount.textContent = summary.best;
+          if (this.dom.goInaccCount) this.dom.goInaccCount.textContent = summary.inaccuracy;
+          if (this.dom.goMistakeCount) this.dom.goMistakeCount.textContent = summary.mistake;
+          if (this.dom.goBlunderCount) this.dom.goBlunderCount.textContent = summary.blunder;
+        }
+      } catch (err) {
+        console.warn('Replay accuracy analysis error:', err);
+      }
+    }
+
     this.openModal(this.dom.gameOverModal);
 
     // Save match with move history for replay
@@ -2387,7 +2585,10 @@ class NigerianDraughtsApp {
     if (!this.onlineRoomCode || this.gameMode !== 'room_online') return;
 
     try {
+      const t0 = performance.now();
       const res = await fetch(`api/rooms.php?action=get_state&room_code=${encodeURIComponent(this.onlineRoomCode)}`);
+      const pingMs = Math.max(10, Math.round(performance.now() - t0));
+      this.updatePingIndicator(pingMs);
       const data = await res.json();
       if (!data.success || !data.room) return;
 
@@ -2505,6 +2706,7 @@ class NigerianDraughtsApp {
           sound.playMove();
           this.renderPieces();
           this.updateUI();
+          this.tryExecutePremove();
         }
       }
     } catch (err) {}
@@ -2561,6 +2763,147 @@ class NigerianDraughtsApp {
       });
       this.setBannerNotice('You surrendered. Match ended.');
     } catch (e) {}
+  }
+
+  // ================= WORLD-CLASS COMPETITIVE SUITE HELPERS ================= //
+
+  updateEvaluationBar(statsOrScore) {
+    if (!this.dom.evalBarFill || !this.dom.evalBarScore) return;
+
+    let evalCentipawns = 0;
+    if (typeof statsOrScore === 'number') {
+      evalCentipawns = statsOrScore;
+    } else if (this.ai?.evaluateBoard && this.engine && !this.engine.gameOver) {
+      evalCentipawns = this.ai.evaluateBoard(this.engine, PLAYER_1);
+    } else if (statsOrScore && statsOrScore.p1 && statsOrScore.p2) {
+      const p1Material = (statsOrScore.p1.men * 100) + (statsOrScore.p1.kings * 320);
+      const p2Material = (statsOrScore.p2.men * 100) + (statsOrScore.p2.kings * 320);
+      evalCentipawns = p1Material - p2Material;
+    }
+
+    // Map centipawns smoothly with sigmoid curve (-800 to +800 => 8% to 92%)
+    const pct = Math.max(8, Math.min(92, Math.round(100 / (1 + Math.exp(-evalCentipawns / 350)))));
+    this.dom.evalBarFill.style.height = `${pct}%`;
+
+    const pawnsAdvantage = (Math.abs(evalCentipawns) / 100).toFixed(1);
+    if (evalCentipawns > 25) {
+      this.dom.evalBarScore.textContent = `+${pawnsAdvantage}`;
+      this.dom.evalBarScore.classList.remove('black-lead');
+    } else if (evalCentipawns < -25) {
+      this.dom.evalBarScore.textContent = `-${pawnsAdvantage}`;
+      this.dom.evalBarScore.classList.add('black-lead');
+    } else {
+      this.dom.evalBarScore.textContent = '0.0';
+      this.dom.evalBarScore.classList.remove('black-lead');
+    }
+  }
+
+  updatePingIndicator(pingMs) {
+    this.lastPingMs = pingMs;
+    if (this.dom.pingText) {
+      this.dom.pingText.textContent = `${pingMs}ms`;
+    }
+    if (this.dom.pingIndicator) {
+      this.dom.pingIndicator.classList.remove('warning', 'critical');
+      if (pingMs > 260) {
+        this.dom.pingIndicator.classList.add('critical');
+      } else if (pingMs > 130) {
+        this.dom.pingIndicator.classList.add('warning');
+      }
+    }
+  }
+
+  showToast(message, type = 'info') {
+    const container = this.dom.toastContainer || document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type}`;
+    toast.innerHTML = `<span>${message}</span>`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(10px)';
+      toast.style.transition = 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+      setTimeout(() => toast.remove(), 320);
+    }, 3200);
+  }
+
+  shareMatchLink() {
+    let shareUrl = window.location.href;
+    if (this.onlineRoomCode) {
+      shareUrl = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(this.onlineRoomCode)}&mode=spectator`;
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        this.showToast('🔗 Match share link copied to clipboard! Send to friends on WhatsApp or Twitter.', 'success');
+      }).catch(() => {
+        prompt('Copy this match share link:', shareUrl);
+      });
+    } else {
+      prompt('Copy this match share link:', shareUrl);
+    }
+  }
+
+  copyPDNToClipboard() {
+    const pdn = this.generatePDN();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(pdn).then(() => {
+        this.showToast('📋 Portable Draughts Notation (PDN) copied to clipboard!', 'success');
+      }).catch(() => {
+        prompt('Copy PDN Notation:', pdn);
+      });
+    } else {
+      prompt('Copy PDN Notation:', pdn);
+    }
+  }
+
+  generatePDN() {
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '.');
+    const p1 = this.dom.p1Name ? this.dom.p1Name.textContent.trim() : 'Player 1';
+    const p2 = this.dom.p2Name ? this.dom.p2Name.textContent.trim() : 'Player 2';
+    const rule = this.ruleMode.toUpperCase();
+
+    let resultStr = '*';
+    if (this.engine.gameOver) {
+      if (this.engine.winner === PLAYER_1) resultStr = '1-0';
+      else if (this.engine.winner === PLAYER_2) resultStr = '0-1';
+      else if (this.engine.winner === 'draw') resultStr = '1/2-1/2';
+    }
+
+    let pdn = `[Event "Naija Draughts Arena Match"]\n`;
+    pdn += `[Site "draughts.solaraccompany.com"]\n`;
+    pdn += `[Date "${date}"]\n`;
+    pdn += `[White "${p1}"]\n`;
+    pdn += `[Black "${p2}"]\n`;
+    pdn += `[Result "${resultStr}"]\n`;
+    pdn += `[Ruleset "${rule}"]\n\n`;
+
+    const moves = this.engine.moveHistory;
+    let moveCount = 1;
+    for (let i = 0; i < moves.length; i += 2) {
+      const wMove = moves[i];
+      const bMove = moves[i + 1];
+
+      const formatMove = (m) => {
+        if (!m) return '';
+        const fSq = (m.from.r * 5) + Math.floor(m.from.c / 2) + 1;
+        const tSq = (m.to.r * 5) + Math.floor(m.to.c / 2) + 1;
+        const sep = m.isCapture ? 'x' : '-';
+        return `${fSq}${sep}${tSq}`;
+      };
+
+      pdn += `${moveCount}. ${formatMove(wMove)} ${formatMove(bMove)} `.trim() + '\n';
+      moveCount++;
+    }
+
+    if (resultStr !== '*') {
+      pdn += ` ${resultStr}\n`;
+    }
+
+    return pdn.trim();
   }
 }
 

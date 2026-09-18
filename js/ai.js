@@ -342,6 +342,26 @@ export class NigerianDraughtsAI {
   }
 
   /**
+   * Static positional evaluation of the board from perspective of given player.
+   * Positive score = player advantage, negative = disadvantage.
+   */
+  evaluateBoard(engine, perspectivePlayer = PLAYER_1) {
+    try {
+      const b50 = this.convertBoardTo50(engine);
+      const scoreP1 = this.searchEngine.evaluator.evaluate(
+        b50,
+        PLAYER_1,
+        null,
+        engine.ruleMode || 'nigeria'
+      );
+      return perspectivePlayer === PLAYER_1 ? scoreP1 : -scoreP1;
+    } catch (e) {
+      console.warn('Evaluation failed:', e);
+      return 0;
+    }
+  }
+
+  /**
    * Legacy interface compatibility for instant synchronous callers.
    */
   getBestMove(engine, aiPlayer = PLAYER_2) {

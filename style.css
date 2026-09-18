@@ -1025,6 +1025,57 @@ body {
   text-transform: uppercase;
 }
 
+.game-over-accuracy {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  backdrop-filter: blur(8px);
+}
+.go-acc-cols {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.go-acc-col {
+  text-align: center;
+}
+.go-acc-title {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.go-acc-score {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-family: var(--font-display);
+}
+.go-acc-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.12);
+}
+.go-acc-badges {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  flex-wrap: wrap;
+}
+.go-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 /* ================= RESPONSIVE LAYOUT ================= */
 
 @media (max-width: 1120px) {
@@ -4209,5 +4260,166 @@ body {
   80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
 }
+
+/* ================= WORLD-CLASS COMPETITIVE SUITE ================= */
+
+/* 1. PREMOVE VISUAL INDICATORS */
+.square.premove-source {
+  outline: 3px solid #06b6d4 !important;
+  outline-offset: -3px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.35) 0%, rgba(8, 145, 178, 0.15) 100%) !important;
+  box-shadow: inset 0 0 14px rgba(6, 182, 212, 0.6) !important;
+}
+
+.square.premove-target {
+  outline: 3px dashed #22d3ee !important;
+  outline-offset: -3px;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.3) 0%, rgba(6, 182, 212, 0.1) 100%) !important;
+  box-shadow: inset 0 0 16px rgba(34, 211, 238, 0.7) !important;
+}
+
+.square.premove-target::after {
+  content: '⚡';
+  position: absolute;
+  font-size: 1.15rem;
+  color: #22d3ee;
+  text-shadow: 0 0 10px #0891b2;
+  pointer-events: none;
+  animation: pulsePremove 1.1s infinite alternate ease-in-out;
+  z-index: 15;
+}
+
+@keyframes pulsePremove {
+  from { transform: scale(0.85); opacity: 0.75; }
+  to { transform: scale(1.25); opacity: 1; }
+}
+
+/* 2. SMOOTH PIECE SLIDE ANIMATION */
+.piece.sliding {
+  transition: transform 0.16s cubic-bezier(0.25, 0.85, 0.25, 1) !important;
+  z-index: 100 !important;
+  pointer-events: none;
+}
+
+/* 3. EVALUATION BAR (CHESS.COM & LIDRAUGHTS STYLE) */
+.board-container-with-eval {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+.board-eval-bar {
+  width: 22px;
+  height: min(72vw, 560px);
+  background: #1e1b20;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  flex-shrink: 0;
+}
+
+.eval-bar-fill {
+  width: 100%;
+  background: linear-gradient(180deg, #fdfbf7 0%, #e8dec8 100%);
+  transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+.eval-bar-score {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #1e1b20;
+  pointer-events: none;
+  font-family: monospace;
+  letter-spacing: -0.5px;
+}
+
+.eval-bar-score.black-lead {
+  bottom: auto;
+  top: 6px;
+  color: #fdfbf7;
+}
+
+/* 4. REAL-TIME PING LATENCY INDICATOR */
+.ping-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: monospace;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ping-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+}
+
+.ping-indicator.warning .ping-dot {
+  background-color: #f59e0b;
+  box-shadow: 0 0 6px #f59e0b;
+}
+
+.ping-indicator.critical .ping-dot {
+  background-color: #ef4444;
+  box-shadow: 0 0 6px #ef4444;
+}
+
+/* 5. TOAST NOTIFICATIONS */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast-notification {
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 166, 35, 0.4);
+  color: #f8fafc;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideToastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: auto;
+}
+
+.toast-notification.success {
+  border-color: #10b981;
+  color: #a7f3d0;
+}
+
+@keyframes slideToastIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
 
 

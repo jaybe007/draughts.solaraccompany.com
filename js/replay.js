@@ -1,9 +1,10 @@
 /**
  * Interactive Match Replay Controller
- * Replays any saved match move-by-move on the Nigerian Draughts board.
+ * Replays any saved match move-by-move on the Nigerian Draughts board
+ * with Lidraughts-level post-game analysis and move quality classifications.
  */
 
-import { NigerianDraughtsEngine } from './engine.js';
+import { NigerianDraughtsEngine, PLAYER_1, PLAYER_2 } from './engine.js';
 import { sound } from './audio.js';
 
 export class MatchReplayController {
@@ -15,6 +16,7 @@ export class MatchReplayController {
     this.playInterval = null;
     this.boardSize = 10;
     this.matchMeta = null;
+    this.analysisSummary = null;
 
     this.initDOM();
   }
@@ -51,7 +53,7 @@ export class MatchReplayController {
       this.metaLabel.textContent = `Replaying: ${match.player1_name} vs ${match.player2_name} (${this.moves.length} moves)`;
     }
 
-    // Build board states cache
+    // Build board states cache & compute move quality analysis
     this.reconstructBoardStates();
     this.goToStep(0);
     this.app.setBannerNotice(`Replay Mode: ${match.player1_name} vs ${match.player2_name}`);
@@ -61,14 +63,26 @@ export class MatchReplayController {
     this.states = [];
     const simEngine = new NigerianDraughtsEngine({
       boardSize: this.boardSize,
-      ruleMode: this.matchMeta.rule_mode || 'nigerian'
+      ruleMode: this.matchMeta.rule_mode || 'nigeria'
     });
+
+    let initialEval = 0;
+    if (this.app?.ai?.evaluateBoard) {
+      initialEval = this.app.ai.evaluateBoard(simEngine, PLAYER_1);
+    }
 
     // Step 0: starting position
     this.states.push({
       board: simEngine.board.map(r => r.map(c => c ? { ...c } : null)),
-      move: null
+      move: null,
+      evalScore: initialEval,
+      quality: null
     });
+
+    let prevEval = initialEval;
+    let p1LostAdvantage = 0, p1Count = 0;
+    let p2LostAdvantage = 0, p2Count = 0;
+    let bestCount = 0, inaccCount = 0, mistakeCount = 0, blunderCount = 0;
 
     for (let i = 0; i < this.moves.length; i++) {
       const m = this.moves[i];
@@ -76,7 +90,6 @@ export class MatchReplayController {
       try {
         simEngine.makeMove(m);
       } catch (e) {
-        // Fallback: move piece manually if notation discrepancy
         if (simEngine.board[m.from.r] && simEngine.board[m.from.r][m.from.c]) {
           const piece = simEngine.board[m.from.r][m.from.c];
           simEngine.board[m.from.r][m.from.c] = null;
@@ -90,11 +103,63 @@ export class MatchReplayController {
         }
       }
 
+      let currentEval = prevEval;
+      let quality = null;
+
+      if (this.app?.ai?.evaluateBoard) {
+        currentEval = this.app.ai.evaluateBoard(simEngine, PLAYER_1);
+        const mover = m.player || (i % 2 === 0 ? PLAYER_1 : PLAYER_2);
+        // evalDiff > 0 means advantage gained; < 0 means advantage dropped
+        const evalDiff = mover === PLAYER_1 ? (currentEval - prevEval) : (prevEval - currentEval);
+
+        if (evalDiff >= -15) {
+          quality = { label: 'Best Move', icon: '🟢', class: 'best' };
+          bestCount++;
+        } else if (evalDiff >= -60) {
+          quality = { label: 'Good Move', icon: '🔵', class: 'good' };
+          bestCount++;
+        } else if (evalDiff >= -160) {
+          quality = { label: 'Inaccuracy', icon: '🟡', class: 'inaccuracy' };
+          inaccCount++;
+        } else if (evalDiff >= -320) {
+          quality = { label: 'Mistake', icon: '🟠', class: 'mistake' };
+          mistakeCount++;
+        } else {
+          quality = { label: 'Blunder', icon: '🔴', class: 'blunder' };
+          blunderCount++;
+        }
+
+        const drop = Math.max(0, -evalDiff);
+        if (mover === PLAYER_1) {
+          p1LostAdvantage += drop;
+          p1Count++;
+        } else {
+          p2LostAdvantage += drop;
+          p2Count++;
+        }
+
+        prevEval = currentEval;
+      }
+
       this.states.push({
         board: simEngine.board.map(r => r.map(c => c ? { ...c } : null)),
-        move: m
+        move: m,
+        evalScore: currentEval,
+        quality
       });
     }
+
+    const p1Acc = p1Count > 0 ? Math.max(45, Math.min(99, Math.round(100 - (p1LostAdvantage / (p1Count * 14))))) : 95;
+    const p2Acc = p2Count > 0 ? Math.max(45, Math.min(99, Math.round(100 - (p2LostAdvantage / (p2Count * 14))))) : 95;
+
+    this.analysisSummary = {
+      p1Accuracy: p1Acc,
+      p2Accuracy: p2Acc,
+      best: bestCount,
+      inaccuracy: inaccCount,
+      mistake: mistakeCount,
+      blunder: blunderCount
+    };
   }
 
   goToStep(step) {
@@ -108,7 +173,16 @@ export class MatchReplayController {
     this.app.engine.board = currentState.board.map(r => r.map(c => c ? { ...c } : null));
     this.app.renderPieces();
 
-    // Highlight moved squares if any
+    // Update real-time eval bar during replay
+    if (typeof currentState.evalScore === 'number' && this.app?.updateEvaluationBar) {
+      this.app.updateEvaluationBar(currentState.evalScore);
+    }
+
+    // Clear targets & highlight moved squares if any
+    document.querySelectorAll('.square.valid-target, .square.valid-capture-target').forEach(sq => {
+      sq.classList.remove('valid-target', 'valid-capture-target');
+    });
+
     if (currentState.move) {
       const fromSq = document.getElementById(`sq-${currentState.move.from.r}-${currentState.move.from.c}`);
       const toSq = document.getElementById(`sq-${currentState.move.to.r}-${currentState.move.to.c}`);
@@ -119,9 +193,13 @@ export class MatchReplayController {
       else sound.playMove();
     }
 
-    // Update Step label
+    // Update Step label with move quality badge
     if (this.stepLabel) {
-      this.stepLabel.textContent = `Move ${this.currentStep} / ${this.moves.length}`;
+      let qualityBadge = '';
+      if (currentState.quality) {
+        qualityBadge = ` • ${currentState.quality.icon} ${currentState.quality.label}`;
+      }
+      this.stepLabel.textContent = `Move ${this.currentStep} / ${this.moves.length}${qualityBadge}`;
     }
   }
 

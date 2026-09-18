@@ -17,6 +17,10 @@ $currentUser = getCurrentUser();
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css?v=<?= filemtime(__DIR__ . '/style.css') ?>">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#10b981">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body data-logged-in="<?= $currentUser ? 'true' : 'false' ?>" data-user-id="<?= $currentUser ? (int)$currentUser['id'] : '' ?>">
   <div class="app-wrapper">
@@ -308,9 +312,14 @@ $currentUser = getCurrentUser();
           <div class="highway-indicator" id="highway-indicator" title="Active Rules and Board Highway">
             <span class="highway-dot"></span> <span id="highway-indicator-text">🇳🇬 Nigerian Highway (Central Line) Active — Free Capture Choice</span>
           </div>
+          <div class="ping-indicator" id="network-ping-indicator" title="Connection Latency">
+            <span class="ping-dot"></span> <span id="ping-text">35ms</span>
+          </div>
           <div class="quick-actions">
             <a href="puzzles.php" id="btn-quick-puzzles" class="btn btn-small btn-quick-puzzles" title="Lidraughts-Style Tactical Draughts Puzzles" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">🧩 Puzzles</a>
             <button id="btn-toggle-trap-radar" class="btn btn-small" title="Toggle Trap Radar (Tactical Shot Advisor)">⚡ Trap Radar</button>
+            <button id="btn-share-match-link" class="btn btn-small btn-secondary" title="Share Match Replay URL">🔗 Share</button>
+            <button id="btn-copy-pdn-match" class="btn btn-small btn-secondary" title="Copy Standard Draughts Notation (PDN)">📋 PDN</button>
             <button id="btn-undo-move" class="btn btn-small" title="Undo Move">↩️ Undo</button>
             <button id="btn-open-game-setup" class="btn btn-small btn-primary" title="New Game Setup">⚡ New Match</button>
           </div>
@@ -332,20 +341,29 @@ $currentUser = getCurrentUser();
           </div>
         </div>
 
-        <!-- Board Wood Frame (10x10 Nigerian Mirrored Board) -->
-        <div class="board-wood-frame" id="board-wood-frame" style="position: relative;">
-          <svg id="board-tactical-svg" class="board-tactical-overlay">
-            <defs>
-              <marker id="arrowhead-gold" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto">
-                <polygon points="0 0, 6 3, 0 6" fill="#f59e0b" />
-              </marker>
-              <marker id="arrowhead-green" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto">
-                <polygon points="0 0, 6 3, 0 6" fill="#10b981" />
-              </marker>
-            </defs>
-          </svg>
-          <div class="board-inner" id="draughts-board">
-            <!-- Squares generated dynamically via JavaScript -->
+        <!-- Board Arena Container with Live Evaluation Bar -->
+        <div class="board-container-with-eval">
+          <!-- Live Engine Evaluation Bar -->
+          <div class="board-eval-bar" id="board-eval-bar" title="Live Position Evaluation (White vs Black Advantage)">
+            <div class="eval-bar-fill" id="eval-bar-fill" style="height: 50%;"></div>
+            <span class="eval-bar-score" id="eval-bar-score">0.0</span>
+          </div>
+
+          <!-- Board Wood Frame (10x10 Nigerian Mirrored Board) -->
+          <div class="board-wood-frame" id="board-wood-frame" style="position: relative;">
+            <svg id="board-tactical-svg" class="board-tactical-overlay">
+              <defs>
+                <marker id="arrowhead-gold" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto">
+                  <polygon points="0 0, 6 3, 0 6" fill="#f59e0b" />
+                </marker>
+                <marker id="arrowhead-green" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto">
+                  <polygon points="0 0, 6 3, 0 6" fill="#10b981" />
+                </marker>
+              </defs>
+            </svg>
+            <div class="board-inner" id="draughts-board">
+              <!-- Squares generated dynamically via JavaScript -->
+            </div>
           </div>
         </div>
 
@@ -958,6 +976,26 @@ $currentUser = getCurrentUser();
           <span class="go-stat-lbl">P2 Chopped</span>
         </div>
       </div>
+      <!-- Accuracy & Move Quality Breakdown -->
+      <div class="game-over-accuracy" id="go-accuracy-panel">
+        <div class="go-acc-cols">
+          <div class="go-acc-col">
+            <div class="go-acc-title">P1 Accuracy</div>
+            <div class="go-acc-score" id="go-p1-accuracy" style="color: #10b981;">--%</div>
+          </div>
+          <div class="go-acc-divider"></div>
+          <div class="go-acc-col">
+            <div class="go-acc-title">P2 Accuracy</div>
+            <div class="go-acc-score" id="go-p2-accuracy" style="color: #38bdf8;">--%</div>
+          </div>
+        </div>
+        <div class="go-acc-badges">
+          <span class="go-badge" style="color: #22c55e;">🟢 <strong id="go-best-count">0</strong> Best</span>
+          <span class="go-badge" style="color: #eab308;">🟡 <strong id="go-inacc-count">0</strong> Inacc</span>
+          <span class="go-badge" style="color: #f97316;">🟠 <strong id="go-mistake-count">0</strong> Mistake</span>
+          <span class="go-badge" style="color: #ef4444;">🔴 <strong id="go-blunder-count">0</strong> Blunder</span>
+        </div>
+      </div>
       <div class="game-over-actions" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
         <button class="btn btn-primary btn-large" id="btn-play-again">⚡ Play Rematch</button>
         <button class="btn btn-secondary btn-large" id="btn-review-board">🔬 Review Board</button>
@@ -1002,6 +1040,16 @@ $currentUser = getCurrentUser();
     </div>
   </div>
 
+  <!-- 10. TOAST NOTIFICATIONS CONTAINER -->
+  <div class="toast-container" id="toast-container"></div>
+
   <script type="module" src="js/app.js?v=<?= filemtime(__DIR__ . '/js/app.js') ?>"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>
