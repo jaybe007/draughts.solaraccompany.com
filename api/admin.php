@@ -660,6 +660,79 @@ try {
             jsonResp(['success' => true, 'message' => "Player '{$existing['username']}' updated successfully."]);
             break;
 
+        case 'delete_user':
+            if (!hasAdminPermission($adminUser, 'manage_users') && $adminUser['role'] !== 'super_admin') {
+                jsonResp(['success' => false, 'message' => 'Permission denied: manage_users required.'], 403);
+            }
+
+            $targetUserId = (int)($input['user_id'] ?? 0);
+            $targetEmail = trim(strtolower($input['email'] ?? ''));
+
+            if ($targetUserId <= 0 && empty($targetEmail)) {
+                jsonResp(['success' => false, 'message' => 'Valid user_id or email is required for deletion.'], 400);
+            }
+
+            if ($targetUserId > 0) {
+                $stmt = $db->prepare("SELECT id, username, email, role FROM users WHERE id = ?");
+                $stmt->execute([$targetUserId]);
+            } else {
+                $stmt = $db->prepare("SELECT id, username, email, role FROM users WHERE email = ?");
+                $stmt->execute([$targetEmail]);
+            }
+            $target = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$target) {
+                jsonResp(['success' => false, 'message' => 'Target user not found in directory.'], 404);
+            }
+
+            $delId = (int)$target['id'];
+            $delUsername = $target['username'];
+            $delEmail = $target['email'];
+
+            // Prevent self-deletion
+            if ($delId === (int)$adminUser['id']) {
+                jsonResp(['success' => false, 'message' => 'You cannot delete your own active administrator account.'], 400);
+            }
+
+            // Protect root Super Admin
+            if ($delUsername === 'GrandmasterAyo') {
+                jsonResp(['success' => false, 'message' => 'Root Super Admin cannot be deleted.'], 400);
+            }
+
+            // Only Super Admin can delete another admin or super admin
+            if (in_array($target['role'], ['admin', 'super_admin']) && $adminUser['role'] !== 'super_admin') {
+                jsonResp(['success' => false, 'message' => 'Only Super Admins can delete administrative accounts.'], 403);
+            }
+
+            $db->beginTransaction();
+            try {
+                $db->prepare("DELETE FROM tournament_participants WHERE user_id = ?")->execute([$delId]);
+                $db->prepare("DELETE FROM user_messages WHERE sender_id = ? OR receiver_id = ?")->execute([$delId, $delId]);
+                $db->prepare("DELETE FROM game_invitations WHERE sender_id = ? OR receiver_id = ?")->execute([$delId, $delId]);
+                $db->prepare("DELETE FROM user_follows WHERE follower_id = ? OR following_id = ?")->execute([$delId, $delId]);
+                $db->prepare("DELETE FROM wallet_transactions WHERE user_id = ?")->execute([$delId]);
+                $db->prepare("DELETE FROM game_rooms WHERE host_id = ? OR guest_id = ?")->execute([$delId, $delId]);
+                $db->prepare("DELETE FROM matches WHERE player1_id = ? OR player2_id = ?")->execute([$delId, $delId]);
+                $db->prepare("DELETE FROM chat_messages WHERE user_id = ? OR username = ?")->execute([$delId, $delUsername]);
+                $db->prepare("DELETE FROM admin_audit_logs WHERE admin_id = ? OR (target_type = 'user' AND target_id = ?)")->execute([$delId, (string)$delId]);
+                $db->prepare("DELETE FROM users WHERE id = ?")->execute([$delId]);
+                $db->commit();
+
+                logAdminAudit($db, $adminUser['id'], $adminUser['username'], 'delete_user', 'user', $delId, [
+                    'deleted_username' => $delUsername,
+                    'deleted_email' => $delEmail
+                ]);
+
+                jsonResp([
+                    'success' => true,
+                    'message' => "User '{$delUsername}' ({$delEmail}) and all related records have been permanently deleted."
+                ]);
+            } catch (Exception $e) {
+                $db->rollBack();
+                jsonResp(['success' => false, 'message' => 'Deletion failed: ' . $e->getMessage()], 500);
+            }
+            break;
+
         // ================= FINANCIAL CASHIER & PAYOUTS ================= //
         case 'list_withdrawals':
             if (!hasAdminPermission($adminUser, 'manage_finance')) {

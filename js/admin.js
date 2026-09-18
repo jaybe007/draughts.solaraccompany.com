@@ -709,6 +709,7 @@ class AdminApp {
               <button type="button" class="btn-action-icon" title="Promote to Admin Staff" style="color:var(--gold-400); margin-right:4px;" onclick="adminApp.openCreateAdminModal('promote', ${u.id})">⭐ Promote</button>
               <button type="button" class="btn-action-icon" title="Reset Password" style="margin-right:4px;" onclick="adminApp.openResetPasswordModal(${u.id}, '${this.escape(u.username)}')">🔑</button>
               <button type="button" class="btn-action-icon" title="Edit Player Profile" onclick="adminApp.openEditPlayerModal(${u.id})">✏️</button>
+              <button type="button" class="btn-action-icon" title="Permanently Delete Player" style="color:#ef4444; margin-left:4px;" onclick="adminApp.confirmDeletePlayer(${u.id}, '${this.escape(u.username)}', '${this.escape(u.email)}')">🗑️</button>
             </td>
           </tr>
         `;
@@ -801,6 +802,29 @@ class AdminApp {
 
       this.showToast(data.message, 'success');
       this.closeModal('modal-edit-player');
+      this.loadPlayers(1);
+    } catch (err) {
+      this.showToast(err.message, 'error');
+    }
+  }
+
+  async confirmDeletePlayer(userId, username, email) {
+    const confirmation = prompt(`⚠️ PERMANENT DELETION WARNING:\n\nAre you sure you want to permanently delete player "${username}" (${email}) and ALL their matches, wallet transactions, and records?\n\nType DELETE to confirm:`);
+    if (confirmation !== 'DELETE') {
+      if (confirmation !== null) this.showToast('Deletion cancelled.', 'info');
+      return;
+    }
+
+    try {
+      const res = await fetch('api/admin.php?action=delete_user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      this.showToast(data.message, 'success');
       this.loadPlayers(1);
     } catch (err) {
       this.showToast(err.message, 'error');
