@@ -184,12 +184,29 @@ export class NigerianDraughtsEngine {
   }
 
   isDarkSquare(r, c) {
-    // Nigerian Draughts mirrored board:
+    if (this.ruleMode === 'international' || this.ruleMode === 'tournament' || this.ruleMode === 'fmjd') {
+      // International Draughts (FMJD) board:
+      // Bottom-left corner (row 9, col 0) is DARK (9+0=9 is odd).
+      // Bottom-right corner (row 9, col 9) is LIGHT (9+9=18 is even).
+      // Active playable dark squares satisfy (r + c) % 2 !== 0.
+      return (r + c) % 2 !== 0;
+    }
+    // Nigerian & Ghanaian Draughts mirrored board:
     // Bottom-left corner (row 9, col 0) is LIGHT (9+0=9 is odd).
-    // The Central Line (Highway / Longest Diagonal) connects (0,0) to (9,9),
-    // positioned on the player's right hand side (col 9 at the bottom).
+    // Bottom-right corner (row 9, col 9) is DARK (9+9=18 is even).
+    // The Central Line (Highway) connects (0,0) to (9,9) on player's right.
     // Active playable dark squares satisfy (r + c) % 2 === 0.
     return (r + c) % 2 === 0;
+  }
+
+  isCentralLineSquare(r, c) {
+    if (!this.isValidSquare(r, c)) return false;
+    if (this.ruleMode === 'international' || this.ruleMode === 'tournament' || this.ruleMode === 'fmjd') {
+      // FMJD Central Line (Grande Ligne) runs from bottom-left (9, 0) to top-right (0, 9)
+      return (r + c === this.boardSize - 1);
+    }
+    // Nigerian & Ghanaian Highway runs from top-left (0, 0) to bottom-right (9, 9)
+    return (r === c);
   }
 
   isValidSquare(r, c) {
@@ -739,7 +756,7 @@ export class NigerianDraughtsEngine {
       return;
     }
 
-    // 3 Kings vs 1 King Ghana 16-move rule check (32 half-moves)
+    // Ghanaian Damii Endgame Seed-Counting & Crown Rules
     if (this.ruleMode === 'ghana' || this.ruleMode === 'damii') {
       let p1Kings = 0, p2Kings = 0, p1Men = 0, p2Men = 0;
       for (let r = 0; r < this.boardSize; r++) {
@@ -754,6 +771,38 @@ export class NigerianDraughtsEngine {
           }
         }
       }
+
+      // Rule 1: One seed + one crown for both players is a DRAW (1 Man + 1 King each)
+      if (p1Kings === 1 && p1Men === 1 && p2Kings === 1 && p2Men === 1) {
+        this.gameOver = true;
+        this.winner = 'draw';
+        this.winReason = 'Draw by Ghanaian Damii rule: 1 Crown + 1 Seed each';
+        return;
+      }
+
+      // Rule 2: One seed + one crown vs one crown alone is a WIN
+      if (p1Kings === 1 && p1Men >= 1 && p2Kings === 1 && p2Men === 0) {
+        this.gameOver = true;
+        this.winner = PLAYER_1;
+        this.winReason = 'Player 1 wins by Ghanaian Damii seed-count rule: Crown + Seed vs lone Crown';
+        return;
+      }
+      if (p2Kings === 1 && p2Men >= 1 && p1Kings === 1 && p1Men === 0) {
+        this.gameOver = true;
+        this.winner = PLAYER_2;
+        this.winReason = 'Player 2 wins by Ghanaian Damii seed-count rule: Crown + Seed vs lone Crown';
+        return;
+      }
+
+      // Rule 3: One crown vs one crown alone is a DRAW (1 King vs 1 King)
+      if (p1Kings === 1 && p1Men === 0 && p2Kings === 1 && p2Men === 0) {
+        this.gameOver = true;
+        this.winner = 'draw';
+        this.winReason = 'Draw by Ghanaian Damii rule: 1 Crown vs 1 Crown';
+        return;
+      }
+
+      // Rule 4: 3 Kings vs 1 King Ghana 16-move rule (32 half-moves)
       const is3v1 = (p1Kings === 3 && p2Kings === 1 && p1Men === 0 && p2Men === 0) ||
                     (p2Kings === 3 && p1Kings === 1 && p1Men === 0 && p2Men === 0);
       if (is3v1 && this.halfMoveClock >= 32) {

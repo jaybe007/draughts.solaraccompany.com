@@ -899,27 +899,32 @@ $currentUser = getCurrentUser();
         <!-- 2. Ghana Damii Panel -->
         <div class="rule-tab-panel" id="rule-panel-ghana" style="display: none;">
           <div class="rule-section highlight-rule">
-            <h3>🇬🇭 1. Ghanaian Damii Promotion: Immediate Turn End</h3>
+            <h3>🇬🇭 1. Ghana Damii Seed-Counting Endgame Rules</h3>
+            <p>
+              In traditional Ghanaian Draughts, when games reach the final endgame, piece count determines the official adjudication:
+            </p>
+            <ul style="margin: 8px 0 0 18px; color: #cbd5e1; font-size: 0.9rem; line-height: 1.6;">
+              <li><strong>1 Crown + 1 Seed vs 1 Crown + 1 Seed</strong>: Officially counted as a <strong>DRAW</strong>.</li>
+              <li><strong>1 Crown + 1 Seed vs 1 Crown alone</strong>: Officially counted as a <strong>WIN</strong> for the player with the Crown and Seed!</li>
+              <li><strong>1 Crown vs 1 Crown alone</strong>: Officially counted as a <strong>DRAW</strong>.</li>
+            </ul>
+          </div>
+          <div class="rule-section highlight-rule">
+            <h3>2. Ghanaian Damii Promotion: Immediate Turn End</h3>
             <p>
               When a piece reaches the opponent's backline (the promotion line), <strong>your turn terminates immediately and the piece is crowned as King</strong>. The piece cannot jump backward or continue in the same move; it begins moving as King on subsequent turns!
             </p>
           </div>
-          <div class="rule-section highlight-rule">
-            <h3>2. Ghana 16-Move Rule (3 Kings vs 1 King)</h3>
+          <div class="rule-section">
+            <h3>3. Ghana 16-Move Rule (3 Kings vs 1 King)</h3>
             <p>
               In Ghanaian Draughts Association (GDA) and street play, if an endgame reaches <strong>3 Kings vs 1 King</strong>, the player with 3 Kings has a strict limit of <strong>16 moves</strong> to capture the lone King. If not captured within 16 moves, a <strong>DRAW</strong> is officially declared!
             </p>
           </div>
           <div class="rule-section">
-            <h3>3. Free Choice of Captures</h3>
+            <h3>4. Free Choice of Captures & Flying Kings ("Nkorɔma")</h3>
             <p>
-              Captures are compulsory. Like Nigeria, Ghana Damii does NOT enforce maximum capture: players have the freedom to pick any capture sequence.
-            </p>
-          </div>
-          <div class="rule-section">
-            <h3>4. Flying Kings ("Nkorɔma")</h3>
-            <p>
-              Kings glide any distance across empty diagonals and capture from a distance.
+              Captures are compulsory. Like Nigeria, Ghana Damii does NOT enforce maximum capture: players have the freedom to pick any capture sequence. Kings glide any distance across empty diagonals.
             </p>
           </div>
         </div>
@@ -927,21 +932,25 @@ $currentUser = getCurrentUser();
         <!-- 3. International Draughts Panel -->
         <div class="rule-tab-panel" id="rule-panel-international" style="display: none;">
           <div class="rule-section highlight-rule">
-            <h3>🌍 1. Strict Majority Capture (Compulsory Maximum)</h3>
+            <h3>🌍 1. Central Line is Otherwise (Opposite Board Orientation)</h3>
+            <p>
+              While Nigerian and Ghanaian draughts place the bottom-left corner as a light square with the Central Line (Highway) on the player's right, <strong>International Draughts (FMJD) board is oriented the opposite way ("otherwise")</strong>:
+            </p>
+            <ul style="margin: 8px 0 0 18px; color: #cbd5e1; font-size: 0.9rem; line-height: 1.6;">
+              <li>The bottom-left corner square (row 9, col 0) is a <strong>DARK playable square</strong>.</li>
+              <li>The Central Line (Grande Ligne / Main Longest Diagonal) runs from <strong>bottom-left to top-right</strong> on the player's left-hand side.</li>
+            </ul>
+          </div>
+          <div class="rule-section highlight-rule">
+            <h3>2. Strict Majority Capture (Compulsory Maximum)</h3>
             <p>
               Under official FMJD International Draughts regulations, when multiple capture sequences are available, the player <strong>MUST choose the line that captures the MAXIMUM NUMBER of pieces</strong>! Quality does not matter (capturing 3 men overrides capturing 2 kings).
             </p>
           </div>
-          <div class="rule-section highlight-rule">
-            <h3>2. FMJD Rule 3.5: Mid-Jump Non-Promotion</h3>
+          <div class="rule-section">
+            <h3>3. FMJD Rule 3.5: Mid-Jump Non-Promotion</h3>
             <p>
               A man that traverses the king row during a multiple jump <strong>ONLY promotes if it STOPS on the king row</strong> at the end of the jump. If it has a continuing capture off the king row, it <strong>must continue jumping as a MAN and does NOT promote</strong>!
-            </p>
-          </div>
-          <div class="rule-section">
-            <h3>3. Standard FMJD Board Orientation</h3>
-            <p>
-              The dark corner square is placed on each player's bottom-left. 50 active dark squares, 20 pieces per side.
             </p>
           </div>
           <div class="rule-section">

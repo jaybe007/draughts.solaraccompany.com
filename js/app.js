@@ -1461,11 +1461,11 @@ class NigerianDraughtsApp {
     const highwayText = document.getElementById('highway-indicator-text');
     if (highwayText) {
       if (this.ruleMode === 'ghana') {
-        highwayText.textContent = '🇬🇭 Ghanaian Damii Active — Immediate Crown Stop & 16-Move 3v1 Countdown';
+        highwayText.textContent = '🇬🇭 Ghanaian Damii Active — Seed-Counting Endgames (1 Crown+1 Seed Win/Draw) & Immediate Crowning';
       } else if (this.ruleMode === 'international') {
-        highwayText.textContent = '🌍 FMJD International Draughts Active — Strict Majority Capture & Rule 3.5';
+        highwayText.textContent = '🌍 FMJD International Active — Opposite Central Line (Bottom-Left to Top-Right) & Strict Majority Capture';
       } else {
-        highwayText.textContent = '🇳🇬 Nigerian Highway (Central Line) Active — Free Capture Choice';
+        highwayText.textContent = '🇳🇬 Nigerian Highway (Central Line on Right) Active — Free Capture Choice';
       }
     }
 
@@ -1506,8 +1506,8 @@ class NigerianDraughtsApp {
 
     const bannerNames = {
       nigeria: '🇳🇬 Nigeria Rules (Highway Right, Free Choice)',
-      ghana: '🇬🇭 Ghana Rules (Damii - Immediate Promotion, 16-Move 3v1)',
-      international: '🌍 International Rules (FMJD - Majority Capture, Rule 3.5)'
+      ghana: '🇬🇭 Ghana Rules (Damii - Seed Counting, 1 Crown+1 Seed Win/Draw)',
+      international: '🌍 International Rules (FMJD - Opposite Central Line, Majority Capture)'
     };
     if (this.dom.bannerText) {
       this.dom.bannerText.textContent = `Active Ruleset: ${bannerNames[this.ruleMode] || this.ruleMode}`;
@@ -1563,15 +1563,15 @@ class NigerianDraughtsApp {
       for (let c = 0; c < size; c++) {
         const sq = document.createElement('div');
         const isDark = this.engine.isDarkSquare(r, c);
-        const isHighway = isDark && (r === c); // Long diagonal running on player's right
+        const isHighway = this.engine.isCentralLineSquare ? this.engine.isCentralLineSquare(r, c) : (isDark && (r === c));
         sq.className = `square ${isDark ? 'dark' : 'light'} ${isHighway ? 'central-line-sq' : ''}`;
         sq.dataset.row = r;
         sq.dataset.col = c;
         sq.id = `sq-${r}-${c}`;
         if (isHighway) {
           sq.title = this.ruleMode === 'ghana'
-            ? 'Ghanaian Damii Central Line'
-            : (this.ruleMode === 'international' ? 'FMJD Main Diagonal (Sq 50-1)' : 'Nigerian Central Line (Highway)');
+            ? 'Ghanaian Damii Central Line (Right-Hand Diagonal)'
+            : (this.ruleMode === 'international' ? 'FMJD Main Diagonal (Bottom-Left to Top-Right)' : 'Nigerian Central Line (Highway on Right)');
         }
 
         if (c === 0) {

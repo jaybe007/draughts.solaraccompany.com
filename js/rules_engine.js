@@ -347,6 +347,12 @@ export class BaseRules {
       return { over: true, winner, reason: `Player ${boardInstance.currentTurn} has no legal moves (Locked)` };
     }
 
+    // Check special endgame counting rules (e.g. Ghanaian Damii seed-counting)
+    const endgameCheck = this.getEndgameRules(boardInstance);
+    if (endgameCheck && endgameCheck.over) {
+      return endgameCheck;
+    }
+
     // Check draw rules for this ruleset
     const drawCheck = this.getDrawRules(boardInstance);
     if (drawCheck.isDraw) {
@@ -356,6 +362,10 @@ export class BaseRules {
       return { over: true, winner: 'draw', reason: drawCheck.reason };
     }
 
+    return { over: false, winner: null };
+  }
+
+  getEndgameRules(boardInstance) {
     return { over: false, winner: null };
   }
 
@@ -443,6 +453,38 @@ export class GhanaRules extends BaseRules {
       promotes: false,
       endsTurnImmediately: false
     };
+  }
+
+  getEndgameRules(boardInstance) {
+    let p1Kings = 0, p2Kings = 0, p1Men = 0, p2Men = 0;
+    const board = boardInstance.board;
+    for (let sq = 1; sq <= 50; sq++) {
+      const p = board[sq];
+      if (p === P1_KING) p1Kings++;
+      else if (p === P1_MAN) p1Men++;
+      else if (p === P2_KING) p2Kings++;
+      else if (p === P2_MAN) p2Men++;
+    }
+
+    // Rule 1: One seed + one crown for both players is a DRAW (1 Man + 1 King each)
+    if (p1Kings === 1 && p1Men === 1 && p2Kings === 1 && p2Men === 1) {
+      return { over: true, winner: 'draw', reason: 'Draw by Ghanaian Damii rule: 1 Crown + 1 Seed each' };
+    }
+
+    // Rule 2: One seed + one crown vs one crown alone is a WIN
+    if (p1Kings === 1 && p1Men >= 1 && p2Kings === 1 && p2Men === 0) {
+      return { over: true, winner: PLAYER_1, reason: 'Player 1 wins by Ghanaian Damii seed-count rule: Crown + Seed vs lone Crown' };
+    }
+    if (p2Kings === 1 && p2Men >= 1 && p1Kings === 1 && p1Men === 0) {
+      return { over: true, winner: PLAYER_2, reason: 'Player 2 wins by Ghanaian Damii seed-count rule: Crown + Seed vs lone Crown' };
+    }
+
+    // Rule 3: One crown vs one crown alone is a DRAW
+    if (p1Kings === 1 && p1Men === 0 && p2Kings === 1 && p2Men === 0) {
+      return { over: true, winner: 'draw', reason: 'Draw by Ghanaian Damii rule: 1 Crown vs 1 Crown' };
+    }
+
+    return { over: false, winner: null };
   }
 
   getDrawRules(boardInstance) {
