@@ -26,8 +26,8 @@
   --purple-500: #8b5cf6;
   
   --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #64748b;
+  --text-secondary: #e2e8f0;
+  --text-muted: #94a3b8;
   
   --font-heading: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
@@ -620,22 +620,26 @@ body.admin-body {
   background: linear-gradient(135deg, var(--gold-500), #d97706);
   color: #000000;
   font-weight: 800;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+  border: 1px solid #fbbf24;
+  letter-spacing: 0.2px;
 }
 
 .btn-admin-primary:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.15);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
   transform: translateY(-1px);
 }
 
 .btn-admin-secondary {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #f1f5f9;
 }
 
 .btn-admin-secondary:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.16);
+  border-color: var(--gold-500);
   color: #ffffff;
 }
 

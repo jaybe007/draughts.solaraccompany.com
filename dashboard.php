@@ -121,8 +121,15 @@ $pkgBadge = getPackageBadge($package);
         </div>
       </a>
 
+      <!-- Mobile Navigation Hamburger Button -->
+      <button type="button" class="dash-mobile-nav-toggle" id="btn-mobile-nav" aria-label="Toggle Navigation Menu" onclick="toggleMobileNav()">
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+      </button>
+
       <!-- Functional Navigation Menu -->
-      <nav class="dash-main-nav">
+      <nav class="dash-main-nav" id="dash-main-nav">
         <ul class="dash-nav-links">
           
           <!-- 1. GAME DROPDOWN (9 REQUIRED OPTIONS) -->
@@ -131,7 +138,7 @@ $pkgBadge = getPackageBadge($package);
               <span class="icon">🎮</span> GAME <span class="arrow">▾</span>
             </button>
             <ul class="dropdown-menu" id="menu-game">
-              <li><button type="button" class="dropdown-link" onclick="openCreateGameModal()"><span class="icon">➕</span> Create Game</button></li>
+              <li><button type="button" class="dropdown-link highlight-green" onclick="openCreateGameModal()"><span class="icon">➕</span> Create Game</button></li>
               <li><button type="button" class="dropdown-link" onclick="switchGameLobbyFilter('live_games')"><span class="icon">🔴</span> Live Games</button></li>
               <li><button type="button" class="dropdown-link" onclick="switchGameLobbyFilter('awaiting_opponent')"><span class="icon">⏳</span> Awaiting Opponent</button></li>
               <li><button type="button" class="dropdown-link" onclick="switchGameLobbyFilter('all_games')"><span class="icon">📋</span> All Games</button></li>
@@ -149,8 +156,8 @@ $pkgBadge = getPackageBadge($package);
               <span class="icon">🏆</span> TOURNAMENTS <span class="arrow">▾</span>
             </button>
             <ul class="dropdown-menu" id="menu-tournaments">
-              <li><button type="button" class="dropdown-link" onclick="openHostTournamentModal()"><span class="icon">🚀</span> Start Tournament</button></li>
-              <li><button type="button" class="dropdown-link" onclick="activateMainTab('tournaments')"><span class="icon">🏅</span> Join Tournament</button></li>
+              <li><button type="button" class="dropdown-link highlight-gold" onclick="openHostTournamentModal()"><span class="icon">🏆</span> Host Official Tournament</button></li>
+              <li><button type="button" class="dropdown-link" onclick="activateMainTab('tournaments')"><span class="icon">🏅</span> Browse & Join Tournaments</button></li>
             </ul>
           </li>
 
@@ -172,22 +179,42 @@ $pkgBadge = getPackageBadge($package);
 
           <!-- 5. AMOUNT IN ACCOUNT (WALLET BALANCE PILL & QUICK TOP-UP) -->
           <li>
-            <button type="button" class="nav-wallet-pill" id="btn-nav-wallet" onclick="openWalletModal()" title="View Wallet & Add Funds">
+            <button type="button" class="nav-wallet-pill" id="btn-nav-wallet" onclick="openWalletModal()" title="View Wallet & Fund Naira Account">
               <span class="wallet-icon">💰</span>
               <span class="wallet-val" id="nav-wallet-val">₦<?= number_format($walletBalance, 2) ?></span>
               <span class="wallet-divider">|</span>
               <span class="coins-val" id="nav-coins-val"><?= number_format($coins) ?> 🪙</span>
-              <span class="wallet-action-btn">+ Fund</span>
+              <span class="wallet-action-btn">+ Fund Naira</span>
             </button>
           </li>
 
-          <!-- 6. ACTION DROPDOWN (INVITATIONS, FOLLOWINGS, PUZZLES, WHATSAPP, PACKAGE) -->
+          <!-- 6. ACTION DROPDOWN (QUICK ACCESS TO FUNDING, MESSAGING, TOURNAMENTS & SOCIAL) -->
           <li class="nav-dropdown-item">
             <button type="button" class="dash-nav-btn dropdown-toggle" id="btn-dropdown-actions" aria-haspopup="true">
               <span class="icon">⚡</span> ACTION <span class="arrow">▾</span>
               <span class="nav-counter-badge" id="nav-invites-counter" style="display:none;">0</span>
             </button>
             <ul class="dropdown-menu" id="menu-actions">
+              <li>
+                <button type="button" class="dropdown-link highlight-green" onclick="openDepositModal()">
+                  <span class="icon">💳</span> Fund Naira Wallet
+                </button>
+              </li>
+              <li>
+                <button type="button" class="dropdown-link" onclick="openNewMessageModal()">
+                  <span class="icon">✉️</span> + New Message
+                </button>
+              </li>
+              <li>
+                <button type="button" class="dropdown-link highlight-gold" onclick="openHostTournamentModal()">
+                  <span class="icon">🏆</span> Host Official Tournament
+                </button>
+              </li>
+              <li>
+                <button type="button" class="dropdown-link" onclick="openWithdrawModal()">
+                  <span class="icon">🏦</span> Withdraw to Bank
+                </button>
+              </li>
               <li>
                 <button type="button" class="dropdown-link" onclick="activateMainTab('invitations')">
                   <span class="icon">⚔️</span> Game Invitations
@@ -196,7 +223,7 @@ $pkgBadge = getPackageBadge($package);
               </li>
               <li>
                 <button type="button" class="dropdown-link" onclick="activateMainTab('followings')">
-                  <span class="icon">👥</span> Followings
+                  <span class="icon">👥</span> Followings & Friends
                 </button>
               </li>
               <li>
@@ -475,7 +502,9 @@ $pkgBadge = getPackageBadge($package);
         <div class="msg-threads-sidebar">
           <div class="msg-threads-header">
             <h3>Player Messages</h3>
-            <button type="button" class="btn btn-primary btn-small" onclick="openNewMessageModal()">+ New Message</button>
+            <button type="button" class="btn btn-primary btn-small btn-new-msg" onclick="openNewMessageModal()">
+              <span class="icon">✉️</span> + New Message
+            </button>
           </div>
           <div class="msg-threads-list" id="msg-threads-list">
             <div class="empty-state">No conversations yet. Challenge a champion or message a friend!</div>
@@ -586,8 +615,8 @@ $pkgBadge = getPackageBadge($package);
           </div>
 
           <div class="wallet-actions-row">
-            <button type="button" class="btn btn-primary btn-large" onclick="openDepositModal()">
-              <span class="icon">💳</span> Fund Account (Deposit Naira)
+            <button type="button" class="btn btn-primary btn-large btn-fund-wallet" onclick="openDepositModal()">
+              <span class="icon">💳</span> Fund Naira Wallet (Deposit)
             </button>
             <button type="button" class="btn btn-secondary btn-large" onclick="openWithdrawModal()">
               <span class="icon">🏦</span> Withdraw to Bank
@@ -736,8 +765,8 @@ $pkgBadge = getPackageBadge($package);
             <h2>🏆 Nigerian Draughts Championships & Cups</h2>
             <p>Compete for cash and coin prize pools under official Nigerian 10x10 knockout rules.</p>
           </div>
-          <button type="button" class="btn btn-primary btn-large" onclick="openHostTournamentModal()">
-            <span class="icon">🚀</span> Start / Host Tournament
+          <button type="button" class="btn btn-primary btn-large btn-host-tourn" onclick="openHostTournamentModal()">
+            <span class="icon">🏆</span> Host Official Tournament
           </button>
         </div>
 

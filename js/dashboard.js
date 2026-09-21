@@ -26,7 +26,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 6000);
 });
 
-// ================= DROPDOWN BEHAVIOR ================= //
+// ================= MOBILE NAVIGATION TOGGLE & DROPDOWN BEHAVIOR ================= //
+function toggleMobileNav() {
+  const nav = document.getElementById('dash-main-nav');
+  const btn = document.getElementById('btn-mobile-nav');
+  if (!nav) return;
+  const isOpen = nav.classList.toggle('mobile-open');
+  if (btn) btn.classList.toggle('active', isOpen);
+}
+
 function setupDropdowns() {
   document.querySelectorAll('.dropdown-toggle').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -43,9 +51,29 @@ function setupDropdowns() {
     });
   });
 
-  // Close dropdowns when clicking outside
-  document.addEventListener('click', () => {
+  // Close dropdowns & mobile menu when clicking outside
+  document.addEventListener('click', (e) => {
     document.querySelectorAll('.nav-dropdown-item').forEach(item => item.classList.remove('open'));
+    const nav = document.getElementById('dash-main-nav');
+    const toggleBtn = document.getElementById('btn-mobile-nav');
+    if (nav && nav.classList.contains('mobile-open')) {
+      if (!nav.contains(e.target) && (!toggleBtn || !toggleBtn.contains(e.target))) {
+        nav.classList.remove('mobile-open');
+        toggleBtn?.classList.remove('active');
+      }
+    }
+  });
+
+  // Auto-close mobile nav when any navigation action button/link is clicked
+  document.querySelectorAll('.dash-nav-links .dropdown-link, .dash-nav-links .dash-nav-btn:not(.dropdown-toggle), .dash-nav-links .nav-wallet-pill').forEach(el => {
+    el.addEventListener('click', () => {
+      const nav = document.getElementById('dash-main-nav');
+      const toggleBtn = document.getElementById('btn-mobile-nav');
+      if (nav && nav.classList.contains('mobile-open')) {
+        nav.classList.remove('mobile-open');
+        toggleBtn?.classList.remove('active');
+      }
+    });
   });
 }
 
