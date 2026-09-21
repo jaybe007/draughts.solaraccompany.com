@@ -76,7 +76,10 @@ try {
 
     // 4. Seed default system settings
     $defaultSettings = [
-        'platform_match_rake' => ['8', 'Standard match pot house rake percentage'],
+        'coin_buy_rate_per_100' => ['1500', 'Coin purchase rate: ₦ per 100 Coins (₦15.00 / coin)'],
+        'coin_sell_rate_per_100' => ['1350', 'Coin sell / cashback rate: ₦ per 100 Coins (₦13.50 / coin)'],
+        'coin_match_commission_percent' => ['0', 'Platform house commission on coin match staking: 0 = 0% fee (winner takes 100%)'],
+        'platform_match_rake' => ['8', 'Legacy standard match pot house rake percentage'],
         'platform_vip_rake' => ['4', 'VIP Oba discounted match pot house rake percentage'],
         'platform_tourn_commission' => ['10', 'Tournament platform commission percentage'],
         'min_deposit_naira' => ['500.00', 'Minimum wallet deposit amount in Naira (₦)'],

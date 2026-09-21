@@ -169,9 +169,64 @@ function verifyDepositTransaction($reference) {
 }
 
 /**
+ * Retrieves dynamic coin exchange rates and staking commission from system_settings.
+ * Defaults:
+ *   Buy Rate: ₦1,500 per 100 Coins (₦15.00 / coin)
+ *   Sell Rate: ₦1,350 per 100 Coins (₦13.50 / coin)
+ *   Match Commission: 0% (No platform commission deducted from match winners)
+ *
+ * @param PDO|null $db
+ * @return array
+ */
+function getCoinRates($db = null) {
+    static $cachedRates = null;
+    if ($cachedRates !== null && $db === null) {
+        return $cachedRates;
+    }
+
+    $buyPer100 = 1500.0;
+    $sellPer100 = 1350.0;
+    $matchCommission = 0.0;
+
+    if ($db instanceof PDO) {
+        try {
+            $stmt = $db->query("SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('coin_buy_rate_per_100', 'coin_sell_rate_per_100', 'coin_match_commission_percent')");
+            if ($stmt) {
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    if ($row['setting_key'] === 'coin_buy_rate_per_100' && is_numeric($row['setting_value'])) {
+                        $buyPer100 = max(1.0, (float)$row['setting_value']);
+                    } elseif ($row['setting_key'] === 'coin_sell_rate_per_100' && is_numeric($row['setting_value'])) {
+                        $sellPer100 = max(1.0, (float)$row['setting_value']);
+                    } elseif ($row['setting_key'] === 'coin_match_commission_percent' && is_numeric($row['setting_value'])) {
+                        $matchCommission = max(0.0, min(100.0, (float)$row['setting_value']));
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            // Fallback to defaults
+        }
+    }
+
+    $buyPerCoin = round($buyPer100 / 100.0, 4);
+    $sellPerCoin = round($sellPer100 / 100.0, 4);
+    $spreadPer100 = round($buyPer100 - $sellPer100, 2);
+
+    $cachedRates = [
+        'buy_rate_per_100' => $buyPer100,
+        'buy_rate_per_coin' => $buyPerCoin,
+        'sell_rate_per_100' => $sellPer100,
+        'sell_rate_per_coin' => $sellPerCoin,
+        'spread_per_100' => $spreadPer100,
+        'match_commission_percent' => $matchCommission
+    ];
+
+    return $cachedRates;
+}
+
+/**
  * Ensures user has at least $requiredCoins.
- * If user has fewer coins, but sufficient Naira in wallet_balance (at 1 Naira = 1 Coin),
- * seamlessly auto-converts the shortfall from wallet_balance into coins!
+ * If user has fewer coins, but sufficient Naira in wallet_balance,
+ * seamlessly auto-converts the shortfall from wallet_balance into coins at the official buy rate!
  *
  * @param PDO $db
  * @param int $userId
@@ -210,11 +265,13 @@ function ensureCoinsAvailable($db, $userId, $requiredCoins, $context = 'Match St
 
     // 2. User has a coin shortfall
     $shortfall = $requiredCoins - $currentCoins;
-    $nairaCost = (float)$shortfall; // 1:1 Parity: ₦1.00 = 1 Coin
+    $rates = getCoinRates($db);
+    $nairaCost = round($shortfall * $rates['buy_rate_per_coin'], 2);
 
     // 3. Check if user has enough Naira to cover the shortfall
     if ($currentNaira < $nairaCost) {
-        $shortfallRemaining = $shortfall - (int)floor($currentNaira);
+        $affordableCoins = (int)floor($currentNaira / max(0.01, $rates['buy_rate_per_coin']));
+        $shortfallRemaining = max(1, $shortfall - $affordableCoins);
         return [
             'success' => false,
             'converted' => false,
@@ -223,12 +280,12 @@ function ensureCoinsAvailable($db, $userId, $requiredCoins, $context = 'Match St
             'available_coins' => $currentCoins,
             'wallet_balance' => $currentNaira,
             'shortfall' => $shortfall,
-            'message' => "Insufficient coins! You need {$requiredCoins} coins (you have {$currentCoins} coins). Your wallet has ₦" . number_format($currentNaira, 2) . ", leaving a shortfall of " . number_format($shortfallRemaining) . " coins. Please top up your wallet."
+            'message' => "Insufficient coins! You need {$requiredCoins} coins (you have {$currentCoins} coins). Purchasing the {$shortfall} coins shortfall costs ₦" . number_format($nairaCost, 2) . " (Rate: ₦" . number_format($rates['buy_rate_per_100'], 2) . " / 100 Coins). Your wallet balance is ₦" . number_format($currentNaira, 2) . ". Please fund your wallet."
         ];
     }
 
-    // 4. Auto-convert Naira to Coins seamlessly
-    $newBal = $currentNaira - $nairaCost;
+    // 4. Auto-convert Naira to Coins seamlessly at the official Buy Rate
+    $newBal = round($currentNaira - $nairaCost, 2);
     $newCoins = $currentCoins + $shortfall;
 
     $db->prepare("UPDATE users SET wallet_balance = wallet_balance - ?, coins = coins + ? WHERE id = ?")
@@ -242,8 +299,8 @@ function ensureCoinsAvailable($db, $userId, $requiredCoins, $context = 'Match St
         -$nairaCost,
         $shortfall,
         $newBal,
-        'AUTO-EXC-' . strtoupper(bin2hex(random_bytes(3))),
-        "Auto-Exchange: Converted ₦" . number_format($nairaCost, 2) . " to {$shortfall} Coins for {$context}"
+        'AUTO-BUY-' . strtoupper(bin2hex(random_bytes(3))),
+        "Auto-Exchange: Purchased {$shortfall} Coins for ₦" . number_format($nairaCost, 2) . " (@ ₦" . number_format($rates['buy_rate_per_100'], 2) . "/100 Coins) for {$context}"
     ]);
 
     if (isset($_SESSION['user']) && (int)$_SESSION['user']['id'] === (int)$userId) {
@@ -267,6 +324,10 @@ function ensureCoinsAvailable($db, $userId, $requiredCoins, $context = 'Match St
 class PaymentGateway {
     public static function getNigerianBanks() {
         return getNigerianBanks();
+    }
+
+    public static function getCoinRates($db = null) {
+        return getCoinRates($db);
     }
 
     public static function calculateMatchPayout($totalPot, $isVipOba = false) {

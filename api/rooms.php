@@ -712,21 +712,32 @@ try {
                         }
                     }
 
-                    // 2. Wager Coins Payout with Platform House Rake
+                    // 2. Wager Coins Payout (Staking in Coins with 0% Commission / Platform Rake)
                     $wager = (int)($room['wager_coins'] ?? 0);
                     if ($wager > 0) {
                         $pot = $wager * 2;
                         if ($winnerId && ($result === 'p1_won' || $result === 'p2_won')) {
-                            $winnerUser = $db->query("SELECT package FROM users WHERE id = {$winnerId}")->fetch();
-                            $isVipOba = ($winnerUser['package'] ?? '') === 'vip_oba';
-                            $rakeCoins = round($pot * ($isVipOba ? 0.04 : 0.08));
+                            $rates = getCoinRates($db);
+                            $commPercent = (float)($rates['match_commission_percent'] ?? 0.0);
+                            $rakeCoins = $commPercent > 0 ? (int)round($pot * ($commPercent / 100.0)) : 0;
                             $winnerCoins = $pot - $rakeCoins;
 
                             $db->prepare("UPDATE users SET coins = coins + ? WHERE id = ?")->execute([$winnerCoins, $winnerId]);
+                            $desc = $rakeCoins > 0 
+                                ? "Coins Pot Won: Room {$roomCode} (+{$winnerCoins} Coins after {$rakeCoins} platform fee)"
+                                : "Coins Pot Won: Room {$roomCode} (+{$winnerCoins} Coins, 0% Commission!)";
+
                             $db->prepare("
                                 INSERT INTO wallet_transactions (user_id, type, amount, coins, description)
                                 VALUES (?, 'wager_win', 0, ?, ?)
-                            ")->execute([$winnerId, $winnerCoins, "Coins Pot Won: Room {$roomCode} (+{$winnerCoins} Coins after {$rakeCoins} house rake)"]);
+                            ")->execute([$winnerId, $winnerCoins, $desc]);
+
+                            if ($rakeCoins > 0) {
+                                $db->prepare("
+                                    INSERT INTO wallet_transactions (user_id, type, amount, coins, description)
+                                    VALUES (?, 'wager_rake', 0, ?, ?)
+                                ")->execute([$winnerId, -$rakeCoins, "Platform Match Fee ({$commPercent}%): Room {$roomCode}"]);
+                            }
 
                         } elseif ($result === 'draw') {
                             // Refund both players
@@ -899,15 +910,31 @@ try {
                 ]);
             }
 
-            // Award wager coins pot to winner upon resignation
+            // Award wager coins pot to winner upon resignation (Staking in Coins with 0% Commission / Platform Rake)
             $wager = (int)($room['wager_coins'] ?? 0);
             if ($wager > 0 && $winnerId) {
                 $pot = $wager * 2;
-                $db->prepare("UPDATE users SET coins = coins + ? WHERE id = ?")->execute([$pot, (int)$winnerId]);
+                $rates = getCoinRates($db);
+                $commPercent = (float)($rates['match_commission_percent'] ?? 0.0);
+                $rakeCoins = $commPercent > 0 ? (int)round($pot * ($commPercent / 100.0)) : 0;
+                $winnerCoins = $pot - $rakeCoins;
+
+                $db->prepare("UPDATE users SET coins = coins + ? WHERE id = ?")->execute([$winnerCoins, (int)$winnerId]);
+                $desc = $rakeCoins > 0
+                    ? "Pot Won by Surrender: Match Room {$roomCode} (+{$winnerCoins} Coins after {$rakeCoins} platform fee)"
+                    : "Pot Won by Surrender: Match Room {$roomCode} (+{$winnerCoins} Coins, 0% Commission!)";
+
                 $db->prepare("
                     INSERT INTO wallet_transactions (user_id, type, amount, coins, description)
                     VALUES (?, 'wager_win', 0, ?, ?)
-                ")->execute([(int)$winnerId, $pot, "Pot Won by Surrender: Match Room {$roomCode}"]);
+                ")->execute([(int)$winnerId, $winnerCoins, $desc]);
+
+                if ($rakeCoins > 0) {
+                    $db->prepare("
+                        INSERT INTO wallet_transactions (user_id, type, amount, coins, description)
+                        VALUES (?, 'wager_rake', 0, ?, ?)
+                    ")->execute([(int)$winnerId, -$rakeCoins, "Platform Match Fee ({$commPercent}%): Room {$roomCode}"]);
+                }
             }
 
             // Adjust Elo on surrender

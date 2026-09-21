@@ -8,11 +8,6 @@ require_once __DIR__ . '/../config/payment.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-$currentUser = getCurrentUser();
-if (!$currentUser) {
-    jsonResponse(['success' => false, 'message' => 'Unauthorized. Please log in.'], 401);
-}
-
 $action = $_GET['action'] ?? ($_POST['action'] ?? '');
 $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
 if (!empty($input['action'])) {
@@ -20,6 +15,25 @@ if (!empty($input['action'])) {
 }
 
 $db = getDB();
+
+// Publicly accessible endpoints (no auth required)
+if ($action === 'get_coin_rates') {
+    jsonResponse([
+        'success' => true,
+        'rates' => getCoinRates($db)
+    ]);
+}
+if ($action === 'get_banks') {
+    jsonResponse([
+        'success' => true,
+        'banks' => getNigerianBanks()
+    ]);
+}
+
+$currentUser = getCurrentUser();
+if (!$currentUser) {
+    jsonResponse(['success' => false, 'message' => 'Unauthorized. Please log in.'], 401);
+}
 
 try {
     switch ($action) {
@@ -182,33 +196,56 @@ try {
             ]);
             break;
 
-        // ================= EXCHANGE NAIRA FOR COINS ================= //
-        case 'exchange_coins':
-            $nairaAmount = max(0, (float)($input['naira_amount'] ?? 0));
-            $coinsAmount = max(0, (int)($input['coins_amount'] ?? 0));
+        // ================= GET DYNAMIC COIN EXCHANGE RATES ================= //
+        case 'get_coin_rates':
+            $rates = getCoinRates($db);
+            jsonResponse([
+                'success' => true,
+                'rates' => $rates
+            ]);
+            break;
 
-            if ($nairaAmount <= 0 || $coinsAmount <= 0) {
-                jsonResponse(['success' => false, 'message' => 'Invalid exchange parameters.'], 400);
+        // ================= EXCHANGE NAIRA FOR COINS (BUY COINS) ================= //
+        case 'buy_coins':
+        case 'exchange_coins':
+            $rates = getCoinRates($db);
+            $coinsAmount = max(0, (int)($input['coins_amount'] ?? ($input['coins'] ?? 0)));
+            $nairaInput = max(0, (float)($input['naira_amount'] ?? 0));
+
+            // If coins amount not specified but naira provided, calculate coins
+            if ($coinsAmount <= 0 && $nairaInput > 0) {
+                $coinsAmount = (int)floor($nairaInput / max(0.01, $rates['buy_rate_per_coin']));
             }
+
+            if ($coinsAmount <= 0) {
+                jsonResponse(['success' => false, 'message' => 'Please specify a valid number of coins to buy.'], 400);
+            }
+
+            // Calculate exact Naira cost at official Buy Rate
+            $nairaCost = round($coinsAmount * $rates['buy_rate_per_coin'], 2);
 
             $currentBalance = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$currentUser['id']}")->fetchColumn();
 
-            if ($currentBalance < $nairaAmount) {
+            if ($currentBalance < $nairaCost) {
+                $needed = $nairaCost - $currentBalance;
                 jsonResponse([
                     'success' => false,
-                    'message' => 'Insufficient wallet balance. Please fund your wallet first.'
+                    'message' => "Insufficient wallet balance! Buying {$coinsAmount} Coins requires ₦" . number_format($nairaCost, 2) . " (@ ₦" . number_format($rates['buy_rate_per_100'], 2) . " per 100 Coins). You need ₦" . number_format($needed, 2) . " more. Please fund your wallet first."
                 ], 400);
             }
 
-            $newBal = $currentBalance - $nairaAmount;
+            $newBal = round($currentBalance - $nairaCost, 2);
 
             $db->prepare("UPDATE users SET wallet_balance = wallet_balance - ?, coins = coins + ? WHERE id = ?")
-               ->execute([$nairaAmount, $coinsAmount, $currentUser['id']]);
+               ->execute([$nairaCost, $coinsAmount, $currentUser['id']]);
+
+            $ref = 'BUY-COIN-' . strtoupper(bin2hex(random_bytes(3)));
+            $desc = "Purchased {$coinsAmount} Coins for ₦" . number_format($nairaCost, 2) . " (@ ₦" . number_format($rates['buy_rate_per_100'], 2) . " / 100 Coins)";
 
             $db->prepare("
-                INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, description)
-                VALUES (?, 'coin_exchange', ?, ?, ?, 'completed', ?)
-            ")->execute([$currentUser['id'], -$nairaAmount, $coinsAmount, $newBal, "Exchanged ₦" . number_format($nairaAmount, 2) . " for {$coinsAmount} Coins"]);
+                INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, reference, description)
+                VALUES (?, 'coin_exchange', ?, ?, ?, 'completed', ?, ?)
+            ")->execute([$currentUser['id'], -$nairaCost, $coinsAmount, $newBal, $ref, $desc]);
 
             $refresh = $db->query("SELECT wallet_balance, coins FROM users WHERE id = {$currentUser['id']}")->fetch();
             $_SESSION['user']['wallet_balance'] = $refresh['wallet_balance'];
@@ -218,7 +255,58 @@ try {
                 'success' => true,
                 'wallet_balance' => (float)$refresh['wallet_balance'],
                 'coins' => (int)$refresh['coins'],
-                'message' => "Successfully exchanged ₦" . number_format($nairaAmount, 2) . " for {$coinsAmount} Coins!"
+                'cost_naira' => $nairaCost,
+                'coins_purchased' => $coinsAmount,
+                'message' => "Successfully purchased {$coinsAmount} Coins for ₦" . number_format($nairaCost, 2) . "!"
+            ]);
+            break;
+
+        // ================= SELL COINS (CONVERT COINS TO NAIRA) ================= //
+        case 'sell_coins':
+            $rates = getCoinRates($db);
+            $coinsToSell = max(0, (int)($input['coins_amount'] ?? ($input['coins'] ?? 0)));
+
+            if ($coinsToSell < 10) {
+                jsonResponse(['success' => false, 'message' => 'Minimum coin conversion amount is 10 Coins.'], 400);
+            }
+
+            $userRow = $db->query("SELECT wallet_balance, coins FROM users WHERE id = {$currentUser['id']}")->fetch(PDO::FETCH_ASSOC);
+            $currentCoins = (int)($userRow['coins'] ?? 0);
+            $currentBalance = (float)($userRow['wallet_balance'] ?? 0.0);
+
+            if ($currentCoins < $coinsToSell) {
+                jsonResponse([
+                    'success' => false,
+                    'message' => "Insufficient coin balance. You have {$currentCoins} Coins, but tried to sell {$coinsToSell} Coins."
+                ], 400);
+            }
+
+            // Calculate Naira payout at official Sell Rate
+            $nairaPayout = round($coinsToSell * $rates['sell_rate_per_coin'], 2);
+            $newBal = round($currentBalance + $nairaPayout, 2);
+            $newCoins = $currentCoins - $coinsToSell;
+
+            $db->prepare("UPDATE users SET wallet_balance = wallet_balance + ?, coins = coins - ? WHERE id = ?")
+               ->execute([$nairaPayout, $coinsToSell, $currentUser['id']]);
+
+            $ref = 'SELL-COIN-' . strtoupper(bin2hex(random_bytes(3)));
+            $desc = "Cashed Out {$coinsToSell} Coins for ₦" . number_format($nairaPayout, 2) . " (@ ₦" . number_format($rates['sell_rate_per_100'], 2) . " / 100 Coins)";
+
+            $db->prepare("
+                INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, reference, description)
+                VALUES (?, 'coin_sell', ?, ?, ?, 'completed', ?, ?)
+            ")->execute([$currentUser['id'], $nairaPayout, -$coinsToSell, $newBal, $ref, $desc]);
+
+            $_SESSION['user']['wallet_balance'] = $newBal;
+            $_SESSION['user']['coins'] = $newCoins;
+
+            jsonResponse([
+                'success' => true,
+                'wallet_balance' => (float)$newBal,
+                'coins' => (int)$newCoins,
+                'naira_credited' => $nairaPayout,
+                'coins_sold' => $coinsToSell,
+                'message' => "Successfully converted {$coinsToSell} Coins to ₦" . number_format($nairaPayout, 2) . " cash in your wallet!"
             ]);
             break;
 

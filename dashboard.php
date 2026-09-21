@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/config/payment.php';
+
+$coinRates = getCoinRates(getDB());
 
 $currentUser = getCurrentUser();
 if (!$currentUser) {
@@ -622,7 +625,7 @@ $pkgBadge = getPackageBadge($package);
               <span class="icon">🏦</span> Withdraw to Bank
             </button>
             <button type="button" class="btn btn-secondary btn-large" onclick="openCoinBuyModal()">
-              <span class="icon">🪙</span> Buy Coins with Naira
+              <span class="icon">🔄</span> Coin Exchange & Cashout
             </button>
           </div>
         </div>
@@ -1111,31 +1114,133 @@ $pkgBadge = getPackageBadge($package);
     </div>
   </div>
 
-  <!-- 4. BUY COINS MODAL -->
+  <!-- 4. 2-WAY COIN EXCHANGE & CASHOUT MODAL -->
   <div class="home-modal-overlay" id="modal-buy-coins">
-    <div class="home-modal-dialog">
+    <div class="home-modal-dialog" style="max-width:540px;">
       <div class="home-modal-header">
-        <h3 class="home-modal-title">🪙 Exchange Naira for Coins</h3>
+        <h3 class="home-modal-title">🪙 Official Coin Exchange & Cashout</h3>
         <button type="button" class="btn-close-home-modal" onclick="closeModal('modal-buy-coins')">&times;</button>
       </div>
-      <div class="home-modal-body">
-        <p class="form-hint">Rate: ₦1 = 1 Coin. Balance available: <strong id="buy-coins-wallet-avail">₦<?= number_format($walletBalance, 2) ?></strong></p>
-        <div class="coin-presets-grid">
-          <button type="button" class="coin-pack-btn" onclick="exchangeCoins(100, 100)">
-            <span class="c-val">100 🪙</span>
-            <span class="c-price">₦100</span>
+      <div class="home-modal-body" style="padding: 20px 24px;">
+        <!-- Live Transparency Banner -->
+        <div style="background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(16,185,129,0.08)); border: 1px solid rgba(245,158,11,0.3); border-radius: 12px; padding: 12px 16px; margin-bottom: 18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; font-size:0.83rem;">
+            <div>
+              <span style="color:#94a3b8;">Buy Rate:</span> <strong style="color:#38bdf8;" id="dsp-buy-rate">₦<?= number_format($coinRates['buy_rate_per_100'] ?? 1500) ?> / 100 🪙</strong>
+              <span style="color:#64748b; margin:0 6px;">|</span>
+              <span style="color:#94a3b8;">Cashout:</span> <strong style="color:#22c55e;" id="dsp-sell-rate">₦<?= number_format($coinRates['sell_rate_per_100'] ?? 1350) ?> / 100 🪙</strong>
+            </div>
+            <div style="background:rgba(16,185,129,0.2); color:#4ade80; padding:3px 10px; border-radius:12px; font-weight:700; font-size:0.75rem;">
+              🎯 0% MATCH RAKE
+            </div>
+          </div>
+          <div style="font-size:0.75rem; color:#cbd5e1; margin-top:6px;">
+            Matches are staked in Coins. <strong>0% Commission</strong> is deducted from winners — you keep 100% of the pot!
+          </div>
+        </div>
+
+        <!-- Available Balances Strip -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px;">
+          <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px 14px;">
+            <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Naira Wallet Balance</div>
+            <div style="font-size:1.15rem; font-weight:700; color:#38bdf8;" id="buy-coins-wallet-avail">₦<?= number_format($walletBalance, 2) ?></div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px 14px;">
+            <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Coin Balance</div>
+            <div style="font-size:1.15rem; font-weight:700; color:#f59e0b;" id="buy-coins-avail-coins"><?= number_format($coins) ?> 🪙</div>
+          </div>
+        </div>
+
+        <!-- Tab Selector: Buy vs Sell -->
+        <div style="display:flex; background:rgba(15,23,42,0.6); padding:4px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); margin-bottom:18px;">
+          <button type="button" id="tab-btn-buy" onclick="switchCoinExchangeTab('buy')" style="flex:1; padding:10px; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.9rem; transition:all 0.2s; background:#f59e0b; color:#0f172a;">
+            🪙 Buy Coins (₦1,500/100)
           </button>
-          <button type="button" class="coin-pack-btn" onclick="exchangeCoins(300, 300)">
-            <span class="c-val">300 🪙</span>
-            <span class="c-price">₦300</span>
+          <button type="button" id="tab-btn-sell" onclick="switchCoinExchangeTab('sell')" style="flex:1; padding:10px; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.9rem; transition:all 0.2s; background:transparent; color:#94a3b8;">
+            💵 Sell Coins (Cashback ₦1,350/100)
           </button>
-          <button type="button" class="coin-pack-btn" onclick="exchangeCoins(500, 500)">
-            <span class="c-val">500 🪙</span>
-            <span class="c-price">₦500</span>
+        </div>
+
+        <!-- TAB 1: BUY COINS -->
+        <div id="exchange-tab-buy">
+          <label style="display:block; font-size:0.82rem; color:#cbd5e1; font-weight:600; margin-bottom:8px;">Quick Packs:</label>
+          <div class="coin-presets-grid" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:16px;">
+            <button type="button" class="coin-pack-btn" onclick="selectBuyCoinAmount(100)" style="cursor:pointer;">
+              <span class="c-val" style="display:block; font-weight:700;">100 🪙</span>
+              <span class="c-price" style="display:block; font-size:0.75rem; color:#fde68a;">₦1,500</span>
+            </button>
+            <button type="button" class="coin-pack-btn" onclick="selectBuyCoinAmount(200)" style="cursor:pointer;">
+              <span class="c-val" style="display:block; font-weight:700;">200 🪙</span>
+              <span class="c-price" style="display:block; font-size:0.75rem; color:#fde68a;">₦3,000</span>
+            </button>
+            <button type="button" class="coin-pack-btn" onclick="selectBuyCoinAmount(500)" style="cursor:pointer;">
+              <span class="c-val" style="display:block; font-weight:700;">500 🪙</span>
+              <span class="c-price" style="display:block; font-size:0.75rem; color:#fde68a;">₦7,500</span>
+            </button>
+            <button type="button" class="coin-pack-btn" onclick="selectBuyCoinAmount(1000)" style="cursor:pointer;">
+              <span class="c-val" style="display:block; font-weight:700;">1,000 🪙</span>
+              <span class="c-price" style="display:block; font-size:0.75rem; color:#fde68a;">₦15,000</span>
+            </button>
+          </div>
+
+          <div class="form-group" style="margin-bottom:16px;">
+            <label for="inp-buy-coins" style="display:block; font-size:0.85rem; margin-bottom:6px; color:#e2e8f0;">Or Enter Custom Coins to Buy:</label>
+            <div style="position:relative;">
+              <input type="number" id="inp-buy-coins" class="form-control" placeholder="e.g. 150" min="10" step="10" value="100" oninput="calculateBuyNairaCost()" style="padding-right:70px;">
+              <span style="position:absolute; right:14px; top:50%; transform:translateY(-50%); font-weight:700; color:#f59e0b; pointer-events:none;">COINS</span>
+            </div>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.15); border-radius:8px; padding:12px 14px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:#94a3b8; font-size:0.88rem;">Total Cost in Naira:</span>
+            <span id="buy-naira-total" style="font-size:1.2rem; font-weight:800; color:#38bdf8;">₦1,500.00</span>
+          </div>
+
+          <button type="button" id="btn-submit-buy-coins" class="btn btn-primary" onclick="executeBuyCoins()" style="width:100%; padding:12px; font-weight:700; font-size:1rem; border-radius:8px; background:linear-gradient(135deg, #f59e0b, #d97706); border:none; color:#0f172a; cursor:pointer;">
+            🪙 Purchase Coins with Naira →
           </button>
-          <button type="button" class="coin-pack-btn" onclick="exchangeCoins(1000, 1000)">
-            <span class="c-val">1,000 🪙</span>
-            <span class="c-price">₦1,000</span>
+        </div>
+
+        <!-- TAB 2: SELL / CASH OUT COINS -->
+        <div id="exchange-tab-sell" style="display:none;">
+          <label style="display:block; font-size:0.82rem; color:#cbd5e1; font-weight:600; margin-bottom:8px;">Quick Cashout Packs:</label>
+          <div class="coin-presets-grid" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:16px;">
+            <button type="button" class="coin-pack-btn" onclick="selectSellCoinAmount(100)" style="cursor:pointer;">
+              <span class="c-val" style="display:block; font-weight:700;">100 🪙</span>
+              <span class="c-price" style="display:block; font-size:0.75rem; color:#86efac;">+₦1,350</span>
+            </button>
+            <button type="button" class="coin-pack-btn" onclick="selectSellCoinAmount(200)" style="cursor:pointer;">
+              <span class="c-val" style="display:block; font-weight:700;">200 🪙</span>
+              <span class="c-price" style="display:block; font-size:0.75rem; color:#86efac;">+₦2,700</span>
+            </button>
+            <button type="button" class="coin-pack-btn" onclick="selectSellCoinAmount(500)" style="cursor:pointer;">
+              <span class="c-val" style="display:block; font-weight:700;">500 🪙</span>
+              <span class="c-price" style="display:block; font-size:0.75rem; color:#86efac;">+₦6,750</span>
+            </button>
+            <button type="button" class="coin-pack-btn" onclick="selectSellCoinAll()" style="cursor:pointer; border-color:rgba(34,197,94,0.4);">
+              <span class="c-val" style="display:block; font-weight:700;">All Coins</span>
+              <span class="c-price" style="display:block; font-size:0.75rem; color:#4ade80;">Max Cash</span>
+            </button>
+          </div>
+
+          <div class="form-group" style="margin-bottom:16px;">
+            <label for="inp-sell-coins" style="display:block; font-size:0.85rem; margin-bottom:6px; color:#e2e8f0;">Enter Coins to Convert to Cash:</label>
+            <div style="position:relative;">
+              <input type="number" id="inp-sell-coins" class="form-control" placeholder="e.g. 100" min="10" step="10" value="100" oninput="calculateSellNairaPayout()" style="padding-right:70px;">
+              <span style="position:absolute; right:14px; top:50%; transform:translateY(-50%); font-weight:700; color:#22c55e; pointer-events:none;">COINS</span>
+            </div>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.03); border:1px dashed rgba(34,197,94,0.3); border-radius:8px; padding:12px 14px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="color:#94a3b8; font-size:0.82rem;">You Will Receive in Wallet:</div>
+              <div style="color:#64748b; font-size:0.75rem;">Immediately withdrawable to your bank</div>
+            </div>
+            <span id="sell-naira-total" style="font-size:1.25rem; font-weight:800; color:#22c55e;">+₦1,350.00</span>
+          </div>
+
+          <button type="button" id="btn-submit-sell-coins" class="btn btn-primary" onclick="executeSellCoins()" style="width:100%; padding:12px; font-weight:700; font-size:1rem; border-radius:8px; background:linear-gradient(135deg, #10b981, #059669); border:none; color:#ffffff; cursor:pointer;">
+            💵 Convert Coins to Naira Cash →
           </button>
         </div>
       </div>

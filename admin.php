@@ -677,9 +677,46 @@ $adminPerms = json_decode($adminUser['permissions_json'] ?? '[]', true) ?: [];
         </div>
 
         <form id="form-system-settings" onsubmit="adminApp.handleSettingsSubmit(event)">
+          <!-- Coin Staking & 2-Way Exchange Rates -->
+          <div style="background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.25); border-radius:12px; padding:18px 20px; margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+              <div>
+                <h3 style="margin:0; font-size:1.05rem; color:#f59e0b; display:flex; align-items:center; gap:8px;">
+                  <span>🪙</span> Coin Staking & 2-Way Exchange Governance
+                </h3>
+                <p style="margin:4px 0 0; font-size:0.82rem; color:#94a3b8;">
+                  Manage platform buy/sell spread and match staking commission. Players stake in coins with 0% commission deducted!
+                </p>
+              </div>
+              <div id="coin-rates-indicator" style="font-size:0.8rem; background:rgba(245,158,11,0.15); color:#fde68a; padding:6px 14px; border-radius:20px; font-weight:600;">
+                Buy: ₦15.00/coin | Sell: ₦13.50/coin | 0% Rake
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px;">
+              <div class="form-group-admin">
+                <label for="set-coin-buy-rate">Coin Purchase Rate (₦ per 100 Coins)</label>
+                <input type="number" id="set-coin-buy-rate" name="coin_buy_rate_per_100" class="form-control-admin" step="10" min="100" value="1500" required oninput="adminApp.updateCoinRatesPreview()">
+                <small style="color:#94a3b8; font-size:0.75rem;">Player cost: <strong id="preview-buy-rate" style="color:#38bdf8;">₦15.00</strong> per coin</small>
+              </div>
+
+              <div class="form-group-admin">
+                <label for="set-coin-sell-rate">Coin Sell / Cashback Rate (₦ per 100 Coins)</label>
+                <input type="number" id="set-coin-sell-rate" name="coin_sell_rate_per_100" class="form-control-admin" step="10" min="100" value="1350" required oninput="adminApp.updateCoinRatesPreview()">
+                <small style="color:#94a3b8; font-size:0.75rem;">Player cashout: <strong id="preview-sell-rate" style="color:#22c55e;">₦13.50</strong> per coin</small>
+              </div>
+
+              <div class="form-group-admin">
+                <label for="set-coin-commission">Coin Match Staking Commission (%)</label>
+                <input type="number" id="set-coin-commission" name="coin_match_commission_percent" class="form-control-admin" step="0.5" min="0" max="25" value="0" required oninput="adminApp.updateCoinRatesPreview()">
+                <small style="color:#94a3b8; font-size:0.75rem;">Platform match rake: <strong id="preview-coin-rake" style="color:#f59e0b;">0% (Free Match Staking)</strong></small>
+              </div>
+            </div>
+          </div>
+
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
             <div class="form-group-admin">
-              <label for="set-match-rake">Standard Match House Rake (%)</label>
+              <label for="set-match-rake">Legacy Cash Naira House Rake (%)</label>
               <input type="number" id="set-match-rake" name="platform_match_rake" class="form-control-admin" step="0.5" min="0" max="30" required>
             </div>
             <div class="form-group-admin">

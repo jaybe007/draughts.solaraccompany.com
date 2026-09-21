@@ -819,7 +819,36 @@ function openDepositModal() {
   openModal('modal-deposit');
 }
 
+let currentCoinRates = {
+  buy_rate_per_100: 1500,
+  buy_rate_per_coin: 15.0,
+  sell_rate_per_100: 1350,
+  sell_rate_per_coin: 13.5,
+  match_commission_percent: 0
+};
+
+async function loadCoinRates() {
+  try {
+    const res = await fetch('api/wallet.php?action=get_coin_rates');
+    const data = await res.json();
+    if (data.success && data.rates) {
+      currentCoinRates = data.rates;
+      const dBuy = document.getElementById('dsp-buy-rate');
+      const dSell = document.getElementById('dsp-sell-rate');
+      if (dBuy) dBuy.textContent = `₦${parseFloat(currentCoinRates.buy_rate_per_100).toLocaleString()} / 100 🪙`;
+      if (dSell) dSell.textContent = `₦${parseFloat(currentCoinRates.sell_rate_per_100).toLocaleString()} / 100 🪙`;
+      calculateBuyNairaCost();
+      calculateSellNairaPayout();
+    }
+  } catch (e) {
+    console.error('Failed to load coin rates:', e);
+  }
+}
+
 function openCoinBuyModal() {
+  loadCoinRates();
+  calculateBuyNairaCost();
+  calculateSellNairaPayout();
   openModal('modal-buy-coins');
 }
 
@@ -858,6 +887,8 @@ async function loadWalletSummary() {
 
       const availNaira = document.getElementById('buy-coins-wallet-avail');
       if (availNaira) availNaira.textContent = nairaStr;
+      const availCoins = document.getElementById('buy-coins-avail-coins');
+      if (availCoins) availCoins.textContent = coinsStr + ' 🪙';
 
       // Transactions
       const tbody = document.getElementById('trans-table-body');
@@ -991,18 +1022,177 @@ async function handleWithdrawalSubmit(e) {
   }
 }
 
-async function exchangeCoins(naira, coins) {
+function switchCoinExchangeTab(tab) {
+  const buyTab = document.getElementById('exchange-tab-buy');
+  const sellTab = document.getElementById('exchange-tab-sell');
+  const btnBuy = document.getElementById('tab-btn-buy');
+  const btnSell = document.getElementById('tab-btn-sell');
+
+  if (tab === 'buy') {
+    if (buyTab) buyTab.style.display = 'block';
+    if (sellTab) sellTab.style.display = 'none';
+    if (btnBuy) {
+      btnBuy.style.background = '#f59e0b';
+      btnBuy.style.color = '#0f172a';
+    }
+    if (btnSell) {
+      btnSell.style.background = 'transparent';
+      btnSell.style.color = '#94a3b8';
+    }
+    calculateBuyNairaCost();
+  } else {
+    if (buyTab) buyTab.style.display = 'none';
+    if (sellTab) sellTab.style.display = 'block';
+    if (btnSell) {
+      btnSell.style.background = '#10b981';
+      btnSell.style.color = '#ffffff';
+    }
+    if (btnBuy) {
+      btnBuy.style.background = 'transparent';
+      btnBuy.style.color = '#94a3b8';
+    }
+    calculateSellNairaPayout();
+  }
+}
+
+function selectBuyCoinAmount(coins) {
+  const inp = document.getElementById('inp-buy-coins');
+  if (inp) {
+    inp.value = coins;
+    calculateBuyNairaCost();
+  }
+}
+
+function calculateBuyNairaCost() {
+  const inp = document.getElementById('inp-buy-coins');
+  const dsp = document.getElementById('buy-naira-total');
+  if (!inp || !dsp) return;
+  const coins = parseInt(inp.value, 10) || 0;
+  const unitRate = parseFloat(currentCoinRates.buy_rate_per_coin || 15.0);
+  const cost = coins * unitRate;
+  dsp.textContent = '₦' + cost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+async function executeBuyCoins() {
+  const inp = document.getElementById('inp-buy-coins');
+  const coins = parseInt(inp?.value, 10) || 0;
+  if (coins <= 0) {
+    showToast('Please enter a valid amount of coins to purchase.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btn-submit-buy-coins');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Processing Purchase...';
+  }
+
   try {
-    const res = await fetch('api/wallet.php?action=exchange_coins', {
+    const res = await fetch('api/wallet.php?action=buy_coins', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ naira_amount: naira, coins_amount: coins })
+      body: JSON.stringify({ coins_amount: coins })
     });
     const data = await res.json();
 
     if (data.success) {
       closeModal('modal-buy-coins');
-      showToast(`Exchanged ₦${naira} for ${coins} Coins!`, 'success');
+      showToast(data.message || `Purchased ${coins} Coins successfully!`, 'success');
+      loadWalletSummary();
+    } else {
+      showToast(data.message || 'Purchase failed. Please check your wallet balance.', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('Network error processing purchase.', 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '🪙 Purchase Coins with Naira →';
+    }
+  }
+}
+
+function selectSellCoinAmount(coins) {
+  const inp = document.getElementById('inp-sell-coins');
+  if (inp) {
+    inp.value = coins;
+    calculateSellNairaPayout();
+  }
+}
+
+function selectSellCoinAll() {
+  const availText = document.getElementById('buy-coins-avail-coins')?.textContent || '0';
+  const cleanCoins = parseInt(availText.replace(/[^0-9]/g, ''), 10) || 0;
+  const inp = document.getElementById('inp-sell-coins');
+  if (inp) {
+    inp.value = cleanCoins;
+    calculateSellNairaPayout();
+  }
+}
+
+function calculateSellNairaPayout() {
+  const inp = document.getElementById('inp-sell-coins');
+  const dsp = document.getElementById('sell-naira-total');
+  if (!inp || !dsp) return;
+  const coins = parseInt(inp.value, 10) || 0;
+  const unitRate = parseFloat(currentCoinRates.sell_rate_per_coin || 13.5);
+  const payout = coins * unitRate;
+  dsp.textContent = '+₦' + payout.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+async function executeSellCoins() {
+  const inp = document.getElementById('inp-sell-coins');
+  const coins = parseInt(inp?.value, 10) || 0;
+  if (coins < 10) {
+    showToast('Minimum coins to convert is 10 Coins.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btn-submit-sell-coins');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Processing Cashout...';
+  }
+
+  try {
+    const res = await fetch('api/wallet.php?action=sell_coins', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ coins_amount: coins })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      closeModal('modal-buy-coins');
+      showToast(data.message || `Converted ${coins} Coins to cash!`, 'success');
+      loadWalletSummary();
+    } else {
+      showToast(data.message || 'Cashout failed.', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('Network error processing cashout.', 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '💵 Convert Coins to Naira Cash →';
+    }
+  }
+}
+
+async function exchangeCoins(naira, coins) {
+  try {
+    const res = await fetch('api/wallet.php?action=exchange_coins', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ coins_amount: coins })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      closeModal('modal-buy-coins');
+      showToast(data.message || `Exchanged for ${coins} Coins!`, 'success');
       loadWalletSummary();
     } else {
       showToast(data.message || 'Insufficient wallet balance. Please fund your wallet first.', 'error');

@@ -1177,6 +1177,9 @@ class AdminApp {
         map[s.setting_key] = s.setting_value;
       });
 
+      this.setValue('set-coin-buy-rate', map.coin_buy_rate_per_100 || '1500');
+      this.setValue('set-coin-sell-rate', map.coin_sell_rate_per_100 || '1350');
+      this.setValue('set-coin-commission', map.coin_match_commission_percent || '0');
       this.setValue('set-match-rake', map.platform_match_rake || '8');
       this.setValue('set-vip-rake', map.platform_vip_rake || '4');
       this.setValue('set-tourn-commission', map.platform_tourn_commission || '10');
@@ -1186,9 +1189,34 @@ class AdminApp {
       this.setValue('set-maintenance-msg', map.maintenance_message || '');
       this.setValue('set-announcement', map.global_announcement || '');
 
+      this.updateCoinRatesPreview();
+
     } catch (e) {
       console.error(e);
       this.showToast('Failed to load system settings', 'error');
+    }
+  }
+
+  updateCoinRatesPreview() {
+    const buyPer100 = parseFloat(document.getElementById('set-coin-buy-rate')?.value || '1500');
+    const sellPer100 = parseFloat(document.getElementById('set-coin-sell-rate')?.value || '1350');
+    const comm = parseFloat(document.getElementById('set-coin-commission')?.value || '0');
+
+    const buyPerCoin = (buyPer100 / 100).toFixed(2);
+    const sellPerCoin = (sellPer100 / 100).toFixed(2);
+
+    const prevBuy = document.getElementById('preview-buy-rate');
+    const prevSell = document.getElementById('preview-sell-rate');
+    const prevRake = document.getElementById('preview-coin-rake');
+    const badge = document.getElementById('coin-rates-indicator');
+
+    if (prevBuy) prevBuy.textContent = `₦${buyPerCoin}`;
+    if (prevSell) prevSell.textContent = `₦${sellPerCoin}`;
+    if (prevRake) prevRake.textContent = comm === 0 ? '0% (Free Match Staking)' : `${comm}% Rake`;
+
+    if (badge) {
+      const spread = (buyPer100 - sellPer100).toFixed(2);
+      badge.textContent = `Buy: ₦${buyPerCoin}/coin | Sell: ₦${sellPerCoin}/coin | Spread: ₦${spread}/100 | ${comm}% Rake`;
     }
   }
 
@@ -1200,6 +1228,9 @@ class AdminApp {
   async handleSettingsSubmit(e) {
     e.preventDefault();
     const payload = {
+      coin_buy_rate_per_100: document.getElementById('set-coin-buy-rate')?.value || '1500',
+      coin_sell_rate_per_100: document.getElementById('set-coin-sell-rate')?.value || '1350',
+      coin_match_commission_percent: document.getElementById('set-coin-commission')?.value || '0',
       platform_match_rake: document.getElementById('set-match-rake').value,
       platform_vip_rake: document.getElementById('set-vip-rake').value,
       platform_tourn_commission: document.getElementById('set-tourn-commission').value,
