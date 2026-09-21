@@ -474,12 +474,16 @@ body {
   background: rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #ffffff;
-  padding: 10px 38px 10px 36px;
+  padding: 10px 14px;
   border-radius: var(--radius-sm);
   font-family: var(--font-body);
   font-size: 0.92rem;
   outline: none;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.input-with-icon .form-control {
+  padding: 10px 38px 10px 36px;
 }
 
 select.form-control {
@@ -1009,12 +1013,13 @@ select.form-control option {
   background: #121820;
   border: 1px solid var(--accent-gold);
   border-radius: var(--radius-lg);
-  max-width: 460px;
-  width: 100%;
-  max-height: min(90vh, 850px);
+  max-width: 480px;
+  width: 95%;
+  max-height: min(92vh, 850px);
+  height: auto;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(245, 166, 35, 0.2);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(245, 166, 35, 0.25);
   overflow: hidden;
   margin: auto;
   animation: modalFadeIn 0.25s ease-out;
@@ -1067,10 +1072,12 @@ select.form-control option {
 
 .home-modal-body {
   padding: 22px 24px;
-  flex: 1 1 0px;
+  flex: 0 1 auto;
+  height: auto;
+  min-height: auto;
+  max-height: calc(92vh - 70px);
   overflow-y: auto;
   overflow-x: hidden;
-  min-height: 0;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: rgba(245, 166, 35, 0.4) rgba(0, 0, 0, 0.2);
@@ -3075,5 +3082,51 @@ select.form-control option {
   transform: translateY(-2px) !important;
   color: #000000 !important;
 }
+
+/* ==========================================================================
+   ROBUST MODAL SIZING & PREVENT COLLAPSE (New Message, Deposit, Host Tourn)
+   ========================================================================== */
+
+.home-modal-dialog:not(.create-game-modal-card) {
+  height: auto !important;
+  max-height: min(92vh, 850px) !important;
+  min-height: auto !important;
+}
+
+.home-modal-dialog:not(.create-game-modal-card) .home-modal-body {
+  flex: 0 1 auto !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-height: calc(92vh - 75px) !important;
+  overflow-y: auto !important;
+}
+
+.home-modal-dialog:not(.create-game-modal-card) .form-group {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.home-modal-dialog:not(.create-game-modal-card) .form-group label {
+  color: #e2e8f0;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.home-modal-dialog:not(.create-game-modal-card) .form-control {
+  padding: 11px 14px;
+}
+
+.home-modal-dialog:not(.create-game-modal-card) textarea.form-control {
+  min-height: 90px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.home-modal-dialog:not(.create-game-modal-card) .btn-block {
+  margin-top: 12px;
+}
+
 
 
