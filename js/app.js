@@ -2111,7 +2111,6 @@ class NigerianDraughtsApp {
         this.renderPieces();
         this.updateUI();
         this.tryExecutePremove();
-      }
         if (res.gameOver) {
           this.timer?.stop();
           this.handleGameOver(res);
