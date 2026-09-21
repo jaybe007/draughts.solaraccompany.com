@@ -178,11 +178,11 @@ try {
                 ], 400);
             }
 
-            if ($feeCoins > 0 && $uCoins < $feeCoins) {
-                jsonResponse([
-                    'success' => false,
-                    'message' => "Insufficient coins! Entry fee: {$feeCoins} coins (Available: {$uCoins} coins)."
-                ], 400);
+            if ($feeCoins > 0) {
+                $coinCheck = ensureCoinsAvailable($db, $currentUser['id'], $feeCoins, "Tournament Entry: {$tournament['name']}");
+                if (!$coinCheck['success']) {
+                    jsonResponse(['success' => false, 'message' => $coinCheck['message']], 400);
+                }
             }
 
             // Deduct fees

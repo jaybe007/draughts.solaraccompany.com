@@ -169,6 +169,99 @@ function verifyDepositTransaction($reference) {
 }
 
 /**
+ * Ensures user has at least $requiredCoins.
+ * If user has fewer coins, but sufficient Naira in wallet_balance (at 1 Naira = 1 Coin),
+ * seamlessly auto-converts the shortfall from wallet_balance into coins!
+ *
+ * @param PDO $db
+ * @param int $userId
+ * @param int $requiredCoins
+ * @param string $context
+ * @return array
+ */
+function ensureCoinsAvailable($db, $userId, $requiredCoins, $context = 'Match Staking') {
+    $requiredCoins = (int)$requiredCoins;
+    if ($requiredCoins <= 0) {
+        return ['success' => true, 'converted' => false, 'converted_amount' => 0, 'converted_coins' => 0];
+    }
+
+    $stmt = $db->prepare("SELECT id, coins, wallet_balance FROM users WHERE id = ?");
+    $stmt->execute([(int)$userId]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) {
+        return ['success' => false, 'message' => 'User not found.'];
+    }
+
+    $currentCoins = (int)$user['coins'];
+    $currentNaira = (float)$user['wallet_balance'];
+
+    // 1. If user already has enough coins, proceed directly
+    if ($currentCoins >= $requiredCoins) {
+        return [
+            'success' => true,
+            'converted' => false,
+            'converted_amount' => 0,
+            'converted_coins' => 0,
+            'available_coins' => $currentCoins,
+            'wallet_balance' => $currentNaira
+        ];
+    }
+
+    // 2. User has a coin shortfall
+    $shortfall = $requiredCoins - $currentCoins;
+    $nairaCost = (float)$shortfall; // 1:1 Parity: ₦1.00 = 1 Coin
+
+    // 3. Check if user has enough Naira to cover the shortfall
+    if ($currentNaira < $nairaCost) {
+        $shortfallRemaining = $shortfall - (int)floor($currentNaira);
+        return [
+            'success' => false,
+            'converted' => false,
+            'converted_amount' => 0,
+            'converted_coins' => 0,
+            'available_coins' => $currentCoins,
+            'wallet_balance' => $currentNaira,
+            'shortfall' => $shortfall,
+            'message' => "Insufficient coins! You need {$requiredCoins} coins (you have {$currentCoins} coins). Your wallet has ₦" . number_format($currentNaira, 2) . ", leaving a shortfall of " . number_format($shortfallRemaining) . " coins. Please top up your wallet."
+        ];
+    }
+
+    // 4. Auto-convert Naira to Coins seamlessly
+    $newBal = $currentNaira - $nairaCost;
+    $newCoins = $currentCoins + $shortfall;
+
+    $db->prepare("UPDATE users SET wallet_balance = wallet_balance - ?, coins = coins + ? WHERE id = ?")
+       ->execute([$nairaCost, $shortfall, $userId]);
+
+    $db->prepare("
+        INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, reference, description)
+        VALUES (?, 'coin_exchange', ?, ?, ?, 'completed', ?, ?)
+    ")->execute([
+        $userId,
+        -$nairaCost,
+        $shortfall,
+        $newBal,
+        'AUTO-EXC-' . strtoupper(bin2hex(random_bytes(3))),
+        "Auto-Exchange: Converted ₦" . number_format($nairaCost, 2) . " to {$shortfall} Coins for {$context}"
+    ]);
+
+    if (isset($_SESSION['user']) && (int)$_SESSION['user']['id'] === (int)$userId) {
+        $_SESSION['user']['wallet_balance'] = $newBal;
+        $_SESSION['user']['coins'] = $newCoins;
+    }
+
+    return [
+        'success' => true,
+        'converted' => true,
+        'converted_amount' => $nairaCost,
+        'converted_coins' => $shortfall,
+        'available_coins' => $newCoins,
+        'wallet_balance' => $newBal
+    ];
+}
+
+/**
  * PaymentGateway Class Wrapper
  */
 class PaymentGateway {
@@ -187,4 +280,9 @@ class PaymentGateway {
     public static function verifyTransaction($reference) {
         return verifyDepositTransaction($reference);
     }
+
+    public static function ensureCoinsAvailable($db, $userId, $requiredCoins, $context = 'Match Staking') {
+        return ensureCoinsAvailable($db, $userId, $requiredCoins, $context);
+    }
 }
+

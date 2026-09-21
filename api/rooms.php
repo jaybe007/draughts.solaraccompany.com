@@ -148,14 +148,20 @@ try {
                 $hostName = $currentUser ? $currentUser['username'] : 'Host Champion';
             }
 
-            // Coin verification if coin wagered
+            $hostId = $currentUser ? (int)$currentUser['id'] : null;
+            $autoConvertedMsg = '';
+
+            // Coin verification & auto-conversion if coin wagered
             if ($wagerCoins > 0) {
-                if (!$currentUser || (int)$currentUser['coins'] < $wagerCoins) {
-                    $userCoins = $currentUser ? (int)$currentUser['coins'] : 0;
-                    jsonResponse([
-                        'success' => false,
-                        'message' => "Insufficient coins! You need {$wagerCoins} coins to create this match. (Available: {$userCoins} coins)"
-                    ], 400);
+                if (!$hostId) {
+                    jsonResponse(['success' => false, 'message' => 'Please sign in to create a coin wager match.'], 401);
+                }
+                $coinCheck = ensureCoinsAvailable($db, $hostId, $wagerCoins, "Match Staking (Room Creation)");
+                if (!$coinCheck['success']) {
+                    jsonResponse(['success' => false, 'message' => $coinCheck['message']], 400);
+                }
+                if (!empty($coinCheck['converted'])) {
+                    $autoConvertedMsg = " (Auto-converted ₦" . number_format($coinCheck['converted_amount'], 2) . " for {$coinCheck['converted_coins']} Coins)";
                 }
             }
 
@@ -284,7 +290,7 @@ try {
                 'time_control' => $timeControl,
                 'board_size' => $boardSize,
                 'rule_mode' => $ruleMode,
-                'message' => "Room created! Share code {$roomCode} with your opponent."
+                'message' => "Room created! Share code {$roomCode} with your opponent." . $autoConvertedMsg
             ]);
             break;
 
@@ -352,25 +358,23 @@ try {
                 jsonResponse(['success' => false, 'message' => 'Room is already full with 2 players.'], 409);
             }
 
-            // Validate and deduct wager coins from joining guest
+            // Validate and deduct wager coins from joining guest (with auto-conversion if needed)
             $roomWager = (int)($room['wager_coins'] ?? 0);
             if ($roomWager > 0) {
-                if (!$currentUser || (int)$currentUser['coins'] < $roomWager) {
-                    $avail = $currentUser ? (int)$currentUser['coins'] : 0;
-                    jsonResponse([
-                        'success' => false,
-                        'message' => "Insufficient coins! This match requires a {$roomWager} coin wager. (Available: {$avail} coins)"
-                    ], 400);
+                if (!$guestId) {
+                    jsonResponse(['success' => false, 'message' => 'Please sign in to join a coin wager match.'], 401);
                 }
-                if ($guestId) {
-                    $db->prepare("UPDATE users SET coins = GREATEST(0, coins - ?) WHERE id = ?")->execute([$roomWager, $guestId]);
-                    $db->prepare("
-                        INSERT INTO wallet_transactions (user_id, type, amount, coins, description)
-                        VALUES (?, 'wager_escrow', 0, ?, ?)
-                    ")->execute([$guestId, -$roomWager, "Escrow: Match Wager for Room {$roomCode}"]);
-                    if (isset($_SESSION['user']['coins'])) {
-                        $_SESSION['user']['coins'] = max(0, (int)$_SESSION['user']['coins'] - $roomWager);
-                    }
+                $coinCheck = ensureCoinsAvailable($db, $guestId, $roomWager, "Match Staking (Room {$roomCode})");
+                if (!$coinCheck['success']) {
+                    jsonResponse(['success' => false, 'message' => $coinCheck['message']], 400);
+                }
+                $db->prepare("UPDATE users SET coins = GREATEST(0, coins - ?) WHERE id = ?")->execute([$roomWager, $guestId]);
+                $db->prepare("
+                    INSERT INTO wallet_transactions (user_id, type, amount, coins, description)
+                    VALUES (?, 'wager_escrow', 0, ?, ?)
+                ")->execute([$guestId, -$roomWager, "Escrow: Match Wager for Room {$roomCode}"]);
+                if (isset($_SESSION['user']['coins'])) {
+                    $_SESSION['user']['coins'] = max(0, (int)$_SESSION['user']['coins'] - $roomWager);
                 }
             }
 

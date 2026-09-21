@@ -4,6 +4,7 @@
  */
 
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/payment.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -65,9 +66,12 @@ try {
             $timeControl = $input['time_control'] ?? 'rapid_5';
             $wagerCoins = max(0, (int)($input['wager_coins'] ?? 0));
 
-            // Verify coins if wagering
-            if ($wagerCoins > 0 && (int)$currentUser['coins'] < $wagerCoins) {
-                jsonResponse(['success' => false, 'message' => "Insufficient coins! You need {$wagerCoins} coins for this wager."], 400);
+            // Verify & auto-convert coins if wagering
+            if ($wagerCoins > 0) {
+                $coinCheck = ensureCoinsAvailable($db, $currentUser['id'], $wagerCoins, "Match Challenge");
+                if (!$coinCheck['success']) {
+                    jsonResponse(['success' => false, 'message' => $coinCheck['message']], 400);
+                }
             }
 
             // Resolve receiver identifier
@@ -172,16 +176,18 @@ try {
             }
 
             if ($response === 'accepted') {
-                // If coin wager, verify and deduct coins from receiver
+                // If coin wager, verify and auto-convert coins for receiver if needed
                 if ($inv['wager_coins'] > 0) {
-                    if ((int)$currentUser['coins'] < $inv['wager_coins']) {
-                        jsonResponse(['success' => false, 'message' => "Insufficient coins to accept this {$inv['wager_coins']} coin wager challenge!"], 400);
+                    $wagerAmt = (int)$inv['wager_coins'];
+                    $coinCheck = ensureCoinsAvailable($db, $currentUser['id'], $wagerAmt, "Accepted Challenge from {$inv['sender_name']}");
+                    if (!$coinCheck['success']) {
+                        jsonResponse(['success' => false, 'message' => $coinCheck['message']], 400);
                     }
-                    $db->prepare("UPDATE users SET coins = GREATEST(0, coins - ?) WHERE id = ?")->execute([(int)$inv['wager_coins'], $currentUser['id']]);
+                    $db->prepare("UPDATE users SET coins = GREATEST(0, coins - ?) WHERE id = ?")->execute([$wagerAmt, $currentUser['id']]);
                     $db->prepare("
                         INSERT INTO wallet_transactions (user_id, type, amount, coins, description)
                         VALUES (?, 'wager_escrow', 0, ?, ?)
-                    ")->execute([$currentUser['id'], -(int)$inv['wager_coins'], "Escrow: Accepted Challenge from {$inv['sender_name']}"]);
+                    ")->execute([$currentUser['id'], -$wagerAmt, "Escrow: Accepted Challenge from {$inv['sender_name']}"]);
                     if (isset($_SESSION['user']['coins'])) {
                         $_SESSION['user']['coins'] = max(0, (int)$_SESSION['user']['coins'] - (int)$inv['wager_coins']);
                     }

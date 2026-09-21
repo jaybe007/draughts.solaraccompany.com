@@ -829,6 +829,9 @@ $pkgBadge = getPackageBadge($package);
               <div id="create-custom-coins-wrap" class="custom-coins-input-wrap">
                 <input type="number" id="create-custom-coins-val" class="form-control" placeholder="Enter coin amount (e.g. 250)" min="1" max="100000">
               </div>
+              <small class="form-hint" style="margin-top: 6px; display: block; color: var(--gold-400); font-size: 0.82rem;">
+                💡 <em>Have Naira in your wallet? Any coin shortfall will automatically convert from your Naira balance (₦1 = 1 Coin)!</em>
+              </small>
             </div>
 
             <!-- Player Time dropdown -->
