@@ -148,7 +148,9 @@ class PuzzleTrainer {
       labelCoordsToggle: document.getElementById('label-coords-toggle'),
       btnFlipBoard: document.getElementById('btn-flip-board'),
       btnSoundToggle: document.getElementById('btn-sound-toggle'),
+      btnBoardSoundToggle: document.getElementById('btn-board-sound-toggle'),
       soundIcon: document.getElementById('sound-icon'),
+      boardSoundIcon: document.getElementById('board-sound-icon'),
 
       puzzleVariantTag: document.getElementById('puzzle-variant-tag'),
       puzzleVariantText: document.getElementById('puzzle-variant-text'),
@@ -223,11 +225,13 @@ class PuzzleTrainer {
       this.renderPieces();
     });
 
-    // Sound Toggle
-    this.dom.btnSoundToggle?.addEventListener('click', () => {
+    // Sound Toggle (Header & Board Toolbar)
+    const handleSoundToggle = () => {
       sound.toggleMute();
       this.updateSoundIcon();
-    });
+    };
+    this.dom.btnSoundToggle?.addEventListener('click', handleSoundToggle);
+    this.dom.btnBoardSoundToggle?.addEventListener('click', handleSoundToggle);
 
     // Fullscreen Toggle
     this.dom.btnFullscreen?.addEventListener('click', () => {
@@ -582,9 +586,9 @@ class PuzzleTrainer {
   }
 
   updateSoundIcon() {
-    if (this.dom.soundIcon) {
-      this.dom.soundIcon.textContent = !sound.muted ? '🔊' : '🔇';
-    }
+    const icon = !sound.muted ? '🔊' : '🔇';
+    if (this.dom.soundIcon) this.dom.soundIcon.textContent = icon;
+    if (this.dom.boardSoundIcon) this.dom.boardSoundIcon.textContent = icon;
   }
 
   // ==================== PUZZLE LOADING & OPPONENT SETUP ==================== //
@@ -608,6 +612,8 @@ class PuzzleTrainer {
 
     const puzzle = this.puzzles[this.currentPuzzleIdx];
     if (!puzzle) return;
+
+    const ruleMode = puzzle.ruleset || 'nigeria';
 
     // 1. Populate metadata cards
     const diffName = this.getPuzzleDiffName(puzzle);
@@ -689,7 +695,6 @@ class PuzzleTrainer {
     this.updateEvalGauge('0.0', 50);
 
     // 2. Setup Engine & Board State from initialBoard
-    const ruleMode = puzzle.ruleset || 'nigeria';
     this.engine = new NigerianDraughtsEngine({ boardSize: 10, ruleMode });
     this.engine.loadCustomPosition(puzzle.initialBoard, PLAYER_1);
     this.syncBoardStateFromEngine();

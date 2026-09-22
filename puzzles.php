@@ -125,8 +125,8 @@ if ($currentUser) {
               <button type="button" class="btn btn-small btn-secondary" id="btn-toggle-coords" title="Toggle 1-50 Draughts Notation Numbers">
                 🔢 <span id="label-coords-toggle">Square 1-50: On</span>
               </button>
-              <button type="button" class="btn btn-icon btn-secondary" id="btn-sound-toggle" title="Toggle Sound FX">
-                <span id="sound-icon">🔊</span>
+              <button type="button" class="btn btn-icon btn-secondary" id="btn-board-sound-toggle" title="Toggle Sound FX">
+                <span id="board-sound-icon">🔊</span>
               </button>
               <button type="button" class="btn btn-icon btn-secondary" id="btn-flip-board" title="Flip Board Perspective">
                 🔄

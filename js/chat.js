@@ -54,6 +54,23 @@ export class StreetChatController {
     }, 4000);
   }
 
+  toggle() {
+    this.toggleChat();
+  }
+
+  open() {
+    this.isOpen = true;
+    if (this.drawer) {
+      this.drawer.classList.add('active');
+      if (this.unreadBadge) this.unreadBadge.style.display = 'none';
+      this.scrollToBottom();
+    }
+  }
+
+  close() {
+    this.closeChat();
+  }
+
   toggleChat() {
     this.isOpen = !this.isOpen;
     if (this.isOpen) {

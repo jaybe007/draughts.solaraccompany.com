@@ -2977,6 +2977,10 @@ window.switchRuleset = function(rule) {
 };
 
 // Bootstrap game when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.app = new NigerianDraughtsApp();
+  });
+} else {
   window.app = new NigerianDraughtsApp();
-});
+}

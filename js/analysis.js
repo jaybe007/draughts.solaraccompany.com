@@ -80,6 +80,14 @@ export class BoardAnalysisController {
     }
   }
 
+  open() {
+    this.enterAnalysisMode();
+  }
+
+  close() {
+    this.exitAnalysisMode();
+  }
+
   enterAnalysisMode() {
     this.isActive = true;
     if (this.dock) this.dock.classList.add('active');
