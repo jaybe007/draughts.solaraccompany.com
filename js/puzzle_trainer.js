@@ -40,7 +40,7 @@ class PuzzleTrainer {
     this.isOpponentMoving = false;
     this.isAnimatingSolution = false;
     this.activeFilter = 'all';
-    this.activeRuleset = 'all';
+    this.activeRuleset = 'draughts-image'; // Default to user's screenshots collection
     this.activeTheme = 'all';
     this.activeStarFilter = 'all';
     this.searchQuery = '';
@@ -110,6 +110,12 @@ class PuzzleTrainer {
       this.activeTheme = themeParam;
       if (this.dom.selectTheme) this.dom.selectTheme.value = themeParam;
     }
+
+    const rulesParam = params.get('ruleset') || params.get('rules');
+    if (rulesParam) {
+      this.activeRuleset = rulesParam.toLowerCase().trim();
+    }
+    this.updateRulesetButtons();
 
     let initialIdx = 0;
     if (puzzleId) {
@@ -308,6 +314,9 @@ class PuzzleTrainer {
         // Load first puzzle matching ruleset
         const matchIdx = this.puzzles.findIndex(p => {
           if (this.activeRuleset === 'all') return true;
+          if (this.activeRuleset === 'draughts-image') {
+            return p.id.startsWith('DRAUGHTS-IMG-') || p.category === 'DRAUGHTS IMAGE Collection' || Boolean(p.source_image);
+          }
           return p.ruleset === this.activeRuleset;
         });
         if (matchIdx !== -1) {
@@ -410,7 +419,13 @@ class PuzzleTrainer {
 
     // 1. Ruleset check
     if (this.activeRuleset && this.activeRuleset !== 'all') {
-      if (p.ruleset !== this.activeRuleset) return false;
+      if (this.activeRuleset === 'draughts-image') {
+        if (!p.id.startsWith('DRAUGHTS-IMG-') && p.category !== 'DRAUGHTS IMAGE Collection' && !p.source_image) {
+          return false;
+        }
+      } else if (p.ruleset !== this.activeRuleset) {
+        return false;
+      }
     }
 
     // 2. Classical Coup / Theme check
@@ -614,13 +629,21 @@ class PuzzleTrainer {
       const coupIdea = puzzle.themeIdea || 'Classical combination';
       const coupId = puzzle.themeId || '';
       const rulesetLabel = puzzle.ruleset === 'nigeria' ? '🇳🇬 Naija Rules' : (puzzle.ruleset === 'ghana' ? '🇬🇭 Damii' : '🌍 FMJD');
+      const sourceBadge = puzzle.source_image
+        ? `<span class="puzzle-tag" style="background: rgba(245, 158, 11, 0.2); border-color: rgba(245, 158, 11, 0.5); color: #fde047;">📸 Screenshot ${puzzle.source_image}</span>`
+        : '';
+      const diagBadge = (ruleMode === 'international' || ruleMode === 'tournament' || ruleMode === 'fmjd')
+        ? `<span class="puzzle-tag" style="color: #67e8f9; border-color: rgba(56, 189, 248, 0.4);">Diagonal: Top-Right ↔ Bottom-Left</span>`
+        : `<span class="puzzle-tag" style="color: #4ade80; border-color: rgba(74, 222, 128, 0.4);">Highway: Top-Left ↔ Bottom-Right</span>`;
 
       this.dom.puzzleThemeTags.innerHTML = `
+        ${sourceBadge}
         <span class="puzzle-tag coup-tag" data-coup-id="${coupId}" title="${coupName} (${coupStars}): ${coupIdea}. Click to view in Encyclopedia.">
           ${coupStars} ${coupName}
         </span>
         <span class="puzzle-tag">${puzzle.badge || 'Tactical Shot'}</span>
         <span class="puzzle-tag">${rulesetLabel}</span>
+        ${diagBadge}
       `;
 
       this.dom.puzzleThemeTags.querySelector('.coup-tag')?.addEventListener('click', (e) => {
@@ -632,16 +655,18 @@ class PuzzleTrainer {
     if (this.dom.puzzleVariantText) {
       this.dom.puzzleVariantText.textContent = puzzle.ruleset === 'nigeria'
         ? 'Nigerian Rules (Backward Seed Captures + Flying King)'
-        : 'International 10x10 Draughts';
+        : (puzzle.ruleset === 'ghana' ? 'Ghanaian Damii Rules' : 'International 10x10 Draughts (FMJD)');
     }
 
     if (this.dom.highwayStatus && this.dom.highwayLabel) {
-      if (puzzle.id === 'highway_ambush') {
-        this.dom.highwayStatus.style.display = 'flex';
-        this.dom.highwayLabel.textContent = 'Highway Ambush Active • Long Diagonal (46-1) Cleared';
+      const isIntl = (ruleMode === 'international' || ruleMode === 'tournament' || ruleMode === 'fmjd');
+      this.dom.highwayStatus.style.display = 'flex';
+      if (isIntl) {
+        this.dom.highwayLabel.innerHTML = '<strong>🌍 FMJD Grande Ligne Active</strong> • Diagonal: <strong>Top-Right (Sq 5) ↔ Bottom-Left (Sq 46)</strong> • Majority Capture';
+      } else if (ruleMode === 'ghana') {
+        this.dom.highwayLabel.innerHTML = '<strong>🇬🇭 Ghanaian Damii Highway Active</strong> • Diagonal: <strong>Top-Left (Sq 1) ↔ Bottom-Right (Sq 50)</strong> • Seed-Counting Rules';
       } else {
-        this.dom.highwayStatus.style.display = 'flex';
-        this.dom.highwayLabel.textContent = 'Compulsory Capture Enforced • Strict Tactical Solution';
+        this.dom.highwayLabel.innerHTML = '<strong>🇳🇬 Nigerian Highway Active</strong> • Diagonal: <strong>Top-Left (Sq 1) ↔ Bottom-Right (Sq 50)</strong> • Free Choice';
       }
     }
 
@@ -831,6 +856,48 @@ class PuzzleTrainer {
         this.dom.boardInner.appendChild(sq);
       }
     }
+
+    // Render continuous Highway / Grande Ligne track on SVG overlay
+    this.renderCentralLineTrack();
+  }
+
+  renderCentralLineTrack() {
+    const svg = this.dom.tacticalSvg || document.getElementById('board-tactical-svg');
+    if (!svg) return;
+
+    let trackGroup = svg.querySelector('#highway-track-group');
+    if (!trackGroup) {
+      trackGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      trackGroup.setAttribute('id', 'highway-track-group');
+      svg.prepend(trackGroup);
+    } else {
+      trackGroup.innerHTML = '';
+    }
+
+    const isIntl = this.engine && (this.engine.ruleMode === 'international' || this.engine.ruleMode === 'tournament' || this.engine.ruleMode === 'fmjd');
+
+    // FMJD International: Top-Right (95%, 5%) to Bottom-Left (5%, 95%)
+    // Nigerian / Ghanaian: Top-Left (5%, 5%) to Bottom-Right (95%, 95%)
+    const x1 = isIntl ? 95 : 5;
+    const y1 = 5;
+    const x2 = isIntl ? 5 : 95;
+    const y2 = 95;
+
+    const glow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    glow.setAttribute('x1', `${x1}%`);
+    glow.setAttribute('y1', `${y1}%`);
+    glow.setAttribute('x2', `${x2}%`);
+    glow.setAttribute('y2', `${y2}%`);
+    glow.setAttribute('class', 'highway-track-glow');
+    trackGroup.appendChild(glow);
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', `${x1}%`);
+    line.setAttribute('y1', `${y1}%`);
+    line.setAttribute('x2', `${x2}%`);
+    line.setAttribute('y2', `${y2}%`);
+    line.setAttribute('class', 'highway-track-line');
+    trackGroup.appendChild(line);
   }
 
   renderPieces() {
@@ -1688,7 +1755,7 @@ class PuzzleTrainer {
 
   clearTacticalSvg() {
     if (!this.dom.tacticalSvg) return;
-    const arrows = this.dom.tacticalSvg.querySelectorAll('line, path');
+    const arrows = this.dom.tacticalSvg.querySelectorAll('line:not(.highway-track-glow):not(.highway-track-line), path:not(.highway-track-glow):not(.highway-track-line)');
     arrows.forEach(a => a.remove());
   }
 
@@ -1746,7 +1813,13 @@ class PuzzleTrainer {
 
   renderFilterPills() {
     if (!this.dom.filterPills) return;
-    const pool = this.puzzles.filter(p => this.activeRuleset === 'all' || p.ruleset === this.activeRuleset);
+    const pool = this.puzzles.filter(p => {
+      if (this.activeRuleset === 'all') return true;
+      if (this.activeRuleset === 'draughts-image') {
+        return p.id.startsWith('DRAUGHTS-IMG-') || p.category === 'DRAUGHTS IMAGE Collection' || Boolean(p.source_image);
+      }
+      return p.ruleset === this.activeRuleset;
+    });
 
     const counts = {
       all: pool.length,
@@ -1785,8 +1858,14 @@ class PuzzleTrainer {
 
     const filtered = this.puzzles.map((p, idx) => ({ ...p, origIdx: idx })).filter(p => {
       // 1. Ruleset Filter
-      if (this.activeRuleset !== 'all' && p.ruleset !== this.activeRuleset) {
-        return false;
+      if (this.activeRuleset !== 'all') {
+        if (this.activeRuleset === 'draughts-image') {
+          if (!p.id.startsWith('DRAUGHTS-IMG-') && p.category !== 'DRAUGHTS IMAGE Collection' && !p.source_image) {
+            return false;
+          }
+        } else if (p.ruleset !== this.activeRuleset) {
+          return false;
+        }
       }
 
       // 2. Difficulty Filter
@@ -1806,7 +1885,8 @@ class PuzzleTrainer {
         const titleMatch = (p.title || '').toLowerCase().includes(q);
         const catMatch = (p.category || '').toLowerCase().includes(q);
         const badgeMatch = (p.badge || '').toLowerCase().includes(q);
-        return numMatch || titleMatch || catMatch || badgeMatch;
+        const imgMatch = (p.source_image || '').toLowerCase().includes(q);
+        return numMatch || titleMatch || catMatch || badgeMatch || imgMatch;
       }
 
       return true;
@@ -1820,28 +1900,51 @@ class PuzzleTrainer {
       return;
     }
 
-    filtered.forEach(p => {
-      const isSolved = this.solvedSet.has(p.id);
-      const isCurrent = (p.origIdx === this.currentPuzzleIdx);
-      const diffName = this.getPuzzleDiffName(p);
-      const rating = this.getPuzzleRating(p);
+    // Grouping by Collection for cleanly organized browsing
+    if (this.activeRuleset === 'all') {
+      const groups = [
+        { key: 'draughts-image', label: '📸 DRAUGHTS IMAGE Collection (1.PNG - 21.PNG)', items: filtered.filter(p => p.id.startsWith('DRAUGHTS-IMG-') || p.source_image) },
+        { key: 'international', label: '🌍 International FMJD Master Series', items: filtered.filter(p => !p.id.startsWith('DRAUGHTS-IMG-') && !p.source_image && p.ruleset === 'international') },
+        { key: 'nigeria', label: '🇳🇬 Nigerian Street Draughts Academy', items: filtered.filter(p => p.ruleset === 'nigeria') },
+        { key: 'ghana', label: '🇬🇭 Ghanaian Damii Academy', items: filtered.filter(p => p.ruleset === 'ghana') }
+      ];
 
-      const chip = document.createElement('button');
-      chip.type = 'button';
-      chip.className = `puzzle-chip ${isSolved ? 'solved' : ''} ${isCurrent ? 'active' : ''}`;
-      chip.title = `${p.title} (${diffName} - ⭐ ${rating} Elo)`;
-      chip.innerHTML = `
-        <span class="chip-num">#${p.origIdx + 1}</span>
-        <span class="chip-title">${p.title}</span>
-        <span class="chip-status">${isSolved ? '✓' : (p.badge ? p.badge.split(' ')[0] : '🎯')}</span>
-      `;
+      groups.forEach(g => {
+        if (g.items.length === 0) return;
 
-      chip.addEventListener('click', () => {
-        this.loadPuzzle(p.origIdx);
+        const header = document.createElement('div');
+        header.className = 'puzzle-section-header';
+        header.innerHTML = `<span>${g.label}</span><span class="section-count">${g.items.length} puzzles</span>`;
+        this.dom.chipsGrid.appendChild(header);
+
+        g.items.forEach(p => this.appendPuzzleChip(p));
       });
+    } else {
+      filtered.forEach(p => this.appendPuzzleChip(p));
+    }
+  }
 
-      this.dom.chipsGrid.appendChild(chip);
+  appendPuzzleChip(p) {
+    const isSolved = this.solvedSet.has(p.id);
+    const isCurrent = (p.origIdx === this.currentPuzzleIdx);
+    const diffName = this.getPuzzleDiffName(p);
+    const rating = this.getPuzzleRating(p);
+
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = `puzzle-chip ${isSolved ? 'solved' : ''} ${isCurrent ? 'active' : ''}`;
+    chip.title = `${p.title} (${diffName} - ⭐ ${rating} Elo)`;
+    chip.innerHTML = `
+      <span class="chip-num">#${p.origIdx + 1} ${p.badge ? `<span style="color:#fde047; font-size:0.68rem;">${p.badge}</span>` : ''}</span>
+      <span class="chip-title">${p.title.replace(/^📸\s*DRAUGHTS\s*IMAGE\s*#\d+\s*\([^)]+\):\s*/i, '')}</span>
+      <span class="chip-status">${isSolved ? '✓ Solved' : '⭐ ' + rating}</span>
+    `;
+
+    chip.addEventListener('click', () => {
+      this.loadPuzzle(p.origIdx);
     });
+
+    this.dom.chipsGrid.appendChild(chip);
   }
 
   // ==================== MOVE NOTATION & STEP REPLAY ==================== //

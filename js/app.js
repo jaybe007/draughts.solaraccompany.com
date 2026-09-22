@@ -1463,11 +1463,11 @@ class NigerianDraughtsApp {
     const highwayText = document.getElementById('highway-indicator-text');
     if (highwayText) {
       if (this.ruleMode === 'ghana') {
-        highwayText.textContent = '🇬🇭 Ghanaian Damii Active — Seed-Counting Endgames (1 Crown+1 Seed Win/Draw) & Immediate Crowning';
+        highwayText.innerHTML = '🇬🇭 Ghanaian Damii Active — Highway: <strong>Top-Left (1) ↔ Bottom-Right (50)</strong> & Seed-Counting';
       } else if (this.ruleMode === 'international') {
-        highwayText.textContent = '🌍 FMJD International Active — Opposite Central Line (Bottom-Left to Top-Right) & Strict Majority Capture';
+        highwayText.innerHTML = '🌍 FMJD International Active — Grande Ligne: <strong>Top-Right (5) ↔ Bottom-Left (46)</strong> & Majority Capture';
       } else {
-        highwayText.textContent = '🇳🇬 Nigerian Highway (Central Line on Right) Active — Free Capture Choice';
+        highwayText.innerHTML = '🇳🇬 Nigerian Highway Active — Highway: <strong>Top-Left (1) ↔ Bottom-Right (50)</strong> & Free Choice';
       }
     }
 
@@ -1594,7 +1594,47 @@ class NigerianDraughtsApp {
       }
     }
 
+    this.renderCentralLineTrack();
     this.renderPieces();
+  }
+
+  renderCentralLineTrack() {
+    const svg = this.dom.boardTacticalSvg || document.getElementById('board-tactical-svg');
+    if (!svg) return;
+
+    let trackGroup = svg.querySelector('#highway-track-group');
+    if (!trackGroup) {
+      trackGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      trackGroup.setAttribute('id', 'highway-track-group');
+      svg.prepend(trackGroup);
+    } else {
+      trackGroup.innerHTML = '';
+    }
+
+    const isIntl = (this.ruleMode === 'international' || this.ruleMode === 'tournament' || this.ruleMode === 'fmjd');
+
+    // FMJD International: Top-Right (95%, 5%) to Bottom-Left (5%, 95%)
+    // Nigerian / Ghanaian: Top-Left (5%, 5%) to Bottom-Right (95%, 95%)
+    const x1 = isIntl ? 95 : 5;
+    const y1 = 5;
+    const x2 = isIntl ? 5 : 95;
+    const y2 = 95;
+
+    const glow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    glow.setAttribute('x1', `${x1}%`);
+    glow.setAttribute('y1', `${y1}%`);
+    glow.setAttribute('x2', `${x2}%`);
+    glow.setAttribute('y2', `${y2}%`);
+    glow.setAttribute('class', 'highway-track-glow');
+    trackGroup.appendChild(glow);
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', `${x1}%`);
+    line.setAttribute('y1', `${y1}%`);
+    line.setAttribute('x2', `${x2}%`);
+    line.setAttribute('y2', `${y2}%`);
+    line.setAttribute('class', 'highway-track-line');
+    trackGroup.appendChild(line);
   }
 
   renderPieces() {
@@ -1677,7 +1717,7 @@ class NigerianDraughtsApp {
   clearTacticalArrows() {
     const svg = this.dom.boardTacticalSvg || document.getElementById('board-tactical-svg');
     if (!svg) return;
-    const lines = svg.querySelectorAll('line, path.dynamic-arrow');
+    const lines = svg.querySelectorAll('line:not(.highway-track-glow):not(.highway-track-line), path.dynamic-arrow');
     lines.forEach(l => l.remove());
   }
 

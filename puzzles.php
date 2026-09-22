@@ -319,10 +319,11 @@ if ($currentUser) {
               <a href="admin_puzzles.php" class="btn btn-secondary btn-small" style="font-size: 0.72rem; padding: 2px 8px;" title="Open Puzzle Generator Lab">⚙️ Generator Lab</a>
             </div>
             <div class="puzzle-filter-pills" id="puzzle-ruleset-pills" style="margin-bottom: 12px;">
-              <button type="button" class="filter-btn active" data-ruleset="all">All Rules</button>
+              <button type="button" class="filter-btn active" data-ruleset="draughts-image" title="Master puzzles directly generated from DRAUGHTS IMAGE screenshots 1.PNG to 21.PNG">📸 DRAUGHTS IMAGE (21)</button>
+              <button type="button" class="filter-btn" data-ruleset="international">🌍 FMJD International (130)</button>
               <button type="button" class="filter-btn" data-ruleset="nigeria">🇳🇬 Nigeria (130)</button>
               <button type="button" class="filter-btn" data-ruleset="ghana">🇬🇭 Ghana (130)</button>
-              <button type="button" class="filter-btn" data-ruleset="international">🌍 FMJD (130)</button>
+              <button type="button" class="filter-btn" data-ruleset="all">⭐ All Puzzles (411)</button>
             </div>
 
             <span class="section-label">Difficulty Level:</span>

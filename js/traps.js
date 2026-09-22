@@ -3,12 +3,12 @@
  * 
  * 100% Engine-Validated Draughts Tactical Puzzles Database.
  * Features:
- * - Full DRAUGHTS IMAGE Collection (Authentic Lidraughts Master Screenshots 1.PNG - 21.PNG)
+ * - Full DRAUGHTS IMAGE Collection (Authentic Lidraughts Master Screenshots 1.PNG - 21.PNG in forward sequential order)
  * - 100% Sound Coordinate Parity across Nigerian, Ghanaian, and International Boards
  * - Solves the Central Line Divergence:
- *   * International FMJD uses true odd dark squares (Grande Ligne: 46 to 5, r + c === 9)
- *   * Nigerian Street Draughts uses true even dark squares (Highway: 1 to 50, r === c)
- * Total Certified Puzzles: 410
+ *   * International FMJD uses true odd dark squares (Grande Ligne: 46 to 5, r + c === 9, Top-Right to Bottom-Left)
+ *   * Nigerian Street Draughts uses true even dark squares (Highway: 1 to 50, r === c, Top-Left to Bottom-Right)
+ * Total Certified Puzzles: 411
  */
 
 import { sound } from './audio.js';
@@ -16,29 +16,534 @@ import { PLAYER_1, PLAYER_2 } from './engine.js';
 
 export const TRAP_DATABASE = [
   {
-    "id": "DRAUGHTS-IMG-265",
+    "id": "DRAUGHTS-IMG-1",
     "ruleset": "international",
     "board_size": 10,
     "side_to_move": "white",
-    "fen": "W:W24,31,33,37,38,39,48:B2,7,8,10,13,14,21:H0:F1",
+    "fen": "B:W31,33,34,36,38,39,42,44,48:B12,13,14,18,19,22,23,27,35:H0:F1",
     "position": {
       "white": [
-        24,
         31,
         33,
-        37,
+        34,
+        36,
         38,
         39,
+        42,
+        44,
         48
       ],
       "black": [
-        2,
-        7,
-        8,
-        10,
+        12,
         13,
         14,
-        21
+        18,
+        19,
+        22,
+        23,
+        27,
+        35
+      ],
+      "white_kings": [],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 9,
+      "tier_name": "Master",
+      "rating": 2089,
+      "human_score": 70,
+      "engine_depth": 8,
+      "metrics": {
+        "tacticalComplexity": 64,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 7,
+        "effectiveDepth": 7,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 25,
+        "endgameComplexity": 45,
+        "humanDifficulty": 64,
+        "temptingMove": null,
+        "humanRanking": [
+          "33-28"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "triple-sacrifice",
+      "themes": [
+        "triple-sacrifice",
+        "draughts-image",
+        "classical-combination",
+        "fmjd-master"
+      ],
+      "game_phase": "middlegame"
+    },
+    "solution": {
+      "best_move": "33-28",
+      "uniqueness": "unique",
+      "depth": 7,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 33,
+          "toSq": 28,
+          "from": {
+            "r": 6,
+            "c": 5
+          },
+          "to": {
+            "r": 5,
+            "c": 4
+          },
+          "note": "Key strike: 33-28!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 23,
+          "toSq": 43,
+          "from": {
+            "r": 4,
+            "c": 5
+          },
+          "to": {
+            "r": 8,
+            "c": 5
+          },
+          "note": "Opponent responds 23x43",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 44,
+          "toSq": 40,
+          "from": {
+            "r": 8,
+            "c": 7
+          },
+          "to": {
+            "r": 7,
+            "c": 8
+          },
+          "note": "Continue combo: 44-40",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 35,
+          "toSq": 33,
+          "from": {
+            "r": 6,
+            "c": 9
+          },
+          "to": {
+            "r": 6,
+            "c": 5
+          },
+          "note": "Opponent responds 35x33",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 48,
+          "toSq": 8,
+          "from": {
+            "r": 9,
+            "c": 4
+          },
+          "to": {
+            "r": 1,
+            "c": 4
+          },
+          "note": "Continue combo: 48x8",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 13,
+          "toSq": 2,
+          "from": {
+            "r": 2,
+            "c": 5
+          },
+          "to": {
+            "r": 0,
+            "c": 3
+          },
+          "note": "Opponent responds 13x2",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 31,
+          "toSq": 15,
+          "from": {
+            "r": 6,
+            "c": 1
+          },
+          "to": {
+            "r": 2,
+            "c": 9
+          },
+          "note": "Continue combo: 31x15",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 33,
+        "toSq": 28,
+        "from": {
+          "r": 6,
+          "c": 5
+        },
+        "to": {
+          "r": 5,
+          "c": 4
+        },
+        "note": "Key strike: 33-28!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 23,
+        "toSq": 43,
+        "from": {
+          "r": 4,
+          "c": 5
+        },
+        "to": {
+          "r": 8,
+          "c": 5
+        },
+        "note": "Opponent responds 23x43",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 44,
+        "toSq": 40,
+        "from": {
+          "r": 8,
+          "c": 7
+        },
+        "to": {
+          "r": 7,
+          "c": 8
+        },
+        "note": "Continue combo: 44-40",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 35,
+        "toSq": 33,
+        "from": {
+          "r": 6,
+          "c": 9
+        },
+        "to": {
+          "r": 6,
+          "c": 5
+        },
+        "note": "Opponent responds 35x33",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 48,
+        "toSq": 8,
+        "from": {
+          "r": 9,
+          "c": 4
+        },
+        "to": {
+          "r": 1,
+          "c": 4
+        },
+        "note": "Continue combo: 48x8",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 13,
+        "toSq": 2,
+        "from": {
+          "r": 2,
+          "c": 5
+        },
+        "to": {
+          "r": 0,
+          "c": 3
+        },
+        "note": "Opponent responds 13x2",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 31,
+        "toSq": 15,
+        "from": {
+          "r": 6,
+          "c": 1
+        },
+        "to": {
+          "r": 2,
+          "c": 9
+        },
+        "note": "Continue combo: 31x15",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
+    "candidate_analysis": {
+      "best_move": "33-28",
+      "second_best_move": "Quiet move",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Calculate White's breakthrough strike starting with 33-28.",
+      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
+      "Play 33-28! This initiates the decisive win."
+    ],
+    "description": "Master Composition #1 directly from user screenshot 1.PNG (Rating 2089 Elo)",
+    "explanation": "White sacrifices decisively with 33-28 forcing an unstoppable winning combination.",
+    "quality": {
+      "score": 98,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 99,
+      "verified": true
+    },
+    "hash": "hash_img_1",
+    "initialBoard": [
+      {
+        "r": 2,
+        "c": 3,
+        "square": 12,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 5,
+        "square": 13,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 4,
+        "square": 18,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 6,
+        "square": 19,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 8,
+        "square": 20,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 3,
+        "square": 22,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 5,
+        "square": 23,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 2,
+        "square": 27,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 1,
+        "square": 31,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 5,
+        "square": 33,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 7,
+        "square": 34,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 9,
+        "square": 35,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 0,
+        "square": 36,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 4,
+        "square": 38,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 6,
+        "square": 39,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 3,
+        "square": 42,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 7,
+        "square": 44,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 9,
+        "c": 4,
+        "square": 48,
+        "player": 1,
+        "isKing": false
+      }
+    ],
+    "initialMove": {
+      "fromSq": 14,
+      "toSq": 20,
+      "from": {
+        "r": 2,
+        "c": 7
+      },
+      "to": {
+        "r": 3,
+        "c": 8
+      },
+      "isAi": true,
+      "note": "Opponent blunder: 14-20"
+    },
+    "created_at": "2026-09-22T10:30:58.993Z",
+    "title": "📸 DRAUGHTS IMAGE #1 (1.PNG): Kozlovsky Triple Sac & Gate Opening",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 1.PNG! Spot the combination and strike!",
+    "themeId": "triple-sacrifice",
+    "themeName": "DRAUGHTS IMAGE Master Series",
+    "themeIdea": "Forced combination from Screenshot 1.PNG",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "DRAUGHTS IMAGE Collection",
+    "themeCategory": "DRAUGHTS IMAGE Collection",
+    "themes": [
+      "DRAUGHTS IMAGE Collection",
+      "Master Tactics",
+      "FMJD International"
+    ],
+    "badge": "📸 1.PNG",
+    "source_image": "1.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
+  },
+  {
+    "id": "DRAUGHTS-IMG-2",
+    "ruleset": "international",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "B:W32,33,37,38,43,44,48:B12,13,14,17,18,22,24:H0:F1",
+    "position": {
+      "white": [
+        32,
+        33,
+        37,
+        38,
+        43,
+        44,
+        48
+      ],
+      "black": [
+        12,
+        13,
+        14,
+        17,
+        18,
+        22,
+        24
       ],
       "white_kings": [],
       "black_kings": []
@@ -46,15 +551,15 @@ export const TRAP_DATABASE = [
     "difficulty": {
       "tier": 8,
       "tier_name": "Candidate Master",
-      "rating": 1935,
-      "human_score": 74,
+      "rating": 1998,
+      "human_score": 67,
       "engine_depth": 8,
       "metrics": {
         "tacticalComplexity": 64,
         "candidateComplexity": 20,
         "branchingFactor": 15,
-        "solutionDepth": 8,
-        "effectiveDepth": 8,
+        "solutionDepth": 7,
+        "effectiveDepth": 7,
         "wrongMoveSimilarity": 25,
         "evaluationGap": 50,
         "deceptionScore": 30,
@@ -74,9 +579,10 @@ export const TRAP_DATABASE = [
     },
     "classification": {
       "category": "tactical",
-      "primary_theme": "coup-royal",
+      "primary_theme": "gate-deflection",
       "themes": [
-        "coup-royal",
+        "gate-deflection",
+        "draughts-image",
         "classical-combination",
         "fmjd-master"
       ],
@@ -85,7 +591,7 @@ export const TRAP_DATABASE = [
     "solution": {
       "best_move": "33-29",
       "uniqueness": "unique",
-      "depth": 8,
+      "depth": 7,
       "steps": [
         {
           "mover": 1,
@@ -106,126 +612,230 @@ export const TRAP_DATABASE = [
         },
         {
           "mover": 2,
-          "fromSq": 21,
-          "toSq": 27,
+          "fromSq": 24,
+          "toSq": 31,
           "from": {
             "r": 4,
-            "c": 1
+            "c": 7
           },
           "to": {
-            "r": 5,
-            "c": 2
-          },
-          "note": "Opponent responds 21-27",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 31,
-          "toSq": 22,
-          "from": {
             "r": 6,
             "c": 1
           },
-          "to": {
-            "r": 4,
-            "c": 3
-          },
-          "note": "Continue combo: 31x22",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 14,
-          "toSq": 20,
-          "from": {
-            "r": 2,
-            "c": 7
-          },
-          "to": {
-            "r": 3,
-            "c": 8
-          },
-          "note": "Opponent responds 14-20",
+          "note": "Opponent responds 24x31",
           "isAi": true,
-          "isJump": false,
+          "isJump": true,
           "isForcedHop": false
         },
         {
           "mover": 1,
-          "fromSq": 24,
-          "toSq": 4,
+          "fromSq": 32,
+          "toSq": 28,
           "from": {
-            "r": 4,
-            "c": 7
-          },
-          "to": {
-            "r": 0,
-            "c": 7
-          },
-          "note": "Continue combo: 24x4",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 8,
-          "toSq": 12,
-          "from": {
-            "r": 1,
-            "c": 4
-          },
-          "to": {
-            "r": 2,
+            "r": 6,
             "c": 3
           },
-          "note": "Opponent responds 8-12",
-          "isAi": true,
+          "to": {
+            "r": 5,
+            "c": 4
+          },
+          "note": "Continue combo: 32-28",
+          "isAi": false,
           "isJump": false,
           "isForcedHop": false
         },
         {
-          "mover": 1,
-          "fromSq": 4,
-          "toSq": 18,
+          "mover": 2,
+          "fromSq": 22,
+          "toSq": 33,
           "from": {
-            "r": 0,
-            "c": 7
+            "r": 4,
+            "c": 3
           },
           "to": {
-            "r": 3,
-            "c": 4
+            "r": 6,
+            "c": 5
           },
-          "note": "Continue combo: 4x18",
-          "isAi": false,
+          "note": "Opponent responds 22x33",
+          "isAi": true,
           "isJump": true,
           "isForcedHop": false
         },
         {
-          "mover": 2,
-          "fromSq": 12,
-          "toSq": 41,
+          "mover": 1,
+          "fromSq": 43,
+          "toSq": 38,
           "from": {
-            "r": 2,
-            "c": 3
+            "r": 8,
+            "c": 5
+          },
+          "to": {
+            "r": 7,
+            "c": 4
+          },
+          "note": "Continue combo: 43-38",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 33,
+          "toSq": 42,
+          "from": {
+            "r": 6,
+            "c": 5
           },
           "to": {
             "r": 8,
-            "c": 1
+            "c": 3
           },
-          "note": "Opponent responds 12x41",
+          "note": "Opponent responds 33x42",
           "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 48,
+          "toSq": 10,
+          "from": {
+            "r": 9,
+            "c": 4
+          },
+          "to": {
+            "r": 1,
+            "c": 8
+          },
+          "note": "Continue combo: 48x10",
+          "isAi": false,
           "isJump": true,
           "isForcedHop": false
         }
       ],
       "variations": []
     },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 33,
+        "toSq": 29,
+        "from": {
+          "r": 6,
+          "c": 5
+        },
+        "to": {
+          "r": 5,
+          "c": 6
+        },
+        "note": "Key strike: 33-29!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 24,
+        "toSq": 31,
+        "from": {
+          "r": 4,
+          "c": 7
+        },
+        "to": {
+          "r": 6,
+          "c": 1
+        },
+        "note": "Opponent responds 24x31",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 32,
+        "toSq": 28,
+        "from": {
+          "r": 6,
+          "c": 3
+        },
+        "to": {
+          "r": 5,
+          "c": 4
+        },
+        "note": "Continue combo: 32-28",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 22,
+        "toSq": 33,
+        "from": {
+          "r": 4,
+          "c": 3
+        },
+        "to": {
+          "r": 6,
+          "c": 5
+        },
+        "note": "Opponent responds 22x33",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 43,
+        "toSq": 38,
+        "from": {
+          "r": 8,
+          "c": 5
+        },
+        "to": {
+          "r": 7,
+          "c": 4
+        },
+        "note": "Continue combo: 43-38",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 33,
+        "toSq": 42,
+        "from": {
+          "r": 6,
+          "c": 5
+        },
+        "to": {
+          "r": 8,
+          "c": 3
+        },
+        "note": "Opponent responds 33x42",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 48,
+        "toSq": 10,
+        "from": {
+          "r": 9,
+          "c": 4
+        },
+        "to": {
+          "r": 1,
+          "c": 8
+        },
+        "note": "Continue combo: 48x10",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
     "candidate_analysis": {
       "best_move": "33-29",
       "second_best_move": "Quiet move",
@@ -240,7 +850,7 @@ export const TRAP_DATABASE = [
       "Opponent has compulsory responses. Calculate the full multi-jump chain.",
       "Play 33-29! This initiates the decisive win."
     ],
-    "description": "Master Composition #265 from DRAUGHTS IMAGE (Rating 1935 Elo)",
+    "description": "Master Composition #2 directly from user screenshot 2.PNG (Rating 1998 Elo)",
     "explanation": "White sacrifices decisively with 33-29 forcing an unstoppable winning combination.",
     "quality": {
       "score": 98,
@@ -249,33 +859,12 @@ export const TRAP_DATABASE = [
       "tactical_interest": 99,
       "verified": true
     },
-    "hash": "hash_img_265",
+    "hash": "hash_img_2",
     "initialBoard": [
       {
-        "r": 0,
+        "r": 2,
         "c": 3,
-        "square": 2,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 1,
-        "c": 2,
-        "square": 7,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 1,
-        "c": 4,
-        "square": 8,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 1,
-        "c": 8,
-        "square": 10,
+        "square": 12,
         "player": 2,
         "isKing": false
       },
@@ -294,1093 +883,10 @@ export const TRAP_DATABASE = [
         "isKing": false
       },
       {
-        "r": 4,
-        "c": 1,
-        "square": 21,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 7,
-        "square": 24,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 1,
-        "square": 31,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 5,
-        "square": 33,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 2,
-        "square": 37,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 4,
-        "square": 38,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 6,
-        "square": 39,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 9,
-        "c": 4,
-        "square": 48,
-        "player": 1,
-        "isKing": false
-      }
-    ],
-    "initialMove": null,
-    "created_at": "2026-09-22T09:09:20.605Z",
-    "title": "Lidraughts Puzzle #265: Classic Coup Royal Highway Sweep",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "coup-royal",
-    "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #265",
-    "themeStars": "⭐⭐⭐⭐⭐",
-    "category": "DRAUGHTS IMAGE Collection",
-    "themeCategory": "DRAUGHTS IMAGE Collection",
-    "themes": [
-      "DRAUGHTS IMAGE Collection",
-      "Master Tactics",
-      "FMJD International"
-    ],
-    "badge": "📸 Screenshot Master"
-  },
-  {
-    "id": "DRAUGHTS-IMG-264",
-    "ruleset": "international",
-    "board_size": 10,
-    "side_to_move": "white",
-    "fen": "W:W19,33,38,41,43,46,47:B3,9,16,18,21,26,31:H0:F1",
-    "position": {
-      "white": [
-        19,
-        33,
-        38,
-        41,
-        43,
-        46,
-        47
-      ],
-      "black": [
-        3,
-        9,
-        16,
-        18,
-        21,
-        26,
-        31
-      ],
-      "white_kings": [],
-      "black_kings": []
-    },
-    "difficulty": {
-      "tier": 10,
-      "tier_name": "International Master",
-      "rating": 2215,
-      "human_score": 90,
-      "engine_depth": 8,
-      "metrics": {
-        "tacticalComplexity": 80,
-        "candidateComplexity": 20,
-        "branchingFactor": 15,
-        "solutionDepth": 8,
-        "effectiveDepth": 8,
-        "wrongMoveSimilarity": 25,
-        "evaluationGap": 50,
-        "deceptionScore": 30,
-        "quietMoveScore": 20,
-        "sacrificeDifficulty": 40,
-        "defensiveDifficulty": 30,
-        "moveOrderSensitivity": 40,
-        "kingComplexity": 25,
-        "endgameComplexity": 45,
-        "humanDifficulty": 80,
-        "temptingMove": null,
-        "humanRanking": [
-          "19-13"
-        ],
-        "winningRank": 1
-      }
-    },
-    "classification": {
-      "category": "tactical",
-      "primary_theme": "flank-deflection",
-      "themes": [
-        "flank-deflection",
-        "classical-combination",
-        "fmjd-master"
-      ],
-      "game_phase": "middlegame"
-    },
-    "solution": {
-      "best_move": "19-13",
-      "uniqueness": "unique",
-      "depth": 8,
-      "steps": [
-        {
-          "mover": 1,
-          "fromSq": 19,
-          "toSq": 13,
-          "from": {
-            "r": 3,
-            "c": 6
-          },
-          "to": {
-            "r": 2,
-            "c": 5
-          },
-          "note": "Key strike: 19-13!",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 9,
-          "toSq": 14,
-          "from": {
-            "r": 1,
-            "c": 6
-          },
-          "to": {
-            "r": 2,
-            "c": 7
-          },
-          "note": "Opponent responds 9-14",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 13,
-          "toSq": 22,
-          "from": {
-            "r": 2,
-            "c": 5
-          },
-          "to": {
-            "r": 4,
-            "c": 3
-          },
-          "note": "Continue combo: 13x22",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 31,
-          "toSq": 37,
-          "from": {
-            "r": 6,
-            "c": 1
-          },
-          "to": {
-            "r": 7,
-            "c": 2
-          },
-          "note": "Opponent responds 31-37",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 41,
-          "toSq": 32,
-          "from": {
-            "r": 8,
-            "c": 1
-          },
-          "to": {
-            "r": 6,
-            "c": 3
-          },
-          "note": "Continue combo: 41x32",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 21,
-          "toSq": 27,
-          "from": {
-            "r": 4,
-            "c": 1
-          },
-          "to": {
-            "r": 5,
-            "c": 2
-          },
-          "note": "Opponent responds 21-27",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 22,
-          "toSq": 31,
-          "from": {
-            "r": 4,
-            "c": 3
-          },
-          "to": {
-            "r": 6,
-            "c": 1
-          },
-          "note": "Continue combo: 22x31",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 26,
-          "toSq": 48,
-          "from": {
-            "r": 5,
-            "c": 0
-          },
-          "to": {
-            "r": 9,
-            "c": 4
-          },
-          "note": "Opponent responds 26x48",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        }
-      ],
-      "variations": []
-    },
-    "candidate_analysis": {
-      "best_move": "19-13",
-      "second_best_move": "Quiet move",
-      "eval_gap": null,
-      "tempting_move": null,
-      "why_humans_choose_it": null,
-      "refutation": null,
-      "candidate_count": 1
-    },
-    "hints": [
-      "Calculate White's breakthrough strike starting with 19-13.",
-      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
-      "Play 19-13! This initiates the decisive win."
-    ],
-    "description": "Master Composition #264 from DRAUGHTS IMAGE (Rating 2215 Elo)",
-    "explanation": "White sacrifices decisively with 19-13 forcing an unstoppable winning combination.",
-    "quality": {
-      "score": 98,
-      "legality_score": 100,
-      "uniqueness_score": 100,
-      "tactical_interest": 99,
-      "verified": true
-    },
-    "hash": "hash_img_264",
-    "initialBoard": [
-      {
-        "r": 0,
-        "c": 5,
-        "square": 3,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 1,
-        "c": 6,
-        "square": 9,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 0,
-        "square": 16,
-        "player": 2,
-        "isKing": false
-      },
-      {
         "r": 3,
         "c": 4,
         "square": 18,
         "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 6,
-        "square": 19,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 1,
-        "square": 21,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 0,
-        "square": 26,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 1,
-        "square": 31,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 5,
-        "square": 33,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 4,
-        "square": 38,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 1,
-        "square": 41,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 5,
-        "square": 43,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 9,
-        "c": 0,
-        "square": 46,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 9,
-        "c": 2,
-        "square": 47,
-        "player": 1,
-        "isKing": false
-      }
-    ],
-    "initialMove": null,
-    "created_at": "2026-09-22T09:09:20.605Z",
-    "title": "Lidraughts Puzzle #264: Reverse Flank Deflection",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "flank-deflection",
-    "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #264",
-    "themeStars": "⭐⭐⭐⭐⭐",
-    "category": "DRAUGHTS IMAGE Collection",
-    "themeCategory": "DRAUGHTS IMAGE Collection",
-    "themes": [
-      "DRAUGHTS IMAGE Collection",
-      "Master Tactics",
-      "FMJD International"
-    ],
-    "badge": "📸 Screenshot Master"
-  },
-  {
-    "id": "DRAUGHTS-IMG-260",
-    "ruleset": "international",
-    "board_size": 10,
-    "side_to_move": "white",
-    "fen": "W:W15,25,33,37,38,42,43:B4,13,14,18,19,23,24:H0:F1",
-    "position": {
-      "white": [
-        15,
-        25,
-        33,
-        37,
-        38,
-        42,
-        43
-      ],
-      "black": [
-        4,
-        13,
-        14,
-        18,
-        19,
-        23,
-        24
-      ],
-      "white_kings": [],
-      "black_kings": []
-    },
-    "difficulty": {
-      "tier": 10,
-      "tier_name": "International Master",
-      "rating": 2384,
-      "human_score": 90,
-      "engine_depth": 8,
-      "metrics": {
-        "tacticalComplexity": 80,
-        "candidateComplexity": 20,
-        "branchingFactor": 15,
-        "solutionDepth": 8,
-        "effectiveDepth": 8,
-        "wrongMoveSimilarity": 25,
-        "evaluationGap": 50,
-        "deceptionScore": 30,
-        "quietMoveScore": 20,
-        "sacrificeDifficulty": 40,
-        "defensiveDifficulty": 30,
-        "moveOrderSensitivity": 40,
-        "kingComplexity": 25,
-        "endgameComplexity": 45,
-        "humanDifficulty": 80,
-        "temptingMove": null,
-        "humanRanking": [
-          "43-39"
-        ],
-        "winningRank": 1
-      }
-    },
-    "classification": {
-      "category": "tactical",
-      "primary_theme": "king-vacuum",
-      "themes": [
-        "king-vacuum",
-        "classical-combination",
-        "fmjd-master"
-      ],
-      "game_phase": "middlegame"
-    },
-    "solution": {
-      "best_move": "43-39",
-      "uniqueness": "unique",
-      "depth": 8,
-      "steps": [
-        {
-          "mover": 1,
-          "fromSq": 43,
-          "toSq": 39,
-          "from": {
-            "r": 8,
-            "c": 5
-          },
-          "to": {
-            "r": 7,
-            "c": 6
-          },
-          "note": "Key strike: 43-39!",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 4,
-          "toSq": 10,
-          "from": {
-            "r": 0,
-            "c": 7
-          },
-          "to": {
-            "r": 1,
-            "c": 8
-          },
-          "note": "Opponent responds 4-10",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 15,
-          "toSq": 4,
-          "from": {
-            "r": 2,
-            "c": 9
-          },
-          "to": {
-            "r": 0,
-            "c": 7
-          },
-          "note": "Continue combo: 15x4",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 14,
-          "toSq": 20,
-          "from": {
-            "r": 2,
-            "c": 7
-          },
-          "to": {
-            "r": 3,
-            "c": 8
-          },
-          "note": "Opponent responds 14-20",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 25,
-          "toSq": 14,
-          "from": {
-            "r": 4,
-            "c": 9
-          },
-          "to": {
-            "r": 2,
-            "c": 7
-          },
-          "note": "Continue combo: 25x14",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 19,
-          "toSq": 10,
-          "from": {
-            "r": 3,
-            "c": 6
-          },
-          "to": {
-            "r": 1,
-            "c": 8
-          },
-          "note": "Opponent responds 19x10",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 4,
-          "toSq": 29,
-          "from": {
-            "r": 0,
-            "c": 7
-          },
-          "to": {
-            "r": 5,
-            "c": 6
-          },
-          "note": "Continue combo: 4x29",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 23,
-          "toSq": 41,
-          "from": {
-            "r": 4,
-            "c": 5
-          },
-          "to": {
-            "r": 8,
-            "c": 1
-          },
-          "note": "Opponent responds 23x41",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        }
-      ],
-      "variations": []
-    },
-    "candidate_analysis": {
-      "best_move": "43-39",
-      "second_best_move": "Quiet move",
-      "eval_gap": null,
-      "tempting_move": null,
-      "why_humans_choose_it": null,
-      "refutation": null,
-      "candidate_count": 1
-    },
-    "hints": [
-      "Calculate White's breakthrough strike starting with 43-39.",
-      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
-      "Play 43-39! This initiates the decisive win."
-    ],
-    "description": "Master Composition #260 from DRAUGHTS IMAGE (Rating 2384 Elo)",
-    "explanation": "White sacrifices decisively with 43-39 forcing an unstoppable winning combination.",
-    "quality": {
-      "score": 98,
-      "legality_score": 100,
-      "uniqueness_score": 100,
-      "tactical_interest": 99,
-      "verified": true
-    },
-    "hash": "hash_img_260",
-    "initialBoard": [
-      {
-        "r": 0,
-        "c": 7,
-        "square": 4,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 5,
-        "square": 13,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 7,
-        "square": 14,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 9,
-        "square": 15,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 4,
-        "square": 18,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 6,
-        "square": 19,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 5,
-        "square": 23,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 7,
-        "square": 24,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 9,
-        "square": 25,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 5,
-        "square": 33,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 2,
-        "square": 37,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 4,
-        "square": 38,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 3,
-        "square": 42,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 5,
-        "square": 43,
-        "player": 1,
-        "isKing": false
-      }
-    ],
-    "initialMove": null,
-    "created_at": "2026-09-22T09:09:20.605Z",
-    "title": "Lidraughts Puzzle #260: King Vacuum & Decoy",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "king-vacuum",
-    "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #260",
-    "themeStars": "⭐⭐⭐⭐⭐",
-    "category": "DRAUGHTS IMAGE Collection",
-    "themeCategory": "DRAUGHTS IMAGE Collection",
-    "themes": [
-      "DRAUGHTS IMAGE Collection",
-      "Master Tactics",
-      "FMJD International"
-    ],
-    "badge": "📸 Screenshot Master"
-  },
-  {
-    "id": "DRAUGHTS-IMG-258",
-    "ruleset": "international",
-    "board_size": 10,
-    "side_to_move": "white",
-    "fen": "W:W15,32,33,34,37,38,39:B2,4,7,8,13,21,22:H0:F1",
-    "position": {
-      "white": [
-        15,
-        32,
-        33,
-        34,
-        37,
-        38,
-        39
-      ],
-      "black": [
-        2,
-        4,
-        7,
-        8,
-        13,
-        21,
-        22
-      ],
-      "white_kings": [],
-      "black_kings": []
-    },
-    "difficulty": {
-      "tier": 8,
-      "tier_name": "Candidate Master",
-      "rating": 1881,
-      "human_score": 74,
-      "engine_depth": 10,
-      "metrics": {
-        "tacticalComplexity": 64,
-        "candidateComplexity": 20,
-        "branchingFactor": 15,
-        "solutionDepth": 10,
-        "effectiveDepth": 10,
-        "wrongMoveSimilarity": 25,
-        "evaluationGap": 50,
-        "deceptionScore": 30,
-        "quietMoveScore": 20,
-        "sacrificeDifficulty": 40,
-        "defensiveDifficulty": 30,
-        "moveOrderSensitivity": 40,
-        "kingComplexity": 25,
-        "endgameComplexity": 45,
-        "humanDifficulty": 64,
-        "temptingMove": null,
-        "humanRanking": [
-          "34-29"
-        ],
-        "winningRank": 1
-      }
-    },
-    "classification": {
-      "category": "tactical",
-      "primary_theme": "coronation-trap",
-      "themes": [
-        "coronation-trap",
-        "classical-combination",
-        "fmjd-master"
-      ],
-      "game_phase": "middlegame"
-    },
-    "solution": {
-      "best_move": "34-29",
-      "uniqueness": "unique",
-      "depth": 10,
-      "steps": [
-        {
-          "mover": 1,
-          "fromSq": 34,
-          "toSq": 29,
-          "from": {
-            "r": 6,
-            "c": 7
-          },
-          "to": {
-            "r": 5,
-            "c": 6
-          },
-          "note": "Key strike: 34-29!",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 21,
-          "toSq": 27,
-          "from": {
-            "r": 4,
-            "c": 1
-          },
-          "to": {
-            "r": 5,
-            "c": 2
-          },
-          "note": "Opponent responds 21-27",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 32,
-          "toSq": 21,
-          "from": {
-            "r": 6,
-            "c": 3
-          },
-          "to": {
-            "r": 4,
-            "c": 1
-          },
-          "note": "Continue combo: 32x21",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 22,
-          "toSq": 28,
-          "from": {
-            "r": 4,
-            "c": 3
-          },
-          "to": {
-            "r": 5,
-            "c": 4
-          },
-          "note": "Opponent responds 22-28",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 33,
-          "toSq": 22,
-          "from": {
-            "r": 6,
-            "c": 5
-          },
-          "to": {
-            "r": 4,
-            "c": 3
-          },
-          "note": "Continue combo: 33x22",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 4,
-          "toSq": 10,
-          "from": {
-            "r": 0,
-            "c": 7
-          },
-          "to": {
-            "r": 1,
-            "c": 8
-          },
-          "note": "Opponent responds 4-10",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 15,
-          "toSq": 4,
-          "from": {
-            "r": 2,
-            "c": 9
-          },
-          "to": {
-            "r": 0,
-            "c": 7
-          },
-          "note": "Continue combo: 15x4",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 8,
-          "toSq": 12,
-          "from": {
-            "r": 1,
-            "c": 4
-          },
-          "to": {
-            "r": 2,
-            "c": 3
-          },
-          "note": "Opponent responds 8-12",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 4,
-          "toSq": 18,
-          "from": {
-            "r": 0,
-            "c": 7
-          },
-          "to": {
-            "r": 3,
-            "c": 4
-          },
-          "note": "Continue combo: 4x18",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 12,
-          "toSq": 41,
-          "from": {
-            "r": 2,
-            "c": 3
-          },
-          "to": {
-            "r": 8,
-            "c": 1
-          },
-          "note": "Opponent responds 12x41",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        }
-      ],
-      "variations": []
-    },
-    "candidate_analysis": {
-      "best_move": "34-29",
-      "second_best_move": "Quiet move",
-      "eval_gap": null,
-      "tempting_move": null,
-      "why_humans_choose_it": null,
-      "refutation": null,
-      "candidate_count": 1
-    },
-    "hints": [
-      "Calculate White's breakthrough strike starting with 34-29.",
-      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
-      "Play 34-29! This initiates the decisive win."
-    ],
-    "description": "Master Composition #258 from DRAUGHTS IMAGE (Rating 1881 Elo)",
-    "explanation": "White sacrifices decisively with 34-29 forcing an unstoppable winning combination.",
-    "quality": {
-      "score": 98,
-      "legality_score": 100,
-      "uniqueness_score": 100,
-      "tactical_interest": 99,
-      "verified": true
-    },
-    "hash": "hash_img_258",
-    "initialBoard": [
-      {
-        "r": 0,
-        "c": 3,
-        "square": 2,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 0,
-        "c": 7,
-        "square": 4,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 1,
-        "c": 2,
-        "square": 7,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 1,
-        "c": 4,
-        "square": 8,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 5,
-        "square": 13,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 9,
-        "square": 15,
-        "player": 1,
         "isKing": false
       },
       {
@@ -1394,6 +900,13 @@ export const TRAP_DATABASE = [
         "r": 4,
         "c": 3,
         "square": 22,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 7,
+        "square": 24,
         "player": 2,
         "isKing": false
       },
@@ -1412,13 +925,6 @@ export const TRAP_DATABASE = [
         "isKing": false
       },
       {
-        "r": 6,
-        "c": 7,
-        "square": 34,
-        "player": 1,
-        "isKing": false
-      },
-      {
         "r": 7,
         "c": 2,
         "square": 37,
@@ -1433,20 +939,47 @@ export const TRAP_DATABASE = [
         "isKing": false
       },
       {
-        "r": 7,
-        "c": 6,
-        "square": 39,
+        "r": 8,
+        "c": 5,
+        "square": 43,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 7,
+        "square": 44,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 9,
+        "c": 4,
+        "square": 48,
         "player": 1,
         "isKing": false
       }
     ],
-    "initialMove": null,
-    "created_at": "2026-09-22T09:09:20.605Z",
-    "title": "Lidraughts Puzzle #258: Two-Gate Coronation Trap",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "coronation-trap",
+    "initialMove": {
+      "fromSq": 17,
+      "toSq": 21,
+      "from": {
+        "r": 3,
+        "c": 2
+      },
+      "to": {
+        "r": 4,
+        "c": 1
+      },
+      "isAi": true,
+      "note": "Opponent blunder: 17-21"
+    },
+    "created_at": "2026-09-22T10:30:58.994Z",
+    "title": "📸 DRAUGHTS IMAGE #2 (2.PNG): Center Gate Deflection & Decoy",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 2.PNG! Spot the combination and strike!",
+    "themeId": "gate-deflection",
     "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #258",
+    "themeIdea": "Forced combination from Screenshot 2.PNG",
     "themeStars": "⭐⭐⭐⭐⭐",
     "category": "DRAUGHTS IMAGE Collection",
     "themeCategory": "DRAUGHTS IMAGE Collection",
@@ -1455,34 +988,37 @@ export const TRAP_DATABASE = [
       "Master Tactics",
       "FMJD International"
     ],
-    "badge": "📸 Screenshot Master"
+    "badge": "📸 2.PNG",
+    "source_image": "2.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
   },
   {
-    "id": "DRAUGHTS-IMG-256",
+    "id": "DRAUGHTS-IMG-3",
     "ruleset": "international",
     "board_size": 10,
     "side_to_move": "white",
-    "fen": "W:W27,28,33,34,37,41,43,48:B2,13,14,17,18,19,24,26:H0:F1",
+    "fen": "B:W29,33,37,39,40,42,47,50:B8,10,12,17,18,20,21,22:H0:F1",
     "position": {
       "white": [
-        27,
-        28,
+        29,
         33,
-        34,
         37,
-        41,
-        43,
-        48
+        39,
+        40,
+        42,
+        47,
+        50
       ],
       "black": [
-        2,
-        13,
-        14,
+        8,
+        10,
+        12,
         17,
         18,
-        19,
-        24,
-        26
+        20,
+        21,
+        22
       ],
       "white_kings": [],
       "black_kings": []
@@ -1490,15 +1026,15 @@ export const TRAP_DATABASE = [
     "difficulty": {
       "tier": 10,
       "tier_name": "International Master",
-      "rating": 2351,
-      "human_score": 90,
+      "rating": 2236,
+      "human_score": 75,
       "engine_depth": 8,
       "metrics": {
-        "tacticalComplexity": 80,
+        "tacticalComplexity": 64,
         "candidateComplexity": 20,
         "branchingFactor": 15,
-        "solutionDepth": 8,
-        "effectiveDepth": 8,
+        "solutionDepth": 7,
+        "effectiveDepth": 7,
         "wrongMoveSimilarity": 25,
         "evaluationGap": 50,
         "deceptionScore": 30,
@@ -1508,170 +1044,275 @@ export const TRAP_DATABASE = [
         "moveOrderSensitivity": 40,
         "kingComplexity": 25,
         "endgameComplexity": 45,
-        "humanDifficulty": 80,
+        "humanDifficulty": 64,
         "temptingMove": null,
         "humanRanking": [
-          "27-21"
+          "33-28"
         ],
         "winningRank": 1
       }
     },
     "classification": {
       "category": "tactical",
-      "primary_theme": "counter-sweep",
+      "primary_theme": "diamond-shot",
       "themes": [
-        "counter-sweep",
+        "diamond-shot",
+        "draughts-image",
         "classical-combination",
         "fmjd-master"
       ],
       "game_phase": "middlegame"
     },
     "solution": {
-      "best_move": "27-21",
+      "best_move": "33-28",
       "uniqueness": "unique",
-      "depth": 8,
+      "depth": 7,
       "steps": [
         {
           "mover": 1,
-          "fromSq": 27,
-          "toSq": 21,
+          "fromSq": 33,
+          "toSq": 28,
           "from": {
-            "r": 5,
-            "c": 2
+            "r": 6,
+            "c": 5
           },
           "to": {
-            "r": 4,
-            "c": 1
+            "r": 5,
+            "c": 4
           },
-          "note": "Key strike: 27-21!",
+          "note": "Key strike: 33-28!",
           "isAi": false,
           "isJump": false,
           "isForcedHop": false
         },
         {
           "mover": 2,
-          "fromSq": 26,
-          "toSq": 31,
+          "fromSq": 22,
+          "toSq": 35,
           "from": {
-            "r": 5,
-            "c": 0
+            "r": 4,
+            "c": 3
           },
           "to": {
             "r": 6,
-            "c": 1
+            "c": 9
           },
-          "note": "Opponent responds 26-31",
+          "note": "Opponent responds 22x35",
           "isAi": true,
-          "isJump": false,
+          "isJump": true,
           "isForcedHop": false
         },
         {
           "mover": 1,
-          "fromSq": 21,
+          "fromSq": 29,
           "toSq": 23,
           "from": {
-            "r": 4,
-            "c": 1
+            "r": 5,
+            "c": 6
           },
           "to": {
             "r": 4,
             "c": 5
           },
-          "note": "Continue combo: 21x23",
+          "note": "Continue combo: 29-23",
           "isAi": false,
-          "isJump": true,
+          "isJump": false,
           "isForcedHop": false
         },
         {
           "mover": 2,
-          "fromSq": 31,
-          "toSq": 42,
+          "fromSq": 18,
+          "toSq": 29,
           "from": {
-            "r": 6,
-            "c": 1
+            "r": 3,
+            "c": 4
           },
           "to": {
-            "r": 8,
-            "c": 3
+            "r": 5,
+            "c": 6
           },
-          "note": "Opponent responds 31x42",
+          "note": "Opponent responds 18x29",
           "isAi": true,
           "isJump": true,
           "isForcedHop": false
         },
         {
           "mover": 1,
-          "fromSq": 48,
-          "toSq": 37,
+          "fromSq": 37,
+          "toSq": 32,
           "from": {
-            "r": 9,
-            "c": 4
-          },
-          "to": {
             "r": 7,
             "c": 2
           },
-          "note": "Continue combo: 48x37",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 24,
-          "toSq": 29,
-          "from": {
-            "r": 4,
-            "c": 7
-          },
           "to": {
-            "r": 5,
-            "c": 6
+            "r": 6,
+            "c": 3
           },
-          "note": "Opponent responds 24-29",
-          "isAi": true,
+          "note": "Continue combo: 37-32",
+          "isAi": false,
           "isJump": false,
           "isForcedHop": false
         },
         {
-          "mover": 1,
-          "fromSq": 33,
-          "toSq": 24,
+          "mover": 2,
+          "fromSq": 27,
+          "toSq": 38,
           "from": {
-            "r": 6,
-            "c": 5
+            "r": 5,
+            "c": 2
           },
           "to": {
-            "r": 4,
-            "c": 7
+            "r": 7,
+            "c": 4
           },
-          "note": "Continue combo: 33x24",
-          "isAi": false,
+          "note": "Opponent responds 27x38",
+          "isAi": true,
           "isJump": true,
           "isForcedHop": false
         },
         {
-          "mover": 2,
-          "fromSq": 19,
-          "toSq": 48,
+          "mover": 1,
+          "fromSq": 42,
+          "toSq": 4,
           "from": {
-            "r": 3,
-            "c": 6
+            "r": 8,
+            "c": 3
           },
           "to": {
-            "r": 9,
-            "c": 4
+            "r": 0,
+            "c": 7
           },
-          "note": "Opponent responds 19x48",
-          "isAi": true,
+          "note": "Continue combo: 42x4",
+          "isAi": false,
           "isJump": true,
           "isForcedHop": false
         }
       ],
       "variations": []
     },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 33,
+        "toSq": 28,
+        "from": {
+          "r": 6,
+          "c": 5
+        },
+        "to": {
+          "r": 5,
+          "c": 4
+        },
+        "note": "Key strike: 33-28!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 22,
+        "toSq": 35,
+        "from": {
+          "r": 4,
+          "c": 3
+        },
+        "to": {
+          "r": 6,
+          "c": 9
+        },
+        "note": "Opponent responds 22x35",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 29,
+        "toSq": 23,
+        "from": {
+          "r": 5,
+          "c": 6
+        },
+        "to": {
+          "r": 4,
+          "c": 5
+        },
+        "note": "Continue combo: 29-23",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 18,
+        "toSq": 29,
+        "from": {
+          "r": 3,
+          "c": 4
+        },
+        "to": {
+          "r": 5,
+          "c": 6
+        },
+        "note": "Opponent responds 18x29",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 37,
+        "toSq": 32,
+        "from": {
+          "r": 7,
+          "c": 2
+        },
+        "to": {
+          "r": 6,
+          "c": 3
+        },
+        "note": "Continue combo: 37-32",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 27,
+        "toSq": 38,
+        "from": {
+          "r": 5,
+          "c": 2
+        },
+        "to": {
+          "r": 7,
+          "c": 4
+        },
+        "note": "Opponent responds 27x38",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 42,
+        "toSq": 4,
+        "from": {
+          "r": 8,
+          "c": 3
+        },
+        "to": {
+          "r": 0,
+          "c": 7
+        },
+        "note": "Continue combo: 42x4",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
     "candidate_analysis": {
-      "best_move": "27-21",
+      "best_move": "33-28",
       "second_best_move": "Quiet move",
       "eval_gap": null,
       "tempting_move": null,
@@ -1680,12 +1321,12 @@ export const TRAP_DATABASE = [
       "candidate_count": 1
     },
     "hints": [
-      "Calculate White's breakthrough strike starting with 27-21.",
+      "Calculate White's breakthrough strike starting with 33-28.",
       "Opponent has compulsory responses. Calculate the full multi-jump chain.",
-      "Play 27-21! This initiates the decisive win."
+      "Play 33-28! This initiates the decisive win."
     ],
-    "description": "Master Composition #256 from DRAUGHTS IMAGE (Rating 2351 Elo)",
-    "explanation": "White sacrifices decisively with 27-21 forcing an unstoppable winning combination.",
+    "description": "Master Composition #3 directly from user screenshot 3.PNG (Rating 2236 Elo)",
+    "explanation": "White sacrifices decisively with 33-28 forcing an unstoppable winning combination.",
     "quality": {
       "score": 98,
       "legality_score": 100,
@@ -1693,26 +1334,26 @@ export const TRAP_DATABASE = [
       "tactical_interest": 99,
       "verified": true
     },
-    "hash": "hash_img_256",
+    "hash": "hash_img_3",
     "initialBoard": [
       {
-        "r": 0,
+        "r": 1,
+        "c": 4,
+        "square": 8,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 1,
+        "c": 8,
+        "square": 10,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
         "c": 3,
-        "square": 2,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 5,
-        "square": 13,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 7,
-        "square": 14,
+        "square": 12,
         "player": 2,
         "isKing": false
       },
@@ -1732,22 +1373,15 @@ export const TRAP_DATABASE = [
       },
       {
         "r": 3,
-        "c": 6,
-        "square": 19,
+        "c": 8,
+        "square": 20,
         "player": 2,
         "isKing": false
       },
       {
         "r": 4,
-        "c": 7,
-        "square": 24,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 0,
-        "square": 26,
+        "c": 3,
+        "square": 22,
         "player": 2,
         "isKing": false
       },
@@ -1755,13 +1389,13 @@ export const TRAP_DATABASE = [
         "r": 5,
         "c": 2,
         "square": 27,
-        "player": 1,
+        "player": 2,
         "isKing": false
       },
       {
         "r": 5,
-        "c": 4,
-        "square": 28,
+        "c": 6,
+        "square": 29,
         "player": 1,
         "isKing": false
       },
@@ -1773,13 +1407,6 @@ export const TRAP_DATABASE = [
         "isKing": false
       },
       {
-        "r": 6,
-        "c": 7,
-        "square": 34,
-        "player": 1,
-        "isKing": false
-      },
-      {
         "r": 7,
         "c": 2,
         "square": 37,
@@ -1787,34 +1414,61 @@ export const TRAP_DATABASE = [
         "isKing": false
       },
       {
-        "r": 8,
-        "c": 1,
-        "square": 41,
+        "r": 7,
+        "c": 6,
+        "square": 39,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 8,
+        "square": 40,
         "player": 1,
         "isKing": false
       },
       {
         "r": 8,
-        "c": 5,
-        "square": 43,
+        "c": 3,
+        "square": 42,
         "player": 1,
         "isKing": false
       },
       {
         "r": 9,
-        "c": 4,
-        "square": 48,
+        "c": 2,
+        "square": 47,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 9,
+        "c": 8,
+        "square": 50,
         "player": 1,
         "isKing": false
       }
     ],
-    "initialMove": null,
-    "created_at": "2026-09-22T09:09:20.605Z",
-    "title": "Lidraughts Puzzle #256: Counter-Sacrifice Sweep",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "counter-sweep",
+    "initialMove": {
+      "fromSq": 21,
+      "toSq": 27,
+      "from": {
+        "r": 4,
+        "c": 1
+      },
+      "to": {
+        "r": 5,
+        "c": 2
+      },
+      "isAi": true,
+      "note": "Opponent blunder: 21-27"
+    },
+    "created_at": "2026-09-22T10:30:58.994Z",
+    "title": "📸 DRAUGHTS IMAGE #3 (3.PNG): Springer Diamond Shot & Coronation",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 3.PNG! Spot the combination and strike!",
+    "themeId": "diamond-shot",
     "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #256",
+    "themeIdea": "Forced combination from Screenshot 3.PNG",
     "themeStars": "⭐⭐⭐⭐⭐",
     "category": "DRAUGHTS IMAGE Collection",
     "themeCategory": "DRAUGHTS IMAGE Collection",
@@ -1823,44 +1477,51 @@ export const TRAP_DATABASE = [
       "Master Tactics",
       "FMJD International"
     ],
-    "badge": "📸 Screenshot Master"
+    "badge": "📸 3.PNG",
+    "source_image": "3.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
   },
   {
-    "id": "DRAUGHTS-IMG-255",
+    "id": "DRAUGHTS-IMG-4",
     "ruleset": "international",
     "board_size": 10,
     "side_to_move": "white",
-    "fen": "W:W23,34,36,37,45,48,49:B4,12,16,17,22,24,26:H0:F1",
+    "fen": "W:W16,26,27,34,40,42,43,44,49:B1,4,7,11,14,18,19,23,24:H0:F1",
     "position": {
       "white": [
-        23,
+        16,
+        26,
+        27,
         34,
-        36,
-        37,
-        45,
-        48,
+        40,
+        42,
+        43,
+        44,
         49
       ],
       "black": [
+        1,
         4,
-        12,
-        16,
-        17,
-        22,
-        24,
-        26
+        7,
+        11,
+        14,
+        18,
+        19,
+        23,
+        24
       ],
       "white_kings": [],
       "black_kings": []
     },
     "difficulty": {
-      "tier": 7,
-      "tier_name": "Candidate Master",
-      "rating": 1771,
-      "human_score": 66,
+      "tier": 11,
+      "tier_name": "Grandmaster",
+      "rating": 2470,
+      "human_score": 82,
       "engine_depth": 8,
       "metrics": {
-        "tacticalComplexity": 56,
+        "tacticalComplexity": 64,
         "candidateComplexity": 20,
         "branchingFactor": 15,
         "solutionDepth": 8,
@@ -1874,76 +1535,111 @@ export const TRAP_DATABASE = [
         "moveOrderSensitivity": 40,
         "kingComplexity": 25,
         "endgameComplexity": 45,
-        "humanDifficulty": 56,
+        "humanDifficulty": 64,
         "temptingMove": null,
         "humanRanking": [
-          "49-43"
+          "26-21"
         ],
         "winningRank": 1
       }
     },
     "classification": {
       "category": "tactical",
-      "primary_theme": "king-strike",
+      "primary_theme": "coronation-blitz",
       "themes": [
-        "king-strike",
+        "coronation-blitz",
+        "draughts-image",
         "classical-combination",
         "fmjd-master"
       ],
       "game_phase": "middlegame"
     },
     "solution": {
-      "best_move": "49-43",
+      "best_move": "26-21",
       "uniqueness": "unique",
       "depth": 8,
       "steps": [
         {
           "mover": 1,
-          "fromSq": 49,
-          "toSq": 43,
+          "fromSq": 26,
+          "toSq": 21,
           "from": {
-            "r": 9,
-            "c": 6
+            "r": 5,
+            "c": 0
           },
           "to": {
-            "r": 8,
-            "c": 5
+            "r": 4,
+            "c": 1
           },
-          "note": "Key strike: 49-43!",
+          "note": "Key strike: 26-21!",
           "isAi": false,
           "isJump": false,
           "isForcedHop": false
         },
         {
           "mover": 2,
-          "fromSq": 22,
-          "toSq": 28,
+          "fromSq": 11,
+          "toSq": 17,
           "from": {
-            "r": 4,
-            "c": 3
+            "r": 2,
+            "c": 1
           },
           "to": {
-            "r": 5,
-            "c": 4
+            "r": 3,
+            "c": 2
           },
-          "note": "Opponent responds 22-28",
+          "note": "Opponent responds 11-17",
           "isAi": true,
           "isJump": false,
           "isForcedHop": false
         },
         {
           "mover": 1,
+          "fromSq": 21,
+          "toSq": 12,
+          "from": {
+            "r": 4,
+            "c": 1
+          },
+          "to": {
+            "r": 2,
+            "c": 3
+          },
+          "note": "Continue combo: 21x12",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
           "fromSq": 23,
-          "toSq": 32,
+          "toSq": 28,
           "from": {
             "r": 4,
             "c": 5
           },
           "to": {
+            "r": 5,
+            "c": 4
+          },
+          "note": "Opponent responds 23-28",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 12,
+          "toSq": 32,
+          "from": {
+            "r": 2,
+            "c": 3
+          },
+          "to": {
             "r": 6,
             "c": 3
           },
-          "note": "Continue combo: 23x32",
+          "note": "Continue combo: 12x32",
           "isAi": false,
           "isJump": true,
           "isForcedHop": false
@@ -1984,430 +1680,6 @@ export const TRAP_DATABASE = [
         },
         {
           "mover": 2,
-          "fromSq": 12,
-          "toSq": 18,
-          "from": {
-            "r": 2,
-            "c": 3
-          },
-          "to": {
-            "r": 3,
-            "c": 4
-          },
-          "note": "Opponent responds 12-18",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 23,
-          "toSq": 21,
-          "from": {
-            "r": 4,
-            "c": 5
-          },
-          "to": {
-            "r": 4,
-            "c": 1
-          },
-          "note": "Continue combo: 23x21",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 16,
-          "toSq": 49,
-          "from": {
-            "r": 3,
-            "c": 0
-          },
-          "to": {
-            "r": 9,
-            "c": 6
-          },
-          "note": "Opponent responds 16x49",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        }
-      ],
-      "variations": []
-    },
-    "candidate_analysis": {
-      "best_move": "49-43",
-      "second_best_move": "Quiet move",
-      "eval_gap": null,
-      "tempting_move": null,
-      "why_humans_choose_it": null,
-      "refutation": null,
-      "candidate_count": 1
-    },
-    "hints": [
-      "Calculate White's breakthrough strike starting with 49-43.",
-      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
-      "Play 49-43! This initiates the decisive win."
-    ],
-    "description": "Master Composition #255 from DRAUGHTS IMAGE (Rating 1771 Elo)",
-    "explanation": "White sacrifices decisively with 49-43 forcing an unstoppable winning combination.",
-    "quality": {
-      "score": 98,
-      "legality_score": 100,
-      "uniqueness_score": 100,
-      "tactical_interest": 99,
-      "verified": true
-    },
-    "hash": "hash_img_255",
-    "initialBoard": [
-      {
-        "r": 0,
-        "c": 7,
-        "square": 4,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 3,
-        "square": 12,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 0,
-        "square": 16,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 2,
-        "square": 17,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 3,
-        "square": 22,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 5,
-        "square": 23,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 7,
-        "square": 24,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 0,
-        "square": 26,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 7,
-        "square": 34,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 0,
-        "square": 36,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 2,
-        "square": 37,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 9,
-        "square": 45,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 9,
-        "c": 4,
-        "square": 48,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 9,
-        "c": 6,
-        "square": 49,
-        "player": 1,
-        "isKing": false
-      }
-    ],
-    "initialMove": null,
-    "created_at": "2026-09-22T09:09:20.604Z",
-    "title": "Lidraughts Puzzle #255: Long Diagonal King Strike",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "king-strike",
-    "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #255",
-    "themeStars": "⭐⭐⭐⭐⭐",
-    "category": "DRAUGHTS IMAGE Collection",
-    "themeCategory": "DRAUGHTS IMAGE Collection",
-    "themes": [
-      "DRAUGHTS IMAGE Collection",
-      "Master Tactics",
-      "FMJD International"
-    ],
-    "badge": "📸 Screenshot Master"
-  },
-  {
-    "id": "DRAUGHTS-IMG-254",
-    "ruleset": "international",
-    "board_size": 10,
-    "side_to_move": "white",
-    "fen": "W:W29,33,34,35,38,42,44,45,47:B11,12,13,18,19,20,22,23,25:H0:F1",
-    "position": {
-      "white": [
-        29,
-        33,
-        34,
-        35,
-        38,
-        42,
-        44,
-        45,
-        47
-      ],
-      "black": [
-        11,
-        12,
-        13,
-        18,
-        19,
-        20,
-        22,
-        23,
-        25
-      ],
-      "white_kings": [],
-      "black_kings": []
-    },
-    "difficulty": {
-      "tier": 11,
-      "tier_name": "Grandmaster",
-      "rating": 2411,
-      "human_score": 95,
-      "engine_depth": 10,
-      "metrics": {
-        "tacticalComplexity": 88,
-        "candidateComplexity": 20,
-        "branchingFactor": 15,
-        "solutionDepth": 10,
-        "effectiveDepth": 10,
-        "wrongMoveSimilarity": 25,
-        "evaluationGap": 50,
-        "deceptionScore": 30,
-        "quietMoveScore": 20,
-        "sacrificeDifficulty": 40,
-        "defensiveDifficulty": 30,
-        "moveOrderSensitivity": 40,
-        "kingComplexity": 25,
-        "endgameComplexity": 45,
-        "humanDifficulty": 88,
-        "temptingMove": null,
-        "humanRanking": [
-          "38-32"
-        ],
-        "winningRank": 1
-      }
-    },
-    "classification": {
-      "category": "tactical",
-      "primary_theme": "pin-and-shatter",
-      "themes": [
-        "pin-and-shatter",
-        "classical-combination",
-        "fmjd-master"
-      ],
-      "game_phase": "middlegame"
-    },
-    "solution": {
-      "best_move": "38-32",
-      "uniqueness": "unique",
-      "depth": 10,
-      "steps": [
-        {
-          "mover": 1,
-          "fromSq": 38,
-          "toSq": 32,
-          "from": {
-            "r": 7,
-            "c": 4
-          },
-          "to": {
-            "r": 6,
-            "c": 3
-          },
-          "note": "Key strike: 38-32!",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 22,
-          "toSq": 28,
-          "from": {
-            "r": 4,
-            "c": 3
-          },
-          "to": {
-            "r": 5,
-            "c": 4
-          },
-          "note": "Opponent responds 22-28",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 33,
-          "toSq": 22,
-          "from": {
-            "r": 6,
-            "c": 5
-          },
-          "to": {
-            "r": 4,
-            "c": 3
-          },
-          "note": "Continue combo: 33x22",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 18,
-          "toSq": 38,
-          "from": {
-            "r": 3,
-            "c": 4
-          },
-          "to": {
-            "r": 7,
-            "c": 4
-          },
-          "note": "Opponent responds 18x38",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 29,
-          "toSq": 16,
-          "from": {
-            "r": 5,
-            "c": 6
-          },
-          "to": {
-            "r": 3,
-            "c": 0
-          },
-          "note": "Continue combo: 29x16",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 20,
-          "toSq": 24,
-          "from": {
-            "r": 3,
-            "c": 8
-          },
-          "to": {
-            "r": 4,
-            "c": 7
-          },
-          "note": "Opponent responds 20-24",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 42,
-          "toSq": 33,
-          "from": {
-            "r": 8,
-            "c": 3
-          },
-          "to": {
-            "r": 6,
-            "c": 5
-          },
-          "note": "Continue combo: 42x33",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 24,
-          "toSq": 30,
-          "from": {
-            "r": 4,
-            "c": 7
-          },
-          "to": {
-            "r": 5,
-            "c": 8
-          },
-          "note": "Opponent responds 24-30",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 35,
-          "toSq": 24,
-          "from": {
-            "r": 6,
-            "c": 9
-          },
-          "to": {
-            "r": 4,
-            "c": 7
-          },
-          "note": "Continue combo: 35x24",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
           "fromSq": 19,
           "toSq": 50,
           "from": {
@@ -2426,8 +1698,146 @@ export const TRAP_DATABASE = [
       ],
       "variations": []
     },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 26,
+        "toSq": 21,
+        "from": {
+          "r": 5,
+          "c": 0
+        },
+        "to": {
+          "r": 4,
+          "c": 1
+        },
+        "note": "Key strike: 26-21!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 11,
+        "toSq": 17,
+        "from": {
+          "r": 2,
+          "c": 1
+        },
+        "to": {
+          "r": 3,
+          "c": 2
+        },
+        "note": "Opponent responds 11-17",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 21,
+        "toSq": 12,
+        "from": {
+          "r": 4,
+          "c": 1
+        },
+        "to": {
+          "r": 2,
+          "c": 3
+        },
+        "note": "Continue combo: 21x12",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 23,
+        "toSq": 28,
+        "from": {
+          "r": 4,
+          "c": 5
+        },
+        "to": {
+          "r": 5,
+          "c": 4
+        },
+        "note": "Opponent responds 23-28",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 12,
+        "toSq": 32,
+        "from": {
+          "r": 2,
+          "c": 3
+        },
+        "to": {
+          "r": 6,
+          "c": 3
+        },
+        "note": "Continue combo: 12x32",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 24,
+        "toSq": 29,
+        "from": {
+          "r": 4,
+          "c": 7
+        },
+        "to": {
+          "r": 5,
+          "c": 6
+        },
+        "note": "Opponent responds 24-29",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 34,
+        "toSq": 23,
+        "from": {
+          "r": 6,
+          "c": 7
+        },
+        "to": {
+          "r": 4,
+          "c": 5
+        },
+        "note": "Continue combo: 34x23",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 19,
+        "toSq": 50,
+        "from": {
+          "r": 3,
+          "c": 6
+        },
+        "to": {
+          "r": 9,
+          "c": 8
+        },
+        "note": "Opponent responds 19x50",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
     "candidate_analysis": {
-      "best_move": "38-32",
+      "best_move": "26-21",
       "second_best_move": "Quiet move",
       "eval_gap": null,
       "tempting_move": null,
@@ -2436,12 +1846,12 @@ export const TRAP_DATABASE = [
       "candidate_count": 1
     },
     "hints": [
-      "Calculate White's breakthrough strike starting with 38-32.",
+      "Calculate White's breakthrough strike starting with 26-21.",
       "Opponent has compulsory responses. Calculate the full multi-jump chain.",
-      "Play 38-32! This initiates the decisive win."
+      "Play 26-21! This initiates the decisive win."
     ],
-    "description": "Master Composition #254 from DRAUGHTS IMAGE (Rating 2411 Elo)",
-    "explanation": "White sacrifices decisively with 38-32 forcing an unstoppable winning combination.",
+    "description": "Master Composition #4 directly from user screenshot 4.PNG (Rating 2470 Elo)",
+    "explanation": "White sacrifices decisively with 26-21 forcing an unstoppable winning combination.",
     "quality": {
       "score": 98,
       "legality_score": 100,
@@ -2449,390 +1859,15 @@ export const TRAP_DATABASE = [
       "tactical_interest": 99,
       "verified": true
     },
-    "hash": "hash_img_254",
+    "hash": "hash_img_4",
     "initialBoard": [
       {
-        "r": 2,
+        "r": 0,
         "c": 1,
-        "square": 11,
+        "square": 1,
         "player": 2,
         "isKing": false
       },
-      {
-        "r": 2,
-        "c": 3,
-        "square": 12,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 5,
-        "square": 13,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 4,
-        "square": 18,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 6,
-        "square": 19,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 8,
-        "square": 20,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 3,
-        "square": 22,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 5,
-        "square": 23,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 9,
-        "square": 25,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 6,
-        "square": 29,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 5,
-        "square": 33,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 7,
-        "square": 34,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 9,
-        "square": 35,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 4,
-        "square": 38,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 3,
-        "square": 42,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 7,
-        "square": 44,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 9,
-        "square": 45,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 9,
-        "c": 2,
-        "square": 47,
-        "player": 1,
-        "isKing": false
-      }
-    ],
-    "initialMove": null,
-    "created_at": "2026-09-22T09:09:20.604Z",
-    "title": "Lidraughts Puzzle #254: Grandmaster Pin & Shatter",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "pin-and-shatter",
-    "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #254",
-    "themeStars": "⭐⭐⭐⭐⭐",
-    "category": "DRAUGHTS IMAGE Collection",
-    "themeCategory": "DRAUGHTS IMAGE Collection",
-    "themes": [
-      "DRAUGHTS IMAGE Collection",
-      "Master Tactics",
-      "FMJD International"
-    ],
-    "badge": "📸 Screenshot Master"
-  },
-  {
-    "id": "DRAUGHTS-IMG-252",
-    "ruleset": "international",
-    "board_size": 10,
-    "side_to_move": "white",
-    "fen": "W:W25,30,32,33,35,38,39,40:B4,8,10,13,14,18,19,24:H0:F1",
-    "position": {
-      "white": [
-        25,
-        30,
-        32,
-        33,
-        35,
-        38,
-        39,
-        40
-      ],
-      "black": [
-        4,
-        8,
-        10,
-        13,
-        14,
-        18,
-        19,
-        24
-      ],
-      "white_kings": [],
-      "black_kings": []
-    },
-    "difficulty": {
-      "tier": 10,
-      "tier_name": "International Master",
-      "rating": 2301,
-      "human_score": 90,
-      "engine_depth": 8,
-      "metrics": {
-        "tacticalComplexity": 80,
-        "candidateComplexity": 20,
-        "branchingFactor": 15,
-        "solutionDepth": 8,
-        "effectiveDepth": 8,
-        "wrongMoveSimilarity": 25,
-        "evaluationGap": 50,
-        "deceptionScore": 30,
-        "quietMoveScore": 20,
-        "sacrificeDifficulty": 40,
-        "defensiveDifficulty": 30,
-        "moveOrderSensitivity": 40,
-        "kingComplexity": 25,
-        "endgameComplexity": 45,
-        "humanDifficulty": 80,
-        "temptingMove": null,
-        "humanRanking": [
-          "32-28"
-        ],
-        "winningRank": 1
-      }
-    },
-    "classification": {
-      "category": "tactical",
-      "primary_theme": "diagonal-trap",
-      "themes": [
-        "diagonal-trap",
-        "classical-combination",
-        "fmjd-master"
-      ],
-      "game_phase": "middlegame"
-    },
-    "solution": {
-      "best_move": "32-28",
-      "uniqueness": "unique",
-      "depth": 8,
-      "steps": [
-        {
-          "mover": 1,
-          "fromSq": 32,
-          "toSq": 28,
-          "from": {
-            "r": 6,
-            "c": 3
-          },
-          "to": {
-            "r": 5,
-            "c": 4
-          },
-          "note": "Key strike: 32-28!",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 18,
-          "toSq": 22,
-          "from": {
-            "r": 3,
-            "c": 4
-          },
-          "to": {
-            "r": 4,
-            "c": 3
-          },
-          "note": "Opponent responds 18-22",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 28,
-          "toSq": 17,
-          "from": {
-            "r": 5,
-            "c": 4
-          },
-          "to": {
-            "r": 3,
-            "c": 2
-          },
-          "note": "Continue combo: 28x17",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 19,
-          "toSq": 23,
-          "from": {
-            "r": 3,
-            "c": 6
-          },
-          "to": {
-            "r": 4,
-            "c": 5
-          },
-          "note": "Opponent responds 19-23",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 30,
-          "toSq": 28,
-          "from": {
-            "r": 5,
-            "c": 8
-          },
-          "to": {
-            "r": 5,
-            "c": 4
-          },
-          "note": "Continue combo: 30x28",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 8,
-          "toSq": 12,
-          "from": {
-            "r": 1,
-            "c": 4
-          },
-          "to": {
-            "r": 2,
-            "c": 3
-          },
-          "note": "Opponent responds 8-12",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 17,
-          "toSq": 19,
-          "from": {
-            "r": 3,
-            "c": 2
-          },
-          "to": {
-            "r": 3,
-            "c": 6
-          },
-          "note": "Continue combo: 17x19",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 14,
-          "toSq": 45,
-          "from": {
-            "r": 2,
-            "c": 7
-          },
-          "to": {
-            "r": 8,
-            "c": 9
-          },
-          "note": "Opponent responds 14x45",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        }
-      ],
-      "variations": []
-    },
-    "candidate_analysis": {
-      "best_move": "32-28",
-      "second_best_move": "Quiet move",
-      "eval_gap": null,
-      "tempting_move": null,
-      "why_humans_choose_it": null,
-      "refutation": null,
-      "candidate_count": 1
-    },
-    "hints": [
-      "Calculate White's breakthrough strike starting with 32-28.",
-      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
-      "Play 32-28! This initiates the decisive win."
-    ],
-    "description": "Master Composition #252 from DRAUGHTS IMAGE (Rating 2301 Elo)",
-    "explanation": "White sacrifices decisively with 32-28 forcing an unstoppable winning combination.",
-    "quality": {
-      "score": 98,
-      "legality_score": 100,
-      "uniqueness_score": 100,
-      "tactical_interest": 99,
-      "verified": true
-    },
-    "hash": "hash_img_252",
-    "initialBoard": [
       {
         "r": 0,
         "c": 7,
@@ -2842,22 +1877,15 @@ export const TRAP_DATABASE = [
       },
       {
         "r": 1,
-        "c": 4,
-        "square": 8,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 1,
-        "c": 8,
-        "square": 10,
+        "c": 2,
+        "square": 7,
         "player": 2,
         "isKing": false
       },
       {
         "r": 2,
-        "c": 5,
-        "square": 13,
+        "c": 1,
+        "square": 11,
         "player": 2,
         "isKing": false
       },
@@ -2870,6 +1898,13 @@ export const TRAP_DATABASE = [
       },
       {
         "r": 3,
+        "c": 0,
+        "square": 16,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 3,
         "c": 4,
         "square": 18,
         "player": 2,
@@ -2884,57 +1919,36 @@ export const TRAP_DATABASE = [
       },
       {
         "r": 4,
+        "c": 5,
+        "square": 23,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
         "c": 7,
         "square": 24,
         "player": 2,
         "isKing": false
       },
       {
-        "r": 4,
-        "c": 9,
-        "square": 25,
+        "r": 5,
+        "c": 0,
+        "square": 26,
         "player": 1,
         "isKing": false
       },
       {
         "r": 5,
-        "c": 8,
-        "square": 30,
+        "c": 2,
+        "square": 27,
         "player": 1,
         "isKing": false
       },
       {
         "r": 6,
-        "c": 3,
-        "square": 32,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 5,
-        "square": 33,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 9,
-        "square": 35,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 4,
-        "square": 38,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 6,
-        "square": 39,
+        "c": 7,
+        "square": 34,
         "player": 1,
         "isKing": false
       },
@@ -2944,15 +1958,43 @@ export const TRAP_DATABASE = [
         "square": 40,
         "player": 1,
         "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 3,
+        "square": 42,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 5,
+        "square": 43,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 7,
+        "square": 44,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 9,
+        "c": 6,
+        "square": 49,
+        "player": 1,
+        "isKing": false
       }
     ],
     "initialMove": null,
-    "created_at": "2026-09-22T09:09:20.604Z",
-    "title": "Lidraughts Puzzle #252: Masterpiece Diagonal Trap",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "diagonal-trap",
+    "created_at": "2026-09-22T10:30:58.994Z",
+    "title": "📸 DRAUGHTS IMAGE #4 (4.PNG): Grandmaster Coronation Blitz",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 4.PNG! Spot the combination and strike!",
+    "themeId": "coronation-blitz",
     "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #252",
+    "themeIdea": "Forced combination from Screenshot 4.PNG",
     "themeStars": "⭐⭐⭐⭐⭐",
     "category": "DRAUGHTS IMAGE Collection",
     "themeCategory": "DRAUGHTS IMAGE Collection",
@@ -2961,34 +2003,37 @@ export const TRAP_DATABASE = [
       "Master Tactics",
       "FMJD International"
     ],
-    "badge": "📸 Screenshot Master"
+    "badge": "📸 4.PNG",
+    "source_image": "4.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
   },
   {
-    "id": "DRAUGHTS-IMG-251",
+    "id": "DRAUGHTS-IMG-5",
     "ruleset": "international",
     "board_size": 10,
     "side_to_move": "white",
-    "fen": "W:W23,29,31,33,35,41,42,43:B3,10,11,12,13,14,17,25:H0:F1",
+    "fen": "W:W25,29,33,38,41,42,43,47:B6,9,11,12,13,14,18,26:H0:F1",
     "position": {
       "white": [
-        23,
+        25,
         29,
-        31,
         33,
-        35,
+        38,
         41,
         42,
-        43
+        43,
+        47
       ],
       "black": [
-        3,
-        10,
+        6,
+        9,
         11,
         12,
         13,
         14,
-        17,
-        25
+        18,
+        26
       ],
       "white_kings": [],
       "black_kings": []
@@ -2996,11 +2041,11 @@ export const TRAP_DATABASE = [
     "difficulty": {
       "tier": 9,
       "tier_name": "Master",
-      "rating": 2161,
-      "human_score": 82,
+      "rating": 2002,
+      "human_score": 67,
       "engine_depth": 8,
       "metrics": {
-        "tacticalComplexity": 72,
+        "tacticalComplexity": 64,
         "candidateComplexity": 20,
         "branchingFactor": 15,
         "solutionDepth": 8,
@@ -3014,78 +2059,45 @@ export const TRAP_DATABASE = [
         "moveOrderSensitivity": 40,
         "kingComplexity": 25,
         "endgameComplexity": 45,
-        "humanDifficulty": 72,
+        "humanDifficulty": 64,
         "temptingMove": null,
         "humanRanking": [
-          "31-27"
+          "29-24"
         ],
         "winningRank": 1
       }
     },
     "classification": {
       "category": "tactical",
-      "primary_theme": "decoy-breaker",
+      "primary_theme": "coup-de-la-bombe",
       "themes": [
-        "decoy-breaker",
+        "coup-de-la-bombe",
+        "draughts-image",
         "classical-combination",
         "fmjd-master"
       ],
       "game_phase": "middlegame"
     },
     "solution": {
-      "best_move": "31-27",
+      "best_move": "29-24",
       "uniqueness": "unique",
       "depth": 8,
       "steps": [
         {
           "mover": 1,
-          "fromSq": 31,
-          "toSq": 27,
-          "from": {
-            "r": 6,
-            "c": 1
-          },
-          "to": {
-            "r": 5,
-            "c": 2
-          },
-          "note": "Key strike: 31-27!",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 25,
-          "toSq": 30,
-          "from": {
-            "r": 4,
-            "c": 9
-          },
-          "to": {
-            "r": 5,
-            "c": 8
-          },
-          "note": "Opponent responds 25-30",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 35,
+          "fromSq": 29,
           "toSq": 24,
           "from": {
-            "r": 6,
-            "c": 9
+            "r": 5,
+            "c": 6
           },
           "to": {
             "r": 4,
             "c": 7
           },
-          "note": "Continue combo: 35x24",
+          "note": "Key strike: 29-24!",
           "isAi": false,
-          "isJump": true,
+          "isJump": false,
           "isForcedHop": false
         },
         {
@@ -3107,17 +2119,17 @@ export const TRAP_DATABASE = [
         },
         {
           "mover": 1,
-          "fromSq": 24,
-          "toSq": 4,
+          "fromSq": 25,
+          "toSq": 3,
           "from": {
             "r": 4,
-            "c": 7
+            "c": 9
           },
           "to": {
             "r": 0,
-            "c": 7
+            "c": 5
           },
-          "note": "Continue combo: 24x4",
+          "note": "Continue combo: 25x3",
           "isAi": false,
           "isJump": true,
           "isForcedHop": false
@@ -3125,50 +2137,84 @@ export const TRAP_DATABASE = [
         {
           "mover": 2,
           "fromSq": 13,
-          "toSq": 18,
+          "toSq": 19,
           "from": {
             "r": 2,
             "c": 5
           },
           "to": {
             "r": 3,
-            "c": 4
+            "c": 6
           },
-          "note": "Opponent responds 13-18",
+          "note": "Opponent responds 13-19",
           "isAi": true,
           "isJump": false,
           "isForcedHop": false
         },
         {
           "mover": 1,
-          "fromSq": 4,
+          "fromSq": 24,
           "toSq": 22,
           "from": {
-            "r": 0,
+            "r": 4,
             "c": 7
           },
           "to": {
             "r": 4,
             "c": 3
           },
-          "note": "Continue combo: 4x22",
+          "note": "Continue combo: 24x22",
           "isAi": false,
           "isJump": true,
           "isForcedHop": false
         },
         {
           "mover": 2,
-          "fromSq": 17,
-          "toSq": 46,
+          "fromSq": 12,
+          "toSq": 17,
           "from": {
+            "r": 2,
+            "c": 3
+          },
+          "to": {
             "r": 3,
             "c": 2
+          },
+          "note": "Opponent responds 12-17",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 3,
+          "toSq": 21,
+          "from": {
+            "r": 0,
+            "c": 5
+          },
+          "to": {
+            "r": 4,
+            "c": 1
+          },
+          "note": "Continue combo: 3x21",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 26,
+          "toSq": 46,
+          "from": {
+            "r": 5,
+            "c": 0
           },
           "to": {
             "r": 9,
             "c": 0
           },
-          "note": "Opponent responds 17x46",
+          "note": "Opponent responds 26x46",
           "isAi": true,
           "isJump": true,
           "isForcedHop": false
@@ -3176,8 +2222,146 @@ export const TRAP_DATABASE = [
       ],
       "variations": []
     },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 29,
+        "toSq": 24,
+        "from": {
+          "r": 5,
+          "c": 6
+        },
+        "to": {
+          "r": 4,
+          "c": 7
+        },
+        "note": "Key strike: 29-24!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 14,
+        "toSq": 20,
+        "from": {
+          "r": 2,
+          "c": 7
+        },
+        "to": {
+          "r": 3,
+          "c": 8
+        },
+        "note": "Opponent responds 14-20",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 25,
+        "toSq": 3,
+        "from": {
+          "r": 4,
+          "c": 9
+        },
+        "to": {
+          "r": 0,
+          "c": 5
+        },
+        "note": "Continue combo: 25x3",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 13,
+        "toSq": 19,
+        "from": {
+          "r": 2,
+          "c": 5
+        },
+        "to": {
+          "r": 3,
+          "c": 6
+        },
+        "note": "Opponent responds 13-19",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 24,
+        "toSq": 22,
+        "from": {
+          "r": 4,
+          "c": 7
+        },
+        "to": {
+          "r": 4,
+          "c": 3
+        },
+        "note": "Continue combo: 24x22",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 12,
+        "toSq": 17,
+        "from": {
+          "r": 2,
+          "c": 3
+        },
+        "to": {
+          "r": 3,
+          "c": 2
+        },
+        "note": "Opponent responds 12-17",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 3,
+        "toSq": 21,
+        "from": {
+          "r": 0,
+          "c": 5
+        },
+        "to": {
+          "r": 4,
+          "c": 1
+        },
+        "note": "Continue combo: 3x21",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 26,
+        "toSq": 46,
+        "from": {
+          "r": 5,
+          "c": 0
+        },
+        "to": {
+          "r": 9,
+          "c": 0
+        },
+        "note": "Opponent responds 26x46",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
     "candidate_analysis": {
-      "best_move": "31-27",
+      "best_move": "29-24",
       "second_best_move": "Quiet move",
       "eval_gap": null,
       "tempting_move": null,
@@ -3186,12 +2370,12 @@ export const TRAP_DATABASE = [
       "candidate_count": 1
     },
     "hints": [
-      "Calculate White's breakthrough strike starting with 31-27.",
+      "Calculate White's breakthrough strike starting with 29-24.",
       "Opponent has compulsory responses. Calculate the full multi-jump chain.",
-      "Play 31-27! This initiates the decisive win."
+      "Play 29-24! This initiates the decisive win."
     ],
-    "description": "Master Composition #251 from DRAUGHTS IMAGE (Rating 2161 Elo)",
-    "explanation": "White sacrifices decisively with 31-27 forcing an unstoppable winning combination.",
+    "description": "Master Composition #5 directly from user screenshot 5.PNG (Rating 2002 Elo)",
+    "explanation": "White sacrifices decisively with 29-24 forcing an unstoppable winning combination.",
     "quality": {
       "score": 98,
       "legality_score": 100,
@@ -3199,19 +2383,19 @@ export const TRAP_DATABASE = [
       "tactical_interest": 99,
       "verified": true
     },
-    "hash": "hash_img_251",
+    "hash": "hash_img_5",
     "initialBoard": [
       {
-        "r": 0,
-        "c": 5,
-        "square": 3,
+        "r": 1,
+        "c": 0,
+        "square": 6,
         "player": 2,
         "isKing": false
       },
       {
         "r": 1,
-        "c": 8,
-        "square": 10,
+        "c": 6,
+        "square": 9,
         "player": 2,
         "isKing": false
       },
@@ -3245,22 +2429,22 @@ export const TRAP_DATABASE = [
       },
       {
         "r": 3,
-        "c": 2,
-        "square": 17,
+        "c": 4,
+        "square": 18,
         "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 5,
-        "square": 23,
-        "player": 1,
         "isKing": false
       },
       {
         "r": 4,
         "c": 9,
         "square": 25,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 0,
+        "square": 26,
         "player": 2,
         "isKing": false
       },
@@ -3273,22 +2457,15 @@ export const TRAP_DATABASE = [
       },
       {
         "r": 6,
-        "c": 1,
-        "square": 31,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
         "c": 5,
         "square": 33,
         "player": 1,
         "isKing": false
       },
       {
-        "r": 6,
-        "c": 9,
-        "square": 35,
+        "r": 7,
+        "c": 4,
+        "square": 38,
         "player": 1,
         "isKing": false
       },
@@ -3312,1866 +2489,6 @@ export const TRAP_DATABASE = [
         "square": 43,
         "player": 1,
         "isKing": false
-      }
-    ],
-    "initialMove": null,
-    "created_at": "2026-09-22T09:09:20.604Z",
-    "title": "Lidraughts Puzzle #251: Grande Ligne Decoy Breaker",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "decoy-breaker",
-    "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #251",
-    "themeStars": "⭐⭐⭐⭐⭐",
-    "category": "DRAUGHTS IMAGE Collection",
-    "themeCategory": "DRAUGHTS IMAGE Collection",
-    "themes": [
-      "DRAUGHTS IMAGE Collection",
-      "Master Tactics",
-      "FMJD International"
-    ],
-    "badge": "📸 Screenshot Master"
-  },
-  {
-    "id": "DRAUGHTS-IMG-250",
-    "ruleset": "international",
-    "board_size": 10,
-    "side_to_move": "white",
-    "fen": "W:W24,28,29,38,42,43,44:B3,8,11,12,13,14,27:H0:F1",
-    "position": {
-      "white": [
-        24,
-        28,
-        29,
-        38,
-        42,
-        43,
-        44
-      ],
-      "black": [
-        3,
-        8,
-        11,
-        12,
-        13,
-        14,
-        27
-      ],
-      "white_kings": [],
-      "black_kings": []
-    },
-    "difficulty": {
-      "tier": 9,
-      "tier_name": "Master",
-      "rating": 2018,
-      "human_score": 82,
-      "engine_depth": 6,
-      "metrics": {
-        "tacticalComplexity": 72,
-        "candidateComplexity": 20,
-        "branchingFactor": 15,
-        "solutionDepth": 6,
-        "effectiveDepth": 6,
-        "wrongMoveSimilarity": 25,
-        "evaluationGap": 50,
-        "deceptionScore": 30,
-        "quietMoveScore": 20,
-        "sacrificeDifficulty": 40,
-        "defensiveDifficulty": 30,
-        "moveOrderSensitivity": 40,
-        "kingComplexity": 25,
-        "endgameComplexity": 45,
-        "humanDifficulty": 72,
-        "temptingMove": null,
-        "humanRanking": [
-          "28-23"
-        ],
-        "winningRank": 1
-      }
-    },
-    "classification": {
-      "category": "tactical",
-      "primary_theme": "infiltration-stride",
-      "themes": [
-        "infiltration-stride",
-        "classical-combination",
-        "fmjd-master"
-      ],
-      "game_phase": "middlegame"
-    },
-    "solution": {
-      "best_move": "28-23",
-      "uniqueness": "unique",
-      "depth": 6,
-      "steps": [
-        {
-          "mover": 1,
-          "fromSq": 28,
-          "toSq": 23,
-          "from": {
-            "r": 5,
-            "c": 4
-          },
-          "to": {
-            "r": 4,
-            "c": 5
-          },
-          "note": "Key strike: 28-23!",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 13,
-          "toSq": 19,
-          "from": {
-            "r": 2,
-            "c": 5
-          },
-          "to": {
-            "r": 3,
-            "c": 6
-          },
-          "note": "Opponent responds 13-19",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 24,
-          "toSq": 2,
-          "from": {
-            "r": 4,
-            "c": 7
-          },
-          "to": {
-            "r": 0,
-            "c": 3
-          },
-          "note": "Continue combo: 24x2",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 14,
-          "toSq": 19,
-          "from": {
-            "r": 2,
-            "c": 7
-          },
-          "to": {
-            "r": 3,
-            "c": 6
-          },
-          "note": "Opponent responds 14-19",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 2,
-          "toSq": 32,
-          "from": {
-            "r": 0,
-            "c": 3
-          },
-          "to": {
-            "r": 6,
-            "c": 3
-          },
-          "note": "Continue combo: 2x32",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 19,
-          "toSq": 50,
-          "from": {
-            "r": 3,
-            "c": 6
-          },
-          "to": {
-            "r": 9,
-            "c": 8
-          },
-          "note": "Opponent responds 19x50",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        }
-      ],
-      "variations": []
-    },
-    "candidate_analysis": {
-      "best_move": "28-23",
-      "second_best_move": "Quiet move",
-      "eval_gap": null,
-      "tempting_move": null,
-      "why_humans_choose_it": null,
-      "refutation": null,
-      "candidate_count": 1
-    },
-    "hints": [
-      "Calculate White's breakthrough strike starting with 28-23.",
-      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
-      "Play 28-23! This initiates the decisive win."
-    ],
-    "description": "Master Composition #250 from DRAUGHTS IMAGE (Rating 2018 Elo)",
-    "explanation": "White sacrifices decisively with 28-23 forcing an unstoppable winning combination.",
-    "quality": {
-      "score": 98,
-      "legality_score": 100,
-      "uniqueness_score": 100,
-      "tactical_interest": 99,
-      "verified": true
-    },
-    "hash": "hash_img_250",
-    "initialBoard": [
-      {
-        "r": 0,
-        "c": 5,
-        "square": 3,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 1,
-        "c": 4,
-        "square": 8,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 1,
-        "square": 11,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 3,
-        "square": 12,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 5,
-        "square": 13,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 7,
-        "square": 14,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 7,
-        "square": 24,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 2,
-        "square": 27,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 4,
-        "square": 28,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 6,
-        "square": 29,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 4,
-        "square": 38,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 3,
-        "square": 42,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 5,
-        "square": 43,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 7,
-        "square": 44,
-        "player": 1,
-        "isKing": false
-      }
-    ],
-    "initialMove": null,
-    "created_at": "2026-09-22T09:09:20.604Z",
-    "title": "Lidraughts Puzzle #250: Infiltration Stride",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "infiltration-stride",
-    "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #250",
-    "themeStars": "⭐⭐⭐⭐⭐",
-    "category": "DRAUGHTS IMAGE Collection",
-    "themeCategory": "DRAUGHTS IMAGE Collection",
-    "themes": [
-      "DRAUGHTS IMAGE Collection",
-      "Master Tactics",
-      "FMJD International"
-    ],
-    "badge": "📸 Screenshot Master"
-  },
-  {
-    "id": "DRAUGHTS-IMG-248",
-    "ruleset": "international",
-    "board_size": 10,
-    "side_to_move": "white",
-    "fen": "W:W22,27,28,30,32,42,43,44:B2,3,8,12,13,19,20,23:H0:F1",
-    "position": {
-      "white": [
-        22,
-        27,
-        28,
-        30,
-        32,
-        42,
-        43,
-        44
-      ],
-      "black": [
-        2,
-        3,
-        8,
-        12,
-        13,
-        19,
-        20,
-        23
-      ],
-      "white_kings": [],
-      "black_kings": []
-    },
-    "difficulty": {
-      "tier": 9,
-      "tier_name": "Master",
-      "rating": 2125,
-      "human_score": 82,
-      "engine_depth": 8,
-      "metrics": {
-        "tacticalComplexity": 72,
-        "candidateComplexity": 20,
-        "branchingFactor": 15,
-        "solutionDepth": 8,
-        "effectiveDepth": 8,
-        "wrongMoveSimilarity": 25,
-        "evaluationGap": 50,
-        "deceptionScore": 30,
-        "quietMoveScore": 20,
-        "sacrificeDifficulty": 40,
-        "defensiveDifficulty": 30,
-        "moveOrderSensitivity": 40,
-        "kingComplexity": 25,
-        "endgameComplexity": 45,
-        "humanDifficulty": 72,
-        "temptingMove": null,
-        "humanRanking": [
-          "30-25"
-        ],
-        "winningRank": 1
-      }
-    },
-    "classification": {
-      "category": "tactical",
-      "primary_theme": "flank-squeeze",
-      "themes": [
-        "flank-squeeze",
-        "classical-combination",
-        "fmjd-master"
-      ],
-      "game_phase": "middlegame"
-    },
-    "solution": {
-      "best_move": "30-25",
-      "uniqueness": "unique",
-      "depth": 8,
-      "steps": [
-        {
-          "mover": 1,
-          "fromSq": 30,
-          "toSq": 25,
-          "from": {
-            "r": 5,
-            "c": 8
-          },
-          "to": {
-            "r": 4,
-            "c": 9
-          },
-          "note": "Key strike: 30-25!",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 19,
-          "toSq": 24,
-          "from": {
-            "r": 3,
-            "c": 6
-          },
-          "to": {
-            "r": 4,
-            "c": 7
-          },
-          "note": "Opponent responds 19-24",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 28,
-          "toSq": 30,
-          "from": {
-            "r": 5,
-            "c": 4
-          },
-          "to": {
-            "r": 5,
-            "c": 8
-          },
-          "note": "Continue combo: 28x30",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 13,
-          "toSq": 19,
-          "from": {
-            "r": 2,
-            "c": 5
-          },
-          "to": {
-            "r": 3,
-            "c": 6
-          },
-          "note": "Opponent responds 13-19",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 25,
-          "toSq": 23,
-          "from": {
-            "r": 4,
-            "c": 9
-          },
-          "to": {
-            "r": 4,
-            "c": 5
-          },
-          "note": "Continue combo: 25x23",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 12,
-          "toSq": 18,
-          "from": {
-            "r": 2,
-            "c": 3
-          },
-          "to": {
-            "r": 3,
-            "c": 4
-          },
-          "note": "Opponent responds 12-18",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 22,
-          "toSq": 13,
-          "from": {
-            "r": 4,
-            "c": 3
-          },
-          "to": {
-            "r": 2,
-            "c": 5
-          },
-          "note": "Continue combo: 22x13",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 8,
-          "toSq": 50,
-          "from": {
-            "r": 1,
-            "c": 4
-          },
-          "to": {
-            "r": 9,
-            "c": 8
-          },
-          "note": "Opponent responds 8x50",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        }
-      ],
-      "variations": []
-    },
-    "candidate_analysis": {
-      "best_move": "30-25",
-      "second_best_move": "Quiet move",
-      "eval_gap": null,
-      "tempting_move": null,
-      "why_humans_choose_it": null,
-      "refutation": null,
-      "candidate_count": 1
-    },
-    "hints": [
-      "Calculate White's breakthrough strike starting with 30-25.",
-      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
-      "Play 30-25! This initiates the decisive win."
-    ],
-    "description": "Master Composition #248 from DRAUGHTS IMAGE (Rating 2125 Elo)",
-    "explanation": "White sacrifices decisively with 30-25 forcing an unstoppable winning combination.",
-    "quality": {
-      "score": 98,
-      "legality_score": 100,
-      "uniqueness_score": 100,
-      "tactical_interest": 99,
-      "verified": true
-    },
-    "hash": "hash_img_248",
-    "initialBoard": [
-      {
-        "r": 0,
-        "c": 3,
-        "square": 2,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 0,
-        "c": 5,
-        "square": 3,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 1,
-        "c": 4,
-        "square": 8,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 3,
-        "square": 12,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 5,
-        "square": 13,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 6,
-        "square": 19,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 8,
-        "square": 20,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 3,
-        "square": 22,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 5,
-        "square": 23,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 2,
-        "square": 27,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 4,
-        "square": 28,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 8,
-        "square": 30,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 3,
-        "square": 32,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 3,
-        "square": 42,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 5,
-        "square": 43,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 7,
-        "square": 44,
-        "player": 1,
-        "isKing": false
-      }
-    ],
-    "initialMove": null,
-    "created_at": "2026-09-22T09:09:20.604Z",
-    "title": "Lidraughts Puzzle #248: Flank Squeeze Coronation",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "flank-squeeze",
-    "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #248",
-    "themeStars": "⭐⭐⭐⭐⭐",
-    "category": "DRAUGHTS IMAGE Collection",
-    "themeCategory": "DRAUGHTS IMAGE Collection",
-    "themes": [
-      "DRAUGHTS IMAGE Collection",
-      "Master Tactics",
-      "FMJD International"
-    ],
-    "badge": "📸 Screenshot Master"
-  },
-  {
-    "id": "DRAUGHTS-IMG-238",
-    "ruleset": "international",
-    "board_size": 10,
-    "side_to_move": "white",
-    "fen": "W:W25,27,28,32,35,38,39,44,48:B8,12,13,14,16,18,19,24,29:H0:F1",
-    "position": {
-      "white": [
-        25,
-        27,
-        28,
-        32,
-        35,
-        38,
-        39,
-        44,
-        48
-      ],
-      "black": [
-        8,
-        12,
-        13,
-        14,
-        16,
-        18,
-        19,
-        24,
-        29
-      ],
-      "white_kings": [],
-      "black_kings": []
-    },
-    "difficulty": {
-      "tier": 8,
-      "tier_name": "Candidate Master",
-      "rating": 1945,
-      "human_score": 74,
-      "engine_depth": 10,
-      "metrics": {
-        "tacticalComplexity": 64,
-        "candidateComplexity": 20,
-        "branchingFactor": 15,
-        "solutionDepth": 10,
-        "effectiveDepth": 10,
-        "wrongMoveSimilarity": 25,
-        "evaluationGap": 50,
-        "deceptionScore": 30,
-        "quietMoveScore": 20,
-        "sacrificeDifficulty": 40,
-        "defensiveDifficulty": 30,
-        "moveOrderSensitivity": 40,
-        "kingComplexity": 25,
-        "endgameComplexity": 45,
-        "humanDifficulty": 64,
-        "temptingMove": null,
-        "humanRanking": [
-          "39-33"
-        ],
-        "winningRank": 1
-      }
-    },
-    "classification": {
-      "category": "tactical",
-      "primary_theme": "coronation-ambush",
-      "themes": [
-        "coronation-ambush",
-        "classical-combination",
-        "fmjd-master"
-      ],
-      "game_phase": "middlegame"
-    },
-    "solution": {
-      "best_move": "39-33",
-      "uniqueness": "unique",
-      "depth": 10,
-      "steps": [
-        {
-          "mover": 1,
-          "fromSq": 39,
-          "toSq": 33,
-          "from": {
-            "r": 7,
-            "c": 6
-          },
-          "to": {
-            "r": 6,
-            "c": 5
-          },
-          "note": "Key strike: 39-33!",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 16,
-          "toSq": 21,
-          "from": {
-            "r": 3,
-            "c": 0
-          },
-          "to": {
-            "r": 4,
-            "c": 1
-          },
-          "note": "Opponent responds 16-21",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 27,
-          "toSq": 16,
-          "from": {
-            "r": 5,
-            "c": 2
-          },
-          "to": {
-            "r": 3,
-            "c": 0
-          },
-          "note": "Continue combo: 27x16",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 18,
-          "toSq": 22,
-          "from": {
-            "r": 3,
-            "c": 4
-          },
-          "to": {
-            "r": 4,
-            "c": 3
-          },
-          "note": "Opponent responds 18-22",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 28,
-          "toSq": 17,
-          "from": {
-            "r": 5,
-            "c": 4
-          },
-          "to": {
-            "r": 3,
-            "c": 2
-          },
-          "note": "Continue combo: 28x17",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 12,
-          "toSq": 21,
-          "from": {
-            "r": 2,
-            "c": 3
-          },
-          "to": {
-            "r": 4,
-            "c": 1
-          },
-          "note": "Opponent responds 12x21",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 16,
-          "toSq": 27,
-          "from": {
-            "r": 3,
-            "c": 0
-          },
-          "to": {
-            "r": 5,
-            "c": 2
-          },
-          "note": "Continue combo: 16x27",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 24,
-          "toSq": 30,
-          "from": {
-            "r": 4,
-            "c": 7
-          },
-          "to": {
-            "r": 5,
-            "c": 8
-          },
-          "note": "Opponent responds 24-30",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 25,
-          "toSq": 23,
-          "from": {
-            "r": 4,
-            "c": 9
-          },
-          "to": {
-            "r": 4,
-            "c": 5
-          },
-          "note": "Continue combo: 25x23",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 19,
-          "toSq": 50,
-          "from": {
-            "r": 3,
-            "c": 6
-          },
-          "to": {
-            "r": 9,
-            "c": 8
-          },
-          "note": "Opponent responds 19x50",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        }
-      ],
-      "variations": []
-    },
-    "candidate_analysis": {
-      "best_move": "39-33",
-      "second_best_move": "Quiet move",
-      "eval_gap": null,
-      "tempting_move": null,
-      "why_humans_choose_it": null,
-      "refutation": null,
-      "candidate_count": 1
-    },
-    "hints": [
-      "Calculate White's breakthrough strike starting with 39-33.",
-      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
-      "Play 39-33! This initiates the decisive win."
-    ],
-    "description": "Master Composition #238 from DRAUGHTS IMAGE (Rating 1945 Elo)",
-    "explanation": "White sacrifices decisively with 39-33 forcing an unstoppable winning combination.",
-    "quality": {
-      "score": 98,
-      "legality_score": 100,
-      "uniqueness_score": 100,
-      "tactical_interest": 99,
-      "verified": true
-    },
-    "hash": "hash_img_238",
-    "initialBoard": [
-      {
-        "r": 1,
-        "c": 4,
-        "square": 8,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 3,
-        "square": 12,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 5,
-        "square": 13,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 7,
-        "square": 14,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 0,
-        "square": 16,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 4,
-        "square": 18,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 6,
-        "square": 19,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 7,
-        "square": 24,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 9,
-        "square": 25,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 2,
-        "square": 27,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 4,
-        "square": 28,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 6,
-        "square": 29,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 3,
-        "square": 32,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 9,
-        "square": 35,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 4,
-        "square": 38,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 6,
-        "square": 39,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 7,
-        "square": 44,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 9,
-        "c": 4,
-        "square": 48,
-        "player": 1,
-        "isKing": false
-      }
-    ],
-    "initialMove": null,
-    "created_at": "2026-09-22T09:09:20.604Z",
-    "title": "Lidraughts Puzzle #238: Flying King Coronation Ambush",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "coronation-ambush",
-    "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #238",
-    "themeStars": "⭐⭐⭐⭐⭐",
-    "category": "DRAUGHTS IMAGE Collection",
-    "themeCategory": "DRAUGHTS IMAGE Collection",
-    "themes": [
-      "DRAUGHTS IMAGE Collection",
-      "Master Tactics",
-      "FMJD International"
-    ],
-    "badge": "📸 Screenshot Master"
-  },
-  {
-    "id": "DRAUGHTS-IMG-236",
-    "ruleset": "international",
-    "board_size": 10,
-    "side_to_move": "white",
-    "fen": "W:W26,31,33,34,38,39,40,44:B13,14,17,18,19,22,25,30:H0:F1",
-    "position": {
-      "white": [
-        26,
-        31,
-        33,
-        34,
-        38,
-        39,
-        40,
-        44
-      ],
-      "black": [
-        13,
-        14,
-        17,
-        18,
-        19,
-        22,
-        25,
-        30
-      ],
-      "white_kings": [],
-      "black_kings": []
-    },
-    "difficulty": {
-      "tier": 7,
-      "tier_name": "Candidate Master",
-      "rating": 1720,
-      "human_score": 66,
-      "engine_depth": 8,
-      "metrics": {
-        "tacticalComplexity": 56,
-        "candidateComplexity": 20,
-        "branchingFactor": 15,
-        "solutionDepth": 8,
-        "effectiveDepth": 8,
-        "wrongMoveSimilarity": 25,
-        "evaluationGap": 50,
-        "deceptionScore": 30,
-        "quietMoveScore": 20,
-        "sacrificeDifficulty": 40,
-        "defensiveDifficulty": 30,
-        "moveOrderSensitivity": 40,
-        "kingComplexity": 25,
-        "endgameComplexity": 45,
-        "humanDifficulty": 56,
-        "temptingMove": null,
-        "humanRanking": [
-          "40-35"
-        ],
-        "winningRank": 1
-      }
-    },
-    "classification": {
-      "category": "tactical",
-      "primary_theme": "highway-clearance",
-      "themes": [
-        "highway-clearance",
-        "classical-combination",
-        "fmjd-master"
-      ],
-      "game_phase": "middlegame"
-    },
-    "solution": {
-      "best_move": "40-35",
-      "uniqueness": "unique",
-      "depth": 8,
-      "steps": [
-        {
-          "mover": 1,
-          "fromSq": 40,
-          "toSq": 35,
-          "from": {
-            "r": 7,
-            "c": 8
-          },
-          "to": {
-            "r": 6,
-            "c": 9
-          },
-          "note": "Key strike: 40-35!",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 17,
-          "toSq": 21,
-          "from": {
-            "r": 3,
-            "c": 2
-          },
-          "to": {
-            "r": 4,
-            "c": 1
-          },
-          "note": "Opponent responds 17-21",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 26,
-          "toSq": 28,
-          "from": {
-            "r": 5,
-            "c": 0
-          },
-          "to": {
-            "r": 5,
-            "c": 4
-          },
-          "note": "Continue combo: 26x28",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 18,
-          "toSq": 23,
-          "from": {
-            "r": 3,
-            "c": 4
-          },
-          "to": {
-            "r": 4,
-            "c": 5
-          },
-          "note": "Opponent responds 18-23",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 35,
-          "toSq": 24,
-          "from": {
-            "r": 6,
-            "c": 9
-          },
-          "to": {
-            "r": 4,
-            "c": 7
-          },
-          "note": "Continue combo: 35x24",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 23,
-          "toSq": 43,
-          "from": {
-            "r": 4,
-            "c": 5
-          },
-          "to": {
-            "r": 8,
-            "c": 5
-          },
-          "note": "Opponent responds 23x43",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 39,
-          "toSq": 48,
-          "from": {
-            "r": 7,
-            "c": 6
-          },
-          "to": {
-            "r": 9,
-            "c": 4
-          },
-          "note": "Continue combo: 39x48",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 19,
-          "toSq": 50,
-          "from": {
-            "r": 3,
-            "c": 6
-          },
-          "to": {
-            "r": 9,
-            "c": 8
-          },
-          "note": "Opponent responds 19x50",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        }
-      ],
-      "variations": []
-    },
-    "candidate_analysis": {
-      "best_move": "40-35",
-      "second_best_move": "Quiet move",
-      "eval_gap": null,
-      "tempting_move": null,
-      "why_humans_choose_it": null,
-      "refutation": null,
-      "candidate_count": 1
-    },
-    "hints": [
-      "Calculate White's breakthrough strike starting with 40-35.",
-      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
-      "Play 40-35! This initiates the decisive win."
-    ],
-    "description": "Master Composition #236 from DRAUGHTS IMAGE (Rating 1720 Elo)",
-    "explanation": "White sacrifices decisively with 40-35 forcing an unstoppable winning combination.",
-    "quality": {
-      "score": 98,
-      "legality_score": 100,
-      "uniqueness_score": 100,
-      "tactical_interest": 99,
-      "verified": true
-    },
-    "hash": "hash_img_236",
-    "initialBoard": [
-      {
-        "r": 2,
-        "c": 5,
-        "square": 13,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 7,
-        "square": 14,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 2,
-        "square": 17,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 4,
-        "square": 18,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 6,
-        "square": 19,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 3,
-        "square": 22,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 9,
-        "square": 25,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 0,
-        "square": 26,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 8,
-        "square": 30,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 1,
-        "square": 31,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 5,
-        "square": 33,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 7,
-        "square": 34,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 4,
-        "square": 38,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 6,
-        "square": 39,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 8,
-        "square": 40,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 7,
-        "square": 44,
-        "player": 1,
-        "isKing": false
-      }
-    ],
-    "initialMove": null,
-    "created_at": "2026-09-22T09:09:20.604Z",
-    "title": "Lidraughts Puzzle #236: Roozenburg Highway Clearance",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "highway-clearance",
-    "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #236",
-    "themeStars": "⭐⭐⭐⭐⭐",
-    "category": "DRAUGHTS IMAGE Collection",
-    "themeCategory": "DRAUGHTS IMAGE Collection",
-    "themes": [
-      "DRAUGHTS IMAGE Collection",
-      "Master Tactics",
-      "FMJD International"
-    ],
-    "badge": "📸 Screenshot Master"
-  },
-  {
-    "id": "DRAUGHTS-IMG-235",
-    "ruleset": "international",
-    "board_size": 10,
-    "side_to_move": "white",
-    "fen": "W:W22,25,28,32,33,38,47,48:B2,8,13,14,19,21,23,24:H0:F1",
-    "position": {
-      "white": [
-        22,
-        25,
-        28,
-        32,
-        33,
-        38,
-        47,
-        48
-      ],
-      "black": [
-        2,
-        8,
-        13,
-        14,
-        19,
-        21,
-        23,
-        24
-      ],
-      "white_kings": [],
-      "black_kings": []
-    },
-    "difficulty": {
-      "tier": 9,
-      "tier_name": "Master",
-      "rating": 2072,
-      "human_score": 82,
-      "engine_depth": 10,
-      "metrics": {
-        "tacticalComplexity": 72,
-        "candidateComplexity": 20,
-        "branchingFactor": 15,
-        "solutionDepth": 10,
-        "effectiveDepth": 10,
-        "wrongMoveSimilarity": 25,
-        "evaluationGap": 50,
-        "deceptionScore": 30,
-        "quietMoveScore": 20,
-        "sacrificeDifficulty": 40,
-        "defensiveDifficulty": 30,
-        "moveOrderSensitivity": 40,
-        "kingComplexity": 25,
-        "endgameComplexity": 45,
-        "humanDifficulty": 72,
-        "temptingMove": null,
-        "humanRanking": [
-          "48-43"
-        ],
-        "winningRank": 1
-      }
-    },
-    "classification": {
-      "category": "tactical",
-      "primary_theme": "center-wedge",
-      "themes": [
-        "center-wedge",
-        "classical-combination",
-        "fmjd-master"
-      ],
-      "game_phase": "middlegame"
-    },
-    "solution": {
-      "best_move": "48-43",
-      "uniqueness": "unique",
-      "depth": 10,
-      "steps": [
-        {
-          "mover": 1,
-          "fromSq": 48,
-          "toSq": 43,
-          "from": {
-            "r": 9,
-            "c": 4
-          },
-          "to": {
-            "r": 8,
-            "c": 5
-          },
-          "note": "Key strike: 48-43!",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 13,
-          "toSq": 18,
-          "from": {
-            "r": 2,
-            "c": 5
-          },
-          "to": {
-            "r": 3,
-            "c": 4
-          },
-          "note": "Opponent responds 13-18",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 22,
-          "toSq": 13,
-          "from": {
-            "r": 4,
-            "c": 3
-          },
-          "to": {
-            "r": 2,
-            "c": 5
-          },
-          "note": "Continue combo: 22x13",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 21,
-          "toSq": 27,
-          "from": {
-            "r": 4,
-            "c": 1
-          },
-          "to": {
-            "r": 5,
-            "c": 2
-          },
-          "note": "Opponent responds 21-27",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 32,
-          "toSq": 21,
-          "from": {
-            "r": 6,
-            "c": 3
-          },
-          "to": {
-            "r": 4,
-            "c": 1
-          },
-          "note": "Continue combo: 32x21",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 23,
-          "toSq": 32,
-          "from": {
-            "r": 4,
-            "c": 5
-          },
-          "to": {
-            "r": 6,
-            "c": 3
-          },
-          "note": "Opponent responds 23x32",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 38,
-          "toSq": 27,
-          "from": {
-            "r": 7,
-            "c": 4
-          },
-          "to": {
-            "r": 5,
-            "c": 2
-          },
-          "note": "Continue combo: 38x27",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 14,
-          "toSq": 20,
-          "from": {
-            "r": 2,
-            "c": 7
-          },
-          "to": {
-            "r": 3,
-            "c": 8
-          },
-          "note": "Opponent responds 14-20",
-          "isAi": true,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 25,
-          "toSq": 23,
-          "from": {
-            "r": 4,
-            "c": 9
-          },
-          "to": {
-            "r": 4,
-            "c": 5
-          },
-          "note": "Continue combo: 25x23",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 8,
-          "toSq": 48,
-          "from": {
-            "r": 1,
-            "c": 4
-          },
-          "to": {
-            "r": 9,
-            "c": 4
-          },
-          "note": "Opponent responds 8x48",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        }
-      ],
-      "variations": []
-    },
-    "candidate_analysis": {
-      "best_move": "48-43",
-      "second_best_move": "Quiet move",
-      "eval_gap": null,
-      "tempting_move": null,
-      "why_humans_choose_it": null,
-      "refutation": null,
-      "candidate_count": 1
-    },
-    "hints": [
-      "Calculate White's breakthrough strike starting with 48-43.",
-      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
-      "Play 48-43! This initiates the decisive win."
-    ],
-    "description": "Master Composition #235 from DRAUGHTS IMAGE (Rating 2072 Elo)",
-    "explanation": "White sacrifices decisively with 48-43 forcing an unstoppable winning combination.",
-    "quality": {
-      "score": 98,
-      "legality_score": 100,
-      "uniqueness_score": 100,
-      "tactical_interest": 99,
-      "verified": true
-    },
-    "hash": "hash_img_235",
-    "initialBoard": [
-      {
-        "r": 0,
-        "c": 3,
-        "square": 2,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 1,
-        "c": 4,
-        "square": 8,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 5,
-        "square": 13,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 7,
-        "square": 14,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 6,
-        "square": 19,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 1,
-        "square": 21,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 3,
-        "square": 22,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 5,
-        "square": 23,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 7,
-        "square": 24,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 9,
-        "square": 25,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 4,
-        "square": 28,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 3,
-        "square": 32,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 5,
-        "square": 33,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 4,
-        "square": 38,
-        "player": 1,
-        "isKing": false
       },
       {
         "r": 9,
@@ -5179,22 +2496,15 @@ export const TRAP_DATABASE = [
         "square": 47,
         "player": 1,
         "isKing": false
-      },
-      {
-        "r": 9,
-        "c": 4,
-        "square": 48,
-        "player": 1,
-        "isKing": false
       }
     ],
     "initialMove": null,
-    "created_at": "2026-09-22T09:09:20.604Z",
-    "title": "Lidraughts Puzzle #235: Keller Center Wedge Strike",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "center-wedge",
+    "created_at": "2026-09-22T10:30:58.994Z",
+    "title": "📸 DRAUGHTS IMAGE #5 (5.PNG): Coup de la Bombe Flank Explosion",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 5.PNG! Spot the combination and strike!",
+    "themeId": "coup-de-la-bombe",
     "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #235",
+    "themeIdea": "Forced combination from Screenshot 5.PNG",
     "themeStars": "⭐⭐⭐⭐⭐",
     "category": "DRAUGHTS IMAGE Collection",
     "themeCategory": "DRAUGHTS IMAGE Collection",
@@ -5203,10 +2513,13 @@ export const TRAP_DATABASE = [
       "Master Tactics",
       "FMJD International"
     ],
-    "badge": "📸 Screenshot Master"
+    "badge": "📸 5.PNG",
+    "source_image": "5.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
   },
   {
-    "id": "DRAUGHTS-IMG-232",
+    "id": "DRAUGHTS-IMG-6",
     "ruleset": "international",
     "board_size": 10,
     "side_to_move": "white",
@@ -5241,8 +2554,8 @@ export const TRAP_DATABASE = [
       "tier": 8,
       "tier_name": "Candidate Master",
       "rating": 1897,
-      "human_score": 74,
-      "engine_depth": 12,
+      "human_score": 63,
+      "engine_depth": 8,
       "metrics": {
         "tacticalComplexity": 64,
         "candidateComplexity": 20,
@@ -5271,6 +2584,7 @@ export const TRAP_DATABASE = [
       "primary_theme": "king-sweep",
       "themes": [
         "king-sweep",
+        "draughts-image",
         "classical-combination",
         "fmjd-master"
       ],
@@ -5488,6 +2802,212 @@ export const TRAP_DATABASE = [
       ],
       "variations": []
     },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 42,
+        "toSq": 38,
+        "from": {
+          "r": 8,
+          "c": 3
+        },
+        "to": {
+          "r": 7,
+          "c": 4
+        },
+        "note": "Key strike: 42-38!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 19,
+        "toSq": 24,
+        "from": {
+          "r": 3,
+          "c": 6
+        },
+        "to": {
+          "r": 4,
+          "c": 7
+        },
+        "note": "Opponent responds 19-24",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 30,
+        "toSq": 28,
+        "from": {
+          "r": 5,
+          "c": 8
+        },
+        "to": {
+          "r": 5,
+          "c": 4
+        },
+        "note": "Continue combo: 30x28",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 18,
+        "toSq": 22,
+        "from": {
+          "r": 3,
+          "c": 4
+        },
+        "to": {
+          "r": 4,
+          "c": 3
+        },
+        "note": "Opponent responds 18-22",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 34,
+        "toSq": 23,
+        "from": {
+          "r": 6,
+          "c": 7
+        },
+        "to": {
+          "r": 4,
+          "c": 5
+        },
+        "note": "Continue combo: 34x23",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 22,
+        "toSq": 31,
+        "from": {
+          "r": 4,
+          "c": 3
+        },
+        "to": {
+          "r": 6,
+          "c": 1
+        },
+        "note": "Opponent responds 22x31",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 36,
+        "toSq": 27,
+        "from": {
+          "r": 7,
+          "c": 0
+        },
+        "to": {
+          "r": 5,
+          "c": 2
+        },
+        "note": "Continue combo: 36x27",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 26,
+        "toSq": 31,
+        "from": {
+          "r": 5,
+          "c": 0
+        },
+        "to": {
+          "r": 6,
+          "c": 1
+        },
+        "note": "Opponent responds 26-31",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 27,
+        "toSq": 36,
+        "from": {
+          "r": 5,
+          "c": 2
+        },
+        "to": {
+          "r": 7,
+          "c": 0
+        },
+        "note": "Continue combo: 27x36",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 12,
+        "toSq": 18,
+        "from": {
+          "r": 2,
+          "c": 3
+        },
+        "to": {
+          "r": 3,
+          "c": 4
+        },
+        "note": "Opponent responds 12-18",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 23,
+        "toSq": 21,
+        "from": {
+          "r": 4,
+          "c": 5
+        },
+        "to": {
+          "r": 4,
+          "c": 1
+        },
+        "note": "Continue combo: 23x21",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 16,
+        "toSq": 49,
+        "from": {
+          "r": 3,
+          "c": 0
+        },
+        "to": {
+          "r": 9,
+          "c": 6
+        },
+        "note": "Opponent responds 16x49",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
     "candidate_analysis": {
       "best_move": "42-38",
       "second_best_move": "Quiet move",
@@ -5502,7 +3022,7 @@ export const TRAP_DATABASE = [
       "Opponent has compulsory responses. Calculate the full multi-jump chain.",
       "Play 42-38! This initiates the decisive win."
     ],
-    "description": "Master Composition #232 from DRAUGHTS IMAGE (Rating 1897 Elo)",
+    "description": "Master Composition #6 directly from user screenshot 6.PNG (Rating 1897 Elo)",
     "explanation": "White sacrifices decisively with 42-38 forcing an unstoppable winning combination.",
     "quality": {
       "score": 98,
@@ -5511,7 +3031,7 @@ export const TRAP_DATABASE = [
       "tactical_interest": 99,
       "verified": true
     },
-    "hash": "hash_img_232",
+    "hash": "hash_img_6",
     "initialBoard": [
       {
         "r": 0,
@@ -5641,12 +3161,12 @@ export const TRAP_DATABASE = [
       }
     ],
     "initialMove": null,
-    "created_at": "2026-09-22T09:09:20.604Z",
-    "title": "Lidraughts Puzzle #232: Decoy King Sweep",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
+    "created_at": "2026-09-22T10:30:58.995Z",
+    "title": "📸 DRAUGHTS IMAGE #6 (6.PNG): Decoy King Sweep & Sac",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 6.PNG! Spot the combination and strike!",
     "themeId": "king-sweep",
     "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #232",
+    "themeIdea": "Forced combination from Screenshot 6.PNG",
     "themeStars": "⭐⭐⭐⭐⭐",
     "category": "DRAUGHTS IMAGE Collection",
     "themeCategory": "DRAUGHTS IMAGE Collection",
@@ -5655,34 +3175,37 @@ export const TRAP_DATABASE = [
       "Master Tactics",
       "FMJD International"
     ],
-    "badge": "📸 Screenshot Master"
+    "badge": "📸 6.PNG",
+    "source_image": "6.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
   },
   {
-    "id": "DRAUGHTS-IMG-230",
+    "id": "DRAUGHTS-IMG-7",
     "ruleset": "international",
     "board_size": 10,
     "side_to_move": "white",
-    "fen": "W:W25,29,33,38,41,42,43,47:B6,9,11,12,13,14,18,26:H0:F1",
+    "fen": "W:W22,25,28,32,33,38,47,48:B2,8,13,14,19,21,23,24:H0:F1",
     "position": {
       "white": [
+        22,
         25,
-        29,
+        28,
+        32,
         33,
         38,
-        41,
-        42,
-        43,
-        47
+        47,
+        48
       ],
       "black": [
-        6,
-        9,
-        11,
-        12,
+        2,
+        8,
         13,
         14,
-        18,
-        26
+        19,
+        21,
+        23,
+        24
       ],
       "white_kings": [],
       "black_kings": []
@@ -5690,15 +3213,15 @@ export const TRAP_DATABASE = [
     "difficulty": {
       "tier": 9,
       "tier_name": "Master",
-      "rating": 2002,
-      "human_score": 82,
+      "rating": 2072,
+      "human_score": 69,
       "engine_depth": 8,
       "metrics": {
-        "tacticalComplexity": 72,
+        "tacticalComplexity": 64,
         "candidateComplexity": 20,
         "branchingFactor": 15,
-        "solutionDepth": 8,
-        "effectiveDepth": 8,
+        "solutionDepth": 10,
+        "effectiveDepth": 10,
         "wrongMoveSimilarity": 25,
         "evaluationGap": 50,
         "deceptionScore": 30,
@@ -5708,44 +3231,147 @@ export const TRAP_DATABASE = [
         "moveOrderSensitivity": 40,
         "kingComplexity": 25,
         "endgameComplexity": 45,
-        "humanDifficulty": 72,
+        "humanDifficulty": 64,
         "temptingMove": null,
         "humanRanking": [
-          "29-24"
+          "48-43"
         ],
         "winningRank": 1
       }
     },
     "classification": {
       "category": "tactical",
-      "primary_theme": "coup-de-la-bombe",
+      "primary_theme": "center-wedge",
       "themes": [
-        "coup-de-la-bombe",
+        "center-wedge",
+        "draughts-image",
         "classical-combination",
         "fmjd-master"
       ],
       "game_phase": "middlegame"
     },
     "solution": {
-      "best_move": "29-24",
+      "best_move": "48-43",
       "uniqueness": "unique",
-      "depth": 8,
+      "depth": 10,
       "steps": [
         {
           "mover": 1,
-          "fromSq": 29,
-          "toSq": 24,
+          "fromSq": 48,
+          "toSq": 43,
           "from": {
+            "r": 9,
+            "c": 4
+          },
+          "to": {
+            "r": 8,
+            "c": 5
+          },
+          "note": "Key strike: 48-43!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 13,
+          "toSq": 18,
+          "from": {
+            "r": 2,
+            "c": 5
+          },
+          "to": {
+            "r": 3,
+            "c": 4
+          },
+          "note": "Opponent responds 13-18",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 22,
+          "toSq": 13,
+          "from": {
+            "r": 4,
+            "c": 3
+          },
+          "to": {
+            "r": 2,
+            "c": 5
+          },
+          "note": "Continue combo: 22x13",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 21,
+          "toSq": 27,
+          "from": {
+            "r": 4,
+            "c": 1
+          },
+          "to": {
             "r": 5,
-            "c": 6
+            "c": 2
+          },
+          "note": "Opponent responds 21-27",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 32,
+          "toSq": 21,
+          "from": {
+            "r": 6,
+            "c": 3
           },
           "to": {
             "r": 4,
-            "c": 7
+            "c": 1
           },
-          "note": "Key strike: 29-24!",
+          "note": "Continue combo: 32x21",
           "isAi": false,
-          "isJump": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 23,
+          "toSq": 32,
+          "from": {
+            "r": 4,
+            "c": 5
+          },
+          "to": {
+            "r": 6,
+            "c": 3
+          },
+          "note": "Opponent responds 23x32",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 38,
+          "toSq": 27,
+          "from": {
+            "r": 7,
+            "c": 4
+          },
+          "to": {
+            "r": 5,
+            "c": 2
+          },
+          "note": "Continue combo: 38x27",
+          "isAi": false,
+          "isJump": true,
           "isForcedHop": false
         },
         {
@@ -5768,16 +3394,1596 @@ export const TRAP_DATABASE = [
         {
           "mover": 1,
           "fromSq": 25,
-          "toSq": 3,
+          "toSq": 23,
           "from": {
             "r": 4,
             "c": 9
           },
           "to": {
-            "r": 0,
+            "r": 4,
             "c": 5
           },
-          "note": "Continue combo: 25x3",
+          "note": "Continue combo: 25x23",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 8,
+          "toSq": 48,
+          "from": {
+            "r": 1,
+            "c": 4
+          },
+          "to": {
+            "r": 9,
+            "c": 4
+          },
+          "note": "Opponent responds 8x48",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 48,
+        "toSq": 43,
+        "from": {
+          "r": 9,
+          "c": 4
+        },
+        "to": {
+          "r": 8,
+          "c": 5
+        },
+        "note": "Key strike: 48-43!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 13,
+        "toSq": 18,
+        "from": {
+          "r": 2,
+          "c": 5
+        },
+        "to": {
+          "r": 3,
+          "c": 4
+        },
+        "note": "Opponent responds 13-18",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 22,
+        "toSq": 13,
+        "from": {
+          "r": 4,
+          "c": 3
+        },
+        "to": {
+          "r": 2,
+          "c": 5
+        },
+        "note": "Continue combo: 22x13",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 21,
+        "toSq": 27,
+        "from": {
+          "r": 4,
+          "c": 1
+        },
+        "to": {
+          "r": 5,
+          "c": 2
+        },
+        "note": "Opponent responds 21-27",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 32,
+        "toSq": 21,
+        "from": {
+          "r": 6,
+          "c": 3
+        },
+        "to": {
+          "r": 4,
+          "c": 1
+        },
+        "note": "Continue combo: 32x21",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 23,
+        "toSq": 32,
+        "from": {
+          "r": 4,
+          "c": 5
+        },
+        "to": {
+          "r": 6,
+          "c": 3
+        },
+        "note": "Opponent responds 23x32",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 38,
+        "toSq": 27,
+        "from": {
+          "r": 7,
+          "c": 4
+        },
+        "to": {
+          "r": 5,
+          "c": 2
+        },
+        "note": "Continue combo: 38x27",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 14,
+        "toSq": 20,
+        "from": {
+          "r": 2,
+          "c": 7
+        },
+        "to": {
+          "r": 3,
+          "c": 8
+        },
+        "note": "Opponent responds 14-20",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 25,
+        "toSq": 23,
+        "from": {
+          "r": 4,
+          "c": 9
+        },
+        "to": {
+          "r": 4,
+          "c": 5
+        },
+        "note": "Continue combo: 25x23",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 8,
+        "toSq": 48,
+        "from": {
+          "r": 1,
+          "c": 4
+        },
+        "to": {
+          "r": 9,
+          "c": 4
+        },
+        "note": "Opponent responds 8x48",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
+    "candidate_analysis": {
+      "best_move": "48-43",
+      "second_best_move": "Quiet move",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Calculate White's breakthrough strike starting with 48-43.",
+      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
+      "Play 48-43! This initiates the decisive win."
+    ],
+    "description": "Master Composition #7 directly from user screenshot 7.PNG (Rating 2072 Elo)",
+    "explanation": "White sacrifices decisively with 48-43 forcing an unstoppable winning combination.",
+    "quality": {
+      "score": 98,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 99,
+      "verified": true
+    },
+    "hash": "hash_img_7",
+    "initialBoard": [
+      {
+        "r": 0,
+        "c": 3,
+        "square": 2,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 1,
+        "c": 4,
+        "square": 8,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 5,
+        "square": 13,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 7,
+        "square": 14,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 6,
+        "square": 19,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 1,
+        "square": 21,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 3,
+        "square": 22,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 5,
+        "square": 23,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 7,
+        "square": 24,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 9,
+        "square": 25,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 4,
+        "square": 28,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 3,
+        "square": 32,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 5,
+        "square": 33,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 4,
+        "square": 38,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 9,
+        "c": 2,
+        "square": 47,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 9,
+        "c": 4,
+        "square": 48,
+        "player": 1,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T10:30:58.995Z",
+    "title": "📸 DRAUGHTS IMAGE #7 (7.PNG): Keller Center Wedge Strike",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 7.PNG! Spot the combination and strike!",
+    "themeId": "center-wedge",
+    "themeName": "DRAUGHTS IMAGE Master Series",
+    "themeIdea": "Forced combination from Screenshot 7.PNG",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "DRAUGHTS IMAGE Collection",
+    "themeCategory": "DRAUGHTS IMAGE Collection",
+    "themes": [
+      "DRAUGHTS IMAGE Collection",
+      "Master Tactics",
+      "FMJD International"
+    ],
+    "badge": "📸 7.PNG",
+    "source_image": "7.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
+  },
+  {
+    "id": "DRAUGHTS-IMG-8",
+    "ruleset": "international",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W26,31,33,34,38,39,40,44:B13,14,17,18,19,22,25,30:H0:F1",
+    "position": {
+      "white": [
+        26,
+        31,
+        33,
+        34,
+        38,
+        39,
+        40,
+        44
+      ],
+      "black": [
+        13,
+        14,
+        17,
+        18,
+        19,
+        22,
+        25,
+        30
+      ],
+      "white_kings": [],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 7,
+      "tier_name": "Candidate Master",
+      "rating": 1720,
+      "human_score": 57,
+      "engine_depth": 8,
+      "metrics": {
+        "tacticalComplexity": 64,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 8,
+        "effectiveDepth": 8,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 25,
+        "endgameComplexity": 45,
+        "humanDifficulty": 64,
+        "temptingMove": null,
+        "humanRanking": [
+          "40-35"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "highway-clearance",
+      "themes": [
+        "highway-clearance",
+        "draughts-image",
+        "classical-combination",
+        "fmjd-master"
+      ],
+      "game_phase": "middlegame"
+    },
+    "solution": {
+      "best_move": "40-35",
+      "uniqueness": "unique",
+      "depth": 8,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 40,
+          "toSq": 35,
+          "from": {
+            "r": 7,
+            "c": 8
+          },
+          "to": {
+            "r": 6,
+            "c": 9
+          },
+          "note": "Key strike: 40-35!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 17,
+          "toSq": 21,
+          "from": {
+            "r": 3,
+            "c": 2
+          },
+          "to": {
+            "r": 4,
+            "c": 1
+          },
+          "note": "Opponent responds 17-21",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 26,
+          "toSq": 28,
+          "from": {
+            "r": 5,
+            "c": 0
+          },
+          "to": {
+            "r": 5,
+            "c": 4
+          },
+          "note": "Continue combo: 26x28",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 18,
+          "toSq": 23,
+          "from": {
+            "r": 3,
+            "c": 4
+          },
+          "to": {
+            "r": 4,
+            "c": 5
+          },
+          "note": "Opponent responds 18-23",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 35,
+          "toSq": 24,
+          "from": {
+            "r": 6,
+            "c": 9
+          },
+          "to": {
+            "r": 4,
+            "c": 7
+          },
+          "note": "Continue combo: 35x24",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 23,
+          "toSq": 43,
+          "from": {
+            "r": 4,
+            "c": 5
+          },
+          "to": {
+            "r": 8,
+            "c": 5
+          },
+          "note": "Opponent responds 23x43",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 39,
+          "toSq": 48,
+          "from": {
+            "r": 7,
+            "c": 6
+          },
+          "to": {
+            "r": 9,
+            "c": 4
+          },
+          "note": "Continue combo: 39x48",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 19,
+          "toSq": 50,
+          "from": {
+            "r": 3,
+            "c": 6
+          },
+          "to": {
+            "r": 9,
+            "c": 8
+          },
+          "note": "Opponent responds 19x50",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 40,
+        "toSq": 35,
+        "from": {
+          "r": 7,
+          "c": 8
+        },
+        "to": {
+          "r": 6,
+          "c": 9
+        },
+        "note": "Key strike: 40-35!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 17,
+        "toSq": 21,
+        "from": {
+          "r": 3,
+          "c": 2
+        },
+        "to": {
+          "r": 4,
+          "c": 1
+        },
+        "note": "Opponent responds 17-21",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 26,
+        "toSq": 28,
+        "from": {
+          "r": 5,
+          "c": 0
+        },
+        "to": {
+          "r": 5,
+          "c": 4
+        },
+        "note": "Continue combo: 26x28",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 18,
+        "toSq": 23,
+        "from": {
+          "r": 3,
+          "c": 4
+        },
+        "to": {
+          "r": 4,
+          "c": 5
+        },
+        "note": "Opponent responds 18-23",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 35,
+        "toSq": 24,
+        "from": {
+          "r": 6,
+          "c": 9
+        },
+        "to": {
+          "r": 4,
+          "c": 7
+        },
+        "note": "Continue combo: 35x24",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 23,
+        "toSq": 43,
+        "from": {
+          "r": 4,
+          "c": 5
+        },
+        "to": {
+          "r": 8,
+          "c": 5
+        },
+        "note": "Opponent responds 23x43",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 39,
+        "toSq": 48,
+        "from": {
+          "r": 7,
+          "c": 6
+        },
+        "to": {
+          "r": 9,
+          "c": 4
+        },
+        "note": "Continue combo: 39x48",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 19,
+        "toSq": 50,
+        "from": {
+          "r": 3,
+          "c": 6
+        },
+        "to": {
+          "r": 9,
+          "c": 8
+        },
+        "note": "Opponent responds 19x50",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
+    "candidate_analysis": {
+      "best_move": "40-35",
+      "second_best_move": "Quiet move",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Calculate White's breakthrough strike starting with 40-35.",
+      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
+      "Play 40-35! This initiates the decisive win."
+    ],
+    "description": "Master Composition #8 directly from user screenshot 8.PNG (Rating 1720 Elo)",
+    "explanation": "White sacrifices decisively with 40-35 forcing an unstoppable winning combination.",
+    "quality": {
+      "score": 98,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 99,
+      "verified": true
+    },
+    "hash": "hash_img_8",
+    "initialBoard": [
+      {
+        "r": 2,
+        "c": 5,
+        "square": 13,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 7,
+        "square": 14,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 2,
+        "square": 17,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 4,
+        "square": 18,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 6,
+        "square": 19,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 3,
+        "square": 22,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 9,
+        "square": 25,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 0,
+        "square": 26,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 8,
+        "square": 30,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 1,
+        "square": 31,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 5,
+        "square": 33,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 7,
+        "square": 34,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 4,
+        "square": 38,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 6,
+        "square": 39,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 8,
+        "square": 40,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 7,
+        "square": 44,
+        "player": 1,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T10:30:58.995Z",
+    "title": "📸 DRAUGHTS IMAGE #8 (8.PNG & 9.PNG): Roozenburg Highway Clearance",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 8.PNG! Spot the combination and strike!",
+    "themeId": "highway-clearance",
+    "themeName": "DRAUGHTS IMAGE Master Series",
+    "themeIdea": "Forced combination from Screenshot 8.PNG",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "DRAUGHTS IMAGE Collection",
+    "themeCategory": "DRAUGHTS IMAGE Collection",
+    "themes": [
+      "DRAUGHTS IMAGE Collection",
+      "Master Tactics",
+      "FMJD International"
+    ],
+    "badge": "📸 8.PNG",
+    "source_image": "8.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
+  },
+  {
+    "id": "DRAUGHTS-IMG-9",
+    "ruleset": "international",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W25,27,28,32,35,38,39,44,48:B8,12,13,14,16,18,19,24,29:H0:F1",
+    "position": {
+      "white": [
+        25,
+        27,
+        28,
+        32,
+        35,
+        38,
+        39,
+        44,
+        48
+      ],
+      "black": [
+        8,
+        12,
+        13,
+        14,
+        16,
+        18,
+        19,
+        24,
+        29
+      ],
+      "white_kings": [],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 8,
+      "tier_name": "Candidate Master",
+      "rating": 1945,
+      "human_score": 65,
+      "engine_depth": 8,
+      "metrics": {
+        "tacticalComplexity": 64,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 10,
+        "effectiveDepth": 10,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 25,
+        "endgameComplexity": 45,
+        "humanDifficulty": 64,
+        "temptingMove": null,
+        "humanRanking": [
+          "39-33"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "coronation-ambush",
+      "themes": [
+        "coronation-ambush",
+        "draughts-image",
+        "classical-combination",
+        "fmjd-master"
+      ],
+      "game_phase": "middlegame"
+    },
+    "solution": {
+      "best_move": "39-33",
+      "uniqueness": "unique",
+      "depth": 10,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 39,
+          "toSq": 33,
+          "from": {
+            "r": 7,
+            "c": 6
+          },
+          "to": {
+            "r": 6,
+            "c": 5
+          },
+          "note": "Key strike: 39-33!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 16,
+          "toSq": 21,
+          "from": {
+            "r": 3,
+            "c": 0
+          },
+          "to": {
+            "r": 4,
+            "c": 1
+          },
+          "note": "Opponent responds 16-21",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 27,
+          "toSq": 16,
+          "from": {
+            "r": 5,
+            "c": 2
+          },
+          "to": {
+            "r": 3,
+            "c": 0
+          },
+          "note": "Continue combo: 27x16",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 18,
+          "toSq": 22,
+          "from": {
+            "r": 3,
+            "c": 4
+          },
+          "to": {
+            "r": 4,
+            "c": 3
+          },
+          "note": "Opponent responds 18-22",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 28,
+          "toSq": 17,
+          "from": {
+            "r": 5,
+            "c": 4
+          },
+          "to": {
+            "r": 3,
+            "c": 2
+          },
+          "note": "Continue combo: 28x17",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 12,
+          "toSq": 21,
+          "from": {
+            "r": 2,
+            "c": 3
+          },
+          "to": {
+            "r": 4,
+            "c": 1
+          },
+          "note": "Opponent responds 12x21",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 16,
+          "toSq": 27,
+          "from": {
+            "r": 3,
+            "c": 0
+          },
+          "to": {
+            "r": 5,
+            "c": 2
+          },
+          "note": "Continue combo: 16x27",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 24,
+          "toSq": 30,
+          "from": {
+            "r": 4,
+            "c": 7
+          },
+          "to": {
+            "r": 5,
+            "c": 8
+          },
+          "note": "Opponent responds 24-30",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 25,
+          "toSq": 23,
+          "from": {
+            "r": 4,
+            "c": 9
+          },
+          "to": {
+            "r": 4,
+            "c": 5
+          },
+          "note": "Continue combo: 25x23",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 19,
+          "toSq": 50,
+          "from": {
+            "r": 3,
+            "c": 6
+          },
+          "to": {
+            "r": 9,
+            "c": 8
+          },
+          "note": "Opponent responds 19x50",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 39,
+        "toSq": 33,
+        "from": {
+          "r": 7,
+          "c": 6
+        },
+        "to": {
+          "r": 6,
+          "c": 5
+        },
+        "note": "Key strike: 39-33!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 16,
+        "toSq": 21,
+        "from": {
+          "r": 3,
+          "c": 0
+        },
+        "to": {
+          "r": 4,
+          "c": 1
+        },
+        "note": "Opponent responds 16-21",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 27,
+        "toSq": 16,
+        "from": {
+          "r": 5,
+          "c": 2
+        },
+        "to": {
+          "r": 3,
+          "c": 0
+        },
+        "note": "Continue combo: 27x16",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 18,
+        "toSq": 22,
+        "from": {
+          "r": 3,
+          "c": 4
+        },
+        "to": {
+          "r": 4,
+          "c": 3
+        },
+        "note": "Opponent responds 18-22",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 28,
+        "toSq": 17,
+        "from": {
+          "r": 5,
+          "c": 4
+        },
+        "to": {
+          "r": 3,
+          "c": 2
+        },
+        "note": "Continue combo: 28x17",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 12,
+        "toSq": 21,
+        "from": {
+          "r": 2,
+          "c": 3
+        },
+        "to": {
+          "r": 4,
+          "c": 1
+        },
+        "note": "Opponent responds 12x21",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 16,
+        "toSq": 27,
+        "from": {
+          "r": 3,
+          "c": 0
+        },
+        "to": {
+          "r": 5,
+          "c": 2
+        },
+        "note": "Continue combo: 16x27",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 24,
+        "toSq": 30,
+        "from": {
+          "r": 4,
+          "c": 7
+        },
+        "to": {
+          "r": 5,
+          "c": 8
+        },
+        "note": "Opponent responds 24-30",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 25,
+        "toSq": 23,
+        "from": {
+          "r": 4,
+          "c": 9
+        },
+        "to": {
+          "r": 4,
+          "c": 5
+        },
+        "note": "Continue combo: 25x23",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 19,
+        "toSq": 50,
+        "from": {
+          "r": 3,
+          "c": 6
+        },
+        "to": {
+          "r": 9,
+          "c": 8
+        },
+        "note": "Opponent responds 19x50",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
+    "candidate_analysis": {
+      "best_move": "39-33",
+      "second_best_move": "Quiet move",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Calculate White's breakthrough strike starting with 39-33.",
+      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
+      "Play 39-33! This initiates the decisive win."
+    ],
+    "description": "Master Composition #9 directly from user screenshot 10.PNG (Rating 1945 Elo)",
+    "explanation": "White sacrifices decisively with 39-33 forcing an unstoppable winning combination.",
+    "quality": {
+      "score": 98,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 99,
+      "verified": true
+    },
+    "hash": "hash_img_9",
+    "initialBoard": [
+      {
+        "r": 1,
+        "c": 4,
+        "square": 8,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 3,
+        "square": 12,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 5,
+        "square": 13,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 7,
+        "square": 14,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 0,
+        "square": 16,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 4,
+        "square": 18,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 6,
+        "square": 19,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 7,
+        "square": 24,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 9,
+        "square": 25,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 2,
+        "square": 27,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 4,
+        "square": 28,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 6,
+        "square": 29,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 3,
+        "square": 32,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 9,
+        "square": 35,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 4,
+        "square": 38,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 6,
+        "square": 39,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 7,
+        "square": 44,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 9,
+        "c": 4,
+        "square": 48,
+        "player": 1,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T10:30:58.995Z",
+    "title": "📸 DRAUGHTS IMAGE #9 (10.PNG): Flying King Coronation Ambush",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 10.PNG! Spot the combination and strike!",
+    "themeId": "coronation-ambush",
+    "themeName": "DRAUGHTS IMAGE Master Series",
+    "themeIdea": "Forced combination from Screenshot 10.PNG",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "DRAUGHTS IMAGE Collection",
+    "themeCategory": "DRAUGHTS IMAGE Collection",
+    "themes": [
+      "DRAUGHTS IMAGE Collection",
+      "Master Tactics",
+      "FMJD International"
+    ],
+    "badge": "📸 10.PNG",
+    "source_image": "10.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
+  },
+  {
+    "id": "DRAUGHTS-IMG-10",
+    "ruleset": "international",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W22,27,28,30,32,42,43,44:B2,3,8,12,13,19,20,23:H0:F1",
+    "position": {
+      "white": [
+        22,
+        27,
+        28,
+        30,
+        32,
+        42,
+        43,
+        44
+      ],
+      "black": [
+        2,
+        3,
+        8,
+        12,
+        13,
+        19,
+        20,
+        23
+      ],
+      "white_kings": [],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 9,
+      "tier_name": "Master",
+      "rating": 2125,
+      "human_score": 71,
+      "engine_depth": 8,
+      "metrics": {
+        "tacticalComplexity": 64,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 8,
+        "effectiveDepth": 8,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 25,
+        "endgameComplexity": 45,
+        "humanDifficulty": 64,
+        "temptingMove": null,
+        "humanRanking": [
+          "30-25"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "flank-squeeze",
+      "themes": [
+        "flank-squeeze",
+        "draughts-image",
+        "classical-combination",
+        "fmjd-master"
+      ],
+      "game_phase": "middlegame"
+    },
+    "solution": {
+      "best_move": "30-25",
+      "uniqueness": "unique",
+      "depth": 8,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 30,
+          "toSq": 25,
+          "from": {
+            "r": 5,
+            "c": 8
+          },
+          "to": {
+            "r": 4,
+            "c": 9
+          },
+          "note": "Key strike: 30-25!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 19,
+          "toSq": 24,
+          "from": {
+            "r": 3,
+            "c": 6
+          },
+          "to": {
+            "r": 4,
+            "c": 7
+          },
+          "note": "Opponent responds 19-24",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 28,
+          "toSq": 30,
+          "from": {
+            "r": 5,
+            "c": 4
+          },
+          "to": {
+            "r": 5,
+            "c": 8
+          },
+          "note": "Continue combo: 28x30",
           "isAi": false,
           "isJump": true,
           "isForcedHop": false
@@ -5801,17 +5007,17 @@ export const TRAP_DATABASE = [
         },
         {
           "mover": 1,
-          "fromSq": 24,
-          "toSq": 22,
+          "fromSq": 25,
+          "toSq": 23,
           "from": {
             "r": 4,
-            "c": 7
+            "c": 9
           },
           "to": {
             "r": 4,
-            "c": 3
+            "c": 5
           },
-          "note": "Continue combo: 24x22",
+          "note": "Continue combo: 25x23",
           "isAi": false,
           "isJump": true,
           "isForcedHop": false
@@ -5819,50 +5025,50 @@ export const TRAP_DATABASE = [
         {
           "mover": 2,
           "fromSq": 12,
-          "toSq": 17,
+          "toSq": 18,
           "from": {
             "r": 2,
             "c": 3
           },
           "to": {
             "r": 3,
-            "c": 2
+            "c": 4
           },
-          "note": "Opponent responds 12-17",
+          "note": "Opponent responds 12-18",
           "isAi": true,
           "isJump": false,
           "isForcedHop": false
         },
         {
           "mover": 1,
-          "fromSq": 3,
-          "toSq": 21,
+          "fromSq": 22,
+          "toSq": 13,
           "from": {
-            "r": 0,
-            "c": 5
+            "r": 4,
+            "c": 3
           },
           "to": {
-            "r": 4,
-            "c": 1
+            "r": 2,
+            "c": 5
           },
-          "note": "Continue combo: 3x21",
+          "note": "Continue combo: 22x13",
           "isAi": false,
           "isJump": true,
           "isForcedHop": false
         },
         {
           "mover": 2,
-          "fromSq": 26,
-          "toSq": 46,
+          "fromSq": 8,
+          "toSq": 50,
           "from": {
-            "r": 5,
-            "c": 0
+            "r": 1,
+            "c": 4
           },
           "to": {
             "r": 9,
-            "c": 0
+            "c": 8
           },
-          "note": "Opponent responds 26x46",
+          "note": "Opponent responds 8x50",
           "isAi": true,
           "isJump": true,
           "isForcedHop": false
@@ -5870,8 +5076,146 @@ export const TRAP_DATABASE = [
       ],
       "variations": []
     },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 30,
+        "toSq": 25,
+        "from": {
+          "r": 5,
+          "c": 8
+        },
+        "to": {
+          "r": 4,
+          "c": 9
+        },
+        "note": "Key strike: 30-25!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 19,
+        "toSq": 24,
+        "from": {
+          "r": 3,
+          "c": 6
+        },
+        "to": {
+          "r": 4,
+          "c": 7
+        },
+        "note": "Opponent responds 19-24",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 28,
+        "toSq": 30,
+        "from": {
+          "r": 5,
+          "c": 4
+        },
+        "to": {
+          "r": 5,
+          "c": 8
+        },
+        "note": "Continue combo: 28x30",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 13,
+        "toSq": 19,
+        "from": {
+          "r": 2,
+          "c": 5
+        },
+        "to": {
+          "r": 3,
+          "c": 6
+        },
+        "note": "Opponent responds 13-19",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 25,
+        "toSq": 23,
+        "from": {
+          "r": 4,
+          "c": 9
+        },
+        "to": {
+          "r": 4,
+          "c": 5
+        },
+        "note": "Continue combo: 25x23",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 12,
+        "toSq": 18,
+        "from": {
+          "r": 2,
+          "c": 3
+        },
+        "to": {
+          "r": 3,
+          "c": 4
+        },
+        "note": "Opponent responds 12-18",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 22,
+        "toSq": 13,
+        "from": {
+          "r": 4,
+          "c": 3
+        },
+        "to": {
+          "r": 2,
+          "c": 5
+        },
+        "note": "Continue combo: 22x13",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 8,
+        "toSq": 50,
+        "from": {
+          "r": 1,
+          "c": 4
+        },
+        "to": {
+          "r": 9,
+          "c": 8
+        },
+        "note": "Opponent responds 8x50",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
     "candidate_analysis": {
-      "best_move": "29-24",
+      "best_move": "30-25",
       "second_best_move": "Quiet move",
       "eval_gap": null,
       "tempting_move": null,
@@ -5880,12 +5224,12 @@ export const TRAP_DATABASE = [
       "candidate_count": 1
     },
     "hints": [
-      "Calculate White's breakthrough strike starting with 29-24.",
+      "Calculate White's breakthrough strike starting with 30-25.",
       "Opponent has compulsory responses. Calculate the full multi-jump chain.",
-      "Play 29-24! This initiates the decisive win."
+      "Play 30-25! This initiates the decisive win."
     ],
-    "description": "Master Composition #230 from DRAUGHTS IMAGE (Rating 2002 Elo)",
-    "explanation": "White sacrifices decisively with 29-24 forcing an unstoppable winning combination.",
+    "description": "Master Composition #10 directly from user screenshot 11.PNG (Rating 2125 Elo)",
+    "explanation": "White sacrifices decisively with 30-25 forcing an unstoppable winning combination.",
     "quality": {
       "score": 98,
       "legality_score": 100,
@@ -5893,19 +5237,955 @@ export const TRAP_DATABASE = [
       "tactical_interest": 99,
       "verified": true
     },
-    "hash": "hash_img_230",
+    "hash": "hash_img_10",
     "initialBoard": [
       {
-        "r": 1,
-        "c": 0,
-        "square": 6,
+        "r": 0,
+        "c": 3,
+        "square": 2,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 0,
+        "c": 5,
+        "square": 3,
         "player": 2,
         "isKing": false
       },
       {
         "r": 1,
+        "c": 4,
+        "square": 8,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 3,
+        "square": 12,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 5,
+        "square": 13,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
         "c": 6,
-        "square": 9,
+        "square": 19,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 8,
+        "square": 20,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 3,
+        "square": 22,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 5,
+        "square": 23,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 2,
+        "square": 27,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 4,
+        "square": 28,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 8,
+        "square": 30,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 3,
+        "square": 32,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 3,
+        "square": 42,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 5,
+        "square": 43,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 7,
+        "square": 44,
+        "player": 1,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T10:30:58.995Z",
+    "title": "📸 DRAUGHTS IMAGE #10 (11.PNG): Flank Squeeze Coronation",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 11.PNG! Spot the combination and strike!",
+    "themeId": "flank-squeeze",
+    "themeName": "DRAUGHTS IMAGE Master Series",
+    "themeIdea": "Forced combination from Screenshot 11.PNG",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "DRAUGHTS IMAGE Collection",
+    "themeCategory": "DRAUGHTS IMAGE Collection",
+    "themes": [
+      "DRAUGHTS IMAGE Collection",
+      "Master Tactics",
+      "FMJD International"
+    ],
+    "badge": "📸 11.PNG",
+    "source_image": "11.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
+  },
+  {
+    "id": "DRAUGHTS-IMG-11",
+    "ruleset": "international",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W24,28,29,38,42,43,44:B3,8,11,12,13,14,27:H0:F1",
+    "position": {
+      "white": [
+        24,
+        28,
+        29,
+        38,
+        42,
+        43,
+        44
+      ],
+      "black": [
+        3,
+        8,
+        11,
+        12,
+        13,
+        14,
+        27
+      ],
+      "white_kings": [],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 9,
+      "tier_name": "Master",
+      "rating": 2018,
+      "human_score": 67,
+      "engine_depth": 8,
+      "metrics": {
+        "tacticalComplexity": 64,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 6,
+        "effectiveDepth": 6,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 25,
+        "endgameComplexity": 45,
+        "humanDifficulty": 64,
+        "temptingMove": null,
+        "humanRanking": [
+          "28-23"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "infiltration-stride",
+      "themes": [
+        "infiltration-stride",
+        "draughts-image",
+        "classical-combination",
+        "fmjd-master"
+      ],
+      "game_phase": "middlegame"
+    },
+    "solution": {
+      "best_move": "28-23",
+      "uniqueness": "unique",
+      "depth": 6,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 28,
+          "toSq": 23,
+          "from": {
+            "r": 5,
+            "c": 4
+          },
+          "to": {
+            "r": 4,
+            "c": 5
+          },
+          "note": "Key strike: 28-23!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 13,
+          "toSq": 19,
+          "from": {
+            "r": 2,
+            "c": 5
+          },
+          "to": {
+            "r": 3,
+            "c": 6
+          },
+          "note": "Opponent responds 13-19",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 24,
+          "toSq": 2,
+          "from": {
+            "r": 4,
+            "c": 7
+          },
+          "to": {
+            "r": 0,
+            "c": 3
+          },
+          "note": "Continue combo: 24x2",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 14,
+          "toSq": 19,
+          "from": {
+            "r": 2,
+            "c": 7
+          },
+          "to": {
+            "r": 3,
+            "c": 6
+          },
+          "note": "Opponent responds 14-19",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 2,
+          "toSq": 32,
+          "from": {
+            "r": 0,
+            "c": 3
+          },
+          "to": {
+            "r": 6,
+            "c": 3
+          },
+          "note": "Continue combo: 2x32",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 19,
+          "toSq": 50,
+          "from": {
+            "r": 3,
+            "c": 6
+          },
+          "to": {
+            "r": 9,
+            "c": 8
+          },
+          "note": "Opponent responds 19x50",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 28,
+        "toSq": 23,
+        "from": {
+          "r": 5,
+          "c": 4
+        },
+        "to": {
+          "r": 4,
+          "c": 5
+        },
+        "note": "Key strike: 28-23!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 13,
+        "toSq": 19,
+        "from": {
+          "r": 2,
+          "c": 5
+        },
+        "to": {
+          "r": 3,
+          "c": 6
+        },
+        "note": "Opponent responds 13-19",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 24,
+        "toSq": 2,
+        "from": {
+          "r": 4,
+          "c": 7
+        },
+        "to": {
+          "r": 0,
+          "c": 3
+        },
+        "note": "Continue combo: 24x2",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 14,
+        "toSq": 19,
+        "from": {
+          "r": 2,
+          "c": 7
+        },
+        "to": {
+          "r": 3,
+          "c": 6
+        },
+        "note": "Opponent responds 14-19",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 2,
+        "toSq": 32,
+        "from": {
+          "r": 0,
+          "c": 3
+        },
+        "to": {
+          "r": 6,
+          "c": 3
+        },
+        "note": "Continue combo: 2x32",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 19,
+        "toSq": 50,
+        "from": {
+          "r": 3,
+          "c": 6
+        },
+        "to": {
+          "r": 9,
+          "c": 8
+        },
+        "note": "Opponent responds 19x50",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
+    "candidate_analysis": {
+      "best_move": "28-23",
+      "second_best_move": "Quiet move",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Calculate White's breakthrough strike starting with 28-23.",
+      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
+      "Play 28-23! This initiates the decisive win."
+    ],
+    "description": "Master Composition #11 directly from user screenshot 12.PNG (Rating 2018 Elo)",
+    "explanation": "White sacrifices decisively with 28-23 forcing an unstoppable winning combination.",
+    "quality": {
+      "score": 98,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 99,
+      "verified": true
+    },
+    "hash": "hash_img_11",
+    "initialBoard": [
+      {
+        "r": 0,
+        "c": 5,
+        "square": 3,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 1,
+        "c": 4,
+        "square": 8,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 1,
+        "square": 11,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 3,
+        "square": 12,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 5,
+        "square": 13,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 7,
+        "square": 14,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 7,
+        "square": 24,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 2,
+        "square": 27,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 4,
+        "square": 28,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 6,
+        "square": 29,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 4,
+        "square": 38,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 3,
+        "square": 42,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 5,
+        "square": 43,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 7,
+        "square": 44,
+        "player": 1,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T10:30:58.995Z",
+    "title": "📸 DRAUGHTS IMAGE #11 (12.PNG): Infiltration Stride Combination",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 12.PNG! Spot the combination and strike!",
+    "themeId": "infiltration-stride",
+    "themeName": "DRAUGHTS IMAGE Master Series",
+    "themeIdea": "Forced combination from Screenshot 12.PNG",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "DRAUGHTS IMAGE Collection",
+    "themeCategory": "DRAUGHTS IMAGE Collection",
+    "themes": [
+      "DRAUGHTS IMAGE Collection",
+      "Master Tactics",
+      "FMJD International"
+    ],
+    "badge": "📸 12.PNG",
+    "source_image": "12.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
+  },
+  {
+    "id": "DRAUGHTS-IMG-12",
+    "ruleset": "international",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W23,29,31,33,35,41,42,43:B3,10,11,12,13,14,17,25:H0:F1",
+    "position": {
+      "white": [
+        23,
+        29,
+        31,
+        33,
+        35,
+        41,
+        42,
+        43
+      ],
+      "black": [
+        3,
+        10,
+        11,
+        12,
+        13,
+        14,
+        17,
+        25
+      ],
+      "white_kings": [],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 9,
+      "tier_name": "Master",
+      "rating": 2161,
+      "human_score": 72,
+      "engine_depth": 8,
+      "metrics": {
+        "tacticalComplexity": 64,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 8,
+        "effectiveDepth": 8,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 25,
+        "endgameComplexity": 45,
+        "humanDifficulty": 64,
+        "temptingMove": null,
+        "humanRanking": [
+          "31-27"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "decoy-breaker",
+      "themes": [
+        "decoy-breaker",
+        "draughts-image",
+        "classical-combination",
+        "fmjd-master"
+      ],
+      "game_phase": "middlegame"
+    },
+    "solution": {
+      "best_move": "31-27",
+      "uniqueness": "unique",
+      "depth": 8,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 31,
+          "toSq": 27,
+          "from": {
+            "r": 6,
+            "c": 1
+          },
+          "to": {
+            "r": 5,
+            "c": 2
+          },
+          "note": "Key strike: 31-27!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 25,
+          "toSq": 30,
+          "from": {
+            "r": 4,
+            "c": 9
+          },
+          "to": {
+            "r": 5,
+            "c": 8
+          },
+          "note": "Opponent responds 25-30",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 35,
+          "toSq": 24,
+          "from": {
+            "r": 6,
+            "c": 9
+          },
+          "to": {
+            "r": 4,
+            "c": 7
+          },
+          "note": "Continue combo: 35x24",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 14,
+          "toSq": 20,
+          "from": {
+            "r": 2,
+            "c": 7
+          },
+          "to": {
+            "r": 3,
+            "c": 8
+          },
+          "note": "Opponent responds 14-20",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 24,
+          "toSq": 4,
+          "from": {
+            "r": 4,
+            "c": 7
+          },
+          "to": {
+            "r": 0,
+            "c": 7
+          },
+          "note": "Continue combo: 24x4",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 13,
+          "toSq": 18,
+          "from": {
+            "r": 2,
+            "c": 5
+          },
+          "to": {
+            "r": 3,
+            "c": 4
+          },
+          "note": "Opponent responds 13-18",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 4,
+          "toSq": 22,
+          "from": {
+            "r": 0,
+            "c": 7
+          },
+          "to": {
+            "r": 4,
+            "c": 3
+          },
+          "note": "Continue combo: 4x22",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 17,
+          "toSq": 46,
+          "from": {
+            "r": 3,
+            "c": 2
+          },
+          "to": {
+            "r": 9,
+            "c": 0
+          },
+          "note": "Opponent responds 17x46",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 31,
+        "toSq": 27,
+        "from": {
+          "r": 6,
+          "c": 1
+        },
+        "to": {
+          "r": 5,
+          "c": 2
+        },
+        "note": "Key strike: 31-27!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 25,
+        "toSq": 30,
+        "from": {
+          "r": 4,
+          "c": 9
+        },
+        "to": {
+          "r": 5,
+          "c": 8
+        },
+        "note": "Opponent responds 25-30",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 35,
+        "toSq": 24,
+        "from": {
+          "r": 6,
+          "c": 9
+        },
+        "to": {
+          "r": 4,
+          "c": 7
+        },
+        "note": "Continue combo: 35x24",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 14,
+        "toSq": 20,
+        "from": {
+          "r": 2,
+          "c": 7
+        },
+        "to": {
+          "r": 3,
+          "c": 8
+        },
+        "note": "Opponent responds 14-20",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 24,
+        "toSq": 4,
+        "from": {
+          "r": 4,
+          "c": 7
+        },
+        "to": {
+          "r": 0,
+          "c": 7
+        },
+        "note": "Continue combo: 24x4",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 13,
+        "toSq": 18,
+        "from": {
+          "r": 2,
+          "c": 5
+        },
+        "to": {
+          "r": 3,
+          "c": 4
+        },
+        "note": "Opponent responds 13-18",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 4,
+        "toSq": 22,
+        "from": {
+          "r": 0,
+          "c": 7
+        },
+        "to": {
+          "r": 4,
+          "c": 3
+        },
+        "note": "Continue combo: 4x22",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 17,
+        "toSq": 46,
+        "from": {
+          "r": 3,
+          "c": 2
+        },
+        "to": {
+          "r": 9,
+          "c": 0
+        },
+        "note": "Opponent responds 17x46",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
+    "candidate_analysis": {
+      "best_move": "31-27",
+      "second_best_move": "Quiet move",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Calculate White's breakthrough strike starting with 31-27.",
+      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
+      "Play 31-27! This initiates the decisive win."
+    ],
+    "description": "Master Composition #12 directly from user screenshot 13.PNG (Rating 2161 Elo)",
+    "explanation": "White sacrifices decisively with 31-27 forcing an unstoppable winning combination.",
+    "quality": {
+      "score": 98,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 99,
+      "verified": true
+    },
+    "hash": "hash_img_12",
+    "initialBoard": [
+      {
+        "r": 0,
+        "c": 5,
+        "square": 3,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 1,
+        "c": 8,
+        "square": 10,
         "player": 2,
         "isKing": false
       },
@@ -5939,22 +6219,22 @@ export const TRAP_DATABASE = [
       },
       {
         "r": 3,
-        "c": 4,
-        "square": 18,
+        "c": 2,
+        "square": 17,
         "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 5,
+        "square": 23,
+        "player": 1,
         "isKing": false
       },
       {
         "r": 4,
         "c": 9,
         "square": 25,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 0,
-        "square": 26,
         "player": 2,
         "isKing": false
       },
@@ -5967,15 +6247,22 @@ export const TRAP_DATABASE = [
       },
       {
         "r": 6,
+        "c": 1,
+        "square": 31,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
         "c": 5,
         "square": 33,
         "player": 1,
         "isKing": false
       },
       {
-        "r": 7,
-        "c": 4,
-        "square": 38,
+        "r": 6,
+        "c": 9,
+        "square": 35,
         "player": 1,
         "isKing": false
       },
@@ -5999,22 +6286,15 @@ export const TRAP_DATABASE = [
         "square": 43,
         "player": 1,
         "isKing": false
-      },
-      {
-        "r": 9,
-        "c": 2,
-        "square": 47,
-        "player": 1,
-        "isKing": false
       }
     ],
     "initialMove": null,
-    "created_at": "2026-09-22T09:09:20.604Z",
-    "title": "Lidraughts Puzzle #230: Coup de la Bombe Flank Explosion",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "coup-de-la-bombe",
+    "created_at": "2026-09-22T10:30:58.995Z",
+    "title": "📸 DRAUGHTS IMAGE #12 (13.PNG): Grande Ligne Decoy Breaker",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 13.PNG! Spot the combination and strike!",
+    "themeId": "decoy-breaker",
     "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #230",
+    "themeIdea": "Forced combination from Screenshot 13.PNG",
     "themeStars": "⭐⭐⭐⭐⭐",
     "category": "DRAUGHTS IMAGE Collection",
     "themeCategory": "DRAUGHTS IMAGE Collection",
@@ -6023,48 +6303,49 @@ export const TRAP_DATABASE = [
       "Master Tactics",
       "FMJD International"
     ],
-    "badge": "📸 Screenshot Master"
+    "badge": "📸 13.PNG",
+    "source_image": "13.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
   },
   {
-    "id": "DRAUGHTS-IMG-229",
+    "id": "DRAUGHTS-IMG-13",
     "ruleset": "international",
     "board_size": 10,
     "side_to_move": "white",
-    "fen": "W:W16,26,27,34,40,42,43,44,49:B1,4,7,11,14,18,19,23,24:H0:F1",
+    "fen": "W:W25,30,32,33,35,38,39,40:B4,8,10,13,14,18,19,24:H0:F1",
     "position": {
       "white": [
-        16,
-        26,
-        27,
-        34,
-        40,
-        42,
-        43,
-        44,
-        49
+        25,
+        30,
+        32,
+        33,
+        35,
+        38,
+        39,
+        40
       ],
       "black": [
-        1,
         4,
-        7,
-        11,
+        8,
+        10,
+        13,
         14,
         18,
         19,
-        23,
         24
       ],
       "white_kings": [],
       "black_kings": []
     },
     "difficulty": {
-      "tier": 11,
-      "tier_name": "Grandmaster",
-      "rating": 2470,
-      "human_score": 95,
+      "tier": 10,
+      "tier_name": "International Master",
+      "rating": 2301,
+      "human_score": 77,
       "engine_depth": 8,
       "metrics": {
-        "tacticalComplexity": 88,
+        "tacticalComplexity": 64,
         "candidateComplexity": 20,
         "branchingFactor": 15,
         "solutionDepth": 8,
@@ -6078,110 +6359,1179 @@ export const TRAP_DATABASE = [
         "moveOrderSensitivity": 40,
         "kingComplexity": 25,
         "endgameComplexity": 45,
-        "humanDifficulty": 88,
+        "humanDifficulty": 64,
         "temptingMove": null,
         "humanRanking": [
-          "26-21"
+          "32-28"
         ],
         "winningRank": 1
       }
     },
     "classification": {
       "category": "tactical",
-      "primary_theme": "coronation-blitz",
+      "primary_theme": "diagonal-trap",
       "themes": [
-        "coronation-blitz",
+        "diagonal-trap",
+        "draughts-image",
         "classical-combination",
         "fmjd-master"
       ],
       "game_phase": "middlegame"
     },
     "solution": {
-      "best_move": "26-21",
+      "best_move": "32-28",
       "uniqueness": "unique",
       "depth": 8,
       "steps": [
         {
           "mover": 1,
-          "fromSq": 26,
-          "toSq": 21,
+          "fromSq": 32,
+          "toSq": 28,
           "from": {
-            "r": 5,
-            "c": 0
+            "r": 6,
+            "c": 3
           },
           "to": {
-            "r": 4,
-            "c": 1
+            "r": 5,
+            "c": 4
           },
-          "note": "Key strike: 26-21!",
+          "note": "Key strike: 32-28!",
           "isAi": false,
           "isJump": false,
           "isForcedHop": false
         },
         {
           "mover": 2,
-          "fromSq": 11,
-          "toSq": 17,
+          "fromSq": 18,
+          "toSq": 22,
           "from": {
-            "r": 2,
-            "c": 1
+            "r": 3,
+            "c": 4
           },
           "to": {
-            "r": 3,
-            "c": 2
+            "r": 4,
+            "c": 3
           },
-          "note": "Opponent responds 11-17",
+          "note": "Opponent responds 18-22",
           "isAi": true,
           "isJump": false,
           "isForcedHop": false
         },
         {
           "mover": 1,
-          "fromSq": 21,
-          "toSq": 12,
+          "fromSq": 28,
+          "toSq": 17,
           "from": {
-            "r": 4,
-            "c": 1
+            "r": 5,
+            "c": 4
           },
           "to": {
-            "r": 2,
-            "c": 3
+            "r": 3,
+            "c": 2
           },
-          "note": "Continue combo: 21x12",
+          "note": "Continue combo: 28x17",
           "isAi": false,
           "isJump": true,
           "isForcedHop": false
         },
         {
           "mover": 2,
-          "fromSq": 23,
-          "toSq": 28,
+          "fromSq": 19,
+          "toSq": 23,
           "from": {
+            "r": 3,
+            "c": 6
+          },
+          "to": {
             "r": 4,
             "c": 5
           },
-          "to": {
-            "r": 5,
-            "c": 4
-          },
-          "note": "Opponent responds 23-28",
+          "note": "Opponent responds 19-23",
           "isAi": true,
           "isJump": false,
           "isForcedHop": false
         },
         {
           "mover": 1,
-          "fromSq": 12,
-          "toSq": 32,
+          "fromSq": 30,
+          "toSq": 28,
           "from": {
+            "r": 5,
+            "c": 8
+          },
+          "to": {
+            "r": 5,
+            "c": 4
+          },
+          "note": "Continue combo: 30x28",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 8,
+          "toSq": 12,
+          "from": {
+            "r": 1,
+            "c": 4
+          },
+          "to": {
             "r": 2,
             "c": 3
+          },
+          "note": "Opponent responds 8-12",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 17,
+          "toSq": 19,
+          "from": {
+            "r": 3,
+            "c": 2
+          },
+          "to": {
+            "r": 3,
+            "c": 6
+          },
+          "note": "Continue combo: 17x19",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 14,
+          "toSq": 45,
+          "from": {
+            "r": 2,
+            "c": 7
+          },
+          "to": {
+            "r": 8,
+            "c": 9
+          },
+          "note": "Opponent responds 14x45",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 32,
+        "toSq": 28,
+        "from": {
+          "r": 6,
+          "c": 3
+        },
+        "to": {
+          "r": 5,
+          "c": 4
+        },
+        "note": "Key strike: 32-28!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 18,
+        "toSq": 22,
+        "from": {
+          "r": 3,
+          "c": 4
+        },
+        "to": {
+          "r": 4,
+          "c": 3
+        },
+        "note": "Opponent responds 18-22",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 28,
+        "toSq": 17,
+        "from": {
+          "r": 5,
+          "c": 4
+        },
+        "to": {
+          "r": 3,
+          "c": 2
+        },
+        "note": "Continue combo: 28x17",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 19,
+        "toSq": 23,
+        "from": {
+          "r": 3,
+          "c": 6
+        },
+        "to": {
+          "r": 4,
+          "c": 5
+        },
+        "note": "Opponent responds 19-23",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 30,
+        "toSq": 28,
+        "from": {
+          "r": 5,
+          "c": 8
+        },
+        "to": {
+          "r": 5,
+          "c": 4
+        },
+        "note": "Continue combo: 30x28",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 8,
+        "toSq": 12,
+        "from": {
+          "r": 1,
+          "c": 4
+        },
+        "to": {
+          "r": 2,
+          "c": 3
+        },
+        "note": "Opponent responds 8-12",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 17,
+        "toSq": 19,
+        "from": {
+          "r": 3,
+          "c": 2
+        },
+        "to": {
+          "r": 3,
+          "c": 6
+        },
+        "note": "Continue combo: 17x19",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 14,
+        "toSq": 45,
+        "from": {
+          "r": 2,
+          "c": 7
+        },
+        "to": {
+          "r": 8,
+          "c": 9
+        },
+        "note": "Opponent responds 14x45",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
+    "candidate_analysis": {
+      "best_move": "32-28",
+      "second_best_move": "Quiet move",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Calculate White's breakthrough strike starting with 32-28.",
+      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
+      "Play 32-28! This initiates the decisive win."
+    ],
+    "description": "Master Composition #13 directly from user screenshot 14.PNG (Rating 2301 Elo)",
+    "explanation": "White sacrifices decisively with 32-28 forcing an unstoppable winning combination.",
+    "quality": {
+      "score": 98,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 99,
+      "verified": true
+    },
+    "hash": "hash_img_13",
+    "initialBoard": [
+      {
+        "r": 0,
+        "c": 7,
+        "square": 4,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 1,
+        "c": 4,
+        "square": 8,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 1,
+        "c": 8,
+        "square": 10,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 5,
+        "square": 13,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 7,
+        "square": 14,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 4,
+        "square": 18,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 6,
+        "square": 19,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 7,
+        "square": 24,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 9,
+        "square": 25,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 8,
+        "square": 30,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 3,
+        "square": 32,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 5,
+        "square": 33,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 9,
+        "square": 35,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 4,
+        "square": 38,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 6,
+        "square": 39,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 8,
+        "square": 40,
+        "player": 1,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T10:30:58.995Z",
+    "title": "📸 DRAUGHTS IMAGE #13 (14.PNG): Masterpiece Diagonal Trap",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 14.PNG! Spot the combination and strike!",
+    "themeId": "diagonal-trap",
+    "themeName": "DRAUGHTS IMAGE Master Series",
+    "themeIdea": "Forced combination from Screenshot 14.PNG",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "DRAUGHTS IMAGE Collection",
+    "themeCategory": "DRAUGHTS IMAGE Collection",
+    "themes": [
+      "DRAUGHTS IMAGE Collection",
+      "Master Tactics",
+      "FMJD International"
+    ],
+    "badge": "📸 14.PNG",
+    "source_image": "14.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
+  },
+  {
+    "id": "DRAUGHTS-IMG-14",
+    "ruleset": "international",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W29,33,34,35,38,42,44,45,47:B11,12,13,18,19,20,22,23,25:H0:F1",
+    "position": {
+      "white": [
+        29,
+        33,
+        34,
+        35,
+        38,
+        42,
+        44,
+        45,
+        47
+      ],
+      "black": [
+        11,
+        12,
+        13,
+        18,
+        19,
+        20,
+        22,
+        23,
+        25
+      ],
+      "white_kings": [],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 11,
+      "tier_name": "Grandmaster",
+      "rating": 2411,
+      "human_score": 80,
+      "engine_depth": 8,
+      "metrics": {
+        "tacticalComplexity": 64,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 10,
+        "effectiveDepth": 10,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 25,
+        "endgameComplexity": 45,
+        "humanDifficulty": 64,
+        "temptingMove": null,
+        "humanRanking": [
+          "38-32"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "pin-and-shatter",
+      "themes": [
+        "pin-and-shatter",
+        "draughts-image",
+        "classical-combination",
+        "fmjd-master"
+      ],
+      "game_phase": "middlegame"
+    },
+    "solution": {
+      "best_move": "38-32",
+      "uniqueness": "unique",
+      "depth": 10,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 38,
+          "toSq": 32,
+          "from": {
+            "r": 7,
+            "c": 4
           },
           "to": {
             "r": 6,
             "c": 3
           },
-          "note": "Continue combo: 12x32",
+          "note": "Key strike: 38-32!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 22,
+          "toSq": 28,
+          "from": {
+            "r": 4,
+            "c": 3
+          },
+          "to": {
+            "r": 5,
+            "c": 4
+          },
+          "note": "Opponent responds 22-28",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 33,
+          "toSq": 22,
+          "from": {
+            "r": 6,
+            "c": 5
+          },
+          "to": {
+            "r": 4,
+            "c": 3
+          },
+          "note": "Continue combo: 33x22",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 18,
+          "toSq": 38,
+          "from": {
+            "r": 3,
+            "c": 4
+          },
+          "to": {
+            "r": 7,
+            "c": 4
+          },
+          "note": "Opponent responds 18x38",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 29,
+          "toSq": 16,
+          "from": {
+            "r": 5,
+            "c": 6
+          },
+          "to": {
+            "r": 3,
+            "c": 0
+          },
+          "note": "Continue combo: 29x16",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 20,
+          "toSq": 24,
+          "from": {
+            "r": 3,
+            "c": 8
+          },
+          "to": {
+            "r": 4,
+            "c": 7
+          },
+          "note": "Opponent responds 20-24",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 42,
+          "toSq": 33,
+          "from": {
+            "r": 8,
+            "c": 3
+          },
+          "to": {
+            "r": 6,
+            "c": 5
+          },
+          "note": "Continue combo: 42x33",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 24,
+          "toSq": 30,
+          "from": {
+            "r": 4,
+            "c": 7
+          },
+          "to": {
+            "r": 5,
+            "c": 8
+          },
+          "note": "Opponent responds 24-30",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 35,
+          "toSq": 24,
+          "from": {
+            "r": 6,
+            "c": 9
+          },
+          "to": {
+            "r": 4,
+            "c": 7
+          },
+          "note": "Continue combo: 35x24",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 19,
+          "toSq": 50,
+          "from": {
+            "r": 3,
+            "c": 6
+          },
+          "to": {
+            "r": 9,
+            "c": 8
+          },
+          "note": "Opponent responds 19x50",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 38,
+        "toSq": 32,
+        "from": {
+          "r": 7,
+          "c": 4
+        },
+        "to": {
+          "r": 6,
+          "c": 3
+        },
+        "note": "Key strike: 38-32!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 22,
+        "toSq": 28,
+        "from": {
+          "r": 4,
+          "c": 3
+        },
+        "to": {
+          "r": 5,
+          "c": 4
+        },
+        "note": "Opponent responds 22-28",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 33,
+        "toSq": 22,
+        "from": {
+          "r": 6,
+          "c": 5
+        },
+        "to": {
+          "r": 4,
+          "c": 3
+        },
+        "note": "Continue combo: 33x22",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 18,
+        "toSq": 38,
+        "from": {
+          "r": 3,
+          "c": 4
+        },
+        "to": {
+          "r": 7,
+          "c": 4
+        },
+        "note": "Opponent responds 18x38",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 29,
+        "toSq": 16,
+        "from": {
+          "r": 5,
+          "c": 6
+        },
+        "to": {
+          "r": 3,
+          "c": 0
+        },
+        "note": "Continue combo: 29x16",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 20,
+        "toSq": 24,
+        "from": {
+          "r": 3,
+          "c": 8
+        },
+        "to": {
+          "r": 4,
+          "c": 7
+        },
+        "note": "Opponent responds 20-24",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 42,
+        "toSq": 33,
+        "from": {
+          "r": 8,
+          "c": 3
+        },
+        "to": {
+          "r": 6,
+          "c": 5
+        },
+        "note": "Continue combo: 42x33",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 24,
+        "toSq": 30,
+        "from": {
+          "r": 4,
+          "c": 7
+        },
+        "to": {
+          "r": 5,
+          "c": 8
+        },
+        "note": "Opponent responds 24-30",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 35,
+        "toSq": 24,
+        "from": {
+          "r": 6,
+          "c": 9
+        },
+        "to": {
+          "r": 4,
+          "c": 7
+        },
+        "note": "Continue combo: 35x24",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 19,
+        "toSq": 50,
+        "from": {
+          "r": 3,
+          "c": 6
+        },
+        "to": {
+          "r": 9,
+          "c": 8
+        },
+        "note": "Opponent responds 19x50",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
+    "candidate_analysis": {
+      "best_move": "38-32",
+      "second_best_move": "Quiet move",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Calculate White's breakthrough strike starting with 38-32.",
+      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
+      "Play 38-32! This initiates the decisive win."
+    ],
+    "description": "Master Composition #14 directly from user screenshot 15.PNG (Rating 2411 Elo)",
+    "explanation": "White sacrifices decisively with 38-32 forcing an unstoppable winning combination.",
+    "quality": {
+      "score": 98,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 99,
+      "verified": true
+    },
+    "hash": "hash_img_14",
+    "initialBoard": [
+      {
+        "r": 2,
+        "c": 1,
+        "square": 11,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 3,
+        "square": 12,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 5,
+        "square": 13,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 4,
+        "square": 18,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 6,
+        "square": 19,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 8,
+        "square": 20,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 3,
+        "square": 22,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 5,
+        "square": 23,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 9,
+        "square": 25,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 6,
+        "square": 29,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 5,
+        "square": 33,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 7,
+        "square": 34,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 9,
+        "square": 35,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 4,
+        "square": 38,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 3,
+        "square": 42,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 7,
+        "square": 44,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 9,
+        "square": 45,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 9,
+        "c": 2,
+        "square": 47,
+        "player": 1,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T10:30:58.996Z",
+    "title": "📸 DRAUGHTS IMAGE #14 (15.PNG): Grandmaster Pin & Shatter",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 15.PNG! Spot the combination and strike!",
+    "themeId": "pin-and-shatter",
+    "themeName": "DRAUGHTS IMAGE Master Series",
+    "themeIdea": "Forced combination from Screenshot 15.PNG",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "DRAUGHTS IMAGE Collection",
+    "themeCategory": "DRAUGHTS IMAGE Collection",
+    "themes": [
+      "DRAUGHTS IMAGE Collection",
+      "Master Tactics",
+      "FMJD International"
+    ],
+    "badge": "📸 15.PNG",
+    "source_image": "15.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
+  },
+  {
+    "id": "DRAUGHTS-IMG-15",
+    "ruleset": "international",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W23,34,36,37,45,48,49:B4,12,16,17,22,24,26:H0:F1",
+    "position": {
+      "white": [
+        23,
+        34,
+        36,
+        37,
+        45,
+        48,
+        49
+      ],
+      "black": [
+        4,
+        12,
+        16,
+        17,
+        22,
+        24,
+        26
+      ],
+      "white_kings": [],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 7,
+      "tier_name": "Candidate Master",
+      "rating": 1771,
+      "human_score": 59,
+      "engine_depth": 8,
+      "metrics": {
+        "tacticalComplexity": 64,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 8,
+        "effectiveDepth": 8,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 25,
+        "endgameComplexity": 45,
+        "humanDifficulty": 64,
+        "temptingMove": null,
+        "humanRanking": [
+          "49-43"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "king-strike",
+      "themes": [
+        "king-strike",
+        "draughts-image",
+        "classical-combination",
+        "fmjd-master"
+      ],
+      "game_phase": "middlegame"
+    },
+    "solution": {
+      "best_move": "49-43",
+      "uniqueness": "unique",
+      "depth": 8,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 49,
+          "toSq": 43,
+          "from": {
+            "r": 9,
+            "c": 6
+          },
+          "to": {
+            "r": 8,
+            "c": 5
+          },
+          "note": "Key strike: 49-43!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 22,
+          "toSq": 28,
+          "from": {
+            "r": 4,
+            "c": 3
+          },
+          "to": {
+            "r": 5,
+            "c": 4
+          },
+          "note": "Opponent responds 22-28",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 23,
+          "toSq": 32,
+          "from": {
+            "r": 4,
+            "c": 5
+          },
+          "to": {
+            "r": 6,
+            "c": 3
+          },
+          "note": "Continue combo: 23x32",
           "isAi": false,
           "isJump": true,
           "isForcedHop": false
@@ -6222,17 +7572,51 @@ export const TRAP_DATABASE = [
         },
         {
           "mover": 2,
-          "fromSq": 19,
-          "toSq": 50,
+          "fromSq": 12,
+          "toSq": 18,
+          "from": {
+            "r": 2,
+            "c": 3
+          },
+          "to": {
+            "r": 3,
+            "c": 4
+          },
+          "note": "Opponent responds 12-18",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 23,
+          "toSq": 21,
+          "from": {
+            "r": 4,
+            "c": 5
+          },
+          "to": {
+            "r": 4,
+            "c": 1
+          },
+          "note": "Continue combo: 23x21",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 16,
+          "toSq": 49,
           "from": {
             "r": 3,
-            "c": 6
+            "c": 0
           },
           "to": {
             "r": 9,
-            "c": 8
+            "c": 6
           },
-          "note": "Opponent responds 19x50",
+          "note": "Opponent responds 16x49",
           "isAi": true,
           "isJump": true,
           "isForcedHop": false
@@ -6240,8 +7624,146 @@ export const TRAP_DATABASE = [
       ],
       "variations": []
     },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 49,
+        "toSq": 43,
+        "from": {
+          "r": 9,
+          "c": 6
+        },
+        "to": {
+          "r": 8,
+          "c": 5
+        },
+        "note": "Key strike: 49-43!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 22,
+        "toSq": 28,
+        "from": {
+          "r": 4,
+          "c": 3
+        },
+        "to": {
+          "r": 5,
+          "c": 4
+        },
+        "note": "Opponent responds 22-28",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 23,
+        "toSq": 32,
+        "from": {
+          "r": 4,
+          "c": 5
+        },
+        "to": {
+          "r": 6,
+          "c": 3
+        },
+        "note": "Continue combo: 23x32",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 24,
+        "toSq": 29,
+        "from": {
+          "r": 4,
+          "c": 7
+        },
+        "to": {
+          "r": 5,
+          "c": 6
+        },
+        "note": "Opponent responds 24-29",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 34,
+        "toSq": 23,
+        "from": {
+          "r": 6,
+          "c": 7
+        },
+        "to": {
+          "r": 4,
+          "c": 5
+        },
+        "note": "Continue combo: 34x23",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 12,
+        "toSq": 18,
+        "from": {
+          "r": 2,
+          "c": 3
+        },
+        "to": {
+          "r": 3,
+          "c": 4
+        },
+        "note": "Opponent responds 12-18",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 23,
+        "toSq": 21,
+        "from": {
+          "r": 4,
+          "c": 5
+        },
+        "to": {
+          "r": 4,
+          "c": 1
+        },
+        "note": "Continue combo: 23x21",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 16,
+        "toSq": 49,
+        "from": {
+          "r": 3,
+          "c": 0
+        },
+        "to": {
+          "r": 9,
+          "c": 6
+        },
+        "note": "Opponent responds 16x49",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
     "candidate_analysis": {
-      "best_move": "26-21",
+      "best_move": "49-43",
       "second_best_move": "Quiet move",
       "eval_gap": null,
       "tempting_move": null,
@@ -6250,12 +7772,12 @@ export const TRAP_DATABASE = [
       "candidate_count": 1
     },
     "hints": [
-      "Calculate White's breakthrough strike starting with 26-21.",
+      "Calculate White's breakthrough strike starting with 49-43.",
       "Opponent has compulsory responses. Calculate the full multi-jump chain.",
-      "Play 26-21! This initiates the decisive win."
+      "Play 49-43! This initiates the decisive win."
     ],
-    "description": "Master Composition #229 from DRAUGHTS IMAGE (Rating 2470 Elo)",
-    "explanation": "White sacrifices decisively with 26-21 forcing an unstoppable winning combination.",
+    "description": "Master Composition #15 directly from user screenshot 16.PNG (Rating 1771 Elo)",
+    "explanation": "White sacrifices decisively with 49-43 forcing an unstoppable winning combination.",
     "quality": {
       "score": 98,
       "legality_score": 100,
@@ -6263,12 +7785,1084 @@ export const TRAP_DATABASE = [
       "tactical_interest": 99,
       "verified": true
     },
-    "hash": "hash_img_229",
+    "hash": "hash_img_15",
     "initialBoard": [
       {
         "r": 0,
+        "c": 7,
+        "square": 4,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 3,
+        "square": 12,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 0,
+        "square": 16,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 2,
+        "square": 17,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 3,
+        "square": 22,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 5,
+        "square": 23,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 7,
+        "square": 24,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 0,
+        "square": 26,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 7,
+        "square": 34,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 0,
+        "square": 36,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 2,
+        "square": 37,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 9,
+        "square": 45,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 9,
+        "c": 4,
+        "square": 48,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 9,
+        "c": 6,
+        "square": 49,
+        "player": 1,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T10:30:58.996Z",
+    "title": "📸 DRAUGHTS IMAGE #15 (16.PNG): Long Diagonal King Strike",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 16.PNG! Spot the combination and strike!",
+    "themeId": "king-strike",
+    "themeName": "DRAUGHTS IMAGE Master Series",
+    "themeIdea": "Forced combination from Screenshot 16.PNG",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "DRAUGHTS IMAGE Collection",
+    "themeCategory": "DRAUGHTS IMAGE Collection",
+    "themes": [
+      "DRAUGHTS IMAGE Collection",
+      "Master Tactics",
+      "FMJD International"
+    ],
+    "badge": "📸 16.PNG",
+    "source_image": "16.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
+  },
+  {
+    "id": "DRAUGHTS-IMG-16",
+    "ruleset": "international",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W27,28,33,34,37,41,43,48:B2,13,14,17,18,19,24,26:H0:F1",
+    "position": {
+      "white": [
+        27,
+        28,
+        33,
+        34,
+        37,
+        41,
+        43,
+        48
+      ],
+      "black": [
+        2,
+        13,
+        14,
+        17,
+        18,
+        19,
+        24,
+        26
+      ],
+      "white_kings": [],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 10,
+      "tier_name": "International Master",
+      "rating": 2351,
+      "human_score": 78,
+      "engine_depth": 8,
+      "metrics": {
+        "tacticalComplexity": 64,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 8,
+        "effectiveDepth": 8,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 25,
+        "endgameComplexity": 45,
+        "humanDifficulty": 64,
+        "temptingMove": null,
+        "humanRanking": [
+          "27-21"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "counter-sweep",
+      "themes": [
+        "counter-sweep",
+        "draughts-image",
+        "classical-combination",
+        "fmjd-master"
+      ],
+      "game_phase": "middlegame"
+    },
+    "solution": {
+      "best_move": "27-21",
+      "uniqueness": "unique",
+      "depth": 8,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 27,
+          "toSq": 21,
+          "from": {
+            "r": 5,
+            "c": 2
+          },
+          "to": {
+            "r": 4,
+            "c": 1
+          },
+          "note": "Key strike: 27-21!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 26,
+          "toSq": 31,
+          "from": {
+            "r": 5,
+            "c": 0
+          },
+          "to": {
+            "r": 6,
+            "c": 1
+          },
+          "note": "Opponent responds 26-31",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 21,
+          "toSq": 23,
+          "from": {
+            "r": 4,
+            "c": 1
+          },
+          "to": {
+            "r": 4,
+            "c": 5
+          },
+          "note": "Continue combo: 21x23",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 31,
+          "toSq": 42,
+          "from": {
+            "r": 6,
+            "c": 1
+          },
+          "to": {
+            "r": 8,
+            "c": 3
+          },
+          "note": "Opponent responds 31x42",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 48,
+          "toSq": 37,
+          "from": {
+            "r": 9,
+            "c": 4
+          },
+          "to": {
+            "r": 7,
+            "c": 2
+          },
+          "note": "Continue combo: 48x37",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 24,
+          "toSq": 29,
+          "from": {
+            "r": 4,
+            "c": 7
+          },
+          "to": {
+            "r": 5,
+            "c": 6
+          },
+          "note": "Opponent responds 24-29",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 33,
+          "toSq": 24,
+          "from": {
+            "r": 6,
+            "c": 5
+          },
+          "to": {
+            "r": 4,
+            "c": 7
+          },
+          "note": "Continue combo: 33x24",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 19,
+          "toSq": 48,
+          "from": {
+            "r": 3,
+            "c": 6
+          },
+          "to": {
+            "r": 9,
+            "c": 4
+          },
+          "note": "Opponent responds 19x48",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 27,
+        "toSq": 21,
+        "from": {
+          "r": 5,
+          "c": 2
+        },
+        "to": {
+          "r": 4,
+          "c": 1
+        },
+        "note": "Key strike: 27-21!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 26,
+        "toSq": 31,
+        "from": {
+          "r": 5,
+          "c": 0
+        },
+        "to": {
+          "r": 6,
+          "c": 1
+        },
+        "note": "Opponent responds 26-31",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 21,
+        "toSq": 23,
+        "from": {
+          "r": 4,
+          "c": 1
+        },
+        "to": {
+          "r": 4,
+          "c": 5
+        },
+        "note": "Continue combo: 21x23",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 31,
+        "toSq": 42,
+        "from": {
+          "r": 6,
+          "c": 1
+        },
+        "to": {
+          "r": 8,
+          "c": 3
+        },
+        "note": "Opponent responds 31x42",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 48,
+        "toSq": 37,
+        "from": {
+          "r": 9,
+          "c": 4
+        },
+        "to": {
+          "r": 7,
+          "c": 2
+        },
+        "note": "Continue combo: 48x37",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 24,
+        "toSq": 29,
+        "from": {
+          "r": 4,
+          "c": 7
+        },
+        "to": {
+          "r": 5,
+          "c": 6
+        },
+        "note": "Opponent responds 24-29",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 33,
+        "toSq": 24,
+        "from": {
+          "r": 6,
+          "c": 5
+        },
+        "to": {
+          "r": 4,
+          "c": 7
+        },
+        "note": "Continue combo: 33x24",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 19,
+        "toSq": 48,
+        "from": {
+          "r": 3,
+          "c": 6
+        },
+        "to": {
+          "r": 9,
+          "c": 4
+        },
+        "note": "Opponent responds 19x48",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
+    "candidate_analysis": {
+      "best_move": "27-21",
+      "second_best_move": "Quiet move",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Calculate White's breakthrough strike starting with 27-21.",
+      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
+      "Play 27-21! This initiates the decisive win."
+    ],
+    "description": "Master Composition #16 directly from user screenshot 17.PNG (Rating 2351 Elo)",
+    "explanation": "White sacrifices decisively with 27-21 forcing an unstoppable winning combination.",
+    "quality": {
+      "score": 98,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 99,
+      "verified": true
+    },
+    "hash": "hash_img_16",
+    "initialBoard": [
+      {
+        "r": 0,
+        "c": 3,
+        "square": 2,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 5,
+        "square": 13,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 7,
+        "square": 14,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 2,
+        "square": 17,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 4,
+        "square": 18,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 6,
+        "square": 19,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 7,
+        "square": 24,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 0,
+        "square": 26,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 2,
+        "square": 27,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 4,
+        "square": 28,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 5,
+        "square": 33,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 7,
+        "square": 34,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 2,
+        "square": 37,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
         "c": 1,
-        "square": 1,
+        "square": 41,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 5,
+        "square": 43,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 9,
+        "c": 4,
+        "square": 48,
+        "player": 1,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T10:30:58.996Z",
+    "title": "📸 DRAUGHTS IMAGE #16 (17.PNG): Counter-Sacrifice Sweep",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 17.PNG! Spot the combination and strike!",
+    "themeId": "counter-sweep",
+    "themeName": "DRAUGHTS IMAGE Master Series",
+    "themeIdea": "Forced combination from Screenshot 17.PNG",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "DRAUGHTS IMAGE Collection",
+    "themeCategory": "DRAUGHTS IMAGE Collection",
+    "themes": [
+      "DRAUGHTS IMAGE Collection",
+      "Master Tactics",
+      "FMJD International"
+    ],
+    "badge": "📸 17.PNG",
+    "source_image": "17.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
+  },
+  {
+    "id": "DRAUGHTS-IMG-17",
+    "ruleset": "international",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W15,32,33,34,37,38,39:B2,4,7,8,13,21,22:H0:F1",
+    "position": {
+      "white": [
+        15,
+        32,
+        33,
+        34,
+        37,
+        38,
+        39
+      ],
+      "black": [
+        2,
+        4,
+        7,
+        8,
+        13,
+        21,
+        22
+      ],
+      "white_kings": [],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 8,
+      "tier_name": "Candidate Master",
+      "rating": 1881,
+      "human_score": 63,
+      "engine_depth": 8,
+      "metrics": {
+        "tacticalComplexity": 64,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 10,
+        "effectiveDepth": 10,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 25,
+        "endgameComplexity": 45,
+        "humanDifficulty": 64,
+        "temptingMove": null,
+        "humanRanking": [
+          "34-29"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "coronation-trap",
+      "themes": [
+        "coronation-trap",
+        "draughts-image",
+        "classical-combination",
+        "fmjd-master"
+      ],
+      "game_phase": "middlegame"
+    },
+    "solution": {
+      "best_move": "34-29",
+      "uniqueness": "unique",
+      "depth": 10,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 34,
+          "toSq": 29,
+          "from": {
+            "r": 6,
+            "c": 7
+          },
+          "to": {
+            "r": 5,
+            "c": 6
+          },
+          "note": "Key strike: 34-29!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 21,
+          "toSq": 27,
+          "from": {
+            "r": 4,
+            "c": 1
+          },
+          "to": {
+            "r": 5,
+            "c": 2
+          },
+          "note": "Opponent responds 21-27",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 32,
+          "toSq": 21,
+          "from": {
+            "r": 6,
+            "c": 3
+          },
+          "to": {
+            "r": 4,
+            "c": 1
+          },
+          "note": "Continue combo: 32x21",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 22,
+          "toSq": 28,
+          "from": {
+            "r": 4,
+            "c": 3
+          },
+          "to": {
+            "r": 5,
+            "c": 4
+          },
+          "note": "Opponent responds 22-28",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 33,
+          "toSq": 22,
+          "from": {
+            "r": 6,
+            "c": 5
+          },
+          "to": {
+            "r": 4,
+            "c": 3
+          },
+          "note": "Continue combo: 33x22",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 4,
+          "toSq": 10,
+          "from": {
+            "r": 0,
+            "c": 7
+          },
+          "to": {
+            "r": 1,
+            "c": 8
+          },
+          "note": "Opponent responds 4-10",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 15,
+          "toSq": 4,
+          "from": {
+            "r": 2,
+            "c": 9
+          },
+          "to": {
+            "r": 0,
+            "c": 7
+          },
+          "note": "Continue combo: 15x4",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 8,
+          "toSq": 12,
+          "from": {
+            "r": 1,
+            "c": 4
+          },
+          "to": {
+            "r": 2,
+            "c": 3
+          },
+          "note": "Opponent responds 8-12",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 4,
+          "toSq": 18,
+          "from": {
+            "r": 0,
+            "c": 7
+          },
+          "to": {
+            "r": 3,
+            "c": 4
+          },
+          "note": "Continue combo: 4x18",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 12,
+          "toSq": 41,
+          "from": {
+            "r": 2,
+            "c": 3
+          },
+          "to": {
+            "r": 8,
+            "c": 1
+          },
+          "note": "Opponent responds 12x41",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 34,
+        "toSq": 29,
+        "from": {
+          "r": 6,
+          "c": 7
+        },
+        "to": {
+          "r": 5,
+          "c": 6
+        },
+        "note": "Key strike: 34-29!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 21,
+        "toSq": 27,
+        "from": {
+          "r": 4,
+          "c": 1
+        },
+        "to": {
+          "r": 5,
+          "c": 2
+        },
+        "note": "Opponent responds 21-27",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 32,
+        "toSq": 21,
+        "from": {
+          "r": 6,
+          "c": 3
+        },
+        "to": {
+          "r": 4,
+          "c": 1
+        },
+        "note": "Continue combo: 32x21",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 22,
+        "toSq": 28,
+        "from": {
+          "r": 4,
+          "c": 3
+        },
+        "to": {
+          "r": 5,
+          "c": 4
+        },
+        "note": "Opponent responds 22-28",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 33,
+        "toSq": 22,
+        "from": {
+          "r": 6,
+          "c": 5
+        },
+        "to": {
+          "r": 4,
+          "c": 3
+        },
+        "note": "Continue combo: 33x22",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 4,
+        "toSq": 10,
+        "from": {
+          "r": 0,
+          "c": 7
+        },
+        "to": {
+          "r": 1,
+          "c": 8
+        },
+        "note": "Opponent responds 4-10",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 15,
+        "toSq": 4,
+        "from": {
+          "r": 2,
+          "c": 9
+        },
+        "to": {
+          "r": 0,
+          "c": 7
+        },
+        "note": "Continue combo: 15x4",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 8,
+        "toSq": 12,
+        "from": {
+          "r": 1,
+          "c": 4
+        },
+        "to": {
+          "r": 2,
+          "c": 3
+        },
+        "note": "Opponent responds 8-12",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 4,
+        "toSq": 18,
+        "from": {
+          "r": 0,
+          "c": 7
+        },
+        "to": {
+          "r": 3,
+          "c": 4
+        },
+        "note": "Continue combo: 4x18",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 12,
+        "toSq": 41,
+        "from": {
+          "r": 2,
+          "c": 3
+        },
+        "to": {
+          "r": 8,
+          "c": 1
+        },
+        "note": "Opponent responds 12x41",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
+    "candidate_analysis": {
+      "best_move": "34-29",
+      "second_best_move": "Quiet move",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Calculate White's breakthrough strike starting with 34-29.",
+      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
+      "Play 34-29! This initiates the decisive win."
+    ],
+    "description": "Master Composition #17 directly from user screenshot 18.PNG (Rating 1881 Elo)",
+    "explanation": "White sacrifices decisively with 34-29 forcing an unstoppable winning combination.",
+    "quality": {
+      "score": 98,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 99,
+      "verified": true
+    },
+    "hash": "hash_img_17",
+    "initialBoard": [
+      {
+        "r": 0,
+        "c": 3,
+        "square": 2,
         "player": 2,
         "isKing": false
       },
@@ -6287,9 +8881,489 @@ export const TRAP_DATABASE = [
         "isKing": false
       },
       {
+        "r": 1,
+        "c": 4,
+        "square": 8,
+        "player": 2,
+        "isKing": false
+      },
+      {
         "r": 2,
+        "c": 5,
+        "square": 13,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 9,
+        "square": 15,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 4,
         "c": 1,
-        "square": 11,
+        "square": 21,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 3,
+        "square": 22,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 3,
+        "square": 32,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 5,
+        "square": 33,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 7,
+        "square": 34,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 2,
+        "square": 37,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 4,
+        "square": 38,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 6,
+        "square": 39,
+        "player": 1,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T10:30:58.996Z",
+    "title": "📸 DRAUGHTS IMAGE #17 (18.PNG): Two-Gate Coronation Trap",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 18.PNG! Spot the combination and strike!",
+    "themeId": "coronation-trap",
+    "themeName": "DRAUGHTS IMAGE Master Series",
+    "themeIdea": "Forced combination from Screenshot 18.PNG",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "DRAUGHTS IMAGE Collection",
+    "themeCategory": "DRAUGHTS IMAGE Collection",
+    "themes": [
+      "DRAUGHTS IMAGE Collection",
+      "Master Tactics",
+      "FMJD International"
+    ],
+    "badge": "📸 18.PNG",
+    "source_image": "18.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
+  },
+  {
+    "id": "DRAUGHTS-IMG-18",
+    "ruleset": "international",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W15,25,33,37,38,42,43:B4,13,14,18,19,23,24:H0:F1",
+    "position": {
+      "white": [
+        15,
+        25,
+        33,
+        37,
+        38,
+        42,
+        43
+      ],
+      "black": [
+        4,
+        13,
+        14,
+        18,
+        19,
+        23,
+        24
+      ],
+      "white_kings": [],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 10,
+      "tier_name": "International Master",
+      "rating": 2384,
+      "human_score": 79,
+      "engine_depth": 8,
+      "metrics": {
+        "tacticalComplexity": 64,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 8,
+        "effectiveDepth": 8,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 25,
+        "endgameComplexity": 45,
+        "humanDifficulty": 64,
+        "temptingMove": null,
+        "humanRanking": [
+          "43-39"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "king-vacuum",
+      "themes": [
+        "king-vacuum",
+        "draughts-image",
+        "classical-combination",
+        "fmjd-master"
+      ],
+      "game_phase": "middlegame"
+    },
+    "solution": {
+      "best_move": "43-39",
+      "uniqueness": "unique",
+      "depth": 8,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 43,
+          "toSq": 39,
+          "from": {
+            "r": 8,
+            "c": 5
+          },
+          "to": {
+            "r": 7,
+            "c": 6
+          },
+          "note": "Key strike: 43-39!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 4,
+          "toSq": 10,
+          "from": {
+            "r": 0,
+            "c": 7
+          },
+          "to": {
+            "r": 1,
+            "c": 8
+          },
+          "note": "Opponent responds 4-10",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 15,
+          "toSq": 4,
+          "from": {
+            "r": 2,
+            "c": 9
+          },
+          "to": {
+            "r": 0,
+            "c": 7
+          },
+          "note": "Continue combo: 15x4",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 14,
+          "toSq": 20,
+          "from": {
+            "r": 2,
+            "c": 7
+          },
+          "to": {
+            "r": 3,
+            "c": 8
+          },
+          "note": "Opponent responds 14-20",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 25,
+          "toSq": 14,
+          "from": {
+            "r": 4,
+            "c": 9
+          },
+          "to": {
+            "r": 2,
+            "c": 7
+          },
+          "note": "Continue combo: 25x14",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 19,
+          "toSq": 10,
+          "from": {
+            "r": 3,
+            "c": 6
+          },
+          "to": {
+            "r": 1,
+            "c": 8
+          },
+          "note": "Opponent responds 19x10",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 4,
+          "toSq": 29,
+          "from": {
+            "r": 0,
+            "c": 7
+          },
+          "to": {
+            "r": 5,
+            "c": 6
+          },
+          "note": "Continue combo: 4x29",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 23,
+          "toSq": 41,
+          "from": {
+            "r": 4,
+            "c": 5
+          },
+          "to": {
+            "r": 8,
+            "c": 1
+          },
+          "note": "Opponent responds 23x41",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 43,
+        "toSq": 39,
+        "from": {
+          "r": 8,
+          "c": 5
+        },
+        "to": {
+          "r": 7,
+          "c": 6
+        },
+        "note": "Key strike: 43-39!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 4,
+        "toSq": 10,
+        "from": {
+          "r": 0,
+          "c": 7
+        },
+        "to": {
+          "r": 1,
+          "c": 8
+        },
+        "note": "Opponent responds 4-10",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 15,
+        "toSq": 4,
+        "from": {
+          "r": 2,
+          "c": 9
+        },
+        "to": {
+          "r": 0,
+          "c": 7
+        },
+        "note": "Continue combo: 15x4",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 14,
+        "toSq": 20,
+        "from": {
+          "r": 2,
+          "c": 7
+        },
+        "to": {
+          "r": 3,
+          "c": 8
+        },
+        "note": "Opponent responds 14-20",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 25,
+        "toSq": 14,
+        "from": {
+          "r": 4,
+          "c": 9
+        },
+        "to": {
+          "r": 2,
+          "c": 7
+        },
+        "note": "Continue combo: 25x14",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 19,
+        "toSq": 10,
+        "from": {
+          "r": 3,
+          "c": 6
+        },
+        "to": {
+          "r": 1,
+          "c": 8
+        },
+        "note": "Opponent responds 19x10",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 4,
+        "toSq": 29,
+        "from": {
+          "r": 0,
+          "c": 7
+        },
+        "to": {
+          "r": 5,
+          "c": 6
+        },
+        "note": "Continue combo: 4x29",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 23,
+        "toSq": 41,
+        "from": {
+          "r": 4,
+          "c": 5
+        },
+        "to": {
+          "r": 8,
+          "c": 1
+        },
+        "note": "Opponent responds 23x41",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
+    "candidate_analysis": {
+      "best_move": "43-39",
+      "second_best_move": "Quiet move",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Calculate White's breakthrough strike starting with 43-39.",
+      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
+      "Play 43-39! This initiates the decisive win."
+    ],
+    "description": "Master Composition #18 directly from user screenshot 19.PNG (Rating 2384 Elo)",
+    "explanation": "White sacrifices decisively with 43-39 forcing an unstoppable winning combination.",
+    "quality": {
+      "score": 98,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 99,
+      "verified": true
+    },
+    "hash": "hash_img_18",
+    "initialBoard": [
+      {
+        "r": 0,
+        "c": 7,
+        "square": 4,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 5,
+        "square": 13,
         "player": 2,
         "isKing": false
       },
@@ -6301,9 +9375,9 @@ export const TRAP_DATABASE = [
         "isKing": false
       },
       {
-        "r": 3,
-        "c": 0,
-        "square": 16,
+        "r": 2,
+        "c": 9,
+        "square": 15,
         "player": 1,
         "isKing": false
       },
@@ -6336,360 +9410,9 @@ export const TRAP_DATABASE = [
         "isKing": false
       },
       {
-        "r": 5,
-        "c": 0,
-        "square": 26,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 2,
-        "square": 27,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 7,
-        "square": 34,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 8,
-        "square": 40,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 3,
-        "square": 42,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 5,
-        "square": 43,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 7,
-        "square": 44,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 9,
-        "c": 6,
-        "square": 49,
-        "player": 1,
-        "isKing": false
-      }
-    ],
-    "initialMove": null,
-    "created_at": "2026-09-22T09:09:20.603Z",
-    "title": "Lidraughts Puzzle #229: Grandmaster Coronation Blitz",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "coronation-blitz",
-    "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #229",
-    "themeStars": "⭐⭐⭐⭐⭐",
-    "category": "DRAUGHTS IMAGE Collection",
-    "themeCategory": "DRAUGHTS IMAGE Collection",
-    "themes": [
-      "DRAUGHTS IMAGE Collection",
-      "Master Tactics",
-      "FMJD International"
-    ],
-    "badge": "📸 Screenshot Master"
-  },
-  {
-    "id": "DRAUGHTS-IMG-228",
-    "ruleset": "international",
-    "board_size": 10,
-    "side_to_move": "white",
-    "fen": "B:W29,33,37,39,40,42,47,50:B8,10,12,17,18,20,21,22:H0:F1",
-    "position": {
-      "white": [
-        29,
-        33,
-        37,
-        39,
-        40,
-        42,
-        47,
-        50
-      ],
-      "black": [
-        8,
-        10,
-        12,
-        17,
-        18,
-        20,
-        21,
-        22
-      ],
-      "white_kings": [],
-      "black_kings": []
-    },
-    "difficulty": {
-      "tier": 10,
-      "tier_name": "International Master",
-      "rating": 2236,
-      "human_score": 90,
-      "engine_depth": 7,
-      "metrics": {
-        "tacticalComplexity": 80,
-        "candidateComplexity": 20,
-        "branchingFactor": 15,
-        "solutionDepth": 7,
-        "effectiveDepth": 7,
-        "wrongMoveSimilarity": 25,
-        "evaluationGap": 50,
-        "deceptionScore": 30,
-        "quietMoveScore": 20,
-        "sacrificeDifficulty": 40,
-        "defensiveDifficulty": 30,
-        "moveOrderSensitivity": 40,
-        "kingComplexity": 25,
-        "endgameComplexity": 45,
-        "humanDifficulty": 80,
-        "temptingMove": null,
-        "humanRanking": [
-          "33-28"
-        ],
-        "winningRank": 1
-      }
-    },
-    "classification": {
-      "category": "tactical",
-      "primary_theme": "diamond-shot",
-      "themes": [
-        "diamond-shot",
-        "classical-combination",
-        "fmjd-master"
-      ],
-      "game_phase": "middlegame"
-    },
-    "solution": {
-      "best_move": "33-28",
-      "uniqueness": "unique",
-      "depth": 7,
-      "steps": [
-        {
-          "mover": 1,
-          "fromSq": 33,
-          "toSq": 28,
-          "from": {
-            "r": 6,
-            "c": 5
-          },
-          "to": {
-            "r": 5,
-            "c": 4
-          },
-          "note": "Key strike: 33-28!",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 22,
-          "toSq": 35,
-          "from": {
-            "r": 4,
-            "c": 3
-          },
-          "to": {
-            "r": 6,
-            "c": 9
-          },
-          "note": "Opponent responds 22x35",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 29,
-          "toSq": 23,
-          "from": {
-            "r": 5,
-            "c": 6
-          },
-          "to": {
-            "r": 4,
-            "c": 5
-          },
-          "note": "Continue combo: 29-23",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 18,
-          "toSq": 29,
-          "from": {
-            "r": 3,
-            "c": 4
-          },
-          "to": {
-            "r": 5,
-            "c": 6
-          },
-          "note": "Opponent responds 18x29",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 37,
-          "toSq": 32,
-          "from": {
-            "r": 7,
-            "c": 2
-          },
-          "to": {
-            "r": 6,
-            "c": 3
-          },
-          "note": "Continue combo: 37-32",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 27,
-          "toSq": 38,
-          "from": {
-            "r": 5,
-            "c": 2
-          },
-          "to": {
-            "r": 7,
-            "c": 4
-          },
-          "note": "Opponent responds 27x38",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 42,
-          "toSq": 4,
-          "from": {
-            "r": 8,
-            "c": 3
-          },
-          "to": {
-            "r": 0,
-            "c": 7
-          },
-          "note": "Continue combo: 42x4",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        }
-      ],
-      "variations": []
-    },
-    "candidate_analysis": {
-      "best_move": "33-28",
-      "second_best_move": "Quiet move",
-      "eval_gap": null,
-      "tempting_move": null,
-      "why_humans_choose_it": null,
-      "refutation": null,
-      "candidate_count": 1
-    },
-    "hints": [
-      "Calculate White's breakthrough strike starting with 33-28.",
-      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
-      "Play 33-28! This initiates the decisive win."
-    ],
-    "description": "Master Composition #228 from DRAUGHTS IMAGE (Rating 2236 Elo)",
-    "explanation": "White sacrifices decisively with 33-28 forcing an unstoppable winning combination.",
-    "quality": {
-      "score": 98,
-      "legality_score": 100,
-      "uniqueness_score": 100,
-      "tactical_interest": 99,
-      "verified": true
-    },
-    "hash": "hash_img_228",
-    "initialBoard": [
-      {
-        "r": 1,
-        "c": 4,
-        "square": 8,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 1,
-        "c": 8,
-        "square": 10,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
-        "c": 3,
-        "square": 12,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 2,
-        "square": 17,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 4,
-        "square": 18,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 8,
-        "square": 20,
-        "player": 2,
-        "isKing": false
-      },
-      {
         "r": 4,
-        "c": 3,
-        "square": 22,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 2,
-        "square": 27,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 6,
-        "square": 29,
+        "c": 9,
+        "square": 25,
         "player": 1,
         "isKing": false
       },
@@ -6709,15 +9432,8 @@ export const TRAP_DATABASE = [
       },
       {
         "r": 7,
-        "c": 6,
-        "square": 39,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 8,
-        "square": 40,
+        "c": 4,
+        "square": 38,
         "player": 1,
         "isKing": false
       },
@@ -6729,40 +9445,20 @@ export const TRAP_DATABASE = [
         "isKing": false
       },
       {
-        "r": 9,
-        "c": 2,
-        "square": 47,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 9,
-        "c": 8,
-        "square": 50,
+        "r": 8,
+        "c": 5,
+        "square": 43,
         "player": 1,
         "isKing": false
       }
     ],
-    "initialMove": {
-      "fromSq": 21,
-      "toSq": 27,
-      "from": {
-        "r": 4,
-        "c": 1
-      },
-      "to": {
-        "r": 5,
-        "c": 2
-      },
-      "isAi": true,
-      "note": "Opponent blunder: 21-27"
-    },
-    "created_at": "2026-09-22T09:09:20.603Z",
-    "title": "Lidraughts Puzzle #228: Springer Diamond Shot",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "diamond-shot",
+    "initialMove": null,
+    "created_at": "2026-09-22T10:30:58.996Z",
+    "title": "📸 DRAUGHTS IMAGE #18 (19.PNG): King Vacuum & Decoy",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 19.PNG! Spot the combination and strike!",
+    "themeId": "king-vacuum",
     "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #228",
+    "themeIdea": "Forced combination from Screenshot 19.PNG",
     "themeStars": "⭐⭐⭐⭐⭐",
     "category": "DRAUGHTS IMAGE Collection",
     "themeCategory": "DRAUGHTS IMAGE Collection",
@@ -6771,32 +9467,529 @@ export const TRAP_DATABASE = [
       "Master Tactics",
       "FMJD International"
     ],
-    "badge": "📸 Screenshot Master"
+    "badge": "📸 19.PNG",
+    "source_image": "19.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
   },
   {
-    "id": "DRAUGHTS-IMG-227",
+    "id": "DRAUGHTS-IMG-19",
     "ruleset": "international",
     "board_size": 10,
     "side_to_move": "white",
-    "fen": "B:W32,33,37,38,43,44,48:B12,13,14,17,18,22,24:H0:F1",
+    "fen": "W:W19,33,38,41,43,46,47:B3,9,16,18,21,26,31:H0:F1",
     "position": {
       "white": [
-        32,
+        19,
+        33,
+        38,
+        41,
+        43,
+        46,
+        47
+      ],
+      "black": [
+        3,
+        9,
+        16,
+        18,
+        21,
+        26,
+        31
+      ],
+      "white_kings": [],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 10,
+      "tier_name": "International Master",
+      "rating": 2215,
+      "human_score": 74,
+      "engine_depth": 8,
+      "metrics": {
+        "tacticalComplexity": 64,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 8,
+        "effectiveDepth": 8,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 25,
+        "endgameComplexity": 45,
+        "humanDifficulty": 64,
+        "temptingMove": null,
+        "humanRanking": [
+          "19-13"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "flank-deflection",
+      "themes": [
+        "flank-deflection",
+        "draughts-image",
+        "classical-combination",
+        "fmjd-master"
+      ],
+      "game_phase": "middlegame"
+    },
+    "solution": {
+      "best_move": "19-13",
+      "uniqueness": "unique",
+      "depth": 8,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 19,
+          "toSq": 13,
+          "from": {
+            "r": 3,
+            "c": 6
+          },
+          "to": {
+            "r": 2,
+            "c": 5
+          },
+          "note": "Key strike: 19-13!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 9,
+          "toSq": 14,
+          "from": {
+            "r": 1,
+            "c": 6
+          },
+          "to": {
+            "r": 2,
+            "c": 7
+          },
+          "note": "Opponent responds 9-14",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 13,
+          "toSq": 22,
+          "from": {
+            "r": 2,
+            "c": 5
+          },
+          "to": {
+            "r": 4,
+            "c": 3
+          },
+          "note": "Continue combo: 13x22",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 31,
+          "toSq": 37,
+          "from": {
+            "r": 6,
+            "c": 1
+          },
+          "to": {
+            "r": 7,
+            "c": 2
+          },
+          "note": "Opponent responds 31-37",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 41,
+          "toSq": 32,
+          "from": {
+            "r": 8,
+            "c": 1
+          },
+          "to": {
+            "r": 6,
+            "c": 3
+          },
+          "note": "Continue combo: 41x32",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 21,
+          "toSq": 27,
+          "from": {
+            "r": 4,
+            "c": 1
+          },
+          "to": {
+            "r": 5,
+            "c": 2
+          },
+          "note": "Opponent responds 21-27",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 22,
+          "toSq": 31,
+          "from": {
+            "r": 4,
+            "c": 3
+          },
+          "to": {
+            "r": 6,
+            "c": 1
+          },
+          "note": "Continue combo: 22x31",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 26,
+          "toSq": 48,
+          "from": {
+            "r": 5,
+            "c": 0
+          },
+          "to": {
+            "r": 9,
+            "c": 4
+          },
+          "note": "Opponent responds 26x48",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 19,
+        "toSq": 13,
+        "from": {
+          "r": 3,
+          "c": 6
+        },
+        "to": {
+          "r": 2,
+          "c": 5
+        },
+        "note": "Key strike: 19-13!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 9,
+        "toSq": 14,
+        "from": {
+          "r": 1,
+          "c": 6
+        },
+        "to": {
+          "r": 2,
+          "c": 7
+        },
+        "note": "Opponent responds 9-14",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 13,
+        "toSq": 22,
+        "from": {
+          "r": 2,
+          "c": 5
+        },
+        "to": {
+          "r": 4,
+          "c": 3
+        },
+        "note": "Continue combo: 13x22",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 31,
+        "toSq": 37,
+        "from": {
+          "r": 6,
+          "c": 1
+        },
+        "to": {
+          "r": 7,
+          "c": 2
+        },
+        "note": "Opponent responds 31-37",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 41,
+        "toSq": 32,
+        "from": {
+          "r": 8,
+          "c": 1
+        },
+        "to": {
+          "r": 6,
+          "c": 3
+        },
+        "note": "Continue combo: 41x32",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 21,
+        "toSq": 27,
+        "from": {
+          "r": 4,
+          "c": 1
+        },
+        "to": {
+          "r": 5,
+          "c": 2
+        },
+        "note": "Opponent responds 21-27",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 22,
+        "toSq": 31,
+        "from": {
+          "r": 4,
+          "c": 3
+        },
+        "to": {
+          "r": 6,
+          "c": 1
+        },
+        "note": "Continue combo: 22x31",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 26,
+        "toSq": 48,
+        "from": {
+          "r": 5,
+          "c": 0
+        },
+        "to": {
+          "r": 9,
+          "c": 4
+        },
+        "note": "Opponent responds 26x48",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
+    "candidate_analysis": {
+      "best_move": "19-13",
+      "second_best_move": "Quiet move",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Calculate White's breakthrough strike starting with 19-13.",
+      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
+      "Play 19-13! This initiates the decisive win."
+    ],
+    "description": "Master Composition #19 directly from user screenshot 20.PNG (Rating 2215 Elo)",
+    "explanation": "White sacrifices decisively with 19-13 forcing an unstoppable winning combination.",
+    "quality": {
+      "score": 98,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 99,
+      "verified": true
+    },
+    "hash": "hash_img_19",
+    "initialBoard": [
+      {
+        "r": 0,
+        "c": 5,
+        "square": 3,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 1,
+        "c": 6,
+        "square": 9,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 0,
+        "square": 16,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 4,
+        "square": 18,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 6,
+        "square": 19,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 4,
+        "c": 1,
+        "square": 21,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 0,
+        "square": 26,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 1,
+        "square": 31,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 5,
+        "square": 33,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 4,
+        "square": 38,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 1,
+        "square": 41,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 5,
+        "square": 43,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 9,
+        "c": 0,
+        "square": 46,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 9,
+        "c": 2,
+        "square": 47,
+        "player": 1,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T10:30:58.996Z",
+    "title": "📸 DRAUGHTS IMAGE #19 (20.PNG): Reverse Flank Deflection",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 20.PNG! Spot the combination and strike!",
+    "themeId": "flank-deflection",
+    "themeName": "DRAUGHTS IMAGE Master Series",
+    "themeIdea": "Forced combination from Screenshot 20.PNG",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "DRAUGHTS IMAGE Collection",
+    "themeCategory": "DRAUGHTS IMAGE Collection",
+    "themes": [
+      "DRAUGHTS IMAGE Collection",
+      "Master Tactics",
+      "FMJD International"
+    ],
+    "badge": "📸 20.PNG",
+    "source_image": "20.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
+  },
+  {
+    "id": "DRAUGHTS-IMG-20",
+    "ruleset": "international",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W24,31,33,37,38,39,48:B2,7,8,10,13,14,21:H0:F1",
+    "position": {
+      "white": [
+        24,
+        31,
         33,
         37,
         38,
-        43,
-        44,
+        39,
         48
       ],
       "black": [
-        12,
+        2,
+        7,
+        8,
+        10,
         13,
         14,
-        17,
-        18,
-        22,
-        24
+        21
       ],
       "white_kings": [],
       "black_kings": []
@@ -6804,15 +9997,15 @@ export const TRAP_DATABASE = [
     "difficulty": {
       "tier": 8,
       "tier_name": "Candidate Master",
-      "rating": 1998,
-      "human_score": 74,
-      "engine_depth": 7,
+      "rating": 1935,
+      "human_score": 65,
+      "engine_depth": 8,
       "metrics": {
         "tacticalComplexity": 64,
         "candidateComplexity": 20,
         "branchingFactor": 15,
-        "solutionDepth": 7,
-        "effectiveDepth": 7,
+        "solutionDepth": 8,
+        "effectiveDepth": 8,
         "wrongMoveSimilarity": 25,
         "evaluationGap": 50,
         "deceptionScore": 30,
@@ -6832,9 +10025,10 @@ export const TRAP_DATABASE = [
     },
     "classification": {
       "category": "tactical",
-      "primary_theme": "gate-deflection",
+      "primary_theme": "coup-royal",
       "themes": [
-        "gate-deflection",
+        "coup-royal",
+        "draughts-image",
         "classical-combination",
         "fmjd-master"
       ],
@@ -6843,7 +10037,7 @@ export const TRAP_DATABASE = [
     "solution": {
       "best_move": "33-29",
       "uniqueness": "unique",
-      "depth": 7,
+      "depth": 8,
       "steps": [
         {
           "mover": 1,
@@ -6864,109 +10058,264 @@ export const TRAP_DATABASE = [
         },
         {
           "mover": 2,
+          "fromSq": 21,
+          "toSq": 27,
+          "from": {
+            "r": 4,
+            "c": 1
+          },
+          "to": {
+            "r": 5,
+            "c": 2
+          },
+          "note": "Opponent responds 21-27",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 31,
+          "toSq": 22,
+          "from": {
+            "r": 6,
+            "c": 1
+          },
+          "to": {
+            "r": 4,
+            "c": 3
+          },
+          "note": "Continue combo: 31x22",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 14,
+          "toSq": 20,
+          "from": {
+            "r": 2,
+            "c": 7
+          },
+          "to": {
+            "r": 3,
+            "c": 8
+          },
+          "note": "Opponent responds 14-20",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
           "fromSq": 24,
-          "toSq": 31,
+          "toSq": 4,
           "from": {
             "r": 4,
             "c": 7
           },
           "to": {
-            "r": 6,
+            "r": 0,
+            "c": 7
+          },
+          "note": "Continue combo: 24x4",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 8,
+          "toSq": 12,
+          "from": {
+            "r": 1,
+            "c": 4
+          },
+          "to": {
+            "r": 2,
+            "c": 3
+          },
+          "note": "Opponent responds 8-12",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 4,
+          "toSq": 18,
+          "from": {
+            "r": 0,
+            "c": 7
+          },
+          "to": {
+            "r": 3,
+            "c": 4
+          },
+          "note": "Continue combo: 4x18",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 12,
+          "toSq": 41,
+          "from": {
+            "r": 2,
+            "c": 3
+          },
+          "to": {
+            "r": 8,
             "c": 1
           },
-          "note": "Opponent responds 24x31",
+          "note": "Opponent responds 12x41",
           "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 32,
-          "toSq": 28,
-          "from": {
-            "r": 6,
-            "c": 3
-          },
-          "to": {
-            "r": 5,
-            "c": 4
-          },
-          "note": "Continue combo: 32-28",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 22,
-          "toSq": 33,
-          "from": {
-            "r": 4,
-            "c": 3
-          },
-          "to": {
-            "r": 6,
-            "c": 5
-          },
-          "note": "Opponent responds 22x33",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 43,
-          "toSq": 38,
-          "from": {
-            "r": 8,
-            "c": 5
-          },
-          "to": {
-            "r": 7,
-            "c": 4
-          },
-          "note": "Continue combo: 43-38",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 33,
-          "toSq": 42,
-          "from": {
-            "r": 6,
-            "c": 5
-          },
-          "to": {
-            "r": 8,
-            "c": 3
-          },
-          "note": "Opponent responds 33x42",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 48,
-          "toSq": 10,
-          "from": {
-            "r": 9,
-            "c": 4
-          },
-          "to": {
-            "r": 1,
-            "c": 8
-          },
-          "note": "Continue combo: 48x10",
-          "isAi": false,
           "isJump": true,
           "isForcedHop": false
         }
       ],
       "variations": []
     },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 33,
+        "toSq": 29,
+        "from": {
+          "r": 6,
+          "c": 5
+        },
+        "to": {
+          "r": 5,
+          "c": 6
+        },
+        "note": "Key strike: 33-29!",
+        "isAi": false,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 21,
+        "toSq": 27,
+        "from": {
+          "r": 4,
+          "c": 1
+        },
+        "to": {
+          "r": 5,
+          "c": 2
+        },
+        "note": "Opponent responds 21-27",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 31,
+        "toSq": 22,
+        "from": {
+          "r": 6,
+          "c": 1
+        },
+        "to": {
+          "r": 4,
+          "c": 3
+        },
+        "note": "Continue combo: 31x22",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 14,
+        "toSq": 20,
+        "from": {
+          "r": 2,
+          "c": 7
+        },
+        "to": {
+          "r": 3,
+          "c": 8
+        },
+        "note": "Opponent responds 14-20",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 24,
+        "toSq": 4,
+        "from": {
+          "r": 4,
+          "c": 7
+        },
+        "to": {
+          "r": 0,
+          "c": 7
+        },
+        "note": "Continue combo: 24x4",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 8,
+        "toSq": 12,
+        "from": {
+          "r": 1,
+          "c": 4
+        },
+        "to": {
+          "r": 2,
+          "c": 3
+        },
+        "note": "Opponent responds 8-12",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 4,
+        "toSq": 18,
+        "from": {
+          "r": 0,
+          "c": 7
+        },
+        "to": {
+          "r": 3,
+          "c": 4
+        },
+        "note": "Continue combo: 4x18",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 12,
+        "toSq": 41,
+        "from": {
+          "r": 2,
+          "c": 3
+        },
+        "to": {
+          "r": 8,
+          "c": 1
+        },
+        "note": "Opponent responds 12x41",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
     "candidate_analysis": {
       "best_move": "33-29",
       "second_best_move": "Quiet move",
@@ -6981,7 +10330,7 @@ export const TRAP_DATABASE = [
       "Opponent has compulsory responses. Calculate the full multi-jump chain.",
       "Play 33-29! This initiates the decisive win."
     ],
-    "description": "Master Composition #227 from DRAUGHTS IMAGE (Rating 1998 Elo)",
+    "description": "Master Composition #20 directly from user screenshot 21.PNG (Rating 1935 Elo)",
     "explanation": "White sacrifices decisively with 33-29 forcing an unstoppable winning combination.",
     "quality": {
       "score": 98,
@@ -6990,12 +10339,33 @@ export const TRAP_DATABASE = [
       "tactical_interest": 99,
       "verified": true
     },
-    "hash": "hash_img_227",
+    "hash": "hash_img_20",
     "initialBoard": [
       {
-        "r": 2,
+        "r": 0,
         "c": 3,
-        "square": 12,
+        "square": 2,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 1,
+        "c": 2,
+        "square": 7,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 1,
+        "c": 4,
+        "square": 8,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 1,
+        "c": 8,
+        "square": 10,
         "player": 2,
         "isKing": false
       },
@@ -7014,13 +10384,6 @@ export const TRAP_DATABASE = [
         "isKing": false
       },
       {
-        "r": 3,
-        "c": 4,
-        "square": 18,
-        "player": 2,
-        "isKing": false
-      },
-      {
         "r": 4,
         "c": 1,
         "square": 21,
@@ -7029,22 +10392,15 @@ export const TRAP_DATABASE = [
       },
       {
         "r": 4,
-        "c": 3,
-        "square": 22,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
         "c": 7,
         "square": 24,
-        "player": 2,
+        "player": 1,
         "isKing": false
       },
       {
         "r": 6,
-        "c": 3,
-        "square": 32,
+        "c": 1,
+        "square": 31,
         "player": 1,
         "isKing": false
       },
@@ -7070,16 +10426,9 @@ export const TRAP_DATABASE = [
         "isKing": false
       },
       {
-        "r": 8,
-        "c": 5,
-        "square": 43,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 7,
-        "square": 44,
+        "r": 7,
+        "c": 6,
+        "square": 39,
         "player": 1,
         "isKing": false
       },
@@ -7091,26 +10440,13 @@ export const TRAP_DATABASE = [
         "isKing": false
       }
     ],
-    "initialMove": {
-      "fromSq": 17,
-      "toSq": 21,
-      "from": {
-        "r": 3,
-        "c": 2
-      },
-      "to": {
-        "r": 4,
-        "c": 1
-      },
-      "isAi": true,
-      "note": "Opponent blunder: 17-21"
-    },
-    "created_at": "2026-09-22T09:09:20.603Z",
-    "title": "Lidraughts Puzzle #227: Center Gate Deflection",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "gate-deflection",
+    "initialMove": null,
+    "created_at": "2026-09-22T10:30:58.996Z",
+    "title": "📸 DRAUGHTS IMAGE #20 (21.PNG): Classic Coup Royal Highway Sweep",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 21.PNG! Spot the combination and strike!",
+    "themeId": "coup-royal",
     "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #227",
+    "themeIdea": "Forced combination from Screenshot 21.PNG",
     "themeStars": "⭐⭐⭐⭐⭐",
     "category": "DRAUGHTS IMAGE Collection",
     "themeCategory": "DRAUGHTS IMAGE Collection",
@@ -7119,52 +10455,51 @@ export const TRAP_DATABASE = [
       "Master Tactics",
       "FMJD International"
     ],
-    "badge": "📸 Screenshot Master"
+    "badge": "📸 21.PNG",
+    "source_image": "21.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
   },
   {
-    "id": "DRAUGHTS-IMG-226",
+    "id": "DRAUGHTS-IMG-20-MINI-B",
     "ruleset": "international",
     "board_size": 10,
     "side_to_move": "white",
-    "fen": "B:W31,33,34,36,38,39,42,44,48:B12,13,14,18,19,22,23,27,35:H0:F1",
+    "fen": "W:W24,31,33,37,38,39,48:B2,7,8,10,13,14,21:H0:F1",
     "position": {
       "white": [
+        24,
         31,
         33,
-        34,
-        36,
+        37,
         38,
         39,
-        42,
-        44,
         48
       ],
       "black": [
-        12,
+        2,
+        7,
+        8,
+        10,
         13,
         14,
-        18,
-        19,
-        22,
-        23,
-        27,
-        35
+        21
       ],
       "white_kings": [],
       "black_kings": []
     },
     "difficulty": {
-      "tier": 9,
-      "tier_name": "Master",
-      "rating": 2089,
-      "human_score": 82,
-      "engine_depth": 7,
+      "tier": 8,
+      "tier_name": "Candidate Master",
+      "rating": 1935,
+      "human_score": 65,
+      "engine_depth": 8,
       "metrics": {
-        "tacticalComplexity": 72,
+        "tacticalComplexity": 64,
         "candidateComplexity": 20,
         "branchingFactor": 15,
-        "solutionDepth": 7,
-        "effectiveDepth": 7,
+        "solutionDepth": 8,
+        "effectiveDepth": 8,
         "wrongMoveSimilarity": 25,
         "evaluationGap": 50,
         "deceptionScore": 30,
@@ -7174,153 +10509,241 @@ export const TRAP_DATABASE = [
         "moveOrderSensitivity": 40,
         "kingComplexity": 25,
         "endgameComplexity": 45,
-        "humanDifficulty": 72,
+        "humanDifficulty": 64,
         "temptingMove": null,
         "humanRanking": [
-          "33-28"
+          "33-29"
         ],
         "winningRank": 1
       }
     },
     "classification": {
       "category": "tactical",
-      "primary_theme": "triple-sacrifice",
+      "primary_theme": "coup-royal",
       "themes": [
-        "triple-sacrifice",
+        "coup-royal",
+        "draughts-image",
         "classical-combination",
         "fmjd-master"
       ],
       "game_phase": "middlegame"
     },
     "solution": {
-      "best_move": "33-28",
+      "best_move": "31-22",
       "uniqueness": "unique",
-      "depth": 7,
+      "depth": 6,
       "steps": [
         {
           "mover": 1,
-          "fromSq": 33,
-          "toSq": 28,
-          "from": {
-            "r": 6,
-            "c": 5
-          },
-          "to": {
-            "r": 5,
-            "c": 4
-          },
-          "note": "Key strike: 33-28!",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 23,
-          "toSq": 43,
-          "from": {
-            "r": 4,
-            "c": 5
-          },
-          "to": {
-            "r": 8,
-            "c": 5
-          },
-          "note": "Opponent responds 23x43",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 44,
-          "toSq": 40,
-          "from": {
-            "r": 8,
-            "c": 7
-          },
-          "to": {
-            "r": 7,
-            "c": 8
-          },
-          "note": "Continue combo: 44-40",
-          "isAi": false,
-          "isJump": false,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 35,
-          "toSq": 33,
-          "from": {
-            "r": 6,
-            "c": 9
-          },
-          "to": {
-            "r": 6,
-            "c": 5
-          },
-          "note": "Opponent responds 35x33",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
-          "fromSq": 48,
-          "toSq": 8,
-          "from": {
-            "r": 9,
-            "c": 4
-          },
-          "to": {
-            "r": 1,
-            "c": 4
-          },
-          "note": "Continue combo: 48x8",
-          "isAi": false,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 2,
-          "fromSq": 13,
-          "toSq": 2,
-          "from": {
-            "r": 2,
-            "c": 5
-          },
-          "to": {
-            "r": 0,
-            "c": 3
-          },
-          "note": "Opponent responds 13x2",
-          "isAi": true,
-          "isJump": true,
-          "isForcedHop": false
-        },
-        {
-          "mover": 1,
           "fromSq": 31,
-          "toSq": 15,
+          "toSq": 22,
           "from": {
             "r": 6,
             "c": 1
           },
           "to": {
-            "r": 2,
-            "c": 9
+            "r": 4,
+            "c": 3
           },
-          "note": "Continue combo: 31x15",
+          "note": "Continue combo: 31x22",
           "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 14,
+          "toSq": 20,
+          "from": {
+            "r": 2,
+            "c": 7
+          },
+          "to": {
+            "r": 3,
+            "c": 8
+          },
+          "note": "Opponent responds 14-20",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 24,
+          "toSq": 4,
+          "from": {
+            "r": 4,
+            "c": 7
+          },
+          "to": {
+            "r": 0,
+            "c": 7
+          },
+          "note": "Continue combo: 24x4",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 8,
+          "toSq": 12,
+          "from": {
+            "r": 1,
+            "c": 4
+          },
+          "to": {
+            "r": 2,
+            "c": 3
+          },
+          "note": "Opponent responds 8-12",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 4,
+          "toSq": 18,
+          "from": {
+            "r": 0,
+            "c": 7
+          },
+          "to": {
+            "r": 3,
+            "c": 4
+          },
+          "note": "Continue combo: 4x18",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 12,
+          "toSq": 41,
+          "from": {
+            "r": 2,
+            "c": 3
+          },
+          "to": {
+            "r": 8,
+            "c": 1
+          },
+          "note": "Opponent responds 12x41",
+          "isAi": true,
           "isJump": true,
           "isForcedHop": false
         }
       ],
       "variations": []
     },
+    "steps": [
+      {
+        "mover": 1,
+        "fromSq": 31,
+        "toSq": 22,
+        "from": {
+          "r": 6,
+          "c": 1
+        },
+        "to": {
+          "r": 4,
+          "c": 3
+        },
+        "note": "Continue combo: 31x22",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 14,
+        "toSq": 20,
+        "from": {
+          "r": 2,
+          "c": 7
+        },
+        "to": {
+          "r": 3,
+          "c": 8
+        },
+        "note": "Opponent responds 14-20",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 24,
+        "toSq": 4,
+        "from": {
+          "r": 4,
+          "c": 7
+        },
+        "to": {
+          "r": 0,
+          "c": 7
+        },
+        "note": "Continue combo: 24x4",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 8,
+        "toSq": 12,
+        "from": {
+          "r": 1,
+          "c": 4
+        },
+        "to": {
+          "r": 2,
+          "c": 3
+        },
+        "note": "Opponent responds 8-12",
+        "isAi": true,
+        "isJump": false,
+        "isForcedHop": false
+      },
+      {
+        "mover": 1,
+        "fromSq": 4,
+        "toSq": 18,
+        "from": {
+          "r": 0,
+          "c": 7
+        },
+        "to": {
+          "r": 3,
+          "c": 4
+        },
+        "note": "Continue combo: 4x18",
+        "isAi": false,
+        "isJump": true,
+        "isForcedHop": false
+      },
+      {
+        "mover": 2,
+        "fromSq": 12,
+        "toSq": 41,
+        "from": {
+          "r": 2,
+          "c": 3
+        },
+        "to": {
+          "r": 8,
+          "c": 1
+        },
+        "note": "Opponent responds 12x41",
+        "isAi": true,
+        "isJump": true,
+        "isForcedHop": false
+      }
+    ],
     "candidate_analysis": {
-      "best_move": "33-28",
+      "best_move": "33-29",
       "second_best_move": "Quiet move",
       "eval_gap": null,
       "tempting_move": null,
@@ -7329,12 +10752,11 @@ export const TRAP_DATABASE = [
       "candidate_count": 1
     },
     "hints": [
-      "Calculate White's breakthrough strike starting with 33-28.",
-      "Opponent has compulsory responses. Calculate the full multi-jump chain.",
-      "Play 33-28! This initiates the decisive win."
+      "Look for the clearance sacrifice that pulls Black into the firing lane.",
+      "Clear the king line and sweep."
     ],
-    "description": "Master Composition #226 from DRAUGHTS IMAGE (Rating 2089 Elo)",
-    "explanation": "White sacrifices decisively with 33-28 forcing an unstoppable winning combination.",
+    "description": "Seed subtraction miniature derived from 21.PNG: Decoy and clear the King row with minimal material.",
+    "explanation": "White sacrifices decisively with 33-29 forcing an unstoppable winning combination.",
     "quality": {
       "score": 98,
       "legality_score": 100,
@@ -7342,155 +10764,51 @@ export const TRAP_DATABASE = [
       "tactical_interest": 99,
       "verified": true
     },
-    "hash": "hash_img_226",
+    "hash": "hash_img_20",
     "initialBoard": [
       {
-        "r": 2,
-        "c": 3,
-        "square": 12,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 2,
+        "r": 4,
         "c": 5,
-        "square": 13,
-        "player": 2,
+        "square": 24,
+        "player": 1,
         "isKing": false
       },
       {
-        "r": 3,
+        "r": 7,
         "c": 4,
-        "square": 18,
-        "player": 2,
+        "square": 37,
+        "player": 1,
         "isKing": false
       },
       {
-        "r": 3,
+        "r": 7,
         "c": 6,
-        "square": 19,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 3,
-        "c": 8,
-        "square": 20,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 3,
-        "square": 22,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 4,
-        "c": 5,
-        "square": 23,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 5,
-        "c": 2,
-        "square": 27,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 1,
-        "square": 31,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 5,
-        "square": 33,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 7,
-        "square": 34,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 6,
-        "c": 9,
-        "square": 35,
-        "player": 2,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 0,
-        "square": 36,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 7,
-        "c": 4,
         "square": 38,
         "player": 1,
         "isKing": false
       },
       {
-        "r": 7,
-        "c": 6,
-        "square": 39,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
-        "c": 3,
-        "square": 42,
-        "player": 1,
-        "isKing": false
-      },
-      {
-        "r": 8,
+        "r": 2,
         "c": 7,
-        "square": 44,
-        "player": 1,
+        "square": 14,
+        "player": 2,
         "isKing": false
       },
       {
-        "r": 9,
-        "c": 4,
-        "square": 48,
-        "player": 1,
+        "r": 4,
+        "c": 1,
+        "square": 20,
+        "player": 2,
         "isKing": false
       }
     ],
-    "initialMove": {
-      "fromSq": 14,
-      "toSq": 20,
-      "from": {
-        "r": 2,
-        "c": 7
-      },
-      "to": {
-        "r": 3,
-        "c": 8
-      },
-      "isAi": true,
-      "note": "Opponent blunder: 14-20"
-    },
-    "created_at": "2026-09-22T09:09:20.592Z",
-    "title": "Lidraughts Puzzle #226: Kozlovsky Triple Sac",
-    "coachQuote": "Straight from the Grandmaster screenshots! Spot the combination and strike!",
-    "themeId": "triple-sacrifice",
+    "initialMove": null,
+    "created_at": "2026-09-22T10:30:58.996Z",
+    "title": "📸 DRAUGHTS IMAGE #20 (Variant B): Decoy King Row Clearance Miniature",
+    "coachQuote": "Straight from DRAUGHTS IMAGE 21.PNG! Spot the combination and strike!",
+    "themeId": "coup-royal",
     "themeName": "DRAUGHTS IMAGE Master Series",
-    "themeIdea": "Forced combination from Screenshot #226",
+    "themeIdea": "Forced combination from Screenshot 21.PNG",
     "themeStars": "⭐⭐⭐⭐⭐",
     "category": "DRAUGHTS IMAGE Collection",
     "themeCategory": "DRAUGHTS IMAGE Collection",
@@ -7499,7 +10817,10 @@ export const TRAP_DATABASE = [
       "Master Tactics",
       "FMJD International"
     ],
-    "badge": "📸 Screenshot Master"
+    "badge": "📸 21.PNG Mini",
+    "source_image": "21.PNG",
+    "source_collection": "DRAUGHTS IMAGE",
+    "central_line_desc": "Grande Ligne: Top-Right (5) ↔ Bottom-Left (46)"
   },
   {
     "id": "NG-T1-DIR-22x11-9697",
@@ -148001,6 +151322,9 @@ export class TrapAcademyController {
     }, 2800);
   }
 }
+
+
+
 
 
 

@@ -647,8 +647,43 @@ body {
 }
 
 .square.central-line-sq {
-  background: radial-gradient(circle at 40% 40%, #523522 0%, #351e10 100%);
-  box-shadow: inset 0 0 8px rgba(245, 166, 35, 0.2), inset 0 1px 2px rgba(245, 166, 35, 0.15);
+  background: radial-gradient(circle at 45% 45%, #783e16 0%, #452109 100%) !important;
+  box-shadow: inset 0 0 0 2px rgba(245, 166, 35, 0.55), inset 0 0 16px rgba(245, 166, 35, 0.28) !important;
+  position: relative;
+}
+
+.square.central-line-sq::before {
+  content: '';
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(254, 240, 138, 0.75);
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.9);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Continuous SVG Highway Track Overlay */
+.highway-track-glow {
+  stroke: rgba(245, 158, 11, 0.25);
+  stroke-width: 14px;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.highway-track-line {
+  stroke: rgba(253, 224, 71, 0.7);
+  stroke-width: 2.5px;
+  stroke-dasharray: 8 6;
+  stroke-linecap: round;
+  pointer-events: none;
+  animation: highwayTrackPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes highwayTrackPulse {
+  0% { opacity: 0.55; stroke-width: 2.2px; }
+  100% { opacity: 0.9; stroke-width: 3.2px; }
 }
 
 /* Subtle coordinate labels on edge squares */
