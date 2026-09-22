@@ -731,7 +731,7 @@ class PuzzleTrainer {
         this.isOpponentMoving = false;
         this.activatePlayerTurn();
       });
-    }, 450);
+    }, 200);
   }
 
   activatePlayerTurn() {
@@ -1098,8 +1098,8 @@ class PuzzleTrainer {
       const from = this.selectedSquare;
       const to = { r, c };
 
-      // Must be a playable dark square
-      if ((r + c) % 2 !== 0) {
+      // Must be a playable dark square for active ruleset
+      if (this.engine && !this.engine.isDarkSquare(r, c)) {
         this.deselectSquare();
         return;
       }
@@ -1271,7 +1271,7 @@ class PuzzleTrainer {
 
         setTimeout(() => {
           this.executeOpponentMove(nextStep);
-        }, 400);
+        }, 200);
       }
     } else {
       // Fully solved!

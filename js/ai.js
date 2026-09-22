@@ -51,6 +51,10 @@ export class NigerianDraughtsAI {
             this.workerReady = true;
           }
         });
+        this.worker.addEventListener('error', (err) => {
+          console.warn('AI worker runtime error, falling back to main-thread search:', err);
+          this.workerReady = false;
+        });
       }
     } catch (err) {
       console.warn('Worker initialization fallback to main-thread search:', err);
@@ -186,30 +190,30 @@ export class NigerianDraughtsAI {
     switch (this.difficulty) {
       case 'easy':
       case 'beginner':
-        return { maxDepth: 4, timeLimit: 400, useOpening: false };
+        return { maxDepth: 6, timeLimit: 150, useOpening: true };
 
       case 'medium':
       case 'intermediate':
-        return { maxDepth: 8, timeLimit: 1200, useOpening: true };
+        return { maxDepth: 10, timeLimit: 280, useOpening: true };
 
       case 'advanced':
-        return { maxDepth: 12, timeLimit: 2200, useOpening: true };
+        return { maxDepth: 14, timeLimit: 450, useOpening: true };
 
       case 'expert':
-        return { maxDepth: 16, timeLimit: 3600, useOpening: true };
+        return { maxDepth: 18, timeLimit: 650, useOpening: true };
 
       case 'hard':
       case 'master':
-        return { maxDepth: 20, timeLimit: 5000, useOpening: true };
+        return { maxDepth: 22, timeLimit: 850, useOpening: true };
 
       case 'grandmaster':
       default: {
-        // Dynamic time allocation based on game clock
-        let budget = 4000;
+        // Dynamic time allocation based on game clock (fast & responsive)
+        let budget = 900;
         if (clockTimeLeft && clockTimeLeft > 0) {
-          budget = Math.max(1200, Math.min(8500, Math.floor((clockTimeLeft / 20) * 1000) + timeIncrement * 900));
+          budget = Math.max(500, Math.min(1400, Math.floor((clockTimeLeft / 35) * 1000) + timeIncrement * 300));
         }
-        return { maxDepth: 26, timeLimit: budget, useOpening: true };
+        return { maxDepth: 24, timeLimit: budget, useOpening: true };
       }
     }
   }
@@ -269,7 +273,7 @@ export class NigerianDraughtsAI {
             console.warn('AI worker timeout. Running synchronous search fallback.');
             resolve(this.getBestMoveSync(engine, aiPlayer, constraints, onTelemetry));
           }
-        }, constraints.timeLimit + 2500);
+        }, constraints.timeLimit + 500);
 
         this.worker.addEventListener('message', messageHandler);
         this.worker.postMessage({

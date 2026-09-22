@@ -1993,7 +1993,12 @@ class NigerianDraughtsApp {
     const clockTime = (this.timer && this.timer.timeLeft) ? (this.timer.timeLeft[mover] || 300) : 300;
     const increment = (this.timer && this.timer.increment) ? this.timer.increment : 0;
 
-    const minDelay = this.aiDifficulty === 'beginner' ? 300 : (this.aiDifficulty === 'intermediate' ? 450 : 250);
+    const legalMoves = this.engine.getAllLegalMoves(mover);
+    const isSingleMove = legalMoves.length === 1;
+
+    const minDelay = isSingleMove
+      ? 50
+      : (this.aiDifficulty === 'beginner' ? 100 : (this.aiDifficulty === 'intermediate' ? 150 : 120));
     const minDelayPromise = new Promise(r => setTimeout(r, minDelay));
 
     const currentEngineInstance = this.engine;
@@ -2077,7 +2082,7 @@ class NigerianDraughtsApp {
         if (!res.turnEnded) {
           // Multi-jump continues
           this.isAIThinking = false;
-          setTimeout(() => this.scheduleAIMove(), 250);
+          setTimeout(() => this.scheduleAIMove(), 120);
         } else {
           this.isAIThinking = false;
           const prevPlayer = mover;
@@ -2098,7 +2103,7 @@ class NigerianDraughtsApp {
           }
 
           if (this.gameMode === 'eve') {
-            setTimeout(() => this.scheduleAIMove(), 350);
+            setTimeout(() => this.scheduleAIMove(), 180);
           } else {
             // Trigger Premove if queued by player
             this.tryExecutePremove();
@@ -2124,7 +2129,7 @@ class NigerianDraughtsApp {
           return;
         }
         if (!res.turnEnded) {
-          setTimeout(() => this.scheduleAIMove(), 250);
+          setTimeout(() => this.scheduleAIMove(), 120);
         } else {
           this.timer.switchTurn(this.engine.currentTurn, mover);
           const nextMoves = this.engine.getAllLegalMoves(this.engine.currentTurn);
@@ -2137,7 +2142,7 @@ class NigerianDraughtsApp {
             return;
           }
           if (this.gameMode === 'eve') {
-            setTimeout(() => this.scheduleAIMove(), 350);
+            setTimeout(() => this.scheduleAIMove(), 180);
           }
         }
       } else {

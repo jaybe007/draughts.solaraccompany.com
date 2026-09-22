@@ -171,7 +171,7 @@ export class DraughtsSearchEngine {
 
       // Stop if forced mate reached or search time nearly exhausted
       if (Math.abs(globalBestScore) >= MATE_SCORE - 100) break;
-      if (elapsed >= this.timeLimit * 0.82) break;
+      if (elapsed >= this.timeLimit * 0.70) break;
     }
 
     return {
@@ -241,8 +241,8 @@ export class DraughtsSearchEngine {
   pvs(board, depth, alpha, beta, ply, hash = null) {
     this.nodes++;
 
-    // Periodic time check every 1024 nodes
-    if ((this.nodes & 1023) === 0) {
+    // Periodic time check every 512 nodes
+    if ((this.nodes & 511) === 0) {
       if (performance.now() - this.startTime >= this.timeLimit) {
         this.stopSearch = true;
         return 0;
