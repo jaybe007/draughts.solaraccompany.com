@@ -40,7 +40,7 @@ class PuzzleTrainer {
     this.isOpponentMoving = false;
     this.isAnimatingSolution = false;
     this.activeFilter = 'all';
-    this.activeRuleset = 'draughts-image'; // Default to user's screenshots collection
+    this.activeRuleset = 'all'; // Default to all DRAUGHTS IMAGE collection
     this.activeTheme = 'all';
     this.activeStarFilter = 'all';
     this.searchQuery = '';
@@ -422,12 +422,8 @@ class PuzzleTrainer {
     if (!p) return false;
 
     // 1. Ruleset check
-    if (this.activeRuleset && this.activeRuleset !== 'all') {
-      if (this.activeRuleset === 'draughts-image') {
-        if (!p.id.startsWith('DRAUGHTS-IMG-') && p.category !== 'DRAUGHTS IMAGE Collection' && !p.source_image) {
-          return false;
-        }
-      } else if (p.ruleset !== this.activeRuleset) {
+    if (this.activeRuleset && this.activeRuleset !== 'all' && this.activeRuleset !== 'draughts-image') {
+      if (p.ruleset !== this.activeRuleset) {
         return false;
       }
     }
@@ -581,7 +577,9 @@ class PuzzleTrainer {
     if (!this.dom.rulesetPills) return;
     const btns = this.dom.rulesetPills.querySelectorAll('.filter-btn');
     btns.forEach(b => {
-      b.classList.toggle('active', b.dataset.ruleset === this.activeRuleset);
+      const r = b.dataset.ruleset;
+      const isAct = (r === this.activeRuleset) || (r === 'all' && (this.activeRuleset === 'all' || this.activeRuleset === 'draughts-image'));
+      b.classList.toggle('active', isAct);
     });
   }
 
@@ -1783,10 +1781,7 @@ class PuzzleTrainer {
   renderFilterPills() {
     if (!this.dom.filterPills) return;
     const pool = this.puzzles.filter(p => {
-      if (this.activeRuleset === 'all') return true;
-      if (this.activeRuleset === 'draughts-image') {
-        return p.id.startsWith('DRAUGHTS-IMG-') || p.category === 'DRAUGHTS IMAGE Collection' || Boolean(p.source_image);
-      }
+      if (this.activeRuleset === 'all' || this.activeRuleset === 'draughts-image') return true;
       return p.ruleset === this.activeRuleset;
     });
 
@@ -1870,12 +1865,15 @@ class PuzzleTrainer {
     }
 
     // Grouping by Collection for cleanly organized browsing
-    if (this.activeRuleset === 'all') {
+    if (this.activeRuleset === 'all' || this.activeRuleset === 'draughts-image') {
       const groups = [
-        { key: 'draughts-image', label: '📸 DRAUGHTS IMAGE Collection (1.PNG - 21.PNG)', items: filtered.filter(p => p.id.startsWith('DRAUGHTS-IMG-') || p.source_image) },
-        { key: 'international', label: '🌍 International FMJD Master Series', items: filtered.filter(p => !p.id.startsWith('DRAUGHTS-IMG-') && !p.source_image && p.ruleset === 'international') },
-        { key: 'nigeria', label: '🇳🇬 Nigerian Street Draughts Academy', items: filtered.filter(p => p.ruleset === 'nigeria') },
-        { key: 'ghana', label: '🇬🇭 Ghanaian Damii Academy', items: filtered.filter(p => p.ruleset === 'ghana') }
+        { key: 'canonical', label: '📸 Canonical Master Compositions (1.PNG - 21.PNG)', items: filtered.filter(p => p.id.match(/^DRAUGHTS-IMG-\d+$/)) },
+        { key: 'nigeria', label: '🇳🇬 Nigerian Highway Transpositions (Highway 1..50)', items: filtered.filter(p => p.id.includes('-NGA')) },
+        { key: 'ghana', label: '🇬🇭 Ghanaian Damii Variants (Damii Rules)', items: filtered.filter(p => p.id.includes('-GHA')) },
+        { key: 'mini', label: '⚡ Tactical Miniatures (Seed Subtractions)', items: filtered.filter(p => p.id.includes('-MINI')) },
+        { key: 'add', label: '🛡️ Defensive Complexity (Seed Additions)', items: filtered.filter(p => p.id.includes('-ADD')) },
+        { key: 'endgame', label: '👑 Endgame Coronation Studies', items: filtered.filter(p => p.id.includes('-ENDGAME')) },
+        { key: 'ambush', label: '🪤 Pre-Move Blunder Ambushes', items: filtered.filter(p => p.id.includes('-SETUP')) }
       ];
 
       groups.forEach(g => {
