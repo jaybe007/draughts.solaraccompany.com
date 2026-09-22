@@ -646,45 +646,7 @@ body {
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.4);
 }
 
-.square.central-line-sq {
-  background: radial-gradient(circle at 45% 45%, #783e16 0%, #452109 100%) !important;
-  box-shadow: inset 0 0 0 2px rgba(245, 166, 35, 0.55), inset 0 0 16px rgba(245, 166, 35, 0.28) !important;
-  position: relative;
-}
 
-.square.central-line-sq::before {
-  content: '';
-  position: absolute;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: rgba(254, 240, 138, 0.75);
-  box-shadow: 0 0 6px rgba(245, 158, 11, 0.9);
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Continuous SVG Highway Track Overlay */
-.highway-track-glow {
-  stroke: rgba(245, 158, 11, 0.25);
-  stroke-width: 14px;
-  stroke-linecap: round;
-  pointer-events: none;
-}
-
-.highway-track-line {
-  stroke: rgba(253, 224, 71, 0.7);
-  stroke-width: 2.5px;
-  stroke-dasharray: 8 6;
-  stroke-linecap: round;
-  pointer-events: none;
-  animation: highwayTrackPulse 3s ease-in-out infinite alternate;
-}
-
-@keyframes highwayTrackPulse {
-  0% { opacity: 0.55; stroke-width: 2.2px; }
-  100% { opacity: 0.9; stroke-width: 3.2px; }
-}
 
 /* Subtle coordinate labels on edge squares */
 .square-coord {
@@ -2239,10 +2201,6 @@ body {
   background: radial-gradient(circle at 40% 40%, #1b4d3e 0%, #0f3026 100%);
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
 }
-.board-wood-frame.theme-eco-giant .square.central-line-sq {
-  background: radial-gradient(circle at 40% 40%, #2e6b57 0%, #174235 100%);
-  box-shadow: inset 0 0 8px rgba(52, 211, 153, 0.35);
-}
 
 /* 3. Golden State (Royal Gold & Deep Jet Obsidian) */
 .board-wood-frame.theme-golden-state {
@@ -2258,10 +2216,6 @@ body {
   background: radial-gradient(circle at 40% 40%, #18181b 0%, #09090b 100%);
   box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.7);
 }
-.board-wood-frame.theme-golden-state .square.central-line-sq {
-  background: radial-gradient(circle at 40% 40%, #b45309 0%, #78350f 100%);
-  box-shadow: inset 0 0 10px rgba(253, 224, 71, 0.4);
-}
 
 /* 4. Safari Land (Savannah Amber & Dark Acacia Teak) */
 .board-wood-frame.theme-safari-land {
@@ -2274,10 +2228,6 @@ body {
 }
 .board-wood-frame.theme-safari-land .square.dark {
   background: radial-gradient(circle at 40% 40%, #5c3a21 0%, #3d2412 100%);
-}
-.board-wood-frame.theme-safari-land .square.central-line-sq {
-  background: radial-gradient(circle at 40% 40%, #78492a 0%, #4a2c17 100%);
-  box-shadow: inset 0 0 8px rgba(245, 158, 11, 0.3);
 }
 
 /* 5. Mineral Grove (Deep Jade & Polished Slate) */
@@ -2292,10 +2242,6 @@ body {
 .board-wood-frame.theme-mineral-grove .square.dark {
   background: radial-gradient(circle at 40% 40%, #334155 0%, #1e293b 100%);
 }
-.board-wood-frame.theme-mineral-grove .square.central-line-sq {
-  background: radial-gradient(circle at 40% 40%, #0f766e 0%, #115e59 100%);
-  box-shadow: inset 0 0 8px rgba(94, 234, 212, 0.35);
-}
 
 /* 6. Diamond Coast (Atlantic Deep Marine Blue & Pearl) */
 .board-wood-frame.theme-diamond-coast {
@@ -2308,10 +2254,6 @@ body {
 }
 .board-wood-frame.theme-diamond-coast .square.dark {
   background: radial-gradient(circle at 40% 40%, #0f3854 0%, #082032 100%);
-}
-.board-wood-frame.theme-diamond-coast .square.central-line-sq {
-  background: radial-gradient(circle at 40% 40%, #0284c7 0%, #0369a1 100%);
-  box-shadow: inset 0 0 10px rgba(56, 189, 248, 0.4);
 }
 
 /* ==========================================================================

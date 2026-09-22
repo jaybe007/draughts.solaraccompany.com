@@ -814,7 +814,7 @@ class PuzzleTrainer {
         const isHighway = this.engine && this.engine.isCentralLineSquare ? this.engine.isCentralLineSquare(r, c) : (isDark && (r === c));
 
         const sq = document.createElement('div');
-        sq.className = `square ${isDark ? 'dark' : 'light'} ${isHighway ? 'central-line-sq' : ''}`;
+        sq.className = `square ${isDark ? 'dark' : 'light'}`;
         sq.dataset.row = r;
         sq.dataset.col = c;
         sq.id = `puzzle-sq-${r}-${c}`;
@@ -857,47 +857,11 @@ class PuzzleTrainer {
       }
     }
 
-    // Render continuous Highway / Grande Ligne track on SVG overlay
-    this.renderCentralLineTrack();
-  }
-
-  renderCentralLineTrack() {
     const svg = this.dom.tacticalSvg || document.getElementById('board-tactical-svg');
-    if (!svg) return;
-
-    let trackGroup = svg.querySelector('#highway-track-group');
-    if (!trackGroup) {
-      trackGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      trackGroup.setAttribute('id', 'highway-track-group');
-      svg.prepend(trackGroup);
-    } else {
-      trackGroup.innerHTML = '';
+    if (svg) {
+      const oldTrack = svg.querySelector('#highway-track-group');
+      if (oldTrack) oldTrack.remove();
     }
-
-    const isIntl = this.engine && (this.engine.ruleMode === 'international' || this.engine.ruleMode === 'tournament' || this.engine.ruleMode === 'fmjd');
-
-    // FMJD International: Top-Right (95%, 5%) to Bottom-Left (5%, 95%)
-    // Nigerian / Ghanaian: Top-Left (5%, 5%) to Bottom-Right (95%, 95%)
-    const x1 = isIntl ? 95 : 5;
-    const y1 = 5;
-    const x2 = isIntl ? 5 : 95;
-    const y2 = 95;
-
-    const glow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    glow.setAttribute('x1', `${x1}%`);
-    glow.setAttribute('y1', `${y1}%`);
-    glow.setAttribute('x2', `${x2}%`);
-    glow.setAttribute('y2', `${y2}%`);
-    glow.setAttribute('class', 'highway-track-glow');
-    trackGroup.appendChild(glow);
-
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', `${x1}%`);
-    line.setAttribute('y1', `${y1}%`);
-    line.setAttribute('x2', `${x2}%`);
-    line.setAttribute('y2', `${y2}%`);
-    line.setAttribute('class', 'highway-track-line');
-    trackGroup.appendChild(line);
   }
 
   renderPieces() {
@@ -1755,7 +1719,7 @@ class PuzzleTrainer {
 
   clearTacticalSvg() {
     if (!this.dom.tacticalSvg) return;
-    const arrows = this.dom.tacticalSvg.querySelectorAll('line:not(.highway-track-glow):not(.highway-track-line), path:not(.highway-track-glow):not(.highway-track-line)');
+    const arrows = this.dom.tacticalSvg.querySelectorAll('line, path');
     arrows.forEach(a => a.remove());
   }
 

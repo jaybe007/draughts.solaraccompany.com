@@ -1451,7 +1451,12 @@ class NigerianDraughtsApp {
     this.renderBoard();
     this.updateUI();
     this.setCommentary('start');
-    this.setBannerNotice(`Match ready! ${this.boardSize}x${this.boardSize} Nigerian board. White starts.`);
+    const boardTypeNames = {
+      international: 'International FMJD board (seeds on Top-Right ↔ Bottom-Left diagonal)',
+      ghana: 'Ghanaian Damii board',
+      nigeria: 'Nigerian board'
+    };
+    this.setBannerNotice(`Match ready! ${this.boardSize}x${this.boardSize} ${boardTypeNames[this.ruleMode] || 'board'}. White starts.`);
     sound.playMove();
 
     if (this.gameMode === 'eve') {
@@ -1509,7 +1514,7 @@ class NigerianDraughtsApp {
     const bannerNames = {
       nigeria: '🇳🇬 Nigeria Rules (Highway Right, Free Choice)',
       ghana: '🇬🇭 Ghana Rules (Damii - Seed Counting, 1 Crown+1 Seed Win/Draw)',
-      international: '🌍 International Rules (FMJD - Opposite Central Line, Majority Capture)'
+      international: '🌍 International Rules (FMJD - Main Diagonal Top-Right ↔ Bottom-Left, Majority Capture)'
     };
     if (this.dom.bannerText) {
       this.dom.bannerText.textContent = `Active Ruleset: ${bannerNames[this.ruleMode] || this.ruleMode}`;
@@ -1565,16 +1570,10 @@ class NigerianDraughtsApp {
       for (let c = 0; c < size; c++) {
         const sq = document.createElement('div');
         const isDark = this.engine.isDarkSquare(r, c);
-        const isHighway = this.engine.isCentralLineSquare ? this.engine.isCentralLineSquare(r, c) : (isDark && (r === c));
-        sq.className = `square ${isDark ? 'dark' : 'light'} ${isHighway ? 'central-line-sq' : ''}`;
+        sq.className = `square ${isDark ? 'dark' : 'light'}`;
         sq.dataset.row = r;
         sq.dataset.col = c;
         sq.id = `sq-${r}-${c}`;
-        if (isHighway) {
-          sq.title = this.ruleMode === 'ghana'
-            ? 'Ghanaian Damii Central Line (Right-Hand Diagonal)'
-            : (this.ruleMode === 'international' ? 'FMJD Main Diagonal (Bottom-Left to Top-Right — Otherwise of Default)' : 'Nigerian Central Line (Highway on Right)');
-        }
 
         if (c === 0) {
           const rowLabel = document.createElement('span');
@@ -1594,47 +1593,13 @@ class NigerianDraughtsApp {
       }
     }
 
-    this.renderCentralLineTrack();
-    this.renderPieces();
-  }
-
-  renderCentralLineTrack() {
     const svg = this.dom.boardTacticalSvg || document.getElementById('board-tactical-svg');
-    if (!svg) return;
-
-    let trackGroup = svg.querySelector('#highway-track-group');
-    if (!trackGroup) {
-      trackGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      trackGroup.setAttribute('id', 'highway-track-group');
-      svg.prepend(trackGroup);
-    } else {
-      trackGroup.innerHTML = '';
+    if (svg) {
+      const oldTrack = svg.querySelector('#highway-track-group');
+      if (oldTrack) oldTrack.remove();
     }
 
-    const isIntl = (this.ruleMode === 'international' || this.ruleMode === 'tournament' || this.ruleMode === 'fmjd');
-
-    // FMJD International: Top-Right (95%, 5%) to Bottom-Left (5%, 95%)
-    // Nigerian / Ghanaian: Top-Left (5%, 5%) to Bottom-Right (95%, 95%)
-    const x1 = isIntl ? 95 : 5;
-    const y1 = 5;
-    const x2 = isIntl ? 5 : 95;
-    const y2 = 95;
-
-    const glow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    glow.setAttribute('x1', `${x1}%`);
-    glow.setAttribute('y1', `${y1}%`);
-    glow.setAttribute('x2', `${x2}%`);
-    glow.setAttribute('y2', `${y2}%`);
-    glow.setAttribute('class', 'highway-track-glow');
-    trackGroup.appendChild(glow);
-
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', `${x1}%`);
-    line.setAttribute('y1', `${y1}%`);
-    line.setAttribute('x2', `${x2}%`);
-    line.setAttribute('y2', `${y2}%`);
-    line.setAttribute('class', 'highway-track-line');
-    trackGroup.appendChild(line);
+    this.renderPieces();
   }
 
   renderPieces() {
@@ -1717,7 +1682,7 @@ class NigerianDraughtsApp {
   clearTacticalArrows() {
     const svg = this.dom.boardTacticalSvg || document.getElementById('board-tactical-svg');
     if (!svg) return;
-    const lines = svg.querySelectorAll('line:not(.highway-track-glow):not(.highway-track-line), path.dynamic-arrow');
+    const lines = svg.querySelectorAll('line, path.dynamic-arrow');
     lines.forEach(l => l.remove());
   }
 
