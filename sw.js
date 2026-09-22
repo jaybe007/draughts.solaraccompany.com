@@ -3,7 +3,7 @@
  * Caches essential static assets for fast loading and offline play.
  */
 
-const CACHE_NAME = 'naija-draughts-v1.1';
+const CACHE_NAME = 'naija-draughts-v2.0';
 const STATIC_ASSETS = [
   './',
   './index.php',
@@ -14,8 +14,8 @@ const STATIC_ASSETS = [
   './puzzles.css',
   './js/app.js',
   './js/engine.js',
-  './js/engine50.js',
-  './js/rules_engine.js',
+  './js/traps.js',
+  './js/puzzle_trainer.js',
   './js/audio.js',
   './manifest.json',
   './favicon.ico',
@@ -27,9 +27,7 @@ const STATIC_ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS).catch(() => {
-        // Continue even if some optional asset fails
-      });
+      return cache.addAll(STATIC_ASSETS).catch(() => {});
     })
   );
   self.skipWaiting();
@@ -48,23 +46,22 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  
-  // Exclude API requests from cache
-  if (event.request.url.includes('/api/')) {
-    return;
-  }
+  if (event.request.url.includes('/api/')) return;
 
+  // Network-First with Cache Fallback for instant updates and reliable offline play
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then((networkResponse) => {
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200 && event.request.url.startsWith(self.location.origin)) {
+          const resClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, resClone)).catch(() => {});
+        }
         return networkResponse;
-      }).catch(() => {
-        // Offline fallback
-        return caches.match('./index.php');
-      });
-    })
+      })
+      .catch(() => {
+        return caches.match(event.request).then((cached) => {
+          return cached || caches.match('./index.php');
+        });
+      })
   );
 });

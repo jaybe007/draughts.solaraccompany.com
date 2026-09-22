@@ -58,5 +58,8 @@ try {
     }
 
 } catch (Exception $e) {
+    if ($action === 'list' || empty($action)) {
+        jsonResponse(['success' => true, 'messages' => []]);
+    }
     jsonResponse(['success' => false, 'message' => 'Server error: ' . $e->getMessage()], 500);
 }

@@ -48216,12 +48216,15 @@ export class TrapAcademyController {
 
     TRAP_DATABASE.forEach((trap, idx) => {
       const isDone = this.completedTraps.includes(trap.id);
+      const diffName = typeof trap.difficulty === 'object' && trap.difficulty !== null
+        ? (trap.difficulty.tier_name || 'Beginner')
+        : (trap.difficulty || 'Beginner');
       const card = document.createElement('div');
       card.className = `trap-card ${isDone ? 'completed' : ''}`;
       card.innerHTML = `
         <div class="trap-card-header">
           <span class="trap-badge">${trap.badge || 'Combination'}</span>
-          <span class="trap-difficulty ${(trap.difficulty || 'beginner').toLowerCase().replace(/\s+/g, '-')}">${trap.difficulty || 'Beginner'}</span>
+          <span class="trap-difficulty ${diffName.toLowerCase().replace(/\s+/g, '-')}">${diffName}</span>
         </div>
         <h3 class="trap-card-title">${trap.title || 'Tactical Shot'}</h3>
         <p class="trap-card-desc">${trap.description || ''}</p>
