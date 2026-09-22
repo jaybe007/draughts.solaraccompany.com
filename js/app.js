@@ -115,9 +115,9 @@ class NigerianDraughtsApp {
     this.isTrapRadarActive = false;
 
     this.initAuthAndBackend();
+    this.parseURLParameters();
     this.renderBoard();
     this.updateUI();
-    this.parseURLParameters();
     this.updateHighwayIndicators();
   }
 
@@ -127,7 +127,7 @@ class NigerianDraughtsApp {
       const paramRoom = urlParams.get('room') || urlParams.get('room_code');
       const paramRole = urlParams.get('role') || 'p1';
       const paramMode = urlParams.get('mode');
-      const paramRules = urlParams.get('rules');
+      const paramRules = urlParams.get('rules') || urlParams.get('rule') || urlParams.get('rule_type') || urlParams.get('ruleset') || urlParams.get('rule_mode');
       const paramTime = urlParams.get('time');
       const paramShort = urlParams.get('short');
       const paramMod = urlParams.get('mod');
@@ -147,11 +147,6 @@ class NigerianDraughtsApp {
         setTimeout(() => {
           this.loadAndReplayMatch(paramReplay);
         }, 400);
-        return;
-      }
-
-      if (paramRoom) {
-        this.initOnlineRoomMode(paramRoom, paramRole);
         return;
       }
 
@@ -175,11 +170,18 @@ class NigerianDraughtsApp {
 
       if (paramRules) {
         const r = paramRules.toLowerCase().trim();
-        this.ruleMode = (r === 'international' || r === 'tournament')
+        const normRule = (r === 'international' || r === 'tournament' || r === 'fmjd')
           ? 'international'
           : (r === 'ghana' || r === 'damii' ? 'ghana' : 'nigeria');
-        this.engine.ruleMode = this.ruleMode;
-        this.engine.ruleType = this.ruleMode;
+        this.ruleMode = normRule;
+        this.engine.setRuleset(this.ruleMode, true);
+        if (this.ai && this.ai.setRuleset) {
+          this.ai.setRuleset(this.ruleMode);
+        }
+      }
+
+      if (paramRoom) {
+        this.initOnlineRoomMode(paramRoom, paramRole);
       }
 
       if (paramShort !== null && paramShort !== undefined) {
@@ -659,7 +661,7 @@ class NigerianDraughtsApp {
           const data = await res.json();
           if (data.success && data.room_code) {
             this.closeModal(this.dom.modalGameSetup);
-            window.location.href = `game.php?room=${encodeURIComponent(data.room_code)}&role=p1`;
+            window.location.href = `game.php?room=${encodeURIComponent(data.room_code)}&role=p1&rules=${encodeURIComponent(this.ruleMode)}`;
           } else {
             alert(data.message || 'Failed to create room.');
           }
@@ -1571,7 +1573,7 @@ class NigerianDraughtsApp {
         if (isHighway) {
           sq.title = this.ruleMode === 'ghana'
             ? 'Ghanaian Damii Central Line (Right-Hand Diagonal)'
-            : (this.ruleMode === 'international' ? 'FMJD Main Diagonal (Bottom-Left to Top-Right)' : 'Nigerian Central Line (Highway on Right)');
+            : (this.ruleMode === 'international' ? 'FMJD Main Diagonal (Bottom-Left to Top-Right — Otherwise of Default)' : 'Nigerian Central Line (Highway on Right)');
         }
 
         if (c === 0) {
@@ -2616,8 +2618,9 @@ class NigerianDraughtsApp {
           : ((rawRule === 'ghana' || rawRule === 'damii') ? 'ghana' : 'nigeria');
         if (this.ruleMode !== normRule) {
           this.ruleMode = normRule;
-          this.engine.ruleMode = normRule;
-          this.engine.ruleType = normRule;
+          this.engine.setRuleset(normRule, !room.board_state_json);
+          this.renderBoard();
+          this.renderPieces();
           this.updateHighwayIndicators();
         }
       }
@@ -2758,7 +2761,7 @@ class NigerianDraughtsApp {
 
   copyRoomLink() {
     if (!this.onlineRoomCode) return;
-    const url = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(this.onlineRoomCode)}&role=p2`;
+    const url = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(this.onlineRoomCode)}&role=p2&rules=${encodeURIComponent(this.ruleMode)}`;
     navigator.clipboard.writeText(url).then(() => {
       this.setBannerNotice('📋 Invite link copied to clipboard! Send to your opponent.', false);
     }).catch(() => {

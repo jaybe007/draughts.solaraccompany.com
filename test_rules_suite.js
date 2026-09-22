@@ -88,13 +88,23 @@ console.log('\n3. Backward Capture for Men:');
 for (const rule of ['nigeria', 'ghana', 'international']) {
   const b = new DraughtsBoard50({ ruleMode: rule });
   b.board.fill(EMPTY);
-  b.board[28] = P1_MAN; // White man
-  b.board[33] = P2_MAN; // Dark man behind it
   b.currentTurn = PLAYER_1;
 
-  const caps = b.generateLegalMoves();
-  const backCap = caps.find(m => m.from === 28 && m.to === 37);
-  assert(Boolean(backCap), `${rule.toUpperCase()}: Man at 28 captures backward over 33 to 37`);
+  if (rule === 'international') {
+    // In FMJD International: 28 jumping Down-Left over 32 lands on 37
+    b.board[28] = P1_MAN;
+    b.board[32] = P2_MAN;
+    const caps = b.generateLegalMoves();
+    const backCap = caps.find(m => m.from === 28 && m.to === 37);
+    assert(Boolean(backCap), `${rule.toUpperCase()}: Man at 28 captures backward over 32 to 37`);
+  } else {
+    // In Nigerian & Ghanaian: 28 jumping Down-Left over 33 lands on 37
+    b.board[28] = P1_MAN;
+    b.board[33] = P2_MAN;
+    const caps = b.generateLegalMoves();
+    const backCap = caps.find(m => m.from === 28 && m.to === 37);
+    assert(Boolean(backCap), `${rule.toUpperCase()}: Man at 28 captures backward over 33 to 37`);
+  }
 }
 
 // ----------------------------------------------------
@@ -134,40 +144,40 @@ assert(ghaCaps.length === 2,
 // 5. Promotion Mechanics: Ghana Turn End vs FMJD Rule 3.5
 // ----------------------------------------------------
 console.log('\n5. Promotion & Multi-Jump Differences:');
-// Position: White man at 13 jumps over 8 to 2 (king row).
-// From square 2, there is an immediate backward capture over 7 to 11.
-function setupPromotionSequence(rule) {
-  const b = new DraughtsBoard50({ ruleMode: rule });
-  b.board.fill(EMPTY);
-  b.board[15] = P1_MAN;
-  b.board[9] = P2_MAN;  // Jump over 9 to 4 (king row)
-  b.board[8] = P2_MAN;  // Available jump from 4 over 8 to 13
-  b.currentTurn = PLAYER_1;
-  return b;
-}
+// Ghana: Position where White man at 15 jumps over 9 to 4 (king row)
+const bGhaPromo = new DraughtsBoard50({ ruleMode: 'ghana' });
+bGhaPromo.board.fill(EMPTY);
+bGhaPromo.board[15] = P1_MAN;
+bGhaPromo.board[9] = P2_MAN;  // Jump over 9 to 4 (king row)
+bGhaPromo.board[8] = P2_MAN;  // Available jump from 4 over 8 to 13
+bGhaPromo.currentTurn = PLAYER_1;
 
-// Ghana: Reaching square 4 ends turn immediately and crowns to King!
-const bGhaPromo = setupPromotionSequence('ghana');
 const ghaMoves = bGhaPromo.generateLegalMoves();
 const ghaPromoMove = ghaMoves.find(m => m.from === 15 && m.to === 4);
 assert(Boolean(ghaPromoMove) && ghaPromoMove.promoted === true,
   'Ghana Damii: Man hitting king row 4 stops and crowns immediately (promoted=true, turn terminates)');
 
-// International (FMJD Rule 3.5): Man MUST continue jumping over 8 to 13 and DOES NOT promote!
-const bIntlPromo = setupPromotionSequence('international');
+// International (FMJD Rule 3.5): Man traversing king row 2 mid-chain (13 over 8 to 2, then 2 over 7 to 11) continues as MAN and DOES NOT promote!
+const bIntlPromo = new DraughtsBoard50({ ruleMode: 'international' });
+bIntlPromo.board.fill(EMPTY);
+bIntlPromo.board[13] = P1_MAN;
+bIntlPromo.board[8] = P2_MAN;  // Jump over 8 to 2 (king row)
+bIntlPromo.board[7] = P2_MAN;  // Continues over 7 to 11
+bIntlPromo.currentTurn = PLAYER_1;
+
 const intlMoves = bIntlPromo.generateLegalMoves();
-const intlChain = intlMoves.find(m => m.from === 15 && m.to === 13);
+const intlChain = intlMoves.find(m => m.from === 13 && m.to === 11);
 assert(Boolean(intlChain) && intlChain.promoted === false,
-  'International FMJD (Rule 3.5): Man traversing king row mid-chain continues as MAN to 13 (promoted=false)');
+  'International FMJD (Rule 3.5): Man traversing king row 2 mid-chain continues as MAN to 11 (promoted=false)');
 
 // ----------------------------------------------------
 // 6. Flying King Movement & Long Capture Landings
 // ----------------------------------------------------
 console.log('\n6. Flying King ("Oba" / "Nkorɔma") Landing Freedom:');
-for (const rule of ['nigeria', 'ghana', 'international']) {
+for (const rule of ['nigeria', 'ghana']) {
   const b = new DraughtsBoard50({ ruleMode: rule });
   b.board.fill(EMPTY);
-  b.board[34] = P1_KING; // White king on diagonal
+  b.board[34] = P1_KING; // White king on Nigerian Highway
   b.board[28] = P2_MAN;  // Enemy piece
   b.currentTurn = PLAYER_1;
 
@@ -178,6 +188,20 @@ for (const rule of ['nigeria', 'ghana', 'international']) {
     `${rule.toUpperCase()}: King captures at distance and can land on any of [23, 17, 12, 6, 1]`
   );
 }
+
+// International: King on Grande Ligne (square 37) jumping over 32
+const bIntlKing = new DraughtsBoard50({ ruleMode: 'international' });
+bIntlKing.board.fill(EMPTY);
+bIntlKing.board[37] = P1_KING; // White king on Grande Ligne
+bIntlKing.board[32] = P2_MAN;  // Enemy piece on Grande Ligne
+bIntlKing.currentTurn = PLAYER_1;
+
+const intlKingCaps = bIntlKing.generateLegalMoves();
+const intlLandings = intlKingCaps.map(m => m.to).sort((a, b) => a - b);
+assert(
+  intlLandings.includes(28) && intlLandings.includes(23) && intlLandings.includes(19) && intlLandings.includes(14) && intlLandings.includes(10) && intlLandings.includes(5),
+  `INTERNATIONAL: King captures along Grande Ligne and can land on any of [28, 23, 19, 14, 10, 5]`
+);
 
 // ----------------------------------------------------
 // 7. Ruleset-Aware 64-Bit Zobrist Hash Isolation

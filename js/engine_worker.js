@@ -10,6 +10,7 @@ import { DraughtsSearchEngine } from './search.js';
 
 let searchEngine = null;
 let currentSearchId = 0;
+let currentIsIntl = false;
 
 self.addEventListener('message', (e) => {
   const data = e.data;
@@ -23,8 +24,8 @@ self.addEventListener('message', (e) => {
           return {
             fromSq: m.from,
             toSq: m.to,
-            from: typeof m.from === 'number' ? sqToRC(m.from) : (m.from || null),
-            to: typeof m.to === 'number' ? sqToRC(m.to) : (m.to || null),
+            from: typeof m.from === 'number' ? sqToRC(m.from, currentIsIntl) : (m.from || null),
+            to: typeof m.to === 'number' ? sqToRC(m.to, currentIsIntl) : (m.to || null),
             isCapture: Boolean(m.isCapture)
           };
         }).filter(Boolean);
@@ -48,6 +49,8 @@ self.addEventListener('message', (e) => {
 
   if (data.type === 'search') {
     currentSearchId = data.searchId || 0;
+    const normRule = (data.ruleMode || 'nigeria').toString().toLowerCase().trim();
+    currentIsIntl = normRule === 'international' || normRule === 'tournament' || normRule === 'fmjd';
 
     if (!searchEngine) {
       searchEngine = new DraughtsSearchEngine({
@@ -57,8 +60,8 @@ self.addEventListener('message', (e) => {
             return {
               fromSq: m.from,
               toSq: m.to,
-              from: typeof m.from === 'number' ? sqToRC(m.from) : (m.from || null),
-              to: typeof m.to === 'number' ? sqToRC(m.to) : (m.to || null),
+              from: typeof m.from === 'number' ? sqToRC(m.from, currentIsIntl) : (m.from || null),
+              to: typeof m.to === 'number' ? sqToRC(m.to, currentIsIntl) : (m.to || null),
               isCapture: Boolean(m.isCapture)
             };
           }).filter(Boolean);
@@ -97,8 +100,8 @@ self.addEventListener('message', (e) => {
         ...result.bestMove,
         fromSq: result.bestMove.from,
         toSq: result.bestMove.to,
-        from: sqToRC(result.bestMove.from),
-        to: sqToRC(result.bestMove.to)
+        from: sqToRC(result.bestMove.from, currentIsIntl),
+        to: sqToRC(result.bestMove.to, currentIsIntl)
       };
 
       const formattedPV = (result.pv || []).map(m => {
@@ -106,8 +109,8 @@ self.addEventListener('message', (e) => {
         return {
           fromSq: m.from,
           toSq: m.to,
-          from: typeof m.from === 'number' ? sqToRC(m.from) : (m.from || null),
-          to: typeof m.to === 'number' ? sqToRC(m.to) : (m.to || null),
+          from: typeof m.from === 'number' ? sqToRC(m.from, currentIsIntl) : (m.from || null),
+          to: typeof m.to === 'number' ? sqToRC(m.to, currentIsIntl) : (m.to || null),
           isCapture: Boolean(m.isCapture)
         };
       }).filter(Boolean);

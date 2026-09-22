@@ -785,8 +785,8 @@ class PuzzleTrainer {
         const r = this.isFlipped ? (9 - rowIdx) : rowIdx;
         const c = this.isFlipped ? (9 - colIdx) : colIdx;
 
-        const isDark = (r + c) % 2 === 0;
-        const isHighway = isDark && (r === c);
+        const isDark = this.engine && this.engine.isDarkSquare ? this.engine.isDarkSquare(r, c) : ((r + c) % 2 === 0);
+        const isHighway = this.engine && this.engine.isCentralLineSquare ? this.engine.isCentralLineSquare(r, c) : (isDark && (r === c));
 
         const sq = document.createElement('div');
         sq.className = `square ${isDark ? 'dark' : 'light'} ${isHighway ? 'central-line-sq' : ''}`;
@@ -796,7 +796,8 @@ class PuzzleTrainer {
 
         // 1-50 Notation Number Badge
         if (isDark && this.showNotationNumbers) {
-          const sqNum = rcToSq(r, c);
+          const isIntl = this.engine && (this.engine.ruleMode === 'international' || this.engine.ruleMode === 'tournament' || this.engine.ruleMode === 'fmjd');
+          const sqNum = rcToSq(r, c, isIntl);
           if (sqNum) {
             const numBadge = document.createElement('span');
             numBadge.className = 'sq-draughts-num';

@@ -79,10 +79,12 @@ export class NigerianDraughtsAI {
       }
     }
 
+    const isIntl = engine.ruleMode === 'international' || engine.ruleMode === 'tournament' || engine.ruleMode === 'fmjd';
     for (let r = 0; r < 10; r++) {
       for (let c = 0; c < 10; c++) {
-        if ((r + c) % 2 === 0) {
-          const sq = rcToSq(r, c);
+        if (engine.isDarkSquare ? engine.isDarkSquare(r, c) : ((r + c) % 2 === 0)) {
+          const sq = rcToSq(r, c, isIntl);
+          if (sq < 1 || sq > 50) continue;
           if (jumpedSet.has(`${r},${c}`)) {
             b50[sq] = EMPTY;
             continue;
@@ -110,15 +112,16 @@ export class NigerianDraughtsAI {
     if (legalMoves.length === 0) return null;
     if (legalMoves.length === 1) return legalMoves[0];
 
+    const isIntl = engine.ruleMode === 'international' || engine.ruleMode === 'tournament' || engine.ruleMode === 'fmjd';
     const fromSq = typeof bestMove50.from === 'number'
       ? bestMove50.from
-      : (bestMove50.fromSq || (bestMove50.from && typeof bestMove50.from.r === 'number' ? rcToSq(bestMove50.from.r, bestMove50.from.c) : null));
+      : (bestMove50.fromSq || (bestMove50.from && typeof bestMove50.from.r === 'number' ? rcToSq(bestMove50.from.r, bestMove50.from.c, isIntl) : null));
     const toSq = typeof bestMove50.to === 'number'
       ? bestMove50.to
-      : (bestMove50.toSq || (bestMove50.to && typeof bestMove50.to.r === 'number' ? rcToSq(bestMove50.to.r, bestMove50.to.c) : null));
+      : (bestMove50.toSq || (bestMove50.to && typeof bestMove50.to.r === 'number' ? rcToSq(bestMove50.to.r, bestMove50.to.c, isIntl) : null));
 
-    const fromRC = fromSq ? sqToRC(fromSq) : (bestMove50.from && typeof bestMove50.from.r === 'number' ? bestMove50.from : null);
-    const toRC = toSq ? sqToRC(toSq) : (bestMove50.to && typeof bestMove50.to.r === 'number' ? bestMove50.to : null);
+    const fromRC = fromSq ? sqToRC(fromSq, isIntl) : (bestMove50.from && typeof bestMove50.from.r === 'number' ? bestMove50.from : null);
+    const toRC = toSq ? sqToRC(toSq, isIntl) : (bestMove50.to && typeof bestMove50.to.r === 'number' ? bestMove50.to : null);
 
     // 1. Direct match (for single-step moves or single captures)
     if (fromRC && toRC) {
@@ -132,7 +135,7 @@ export class NigerianDraughtsAI {
     // 2. Multi-jump first step match (if bestMove50 has path: [start, step1, step2, ...])
     if (bestMove50.path && bestMove50.path.length > 1 && fromRC) {
       const firstDestSq = bestMove50.path[1];
-      const firstDestRC = typeof firstDestSq === 'number' ? sqToRC(firstDestSq) : firstDestSq;
+      const firstDestRC = typeof firstDestSq === 'number' ? sqToRC(firstDestSq, isIntl) : firstDestSq;
       if (firstDestRC) {
         const stepMatch = legalMoves.find(
           m => m.from.r === fromRC.r && m.from.c === fromRC.c &&
@@ -147,7 +150,7 @@ export class NigerianDraughtsAI {
       if (bestMove50.path) {
         for (let i = 1; i < bestMove50.path.length; i++) {
           const stepSq = bestMove50.path[i];
-          const stepRC = typeof stepSq === 'number' ? sqToRC(stepSq) : stepSq;
+          const stepRC = typeof stepSq === 'number' ? sqToRC(stepSq, isIntl) : stepSq;
           if (stepRC) {
             const matchAlongPath = legalMoves.find(
               m => m.to.r === stepRC.r && m.to.c === stepRC.c
@@ -320,13 +323,15 @@ export class NigerianDraughtsAI {
       constraints.useOpening
     );
 
+    const isIntl = engine.ruleMode === 'international' || engine.ruleMode === 'tournament' || engine.ruleMode === 'fmjd';
+
     if (result && result.bestMove) {
       const bestMove50 = {
         ...result.bestMove,
         fromSq: result.bestMove.from,
         toSq: result.bestMove.to,
-        from: sqToRC(result.bestMove.from),
-        to: sqToRC(result.bestMove.to)
+        from: sqToRC(result.bestMove.from, isIntl),
+        to: sqToRC(result.bestMove.to, isIntl)
       };
       const matched = this.matchMoveInEngine(engine, bestMove50);
       return {

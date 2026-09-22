@@ -106262,6 +106262,3205 @@ export const TRAP_DATABASE = [
       "FMJD International"
     ]
   }
+,
+  {
+    "id": "INTL-T11-BOYKO-01-FULL",
+    "ruleset": "international",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W15,20,26,30,37,39,41,42,43:B4,9,10,11,12,13,16,36",
+    "position": {
+      "white": [
+        15,
+        20,
+        26,
+        30,
+        37,
+        39,
+        41,
+        42,
+        43
+      ],
+      "black": [
+        4,
+        9,
+        10,
+        11,
+        12,
+        13,
+        16,
+        36
+      ],
+      "white_kings": [],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 11,
+      "tier_name": "Grandmaster",
+      "rating": 2450,
+      "human_score": 95,
+      "engine_depth": 21,
+      "metrics": {
+        "tacticalComplexity": 88,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 21,
+        "effectiveDepth": 21,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 25,
+        "endgameComplexity": 45,
+        "humanDifficulty": 88,
+        "temptingMove": null,
+        "humanRanking": [
+          "37-31"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "coup_de_la_bombe",
+      "themes": [
+        "coup_de_la_bombe",
+        "deflection",
+        "coronation",
+        "opposition",
+        "masterpiece"
+      ],
+      "game_phase": "middlegame"
+    },
+    "solution": {
+      "best_move": "37-31",
+      "uniqueness": "unique",
+      "depth": 21,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 37,
+          "toSq": 31,
+          "from": {
+            "r": 7,
+            "c": 2
+          },
+          "to": {
+            "r": 6,
+            "c": 1
+          },
+          "note": "Key move: 37-31!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 36,
+          "toSq": 49,
+          "from": {
+            "r": 7,
+            "c": 0
+          },
+          "to": {
+            "r": 9,
+            "c": 6
+          },
+          "note": "Opponent responds 36x49",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 31,
+          "toSq": 27,
+          "from": {
+            "r": 6,
+            "c": 1
+          },
+          "to": {
+            "r": 5,
+            "c": 2
+          },
+          "note": "Continue sequence: 31-27",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 49,
+          "toSq": 21,
+          "from": {
+            "r": 9,
+            "c": 6
+          },
+          "to": {
+            "r": 4,
+            "c": 1
+          },
+          "note": "Opponent responds 49x21",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 26,
+          "toSq": 19,
+          "from": {
+            "r": 5,
+            "c": 0
+          },
+          "to": {
+            "r": 3,
+            "c": 6
+          },
+          "note": "Continue sequence: 26x19",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 9,
+          "toSq": 14,
+          "from": {
+            "r": 1,
+            "c": 6
+          },
+          "to": {
+            "r": 2,
+            "c": 7
+          },
+          "note": "Opponent responds 9-14",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 20,
+          "toSq": 9,
+          "from": {
+            "r": 3,
+            "c": 8
+          },
+          "to": {
+            "r": 1,
+            "c": 6
+          },
+          "note": "Continue sequence: 20x9",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 4,
+          "toSq": 35,
+          "from": {
+            "r": 0,
+            "c": 7
+          },
+          "to": {
+            "r": 6,
+            "c": 9
+          },
+          "note": "Opponent responds 4x35",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 15,
+          "toSq": 4,
+          "from": {
+            "r": 2,
+            "c": 9
+          },
+          "to": {
+            "r": 0,
+            "c": 7
+          },
+          "note": "Continue sequence: 15x4",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 35,
+          "toSq": 40,
+          "from": {
+            "r": 6,
+            "c": 9
+          },
+          "to": {
+            "r": 7,
+            "c": 8
+          },
+          "note": "Opponent responds 35-40",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 39,
+          "toSq": 34,
+          "from": {
+            "r": 7,
+            "c": 6
+          },
+          "to": {
+            "r": 6,
+            "c": 7
+          },
+          "note": "Continue sequence: 39-34",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 40,
+          "toSq": 29,
+          "from": {
+            "r": 7,
+            "c": 8
+          },
+          "to": {
+            "r": 5,
+            "c": 6
+          },
+          "note": "Opponent responds 40x29",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 4,
+          "toSq": 18,
+          "from": {
+            "r": 0,
+            "c": 7
+          },
+          "to": {
+            "r": 3,
+            "c": 4
+          },
+          "note": "Continue sequence: 4-18",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 29,
+          "toSq": 33,
+          "from": {
+            "r": 5,
+            "c": 6
+          },
+          "to": {
+            "r": 6,
+            "c": 5
+          },
+          "note": "Opponent responds 29-33",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 18,
+          "toSq": 1,
+          "from": {
+            "r": 3,
+            "c": 4
+          },
+          "to": {
+            "r": 0,
+            "c": 1
+          },
+          "note": "Continue sequence: 18-1",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 11,
+          "toSq": 17,
+          "from": {
+            "r": 2,
+            "c": 1
+          },
+          "to": {
+            "r": 3,
+            "c": 2
+          },
+          "note": "Opponent responds 11-17",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 1,
+          "toSq": 6,
+          "from": {
+            "r": 0,
+            "c": 1
+          },
+          "to": {
+            "r": 1,
+            "c": 0
+          },
+          "note": "Continue sequence: 1-6",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 17,
+          "toSq": 21,
+          "from": {
+            "r": 3,
+            "c": 2
+          },
+          "to": {
+            "r": 4,
+            "c": 1
+          },
+          "note": "Opponent responds 17-21",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 6,
+          "toSq": 39,
+          "from": {
+            "r": 1,
+            "c": 0
+          },
+          "to": {
+            "r": 7,
+            "c": 6
+          },
+          "note": "Continue sequence: 6x39",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 21,
+          "toSq": 27,
+          "from": {
+            "r": 4,
+            "c": 1
+          },
+          "to": {
+            "r": 5,
+            "c": 2
+          },
+          "note": "Opponent responds 21-27",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 39,
+          "toSq": 28,
+          "from": {
+            "r": 7,
+            "c": 6
+          },
+          "to": {
+            "r": 5,
+            "c": 4
+          },
+          "note": "Continue sequence: 39-28",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "candidate_analysis": {
+      "best_move": "37-31",
+      "second_best_move": "Quiet retreat",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Look for the decisive breakthrough strike with 37-31.",
+      "Every move must be forcing. Calculate the opponent's compulsory responses.",
+      "Play 37-31! This initiates the forced winning line."
+    ],
+    "description": "Triple piece sacrifice deflection, decoy coronation, and precision Grande Ligne King opposition.",
+    "explanation": "White sacrifices 37-31 forcing 36x49, followed by 31-27 deflection, coronates on 4, and suffocates Black runaway pieces.",
+    "quality": {
+      "score": 95,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 98,
+      "verified": true
+    },
+    "hash": "hash_INTL-T11-BOYKO-01-FULL_1790060983314",
+    "initialBoard": [
+      {
+        "r": 0,
+        "c": 7,
+        "square": 4,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 1,
+        "c": 6,
+        "square": 9,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 1,
+        "c": 8,
+        "square": 10,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 1,
+        "square": 11,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 3,
+        "square": 12,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 5,
+        "square": 13,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 9,
+        "square": 15,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 0,
+        "square": 16,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 8,
+        "square": 20,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 0,
+        "square": 26,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 8,
+        "square": 30,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 0,
+        "square": 36,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 2,
+        "square": 37,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 6,
+        "square": 39,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 1,
+        "square": 41,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 3,
+        "square": 42,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 5,
+        "square": 43,
+        "player": 1,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T07:09:43.314Z",
+    "title": "Compositions from Sergey Boyko №1",
+    "coachQuote": "World-class FMJD composition by Sergey Boyko. A 21-ply laser combination!",
+    "themeId": "coup_de_la_bombe",
+    "themeName": "Master Tactical Composition",
+    "themeIdea": "Triple piece sacrifice deflection, decoy coronation, and precision Grande Ligne King opposition.",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "Grandmaster Tactics",
+    "themeCategory": "Grandmaster Tactics",
+    "themes": [
+      "coup_de_la_bombe",
+      "deflection",
+      "coronation",
+      "opposition",
+      "masterpiece"
+    ]
+  },
+  {
+    "id": "INTL-T9-BOYKO-PH2-CLEARANCE",
+    "ruleset": "international",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W15,39:B10,11,16,35",
+    "position": {
+      "white": [
+        15,
+        39
+      ],
+      "black": [
+        10,
+        11,
+        16,
+        35
+      ],
+      "white_kings": [],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 9,
+      "tier_name": "Master",
+      "rating": 2180,
+      "human_score": 82,
+      "engine_depth": 13,
+      "metrics": {
+        "tacticalComplexity": 72,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 13,
+        "effectiveDepth": 13,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 25,
+        "endgameComplexity": 45,
+        "humanDifficulty": 72,
+        "temptingMove": null,
+        "humanRanking": [
+          "15-4"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "decoy",
+      "themes": [
+        "decoy",
+        "coronation",
+        "tempo-play",
+        "opposition"
+      ],
+      "game_phase": "endgame"
+    },
+    "solution": {
+      "best_move": "15-4",
+      "uniqueness": "unique",
+      "depth": 13,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 15,
+          "toSq": 4,
+          "from": {
+            "r": 2,
+            "c": 9
+          },
+          "to": {
+            "r": 0,
+            "c": 7
+          },
+          "note": "Key move: 15x4!",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 35,
+          "toSq": 40,
+          "from": {
+            "r": 6,
+            "c": 9
+          },
+          "to": {
+            "r": 7,
+            "c": 8
+          },
+          "note": "Opponent responds 35-40",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 39,
+          "toSq": 34,
+          "from": {
+            "r": 7,
+            "c": 6
+          },
+          "to": {
+            "r": 6,
+            "c": 7
+          },
+          "note": "Continue sequence: 39-34",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 40,
+          "toSq": 29,
+          "from": {
+            "r": 7,
+            "c": 8
+          },
+          "to": {
+            "r": 5,
+            "c": 6
+          },
+          "note": "Opponent responds 40x29",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 4,
+          "toSq": 18,
+          "from": {
+            "r": 0,
+            "c": 7
+          },
+          "to": {
+            "r": 3,
+            "c": 4
+          },
+          "note": "Continue sequence: 4-18",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 29,
+          "toSq": 33,
+          "from": {
+            "r": 5,
+            "c": 6
+          },
+          "to": {
+            "r": 6,
+            "c": 5
+          },
+          "note": "Opponent responds 29-33",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 18,
+          "toSq": 1,
+          "from": {
+            "r": 3,
+            "c": 4
+          },
+          "to": {
+            "r": 0,
+            "c": 1
+          },
+          "note": "Continue sequence: 18-1",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 11,
+          "toSq": 17,
+          "from": {
+            "r": 2,
+            "c": 1
+          },
+          "to": {
+            "r": 3,
+            "c": 2
+          },
+          "note": "Opponent responds 11-17",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 1,
+          "toSq": 6,
+          "from": {
+            "r": 0,
+            "c": 1
+          },
+          "to": {
+            "r": 1,
+            "c": 0
+          },
+          "note": "Continue sequence: 1-6",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 17,
+          "toSq": 21,
+          "from": {
+            "r": 3,
+            "c": 2
+          },
+          "to": {
+            "r": 4,
+            "c": 1
+          },
+          "note": "Opponent responds 17-21",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 6,
+          "toSq": 39,
+          "from": {
+            "r": 1,
+            "c": 0
+          },
+          "to": {
+            "r": 7,
+            "c": 6
+          },
+          "note": "Continue sequence: 6x39",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 21,
+          "toSq": 27,
+          "from": {
+            "r": 4,
+            "c": 1
+          },
+          "to": {
+            "r": 5,
+            "c": 2
+          },
+          "note": "Opponent responds 21-27",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 39,
+          "toSq": 28,
+          "from": {
+            "r": 7,
+            "c": 6
+          },
+          "to": {
+            "r": 5,
+            "c": 4
+          },
+          "note": "Continue sequence: 39-28",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "candidate_analysis": {
+      "best_move": "15-4",
+      "second_best_move": "Quiet retreat",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Look for the decisive breakthrough strike with 15-4.",
+      "Every move must be forcing. Calculate the opponent's compulsory responses.",
+      "Play 15-4! This initiates the forced winning line."
+    ],
+    "description": "Advance 15x4 to crown, decoy 39-34 to redirect the runner, and establish King domination.",
+    "explanation": "White crowns on 4, sacrifices 39-34 to divert the Black piece, then locks down both diagonals.",
+    "quality": {
+      "score": 95,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 98,
+      "verified": true
+    },
+    "hash": "hash_INTL-T9-BOYKO-PH2-CLEARANCE_1790060983315",
+    "initialBoard": [
+      {
+        "r": 1,
+        "c": 8,
+        "square": 10,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 1,
+        "square": 11,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 9,
+        "square": 15,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 0,
+        "square": 16,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 9,
+        "square": 35,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 6,
+        "square": 39,
+        "player": 1,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T07:09:43.315Z",
+    "title": "Sergey Boyko №1 (Phase 2: Decoy Clearance)",
+    "coachQuote": "Coronate with tempo and decoy the counter-runner with 39-34!",
+    "themeId": "decoy",
+    "themeName": "Master Tactical Composition",
+    "themeIdea": "Advance 15x4 to crown, decoy 39-34 to redirect the runner, and establish King domination.",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "Grandmaster Tactics",
+    "themeCategory": "Grandmaster Tactics",
+    "themes": [
+      "decoy",
+      "coronation",
+      "tempo-play",
+      "opposition"
+    ]
+  },
+  {
+    "id": "NG-T9-BOYKO-PH2-CLEARANCE",
+    "ruleset": "nigeria",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W11,37:B6,15,20,31",
+    "position": {
+      "white": [
+        11,
+        37
+      ],
+      "black": [
+        6,
+        15,
+        20,
+        31
+      ],
+      "white_kings": [],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 9,
+      "tier_name": "Master",
+      "rating": 2180,
+      "human_score": 82,
+      "engine_depth": 13,
+      "metrics": {
+        "tacticalComplexity": 72,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 13,
+        "effectiveDepth": 13,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 25,
+        "endgameComplexity": 45,
+        "humanDifficulty": 72,
+        "temptingMove": null,
+        "humanRanking": [
+          "11-2"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "decoy",
+      "themes": [
+        "decoy",
+        "highway-control",
+        "tempo-play",
+        "opposition"
+      ],
+      "game_phase": "endgame"
+    },
+    "solution": {
+      "best_move": "11-2",
+      "uniqueness": "unique",
+      "depth": 13,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 11,
+          "toSq": 2,
+          "from": {
+            "r": 2,
+            "c": 0
+          },
+          "to": {
+            "r": 0,
+            "c": 2
+          },
+          "note": "Key move: 11x2!",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 31,
+          "toSq": 36,
+          "from": {
+            "r": 6,
+            "c": 0
+          },
+          "to": {
+            "r": 7,
+            "c": 1
+          },
+          "note": "Opponent responds 31-36",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 37,
+          "toSq": 32,
+          "from": {
+            "r": 7,
+            "c": 3
+          },
+          "to": {
+            "r": 6,
+            "c": 2
+          },
+          "note": "Continue sequence: 37-32",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 36,
+          "toSq": 27,
+          "from": {
+            "r": 7,
+            "c": 1
+          },
+          "to": {
+            "r": 5,
+            "c": 3
+          },
+          "note": "Opponent responds 36x27",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 2,
+          "toSq": 18,
+          "from": {
+            "r": 0,
+            "c": 2
+          },
+          "to": {
+            "r": 3,
+            "c": 5
+          },
+          "note": "Continue sequence: 2-18",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 27,
+          "toSq": 33,
+          "from": {
+            "r": 5,
+            "c": 3
+          },
+          "to": {
+            "r": 6,
+            "c": 4
+          },
+          "note": "Opponent responds 27-33",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 18,
+          "toSq": 5,
+          "from": {
+            "r": 3,
+            "c": 5
+          },
+          "to": {
+            "r": 0,
+            "c": 8
+          },
+          "note": "Continue sequence: 18-5",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 15,
+          "toSq": 19,
+          "from": {
+            "r": 2,
+            "c": 8
+          },
+          "to": {
+            "r": 3,
+            "c": 7
+          },
+          "note": "Opponent responds 15-19",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 5,
+          "toSq": 10,
+          "from": {
+            "r": 0,
+            "c": 8
+          },
+          "to": {
+            "r": 1,
+            "c": 9
+          },
+          "note": "Continue sequence: 5-10",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 19,
+          "toSq": 25,
+          "from": {
+            "r": 3,
+            "c": 7
+          },
+          "to": {
+            "r": 4,
+            "c": 8
+          },
+          "note": "Opponent responds 19-25",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 10,
+          "toSq": 37,
+          "from": {
+            "r": 1,
+            "c": 9
+          },
+          "to": {
+            "r": 7,
+            "c": 3
+          },
+          "note": "Continue sequence: 10x37",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 25,
+          "toSq": 29,
+          "from": {
+            "r": 4,
+            "c": 8
+          },
+          "to": {
+            "r": 5,
+            "c": 7
+          },
+          "note": "Opponent responds 25-29",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 37,
+          "toSq": 28,
+          "from": {
+            "r": 7,
+            "c": 3
+          },
+          "to": {
+            "r": 5,
+            "c": 5
+          },
+          "note": "Continue sequence: 37-28",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "candidate_analysis": {
+      "best_move": "11-2",
+      "second_best_move": "Quiet retreat",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Look for the decisive breakthrough strike with 11-2.",
+      "Every move must be forcing. Calculate the opponent's compulsory responses.",
+      "Play 11-2! This initiates the forced winning line."
+    ],
+    "description": "Mirrored Nigerian Street adaptation. Coronate on 2 and decoy the advancing piece with 37-32.",
+    "explanation": "White crowns on 2, offers the 37-32 decoy, and uses distance opposition on the Highway.",
+    "quality": {
+      "score": 95,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 98,
+      "verified": true
+    },
+    "hash": "hash_NG-T9-BOYKO-PH2-CLEARANCE_1790060983316",
+    "initialBoard": [
+      {
+        "r": 1,
+        "c": 1,
+        "square": 6,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 0,
+        "square": 11,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 8,
+        "square": 15,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 9,
+        "square": 20,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 0,
+        "square": 31,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 3,
+        "square": 37,
+        "player": 1,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T07:09:43.316Z",
+    "title": "The Lagos Decoy Clearance (Boyko №1 Adaptation)",
+    "coachQuote": "Crown on 2, give am 37-32 decoy, and control the Highway!",
+    "themeId": "decoy",
+    "themeName": "Master Tactical Composition",
+    "themeIdea": "Mirrored Nigerian Street adaptation. Coronate on 2 and decoy the advancing piece with 37-32.",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "Grandmaster Tactics",
+    "themeCategory": "Grandmaster Tactics",
+    "themes": [
+      "decoy",
+      "highway-control",
+      "tempo-play",
+      "opposition"
+    ]
+  },
+  {
+    "id": "GH-T9-BOYKO-PH2-CLEARANCE",
+    "ruleset": "ghana",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W11,37:B6,15,20,31",
+    "position": {
+      "white": [
+        11,
+        37
+      ],
+      "black": [
+        6,
+        15,
+        20,
+        31
+      ],
+      "white_kings": [],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 9,
+      "tier_name": "Master",
+      "rating": 2180,
+      "human_score": 82,
+      "engine_depth": 13,
+      "metrics": {
+        "tacticalComplexity": 72,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 13,
+        "effectiveDepth": 13,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 25,
+        "endgameComplexity": 45,
+        "humanDifficulty": 72,
+        "temptingMove": null,
+        "humanRanking": [
+          "11-2"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "decoy",
+      "themes": [
+        "decoy",
+        "flying-king",
+        "damii-express",
+        "opposition"
+      ],
+      "game_phase": "endgame"
+    },
+    "solution": {
+      "best_move": "11-2",
+      "uniqueness": "unique",
+      "depth": 13,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 11,
+          "toSq": 2,
+          "from": {
+            "r": 2,
+            "c": 0
+          },
+          "to": {
+            "r": 0,
+            "c": 2
+          },
+          "note": "Key move: 11x2!",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 31,
+          "toSq": 36,
+          "from": {
+            "r": 6,
+            "c": 0
+          },
+          "to": {
+            "r": 7,
+            "c": 1
+          },
+          "note": "Opponent responds 31-36",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 37,
+          "toSq": 32,
+          "from": {
+            "r": 7,
+            "c": 3
+          },
+          "to": {
+            "r": 6,
+            "c": 2
+          },
+          "note": "Continue sequence: 37-32",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 36,
+          "toSq": 27,
+          "from": {
+            "r": 7,
+            "c": 1
+          },
+          "to": {
+            "r": 5,
+            "c": 3
+          },
+          "note": "Opponent responds 36x27",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 2,
+          "toSq": 18,
+          "from": {
+            "r": 0,
+            "c": 2
+          },
+          "to": {
+            "r": 3,
+            "c": 5
+          },
+          "note": "Continue sequence: 2-18",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 27,
+          "toSq": 33,
+          "from": {
+            "r": 5,
+            "c": 3
+          },
+          "to": {
+            "r": 6,
+            "c": 4
+          },
+          "note": "Opponent responds 27-33",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 18,
+          "toSq": 5,
+          "from": {
+            "r": 3,
+            "c": 5
+          },
+          "to": {
+            "r": 0,
+            "c": 8
+          },
+          "note": "Continue sequence: 18-5",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 15,
+          "toSq": 19,
+          "from": {
+            "r": 2,
+            "c": 8
+          },
+          "to": {
+            "r": 3,
+            "c": 7
+          },
+          "note": "Opponent responds 15-19",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 5,
+          "toSq": 10,
+          "from": {
+            "r": 0,
+            "c": 8
+          },
+          "to": {
+            "r": 1,
+            "c": 9
+          },
+          "note": "Continue sequence: 5-10",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 19,
+          "toSq": 25,
+          "from": {
+            "r": 3,
+            "c": 7
+          },
+          "to": {
+            "r": 4,
+            "c": 8
+          },
+          "note": "Opponent responds 19-25",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 10,
+          "toSq": 37,
+          "from": {
+            "r": 1,
+            "c": 9
+          },
+          "to": {
+            "r": 7,
+            "c": 3
+          },
+          "note": "Continue sequence: 10x37",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 25,
+          "toSq": 29,
+          "from": {
+            "r": 4,
+            "c": 8
+          },
+          "to": {
+            "r": 5,
+            "c": 7
+          },
+          "note": "Opponent responds 25-29",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 37,
+          "toSq": 28,
+          "from": {
+            "r": 7,
+            "c": 3
+          },
+          "to": {
+            "r": 5,
+            "c": 5
+          },
+          "note": "Continue sequence: 37-28",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "candidate_analysis": {
+      "best_move": "11-2",
+      "second_best_move": "Quiet retreat",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Look for the decisive breakthrough strike with 11-2.",
+      "Every move must be forcing. Calculate the opponent's compulsory responses.",
+      "Play 11-2! This initiates the forced winning line."
+    ],
+    "description": "Ghanaian Damii adaptation. Demonstrates flying king diagonal dominance after decoy sacrifice.",
+    "explanation": "White crowns on 2, plays 37-32 sacrifice, and dominates the diagonal grid.",
+    "quality": {
+      "score": 95,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 98,
+      "verified": true
+    },
+    "hash": "hash_GH-T9-BOYKO-PH2-CLEARANCE_1790060983316",
+    "initialBoard": [
+      {
+        "r": 1,
+        "c": 1,
+        "square": 6,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 0,
+        "square": 11,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 8,
+        "square": 15,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 9,
+        "square": 20,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 6,
+        "c": 0,
+        "square": 31,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 3,
+        "square": 37,
+        "player": 1,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T07:09:43.316Z",
+    "title": "The Accra Decoy Clearance (Damii Rules)",
+    "coachQuote": "Crown on 2 with speed, sacrifice 37-32, and sweep with Flying King!",
+    "themeId": "decoy",
+    "themeName": "Master Tactical Composition",
+    "themeIdea": "Ghanaian Damii adaptation. Demonstrates flying king diagonal dominance after decoy sacrifice.",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "Grandmaster Tactics",
+    "themeCategory": "Grandmaster Tactics",
+    "themes": [
+      "decoy",
+      "flying-king",
+      "damii-express",
+      "opposition"
+    ]
+  },
+  {
+    "id": "INTL-T8-BOYKO-PH3-OPPOSITION",
+    "ruleset": "international",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W4:B11,16,29",
+    "position": {
+      "white": [
+        4
+      ],
+      "black": [
+        11,
+        16,
+        29
+      ],
+      "white_kings": [
+        4
+      ],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 8,
+      "tier_name": "Candidate Master",
+      "rating": 1950,
+      "human_score": 74,
+      "engine_depth": 9,
+      "metrics": {
+        "tacticalComplexity": 64,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 9,
+        "effectiveDepth": 9,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 50,
+        "endgameComplexity": 45,
+        "humanDifficulty": 64,
+        "temptingMove": null,
+        "humanRanking": [
+          "4-18"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "opposition",
+      "themes": [
+        "opposition",
+        "endgame-technique",
+        "king-stride",
+        "zugzwang"
+      ],
+      "game_phase": "endgame"
+    },
+    "solution": {
+      "best_move": "4-18",
+      "uniqueness": "unique",
+      "depth": 9,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 4,
+          "toSq": 18,
+          "from": {
+            "r": 0,
+            "c": 7
+          },
+          "to": {
+            "r": 3,
+            "c": 4
+          },
+          "note": "Key move: 4-18!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 29,
+          "toSq": 33,
+          "from": {
+            "r": 5,
+            "c": 6
+          },
+          "to": {
+            "r": 6,
+            "c": 5
+          },
+          "note": "Opponent responds 29-33",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 18,
+          "toSq": 1,
+          "from": {
+            "r": 3,
+            "c": 4
+          },
+          "to": {
+            "r": 0,
+            "c": 1
+          },
+          "note": "Continue sequence: 18-1",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 11,
+          "toSq": 17,
+          "from": {
+            "r": 2,
+            "c": 1
+          },
+          "to": {
+            "r": 3,
+            "c": 2
+          },
+          "note": "Opponent responds 11-17",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 1,
+          "toSq": 6,
+          "from": {
+            "r": 0,
+            "c": 1
+          },
+          "to": {
+            "r": 1,
+            "c": 0
+          },
+          "note": "Continue sequence: 1-6",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 17,
+          "toSq": 21,
+          "from": {
+            "r": 3,
+            "c": 2
+          },
+          "to": {
+            "r": 4,
+            "c": 1
+          },
+          "note": "Opponent responds 17-21",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 6,
+          "toSq": 39,
+          "from": {
+            "r": 1,
+            "c": 0
+          },
+          "to": {
+            "r": 7,
+            "c": 6
+          },
+          "note": "Continue sequence: 6x39",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 21,
+          "toSq": 27,
+          "from": {
+            "r": 4,
+            "c": 1
+          },
+          "to": {
+            "r": 5,
+            "c": 2
+          },
+          "note": "Opponent responds 21-27",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 39,
+          "toSq": 28,
+          "from": {
+            "r": 7,
+            "c": 6
+          },
+          "to": {
+            "r": 5,
+            "c": 4
+          },
+          "note": "Continue sequence: 39-28",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "candidate_analysis": {
+      "best_move": "4-18",
+      "second_best_move": "Quiet retreat",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Look for the decisive breakthrough strike with 4-18.",
+      "Every move must be forcing. Calculate the opponent's compulsory responses.",
+      "Play 4-18! This initiates the forced winning line."
+    ],
+    "description": "Single King dominates opposing men through geometry and opposition on the main diagonal.",
+    "explanation": "White King plays 4-18, swings to 1, picks off the advanced piece with 6x39, and seals the final piece.",
+    "quality": {
+      "score": 95,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 98,
+      "verified": true
+    },
+    "hash": "hash_INTL-T8-BOYKO-PH3-OPPOSITION_1790060983316",
+    "initialBoard": [
+      {
+        "r": 0,
+        "c": 7,
+        "square": 4,
+        "player": 1,
+        "isKing": true
+      },
+      {
+        "r": 2,
+        "c": 1,
+        "square": 11,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 0,
+        "square": 16,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 6,
+        "square": 29,
+        "player": 2,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T07:09:43.316Z",
+    "title": "Sergey Boyko №1 (Phase 3: Grande Ligne Opposition)",
+    "coachQuote": "The King controls the Grande Ligne. Cut the board in two with 4-18!",
+    "themeId": "opposition",
+    "themeName": "Master Tactical Composition",
+    "themeIdea": "Single King dominates opposing men through geometry and opposition on the main diagonal.",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "Grandmaster Tactics",
+    "themeCategory": "Grandmaster Tactics",
+    "themes": [
+      "opposition",
+      "endgame-technique",
+      "king-stride",
+      "zugzwang"
+    ]
+  },
+  {
+    "id": "NG-T8-BOYKO-PH3-OPPOSITION",
+    "ruleset": "nigeria",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W2:B15,20,27",
+    "position": {
+      "white": [
+        2
+      ],
+      "black": [
+        15,
+        20,
+        27
+      ],
+      "white_kings": [
+        2
+      ],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 8,
+      "tier_name": "Candidate Master",
+      "rating": 1950,
+      "human_score": 74,
+      "engine_depth": 9,
+      "metrics": {
+        "tacticalComplexity": 64,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 9,
+        "effectiveDepth": 9,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 50,
+        "endgameComplexity": 45,
+        "humanDifficulty": 64,
+        "temptingMove": null,
+        "humanRanking": [
+          "2-18"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "highway-domination",
+      "themes": [
+        "highway-domination",
+        "endgame-technique",
+        "zugzwang"
+      ],
+      "game_phase": "endgame"
+    },
+    "solution": {
+      "best_move": "2-18",
+      "uniqueness": "unique",
+      "depth": 9,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 2,
+          "toSq": 18,
+          "from": {
+            "r": 0,
+            "c": 2
+          },
+          "to": {
+            "r": 3,
+            "c": 5
+          },
+          "note": "Key move: 2-18!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 27,
+          "toSq": 33,
+          "from": {
+            "r": 5,
+            "c": 3
+          },
+          "to": {
+            "r": 6,
+            "c": 4
+          },
+          "note": "Opponent responds 27-33",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 18,
+          "toSq": 5,
+          "from": {
+            "r": 3,
+            "c": 5
+          },
+          "to": {
+            "r": 0,
+            "c": 8
+          },
+          "note": "Continue sequence: 18-5",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 15,
+          "toSq": 19,
+          "from": {
+            "r": 2,
+            "c": 8
+          },
+          "to": {
+            "r": 3,
+            "c": 7
+          },
+          "note": "Opponent responds 15-19",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 5,
+          "toSq": 10,
+          "from": {
+            "r": 0,
+            "c": 8
+          },
+          "to": {
+            "r": 1,
+            "c": 9
+          },
+          "note": "Continue sequence: 5-10",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 19,
+          "toSq": 25,
+          "from": {
+            "r": 3,
+            "c": 7
+          },
+          "to": {
+            "r": 4,
+            "c": 8
+          },
+          "note": "Opponent responds 19-25",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 10,
+          "toSq": 37,
+          "from": {
+            "r": 1,
+            "c": 9
+          },
+          "to": {
+            "r": 7,
+            "c": 3
+          },
+          "note": "Continue sequence: 10x37",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 25,
+          "toSq": 29,
+          "from": {
+            "r": 4,
+            "c": 8
+          },
+          "to": {
+            "r": 5,
+            "c": 7
+          },
+          "note": "Opponent responds 25-29",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 37,
+          "toSq": 28,
+          "from": {
+            "r": 7,
+            "c": 3
+          },
+          "to": {
+            "r": 5,
+            "c": 5
+          },
+          "note": "Continue sequence: 37-28",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "candidate_analysis": {
+      "best_move": "2-18",
+      "second_best_move": "Quiet retreat",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Look for the decisive breakthrough strike with 2-18.",
+      "Every move must be forcing. Calculate the opponent's compulsory responses.",
+      "Play 2-18! This initiates the forced winning line."
+    ],
+    "description": "Single King Highway control in Nigerian Street Draughts. Cuts the board with 2-18 and corners both seeds.",
+    "explanation": "White King plays 2-18, shifts to 5, captures 10x37, and blockades 37-28.",
+    "quality": {
+      "score": 95,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 98,
+      "verified": true
+    },
+    "hash": "hash_NG-T8-BOYKO-PH3-OPPOSITION_1790060983316",
+    "initialBoard": [
+      {
+        "r": 0,
+        "c": 2,
+        "square": 2,
+        "player": 1,
+        "isKing": true
+      },
+      {
+        "r": 2,
+        "c": 8,
+        "square": 15,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 9,
+        "square": 20,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 3,
+        "square": 27,
+        "player": 2,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T07:09:43.316Z",
+    "title": "The Highway Stride Lock (Boyko №1 Adaptation)",
+    "coachQuote": "One King go catch two men! Lock the Highway with 2-18 and corner them!",
+    "themeId": "highway-domination",
+    "themeName": "Master Tactical Composition",
+    "themeIdea": "Single King Highway control in Nigerian Street Draughts. Cuts the board with 2-18 and corners both seeds.",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "Grandmaster Tactics",
+    "themeCategory": "Grandmaster Tactics",
+    "themes": [
+      "highway-domination",
+      "endgame-technique",
+      "zugzwang"
+    ]
+  },
+  {
+    "id": "GH-T8-BOYKO-PH3-OPPOSITION",
+    "ruleset": "ghana",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W2:B15,20,27",
+    "position": {
+      "white": [
+        2
+      ],
+      "black": [
+        15,
+        20,
+        27
+      ],
+      "white_kings": [
+        2
+      ],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 8,
+      "tier_name": "Candidate Master",
+      "rating": 1950,
+      "human_score": 74,
+      "engine_depth": 9,
+      "metrics": {
+        "tacticalComplexity": 64,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 9,
+        "effectiveDepth": 9,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 50,
+        "endgameComplexity": 45,
+        "humanDifficulty": 64,
+        "temptingMove": null,
+        "humanRanking": [
+          "2-18"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "highway-domination",
+      "themes": [
+        "highway-domination",
+        "flying-king",
+        "zugzwang"
+      ],
+      "game_phase": "endgame"
+    },
+    "solution": {
+      "best_move": "2-18",
+      "uniqueness": "unique",
+      "depth": 9,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 2,
+          "toSq": 18,
+          "from": {
+            "r": 0,
+            "c": 2
+          },
+          "to": {
+            "r": 3,
+            "c": 5
+          },
+          "note": "Key move: 2-18!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 27,
+          "toSq": 33,
+          "from": {
+            "r": 5,
+            "c": 3
+          },
+          "to": {
+            "r": 6,
+            "c": 4
+          },
+          "note": "Opponent responds 27-33",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 18,
+          "toSq": 5,
+          "from": {
+            "r": 3,
+            "c": 5
+          },
+          "to": {
+            "r": 0,
+            "c": 8
+          },
+          "note": "Continue sequence: 18-5",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 15,
+          "toSq": 19,
+          "from": {
+            "r": 2,
+            "c": 8
+          },
+          "to": {
+            "r": 3,
+            "c": 7
+          },
+          "note": "Opponent responds 15-19",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 5,
+          "toSq": 10,
+          "from": {
+            "r": 0,
+            "c": 8
+          },
+          "to": {
+            "r": 1,
+            "c": 9
+          },
+          "note": "Continue sequence: 5-10",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 19,
+          "toSq": 25,
+          "from": {
+            "r": 3,
+            "c": 7
+          },
+          "to": {
+            "r": 4,
+            "c": 8
+          },
+          "note": "Opponent responds 19-25",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 10,
+          "toSq": 37,
+          "from": {
+            "r": 1,
+            "c": 9
+          },
+          "to": {
+            "r": 7,
+            "c": 3
+          },
+          "note": "Continue sequence: 10x37",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 25,
+          "toSq": 29,
+          "from": {
+            "r": 4,
+            "c": 8
+          },
+          "to": {
+            "r": 5,
+            "c": 7
+          },
+          "note": "Opponent responds 25-29",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 37,
+          "toSq": 28,
+          "from": {
+            "r": 7,
+            "c": 3
+          },
+          "to": {
+            "r": 5,
+            "c": 5
+          },
+          "note": "Continue sequence: 37-28",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "candidate_analysis": {
+      "best_move": "2-18",
+      "second_best_move": "Quiet retreat",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Look for the decisive breakthrough strike with 2-18.",
+      "Every move must be forcing. Calculate the opponent's compulsory responses.",
+      "Play 2-18! This initiates the forced winning line."
+    ],
+    "description": "Ghanaian Damii Flying King endgame technique. Shows how long diagonal control prevents promotion.",
+    "explanation": "White King occupies square 18, traverses to 5, picks up 10x37, and locks the final seed 37-28.",
+    "quality": {
+      "score": 95,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 98,
+      "verified": true
+    },
+    "hash": "hash_GH-T8-BOYKO-PH3-OPPOSITION_1790060983316",
+    "initialBoard": [
+      {
+        "r": 0,
+        "c": 2,
+        "square": 2,
+        "player": 1,
+        "isKing": true
+      },
+      {
+        "r": 2,
+        "c": 8,
+        "square": 15,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 9,
+        "square": 20,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 3,
+        "square": 27,
+        "player": 2,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T07:09:43.316Z",
+    "title": "The Damii Highway Flying Stride (Boyko №1 Adaptation)",
+    "coachQuote": "Cut the Highway with 2-18 and use Flying King reach to suffocated all runners!",
+    "themeId": "highway-domination",
+    "themeName": "Master Tactical Composition",
+    "themeIdea": "Ghanaian Damii Flying King endgame technique. Shows how long diagonal control prevents promotion.",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "Grandmaster Tactics",
+    "themeCategory": "Grandmaster Tactics",
+    "themes": [
+      "highway-domination",
+      "flying-king",
+      "zugzwang"
+    ]
+  },
+  {
+    "id": "INTL-T11-BOYKO-01-ANCHOR",
+    "ruleset": "international",
+    "board_size": 10,
+    "side_to_move": "white",
+    "fen": "W:W15,20,26,30,37,39,41,42,43,46:B4,9,10,11,12,13,16,36",
+    "position": {
+      "white": [
+        15,
+        20,
+        26,
+        30,
+        37,
+        39,
+        41,
+        42,
+        43,
+        46
+      ],
+      "black": [
+        4,
+        9,
+        10,
+        11,
+        12,
+        13,
+        16,
+        36
+      ],
+      "white_kings": [],
+      "black_kings": []
+    },
+    "difficulty": {
+      "tier": 11,
+      "tier_name": "Grandmaster",
+      "rating": 2470,
+      "human_score": 95,
+      "engine_depth": 21,
+      "metrics": {
+        "tacticalComplexity": 88,
+        "candidateComplexity": 20,
+        "branchingFactor": 15,
+        "solutionDepth": 21,
+        "effectiveDepth": 21,
+        "wrongMoveSimilarity": 25,
+        "evaluationGap": 50,
+        "deceptionScore": 30,
+        "quietMoveScore": 20,
+        "sacrificeDifficulty": 40,
+        "defensiveDifficulty": 30,
+        "moveOrderSensitivity": 40,
+        "kingComplexity": 25,
+        "endgameComplexity": 45,
+        "humanDifficulty": 88,
+        "temptingMove": null,
+        "humanRanking": [
+          "37-31"
+        ],
+        "winningRank": 1
+      }
+    },
+    "classification": {
+      "category": "tactical",
+      "primary_theme": "anchor-fortification",
+      "themes": [
+        "anchor-fortification",
+        "coup_de_la_bombe",
+        "grandmaster-precision"
+      ],
+      "game_phase": "middlegame"
+    },
+    "solution": {
+      "best_move": "37-31",
+      "uniqueness": "unique",
+      "depth": 21,
+      "steps": [
+        {
+          "mover": 1,
+          "fromSq": 37,
+          "toSq": 31,
+          "from": {
+            "r": 7,
+            "c": 2
+          },
+          "to": {
+            "r": 6,
+            "c": 1
+          },
+          "note": "Key move: 37-31!",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 36,
+          "toSq": 49,
+          "from": {
+            "r": 7,
+            "c": 0
+          },
+          "to": {
+            "r": 9,
+            "c": 6
+          },
+          "note": "Opponent responds 36x49",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 31,
+          "toSq": 27,
+          "from": {
+            "r": 6,
+            "c": 1
+          },
+          "to": {
+            "r": 5,
+            "c": 2
+          },
+          "note": "Continue sequence: 31-27",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 49,
+          "toSq": 21,
+          "from": {
+            "r": 9,
+            "c": 6
+          },
+          "to": {
+            "r": 4,
+            "c": 1
+          },
+          "note": "Opponent responds 49x21",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 26,
+          "toSq": 19,
+          "from": {
+            "r": 5,
+            "c": 0
+          },
+          "to": {
+            "r": 3,
+            "c": 6
+          },
+          "note": "Continue sequence: 26x19",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 9,
+          "toSq": 14,
+          "from": {
+            "r": 1,
+            "c": 6
+          },
+          "to": {
+            "r": 2,
+            "c": 7
+          },
+          "note": "Opponent responds 9-14",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 20,
+          "toSq": 9,
+          "from": {
+            "r": 3,
+            "c": 8
+          },
+          "to": {
+            "r": 1,
+            "c": 6
+          },
+          "note": "Continue sequence: 20x9",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 4,
+          "toSq": 35,
+          "from": {
+            "r": 0,
+            "c": 7
+          },
+          "to": {
+            "r": 6,
+            "c": 9
+          },
+          "note": "Opponent responds 4x35",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 15,
+          "toSq": 4,
+          "from": {
+            "r": 2,
+            "c": 9
+          },
+          "to": {
+            "r": 0,
+            "c": 7
+          },
+          "note": "Continue sequence: 15x4",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 35,
+          "toSq": 40,
+          "from": {
+            "r": 6,
+            "c": 9
+          },
+          "to": {
+            "r": 7,
+            "c": 8
+          },
+          "note": "Opponent responds 35-40",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 39,
+          "toSq": 34,
+          "from": {
+            "r": 7,
+            "c": 6
+          },
+          "to": {
+            "r": 6,
+            "c": 7
+          },
+          "note": "Continue sequence: 39-34",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 40,
+          "toSq": 29,
+          "from": {
+            "r": 7,
+            "c": 8
+          },
+          "to": {
+            "r": 5,
+            "c": 6
+          },
+          "note": "Opponent responds 40x29",
+          "isAi": true,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 4,
+          "toSq": 18,
+          "from": {
+            "r": 0,
+            "c": 7
+          },
+          "to": {
+            "r": 3,
+            "c": 4
+          },
+          "note": "Continue sequence: 4-18",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 29,
+          "toSq": 33,
+          "from": {
+            "r": 5,
+            "c": 6
+          },
+          "to": {
+            "r": 6,
+            "c": 5
+          },
+          "note": "Opponent responds 29-33",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 18,
+          "toSq": 1,
+          "from": {
+            "r": 3,
+            "c": 4
+          },
+          "to": {
+            "r": 0,
+            "c": 1
+          },
+          "note": "Continue sequence: 18-1",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 11,
+          "toSq": 17,
+          "from": {
+            "r": 2,
+            "c": 1
+          },
+          "to": {
+            "r": 3,
+            "c": 2
+          },
+          "note": "Opponent responds 11-17",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 1,
+          "toSq": 6,
+          "from": {
+            "r": 0,
+            "c": 1
+          },
+          "to": {
+            "r": 1,
+            "c": 0
+          },
+          "note": "Continue sequence: 1-6",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 17,
+          "toSq": 21,
+          "from": {
+            "r": 3,
+            "c": 2
+          },
+          "to": {
+            "r": 4,
+            "c": 1
+          },
+          "note": "Opponent responds 17-21",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 6,
+          "toSq": 39,
+          "from": {
+            "r": 1,
+            "c": 0
+          },
+          "to": {
+            "r": 7,
+            "c": 6
+          },
+          "note": "Continue sequence: 6x39",
+          "isAi": false,
+          "isJump": true,
+          "isForcedHop": false
+        },
+        {
+          "mover": 2,
+          "fromSq": 21,
+          "toSq": 27,
+          "from": {
+            "r": 4,
+            "c": 1
+          },
+          "to": {
+            "r": 5,
+            "c": 2
+          },
+          "note": "Opponent responds 21-27",
+          "isAi": true,
+          "isJump": false,
+          "isForcedHop": false
+        },
+        {
+          "mover": 1,
+          "fromSq": 39,
+          "toSq": 28,
+          "from": {
+            "r": 7,
+            "c": 6
+          },
+          "to": {
+            "r": 5,
+            "c": 4
+          },
+          "note": "Continue sequence: 39-28",
+          "isAi": false,
+          "isJump": false,
+          "isForcedHop": false
+        }
+      ],
+      "variations": []
+    },
+    "candidate_analysis": {
+      "best_move": "37-31",
+      "second_best_move": "Quiet retreat",
+      "eval_gap": null,
+      "tempting_move": null,
+      "why_humans_choose_it": null,
+      "refutation": null,
+      "candidate_count": 1
+    },
+    "hints": [
+      "Look for the decisive breakthrough strike with 37-31.",
+      "Every move must be forcing. Calculate the opponent's compulsory responses.",
+      "Play 37-31! This initiates the forced winning line."
+    ],
+    "description": "Enhanced variation with base anchor on square 46. Proves tactical robustness against counterplay.",
+    "explanation": "Adding the anchor piece on 46 fortifies the base without interfering with the 21-ply sequence.",
+    "quality": {
+      "score": 95,
+      "legality_score": 100,
+      "uniqueness_score": 100,
+      "tactical_interest": 98,
+      "verified": true
+    },
+    "hash": "hash_INTL-T11-BOYKO-01-ANCHOR_1790060983317",
+    "initialBoard": [
+      {
+        "r": 0,
+        "c": 7,
+        "square": 4,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 1,
+        "c": 6,
+        "square": 9,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 1,
+        "c": 8,
+        "square": 10,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 1,
+        "square": 11,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 3,
+        "square": 12,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 5,
+        "square": 13,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 2,
+        "c": 9,
+        "square": 15,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 0,
+        "square": 16,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 3,
+        "c": 8,
+        "square": 20,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 0,
+        "square": 26,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 5,
+        "c": 8,
+        "square": 30,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 0,
+        "square": 36,
+        "player": 2,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 2,
+        "square": 37,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 7,
+        "c": 6,
+        "square": 39,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 1,
+        "square": 41,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 3,
+        "square": 42,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 8,
+        "c": 5,
+        "square": 43,
+        "player": 1,
+        "isKing": false
+      },
+      {
+        "r": 9,
+        "c": 0,
+        "square": 46,
+        "player": 1,
+        "isKing": false
+      }
+    ],
+    "initialMove": null,
+    "created_at": "2026-09-22T07:09:43.317Z",
+    "title": "Sergey Boyko №1 (Anchor Fortified Variation)",
+    "coachQuote": "Base anchor on 46 shields the back rank while the 21-ply induction executes flawlessly!",
+    "themeId": "anchor-fortification",
+    "themeName": "Master Tactical Composition",
+    "themeIdea": "Enhanced variation with base anchor on square 46. Proves tactical robustness against counterplay.",
+    "themeStars": "⭐⭐⭐⭐⭐",
+    "category": "Grandmaster Tactics",
+    "themeCategory": "Grandmaster Tactics",
+    "themes": [
+      "anchor-fortification",
+      "coup_de_la_bombe",
+      "grandmaster-precision"
+    ]
+  }
 ];
 
 export class TrapAcademyController {

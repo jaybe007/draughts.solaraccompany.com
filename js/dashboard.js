@@ -461,7 +461,7 @@ async function handleCreateGameSubmit(e) {
       closeModal('modal-create-game');
       showToast(`Match room ${data.room_code} created! Launching arena...`, 'success');
       setTimeout(() => {
-        window.location.href = `game.php?room=${encodeURIComponent(data.room_code)}&role=p1`;
+        window.location.href = `game.php?room=${encodeURIComponent(data.room_code)}&role=p1&rules=${encodeURIComponent(ruleType)}`;
       }, 500);
     } else {
       showToast(data.message || 'Failed to create game room.', 'error');

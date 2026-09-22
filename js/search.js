@@ -21,7 +21,15 @@ import { computeZobristHash, updateZobristHash } from './zobrist.js';
 import {
   TranspositionTable, BOUND_EXACT, BOUND_LOWER, BOUND_UPPER
 } from './transposition.js';
-import { DraughtsEvaluation50, IS_HIGHWAY, IS_CENTER, IS_EDGE } from './evaluation.js';
+import {
+  DraughtsEvaluation50,
+  IS_HIGHWAY,
+  IS_GRANDE_LIGNE,
+  IS_CENTER,
+  IS_EDGE,
+  IS_EDGE_NIGERIA,
+  IS_EDGE_INTL
+} from './evaluation.js';
 import { DraughtsOpeningBook } from './opening.js';
 import { EndgameTablebaseInterface } from './tablebase.js';
 
@@ -65,6 +73,9 @@ export class DraughtsSearchEngine {
     this.stopSearch = false;
     this.startTime = performance.now();
     this.timeLimit = timeLimitMs;
+    this.currentRuleMode = board.ruleMode || 'nigeria';
+    const norm = this.currentRuleMode.toString().toLowerCase().trim();
+    this.isCurrentIntl = norm === 'international' || norm === 'tournament' || norm === 'fmjd';
     this.tt.newAge();
     this.resetHeuristics();
 
@@ -462,9 +473,11 @@ export class DraughtsSearchEngine {
 
     // 6. Quiet move positional heuristics
     if (!m.isCapture) {
+      const highwayMask = this.isCurrentIntl ? IS_GRANDE_LIGNE : IS_HIGHWAY;
+      const edgeMask = this.isCurrentIntl ? IS_EDGE_INTL : IS_EDGE_NIGERIA;
       if (IS_CENTER[m.to]) score += 18000;
-      if (IS_HIGHWAY[m.to]) score += 14000;
-      if (IS_EDGE[m.to]) score -= 10000;
+      if (highwayMask[m.to]) score += 14000;
+      if (edgeMask[m.to]) score -= 10000;
       if (m.prevPiece === P1_KING || m.prevPiece === P2_KING) score += 12000;
     }
 

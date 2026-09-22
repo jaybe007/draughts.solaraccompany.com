@@ -20,18 +20,27 @@ export const PLAYER_2 = 2; // Usually Dark/Black/Gold (starts at top, moves down
 export class NigerianDraughtsEngine {
   constructor(options = {}) {
     this.boardSize = options.boardSize || 10; // 10 (standard) or 8
-    this.ruleMode = options.ruleMode || 'nigeria'; // 'nigeria', 'ghana', 'international'
+    const rawRule = (options.ruleMode || options.ruleType || options.rule || 'nigeria').toString().toLowerCase().trim();
+    this.ruleMode = (rawRule === 'international' || rawRule === 'tournament' || rawRule === 'fmjd')
+      ? 'international'
+      : (rawRule === 'ghana' || rawRule === 'damii' ? 'ghana' : 'nigeria');
+    this.ruleType = this.ruleMode;
     this.p1Short = parseInt(options.p1Short || 0, 10); // 0 to 5 handicap
     this.modifications = options.modifications || 'none'; // 'crown_start_left_left', 'crown_start_middle_middle', 'ten_aside', etc.
     this.rowsPerPlayer = this.boardSize === 10 ? 4 : 3;
     this.reset();
   }
 
-  setRuleset(rule) {
-    const r = (rule || 'nigeria').toLowerCase().trim();
-    this.ruleMode = (r === 'international' || r === 'tournament')
+  setRuleset(rule, resetBoard = false) {
+    const r = (rule || 'nigeria').toString().toLowerCase().trim();
+    const prevMode = this.ruleMode;
+    this.ruleMode = (r === 'international' || r === 'tournament' || r === 'fmjd')
       ? 'international'
       : (r === 'ghana' || r === 'damii' ? 'ghana' : 'nigeria');
+    this.ruleType = this.ruleMode;
+    if (resetBoard && prevMode !== this.ruleMode) {
+      this.reset();
+    }
   }
 
   reset() {
@@ -207,6 +216,16 @@ export class NigerianDraughtsEngine {
     }
     // Nigerian & Ghanaian Highway runs from top-left (0, 0) to bottom-right (9, 9)
     return (r === c);
+  }
+
+  getCentralLineDescription() {
+    if (this.ruleMode === 'international' || this.ruleMode === 'tournament' || this.ruleMode === 'fmjd') {
+      return 'FMJD Main Diagonal (Bottom-Left to Top-Right — Otherwise of Default)';
+    }
+    if (this.ruleMode === 'ghana' || this.ruleMode === 'damii') {
+      return 'Ghanaian Damii Central Line (Right-Hand Diagonal)';
+    }
+    return 'Nigerian Central Line (Highway on Right)';
   }
 
   isValidSquare(r, c) {

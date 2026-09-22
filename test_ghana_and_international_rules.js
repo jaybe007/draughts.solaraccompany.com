@@ -4,7 +4,8 @@
 
 import { NigerianDraughtsEngine, PLAYER_1, PLAYER_2 } from './js/engine.js';
 import { RulesEngine } from './js/rules_engine.js';
-import { DraughtsBoard50, P1_KING, P1_MAN, P2_KING, P2_MAN } from './js/engine50.js';
+import { DraughtsBoard50, P1_KING, P1_MAN, P2_KING, P2_MAN, rcToSq, sqToRC } from './js/engine50.js';
+import { NigerianDraughtsAI } from './js/ai.js';
 
 console.log('===============================================================');
 console.log('🧪 VERIFYING GHANA DAMII SEED COUNTING & INTL BOARD ORIENTATION');
@@ -56,6 +57,31 @@ assert(engineIntl.isCentralLineSquare(9, 0) === true, 'International: Bottom-lef
 assert(engineIntl.isCentralLineSquare(0, 9) === true, 'International: Top-right (0, 9) is on Central Line');
 assert(engineIntl.isCentralLineSquare(0, 0) === false, 'International: (0, 0) is NOT on Central Line');
 assert(engineIntl.isCentralLineSquare(9, 9) === false, 'International: (9, 9) is NOT on Central Line');
+
+// RulesEngine profile verification
+const rulesIntlProf = RulesEngine.getRuleProfile('international');
+const rulesNaijaProf = RulesEngine.getRuleProfile('nigeria');
+assert(rulesIntlProf.isDarkSquare(9, 0) === true, 'RulesEngine: International bottom-left (9, 0) is DARK');
+assert(rulesIntlProf.isDarkSquare(9, 9) === false, 'RulesEngine: International bottom-right (9, 9) is LIGHT');
+assert(rulesIntlProf.isCentralLineSquare(9, 0) === true, 'RulesEngine: International (9, 0) is on Central Line');
+assert(rulesIntlProf.isCentralLineSquare(0, 9) === true, 'RulesEngine: International (0, 9) is on Central Line');
+assert(rulesIntlProf.isCentralLineSquare(0, 0) === false, 'RulesEngine: International (0, 0) is NOT on Central Line');
+assert(rulesIntlProf.getCentralLineSquares().length === 10, 'RulesEngine: International Central Line has 10 squares');
+assert(rulesNaijaProf.isCentralLineSquare(0, 0) === true, 'RulesEngine: Nigerian (0, 0) is on Highway');
+assert(rulesNaijaProf.isCentralLineSquare(9, 9) === true, 'RulesEngine: Nigerian (9, 9) is on Highway');
+
+// Coordinate converter verification:
+assert(rcToSq(9, 0, true) === 46, 'FMJD coordinate: (9, 0) maps to square 46');
+assert(rcToSq(0, 9, true) === 5, 'FMJD coordinate: (0, 9) maps to square 5');
+assert(sqToRC(46, true).r === 9 && sqToRC(46, true).c === 0, 'FMJD sqToRC: square 46 maps to (9, 0)');
+assert(sqToRC(5, true).r === 0 && sqToRC(5, true).c === 9, 'FMJD sqToRC: square 5 maps to (0, 9)');
+
+// AI conversion verification on International board:
+const aiTest = new NigerianDraughtsAI({ difficulty: 'expert' });
+const b50Intl = aiTest.convertBoardTo50(engineIntl);
+let intlPieceCount = 0;
+for (let s = 1; s <= 50; s++) if (b50Intl[s] !== 0) intlPieceCount++;
+assert(intlPieceCount === 40, 'AI convertBoardTo50 correctly registers all 40 pieces on International board');
 
 // =========================================================================
 // 2. MAJORITY CAPTURE: INTERNATIONAL vs FREE CHOICE: NIGERIAN

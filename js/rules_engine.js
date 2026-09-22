@@ -19,6 +19,7 @@ import {
   PLAYER_1, PLAYER_2,
   DIR_UL, DIR_UR, DIR_DL, DIR_DR,
   NEIGHBORS, JUMPS, FLYING_RAYS,
+  NEIGHBORS_INTL, JUMPS_INTL, FLYING_RAYS_INTL,
   rcToSq, sqToRC
 } from './engine50.js';
 
@@ -33,6 +34,64 @@ export class BaseRules {
     this.name = name;
     this.flag = flag;
     this.orientation = orientation; // 'mirrored' (Nigeria/Ghana) or 'international'
+  }
+
+  /**
+   * Identifies whether a given square at (r, c) on a board is an active playable dark square.
+   * - In mirrored Nigerian & Ghanaian Draughts: (r + c) % 2 === 0 (bottom-left (9,0) is light, bottom-right (9,9) is dark).
+   * - In official International Draughts (FMJD): (r + c) % 2 !== 0 (bottom-left (9,0) is dark, bottom-right (9,9) is light).
+   */
+  isDarkSquare(r, c) {
+    if (this.orientation === 'international') {
+      return (r + c) % 2 !== 0;
+    }
+    return (r + c) % 2 === 0;
+  }
+
+  /**
+   * Validates whether a coordinate (r, c) is a valid, active square on the board.
+   */
+  isValidSquare(r, c, boardSize = 10) {
+    return r >= 0 && r < boardSize && c >= 0 && c < boardSize && this.isDarkSquare(r, c);
+  }
+
+  /**
+   * Identifies whether a given square at (r, c) lies along the board's Central Line (Main Longest Diagonal).
+   * - In Nigerian & Ghanaian Draughts (default): Central Line (Highway) connects (0, 0) to (9, 9) (r === c) on player's right.
+   * - In International Draughts ("otherwise"): Central Line (Grande Ligne) connects bottom-left (9, 0) to top-right (0, 9)
+   *   satisfying r + c === boardSize - 1 on the player's left.
+   */
+  isCentralLineSquare(r, c, boardSize = 10) {
+    if (!this.isValidSquare(r, c, boardSize)) return false;
+    if (this.orientation === 'international') {
+      return (r + c === boardSize - 1);
+    }
+    return (r === c);
+  }
+
+  /**
+   * Returns all squares along the Central Line as an array of { r, c } objects.
+   */
+  getCentralLineSquares(boardSize = 10) {
+    const squares = [];
+    for (let r = 0; r < boardSize; r++) {
+      for (let c = 0; c < boardSize; c++) {
+        if (this.isCentralLineSquare(r, c, boardSize)) {
+          squares.push({ r, c });
+        }
+      }
+    }
+    return squares;
+  }
+
+  /**
+   * Returns descriptive label for the Central Line under this rule profile.
+   */
+  getCentralLineDescription() {
+    if (this.orientation === 'international') {
+      return 'FMJD Grande Ligne (Bottom-Left to Top-Right Diagonal — Otherwise of Nigerian Default)';
+    }
+    return 'Nigerian Highway (Top-Left to Bottom-Right Diagonal on Player Right)';
   }
 
   isCaptureMandatory() {
@@ -101,6 +160,9 @@ export class BaseRules {
   generateQuietMoves(boardInstance, player = boardInstance.currentTurn) {
     const moves = [];
     const board = boardInstance.board;
+    const isIntl = boardInstance.isIntl !== undefined ? boardInstance.isIntl : (this.orientation === 'international');
+    const neighbors = boardInstance.neighbors || (isIntl ? NEIGHBORS_INTL : NEIGHBORS);
+    const flyingRays = boardInstance.flyingRays || (isIntl ? FLYING_RAYS_INTL : FLYING_RAYS);
 
     for (let sq = 1; sq <= 50; sq++) {
       const piece = board[sq];
@@ -113,7 +175,7 @@ export class BaseRules {
         // Men move diagonally forward 1 step
         const forwardDirs = (player === PLAYER_1) ? [DIR_UL, DIR_UR] : [DIR_DL, DIR_DR];
         for (let i = 0; i < 2; i++) {
-          const dest = NEIGHBORS[sq][forwardDirs[i]];
+          const dest = neighbors[sq][forwardDirs[i]];
           if (dest !== 0 && board[dest] === EMPTY) {
             const promo = this.getPromotionRules(dest, false, player);
             moves.push({
@@ -130,7 +192,7 @@ export class BaseRules {
       } else {
         // Flying King slides along diagonal rays
         for (let d = 0; d < 4; d++) {
-          const ray = FLYING_RAYS[sq][d];
+          const ray = flyingRays[sq][d];
           for (let i = 0; i < ray.length; i++) {
             const dest = ray[i];
             if (board[dest] !== EMPTY) break; // Ray blocked
@@ -180,12 +242,16 @@ export class BaseRules {
     const sequences = [];
     const isAlreadyJumped = (targetSq) => jumpedSquares.includes(targetSq);
     const board = boardInstance.board;
+    const isIntl = boardInstance.isIntl !== undefined ? boardInstance.isIntl : (this.orientation === 'international');
+    const neighbors = boardInstance.neighbors || (isIntl ? NEIGHBORS_INTL : NEIGHBORS);
+    const jumps = boardInstance.jumps || (isIntl ? JUMPS_INTL : JUMPS);
+    const flyingRays = boardInstance.flyingRays || (isIntl ? FLYING_RAYS_INTL : FLYING_RAYS);
 
     if (!isKing) {
       // Man captures in all 4 directions forward and backward
       for (let d = 0; d < 4; d++) {
-        const mid = NEIGHBORS[sq][d];
-        const dest = JUMPS[sq][d];
+        const mid = neighbors[sq][d];
+        const dest = jumps[sq][d];
 
         if (mid !== 0 && dest !== 0) {
           const enemyPiece = board[mid];
@@ -246,7 +312,7 @@ export class BaseRules {
     } else {
       // Flying King: scans each diagonal for an enemy piece, then every empty square beyond it
       for (let d = 0; d < 4; d++) {
-        const ray = FLYING_RAYS[sq][d];
+        const ray = flyingRays[sq][d];
         let enemySq = 0;
         let enemyPiece = 0;
         const raySequences = [];
@@ -570,6 +636,10 @@ export class InternationalRules extends BaseRules {
 
     return { isDraw: false, reason: '' };
   }
+
+  getCentralLineDescription() {
+    return 'FMJD Grande Ligne (Bottom-Left to Top-Right Diagonal — Otherwise of Nigerian Default)';
+  }
 }
 
 /**
@@ -595,6 +665,27 @@ export class RulesEngine {
   static getRuleProfile(ruleName = 'nigeria') {
     const key = (ruleName || 'nigeria').toString().toLowerCase().trim();
     return RulesEngine.profiles[key] || RulesEngine.profiles['nigeria'];
+  }
+
+  /**
+   * Checks if (r, c) is an active dark square for the given rule profile.
+   */
+  static isDarkSquare(ruleName, r, c) {
+    return RulesEngine.getRuleProfile(ruleName).isDarkSquare(r, c);
+  }
+
+  /**
+   * Checks if (r, c) is on the central line for the given rule profile.
+   */
+  static isCentralLineSquare(ruleName, r, c, boardSize = 10) {
+    return RulesEngine.getRuleProfile(ruleName).isCentralLineSquare(r, c, boardSize);
+  }
+
+  /**
+   * Returns array of { r, c } coordinates on the central line for the given rule profile.
+   */
+  static getCentralLineSquares(ruleName, boardSize = 10) {
+    return RulesEngine.getRuleProfile(ruleName).getCentralLineSquares(boardSize);
   }
 
   /**

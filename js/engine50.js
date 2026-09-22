@@ -43,64 +43,111 @@ const DIR_DELTA = [
 /**
  * Bijective coordinate converters between (r, c) on 10x10 and sq (1..50)
  */
-export function rcToSq(r, c) {
+export function rcToSq(r, c, isInternational = false) {
   if (r < 0 || r >= 10 || c < 0 || c >= 10) return 0;
-  if ((r + c) % 2 !== 0) return 0; // Not a playable dark square
+  if (isInternational) {
+    if ((r + c) % 2 === 0) return 0; // Not a playable dark square in FMJD
+  } else {
+    if ((r + c) % 2 !== 0) return 0; // Not a playable dark square in Nigerian/Ghanaian
+  }
   return r * 5 + Math.floor(c / 2) + 1;
 }
 
 export const SQ_TO_R = new Uint8Array(51);
-export const SQ_TO_C = new Uint8Array(51);
-export const SQ_TO_RC_OBJECTS = Array.from({ length: 51 }, (_, sq) => {
+export const SQ_TO_C_NIGERIA = new Uint8Array(51);
+export const SQ_TO_C_INTL = new Uint8Array(51);
+export const SQ_TO_C = SQ_TO_C_NIGERIA;
+
+export const SQ_TO_RC_OBJECTS_NIGERIA = Array.from({ length: 51 }, (_, sq) => {
   if (sq < 1 || sq > 50) return null;
   const idx = sq - 1;
   const r = Math.floor(idx / 5);
   const colInRow = idx % 5;
   const c = (r % 2 === 0) ? (colInRow * 2) : (colInRow * 2 + 1);
   SQ_TO_R[sq] = r;
-  SQ_TO_C[sq] = c;
+  SQ_TO_C_NIGERIA[sq] = c;
   return Object.freeze({ r, c });
 });
 
-export function sqToRC(sq) {
-  return SQ_TO_RC_OBJECTS[sq] || null;
+export const SQ_TO_RC_OBJECTS_INTL = Array.from({ length: 51 }, (_, sq) => {
+  if (sq < 1 || sq > 50) return null;
+  const idx = sq - 1;
+  const r = Math.floor(idx / 5);
+  const colInRow = idx % 5;
+  const c = (r % 2 === 0) ? (colInRow * 2 + 1) : (colInRow * 2);
+  SQ_TO_C_INTL[sq] = c;
+  return Object.freeze({ r, c });
+});
+
+export const SQ_TO_RC_OBJECTS = SQ_TO_RC_OBJECTS_NIGERIA;
+
+export function sqToRC(sq, isInternational = false) {
+  if (sq < 1 || sq > 50) return null;
+  if (isInternational) return SQ_TO_RC_OBJECTS_INTL[sq] || null;
+  return SQ_TO_RC_OBJECTS_NIGERIA[sq] || null;
 }
 
-// Precomputed table arrays for instant neighbor, jump, and ray lookup
-export const NEIGHBORS = Array.from({ length: 51 }, () => new Int8Array(4));
-export const JUMPS = Array.from({ length: 51 }, () => new Int8Array(4));
-export const FLYING_RAYS = Array.from({ length: 51 }, () => [[], [], [], []]);
+// Precomputed table arrays for instant neighbor, jump, and ray lookup for both rulesets
+export const NEIGHBORS_NIGERIA = Array.from({ length: 51 }, () => new Int8Array(4));
+export const JUMPS_NIGERIA = Array.from({ length: 51 }, () => new Int8Array(4));
+export const FLYING_RAYS_NIGERIA = Array.from({ length: 51 }, () => [[], [], [], []]);
 
-// Initialize lookup tables
+export const NEIGHBORS_INTL = Array.from({ length: 51 }, () => new Int8Array(4));
+export const JUMPS_INTL = Array.from({ length: 51 }, () => new Int8Array(4));
+export const FLYING_RAYS_INTL = Array.from({ length: 51 }, () => [[], [], [], []]);
+
+export const NEIGHBORS = NEIGHBORS_NIGERIA;
+export const JUMPS = JUMPS_NIGERIA;
+export const FLYING_RAYS = FLYING_RAYS_NIGERIA;
+
+export function getNeighbors(isIntl = false) {
+  return isIntl ? NEIGHBORS_INTL : NEIGHBORS_NIGERIA;
+}
+
+export function getJumps(isIntl = false) {
+  return isIntl ? JUMPS_INTL : JUMPS_NIGERIA;
+}
+
+export function getFlyingRays(isIntl = false) {
+  return isIntl ? FLYING_RAYS_INTL : FLYING_RAYS_NIGERIA;
+}
+
+// Initialize lookup tables for both variants
 (function initLookupTables() {
-  for (let sq = 1; sq <= 50; sq++) {
-    const { r, c } = sqToRC(sq);
+  for (const isIntl of [false, true]) {
+    const targetNeighbors = isIntl ? NEIGHBORS_INTL : NEIGHBORS_NIGERIA;
+    const targetJumps = isIntl ? JUMPS_INTL : JUMPS_NIGERIA;
+    const targetRays = isIntl ? FLYING_RAYS_INTL : FLYING_RAYS_NIGERIA;
 
-    for (let d = 0; d < 4; d++) {
-      const [dr, dc] = DIR_DELTA[d];
-      
-      // 1-step neighbor
-      const nr = r + dr;
-      const nc = c + dc;
-      NEIGHBORS[sq][d] = rcToSq(nr, nc);
+    for (let sq = 1; sq <= 50; sq++) {
+      const { r, c } = sqToRC(sq, isIntl);
 
-      // 2-step jump
-      const jr = r + 2 * dr;
-      const jc = c + 2 * dc;
-      JUMPS[sq][d] = rcToSq(jr, jc);
+      for (let d = 0; d < 4; d++) {
+        const [dr, dc] = DIR_DELTA[d];
+        
+        // 1-step neighbor
+        const nr = r + dr;
+        const nc = c + dc;
+        targetNeighbors[sq][d] = rcToSq(nr, nc, isIntl);
 
-      // Flying ray for king
-      const ray = [];
-      let step = 1;
-      while (true) {
-        const rr = r + step * dr;
-        const cc = c + step * dc;
-        const targetSq = rcToSq(rr, cc);
-        if (targetSq === 0) break;
-        ray.push(targetSq);
-        step++;
+        // 2-step jump
+        const jr = r + 2 * dr;
+        const jc = c + 2 * dc;
+        targetJumps[sq][d] = rcToSq(jr, jc, isIntl);
+
+        // Flying ray for king
+        const ray = [];
+        let step = 1;
+        while (true) {
+          const rr = r + step * dr;
+          const cc = c + step * dc;
+          const targetSq = rcToSq(rr, cc, isIntl);
+          if (targetSq === 0) break;
+          ray.push(targetSq);
+          step++;
+        }
+        targetRays[sq][d] = ray;
       }
-      FLYING_RAYS[sq][d] = ray;
     }
   }
 })();
@@ -112,6 +159,7 @@ export class DraughtsBoard50 {
     this.board = new Uint8Array(51); // 1-indexed, square 0 unused
     this.currentTurn = PLAYER_1;
     this.ruleMode = options.ruleMode || 'nigeria'; // 'nigeria', 'ghana', 'international'
+    this.updateTopology();
     this.rulesEngine = RulesEngine.getRuleProfile(this.ruleMode);
     this.p1Short = parseInt(options.p1Short || 0, 10);
     this.modifications = options.modifications || 'none';
@@ -122,8 +170,17 @@ export class DraughtsBoard50 {
     this.reset();
   }
 
+  updateTopology() {
+    const norm = (this.ruleMode || 'nigeria').toString().toLowerCase().trim();
+    this.isIntl = norm === 'international' || norm === 'tournament' || norm === 'fmjd';
+    this.neighbors = this.isIntl ? NEIGHBORS_INTL : NEIGHBORS_NIGERIA;
+    this.jumps = this.isIntl ? JUMPS_INTL : JUMPS_NIGERIA;
+    this.flyingRays = this.isIntl ? FLYING_RAYS_INTL : FLYING_RAYS_NIGERIA;
+  }
+
   setRuleMode(mode) {
     this.ruleMode = mode;
+    this.updateTopology();
     this.rulesEngine = RulesEngine.getRuleProfile(mode);
   }
 
