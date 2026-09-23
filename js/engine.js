@@ -684,7 +684,7 @@ export class NigerianDraughtsEngine {
           r: effectiveMove.to.r,
           c: effectiveMove.to.c,
           jumpedPieces,
-          touchedBackline: true
+          touchedBackline: touchedBackline
         };
         turnEnded = false;
       } else {
