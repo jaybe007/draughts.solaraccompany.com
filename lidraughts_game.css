@@ -194,6 +194,11 @@ body.lidraughts-theme .user-pill-rating {
   font-size: 0.78rem !important;
 }
 
+/* Default visibility for mobile-only vs desktop-only components */
+.lid-mobile-only {
+  display: none !important;
+}
+
 /* ==================== 3-COLUMN MAIN ARENA GRID ==================== */
 body.lidraughts-theme .game-container {
   display: grid !important;
@@ -215,10 +220,301 @@ body.lidraughts-theme .game-container {
 }
 
 @media (max-width: 990px) {
-  body.lidraughts-theme .game-container {
-    grid-template-columns: 1fr !important;
-    max-width: 580px !important;
+  /* ================= MOBILE PHONE & TABLET OPTIMIZED LAYOUT ================= */
+  body.lidraughts-theme .app-header {
+    padding: 0 10px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 6px !important;
+    overflow: visible !important;
   }
+
+  body.lidraughts-theme .nav-brand-container {
+    flex-shrink: 0 !important;
+  }
+
+  body.lidraughts-theme .brand-text .game-title {
+    font-size: 1.05rem !important;
+  }
+
+  body.lidraughts-theme .main-nav {
+    display: none !important; /* Managed via mobile drawer on touch devices */
+  }
+
+  body.lidraughts-theme .header-right-tools {
+    flex-shrink: 0 !important;
+    gap: 4px !important;
+  }
+
+  body.lidraughts-theme .header-right-tools .user-pill {
+    padding: 3px 6px !important;
+    font-size: 0.78rem !important;
+  }
+
+  .lid-mobile-menu-toggle {
+    display: inline-flex !important;
+    font-size: 1.25rem !important;
+    padding: 4px 6px !important;
+    line-height: 1 !important;
+  }
+
+  /* Single Column Stack with Board Priority */
+  body.lidraughts-theme .game-container {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    padding: 4px 8px 30px !important;
+    margin: 4px auto 20px !important;
+    gap: 8px !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Order 1: Board Center (Opponent Bar + Board + Player Bar) */
+  .lid-game-board-center {
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 500px !important;
+    margin: 0 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Order 2: Right Sidebar Controls & Replay Toolbar */
+  .lid-game-sidebar-right {
+    order: 2 !important;
+    width: 100% !important;
+    max-width: 500px !important;
+    margin: 0 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Order 3: Left Sidebar Match Card & Telemetry Accordion */
+  .lid-game-sidebar-left {
+    order: 3 !important;
+    width: 100% !important;
+    max-width: 500px !important;
+    margin: 0 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Full-width Responsive Draughts Board (No collapse, zero overflow) */
+  .lid-board-outer {
+    width: 100% !important;
+    max-width: 500px !important;
+    aspect-ratio: 1 / 1 !important;
+    margin: 0 auto !important;
+    margin-right: 0 !important;
+    margin-bottom: 0 !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+    display: block !important;
+  }
+
+  /* Hide outer rim coordinates on mobile to give 100% of viewport to active squares */
+  .lid-coords-right,
+  .lid-coords-bottom {
+    display: none !important;
+  }
+
+  body.lidraughts-theme .board-wood-frame {
+    width: 100% !important;
+    height: 100% !important;
+    aspect-ratio: 1 / 1 !important;
+    box-sizing: border-box !important;
+    border-radius: 4px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  body.lidraughts-theme .board-inner {
+    width: 100% !important;
+    height: 100% !important;
+    aspect-ratio: 1 / 1 !important;
+    box-sizing: border-box !important;
+    border-radius: 4px !important;
+    display: grid !important;
+    grid-template-columns: repeat(10, 1fr) !important;
+    grid-template-rows: repeat(10, 1fr) !important;
+  }
+
+  /* Show Mobile Player Bars and Clocks */
+  .lid-mobile-only {
+    display: flex !important;
+  }
+
+  .lid-mobile-player-bar {
+    width: 100% !important;
+    max-width: 500px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 6px 12px !important;
+    background: var(--lid-card-bg) !important;
+    border: 1px solid var(--lid-border) !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    box-sizing: border-box !important;
+  }
+
+  .lid-mobile-player-bar.lid-mobile-top {
+    margin-bottom: 6px !important;
+  }
+
+  .lid-mobile-player-bar.lid-mobile-bottom {
+    margin-top: 6px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .lid-mobile-player-name {
+    font-weight: 700 !important;
+    font-size: 0.92rem !important;
+    color: #222222 !important;
+  }
+
+  .lid-player-rating-badge {
+    font-size: 0.78rem !important;
+    color: #777777 !important;
+    font-weight: 600 !important;
+  }
+
+  .lid-mobile-clock-wrap {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+
+  .lid-mobile-clock {
+    font-size: 1.35rem !important;
+    padding: 4px 10px !important;
+    min-width: 78px !important;
+    border-radius: 4px !important;
+    line-height: 1 !important;
+    font-weight: 700 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Hide separate desktop clocks and duplicate info in right sidebar on mobile */
+  .lid-game-sidebar-right .lid-clock-card-row {
+    display: none !important;
+  }
+
+  .lid-controls-card .lid-ctrl-player-bar {
+    display: none !important;
+  }
+
+  /* Compact Turn Info Banner and Action Icons */
+  .lid-turn-info-box {
+    padding: 10px 14px !important;
+    min-height: 56px !important;
+    gap: 10px !important;
+  }
+
+  .lid-info-icon-circle {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 1.1rem !important;
+  }
+
+  .lid-turn-main {
+    font-size: 0.92rem !important;
+  }
+
+  .lid-turn-sub {
+    font-size: 0.78rem !important;
+  }
+
+  .lid-action-icons-row {
+    padding: 8px 12px !important;
+    gap: 18px !important;
+  }
+}
+
+/* Extra Compact Phones (iPhone SE, smaller Androids < 600px) */
+@media (max-width: 600px) {
+  .lid-coords-right,
+  .lid-coords-bottom {
+    display: none !important;
+  }
+
+  .lid-board-outer {
+    margin-right: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .lid-digital-clock {
+    font-size: 1.8rem !important;
+    padding: 4px 10px !important;
+    min-width: 100px !important;
+  }
+}
+
+/* ================= MOBILE NAVIGATION DRAWER ================= */
+.lid-mobile-drawer {
+  position: fixed;
+  top: 48px;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border-bottom: 2px solid var(--lid-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  z-index: 1000;
+  display: none !important;
+  flex-direction: column;
+  padding: 6px 0;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  animation: lidDrawerSlide 0.2s ease-out;
+}
+
+@keyframes lidDrawerSlide {
+  from { transform: translateY(-8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.lid-mobile-drawer.open {
+  display: flex !important;
+}
+
+.lid-mobile-drawer .nav-link {
+  padding: 11px 18px !important;
+  font-size: 0.88rem !important;
+  font-weight: 600 !important;
+  border-bottom: 1px solid var(--lid-border-light) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  color: #333333 !important;
+  text-align: left !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+.lid-mobile-drawer .nav-link:hover {
+  background: #f8fafc !important;
+  color: #111111 !important;
+}
+
+.lid-mobile-drawer .nav-link .nav-icon {
+  display: inline-block !important;
+  font-size: 1.1rem;
 }
 
 /* ==================== COLUMN 1: LEFT SIDEBAR ==================== */

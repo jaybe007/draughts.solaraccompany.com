@@ -285,9 +285,22 @@ class NigerianDraughtsApp {
           this.dom.p1Clock.textContent = timeStrings[PLAYER_1];
           this.dom.p1Clock.classList.toggle('urgent', Boolean(timeStrings.isP1Low));
         }
+        const p1MobClock = document.getElementById('p1-mobile-clock');
+        if (p1MobClock) {
+          p1MobClock.textContent = timeStrings[PLAYER_1];
+          p1MobClock.classList.toggle('urgent', Boolean(timeStrings.isP1Low));
+          p1MobClock.classList.toggle('active', this.engine.currentTurn === PLAYER_1);
+        }
+
         if (this.dom.p2Clock) {
           this.dom.p2Clock.textContent = timeStrings[PLAYER_2];
           this.dom.p2Clock.classList.toggle('urgent', Boolean(timeStrings.isP2Low));
+        }
+        const p2MobClock = document.getElementById('p2-mobile-clock');
+        if (p2MobClock) {
+          p2MobClock.textContent = timeStrings[PLAYER_2];
+          p2MobClock.classList.toggle('urgent', Boolean(timeStrings.isP2Low));
+          p2MobClock.classList.toggle('active', this.engine.currentTurn === PLAYER_2);
         }
       },
       onTimeout: (loserPlayer) => {
@@ -552,6 +565,50 @@ class NigerianDraughtsApp {
         this.timer.addTime(PLAYER_2, 15);
         this.showToast('+15s added to opponent clock!', 'info');
       }
+    });
+
+    // Mobile Navigation Drawer Toggle & Links
+    const btnMobMenu = document.getElementById('btn-lid-mobile-menu');
+    const mobDrawer = document.getElementById('lid-mobile-drawer');
+    if (btnMobMenu && mobDrawer) {
+      btnMobMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mobDrawer.classList.toggle('open');
+      });
+      document.addEventListener('click', (e) => {
+        if (!mobDrawer.contains(e.target) && e.target !== btnMobMenu) {
+          mobDrawer.classList.remove('open');
+        }
+      });
+    }
+
+    document.getElementById('nav-mobile-play')?.addEventListener('click', () => {
+      mobDrawer?.classList.remove('open');
+      this.dom.navPlay?.click();
+    });
+    document.getElementById('nav-mobile-players')?.addEventListener('click', () => {
+      mobDrawer?.classList.remove('open');
+      this.dom.navPlayers?.click();
+    });
+    document.getElementById('nav-mobile-games')?.addEventListener('click', () => {
+      mobDrawer?.classList.remove('open');
+      this.dom.navGames?.click();
+    });
+    document.getElementById('nav-mobile-tournaments')?.addEventListener('click', () => {
+      mobDrawer?.classList.remove('open');
+      this.dom.navTournaments?.click();
+    });
+    document.getElementById('nav-mobile-analysis')?.addEventListener('click', () => {
+      mobDrawer?.classList.remove('open');
+      this.dom.navAnalysis?.click();
+    });
+    document.getElementById('nav-mobile-chat')?.addEventListener('click', () => {
+      mobDrawer?.classList.remove('open');
+      this.dom.navChat?.click();
+    });
+    document.getElementById('nav-mobile-rules')?.addEventListener('click', () => {
+      mobDrawer?.classList.remove('open');
+      this.dom.navRules?.click();
     });
 
     // Game Setup: 1P vs 2P segmented toggle
@@ -1483,6 +1540,16 @@ class NigerianDraughtsApp {
       }
     }
 
+    // Synchronize Mobile Player Bars
+    const mobP1Name = document.getElementById('p1-mobile-name');
+    const mobP1Role = document.getElementById('p1-mobile-role');
+    const mobP2Name = document.getElementById('p2-mobile-name');
+    const mobP2Role = document.getElementById('p2-mobile-role');
+    if (mobP1Name) mobP1Name.textContent = this.dom.p1Name.textContent;
+    if (mobP1Role && lidP1Rating) mobP1Role.textContent = lidP1Rating.textContent;
+    if (mobP2Name) mobP2Name.textContent = this.dom.p2Name.textContent;
+    if (mobP2Role && lidP2Rating) mobP2Role.textContent = lidP2Rating.textContent;
+
     if (lidRulesFlag && lidRulesTitle) {
       if (this.ruleMode === 'ghana') {
         lidRulesFlag.textContent = '🇬🇭';
@@ -1733,6 +1800,7 @@ class NigerianDraughtsApp {
             pieceEl.title = 'Mandatory Capture ("Must Chop!")';
           }
 
+          this.setupPointerEvents(pieceEl, r, c);
           sq.appendChild(pieceEl);
         }
       }
@@ -1869,6 +1937,102 @@ class NigerianDraughtsApp {
     } else {
       this.clearPremove();
     }
+  }
+
+  // ==================== POINTER & TOUCH DRAG/DROP + TAP SUPPORT ==================== //
+
+  setupPointerEvents(pieceEl, r, c) {
+    let isDragging = false;
+    let dragThresholdPassed = false;
+    let startX = 0;
+    let startY = 0;
+
+    pieceEl.addEventListener('pointerdown', (e) => {
+      // Don't drag if game is over or AI is thinking
+      if (this.engine.gameOver || this.isAIThinking) return;
+      if (e.button !== undefined && e.button !== 0) return; // Only left-click/touch
+
+      const piece = this.engine.board[r][c];
+      if (!piece) return;
+
+      const currentTurn = this.engine.currentTurn;
+      const isPlayerPiece = (piece.player === currentTurn);
+      const isPmove = (this.gameMode === 'pve' && piece.player === PLAYER_1) || 
+                      (this.gameMode === 'room_online' && ((this.onlinePlayerRole === 'p1' && piece.player === PLAYER_1) || (this.onlinePlayerRole === 'p2' && piece.player === PLAYER_2)));
+
+      if (!isPlayerPiece && !isPmove) return;
+
+      startX = e.clientX;
+      startY = e.clientY;
+      isDragging = false;
+      dragThresholdPassed = false;
+
+      try {
+        pieceEl.setPointerCapture(e.pointerId);
+      } catch {}
+
+      const onPointerMove = (moveEv) => {
+        const dx = moveEv.clientX - startX;
+        const dy = moveEv.clientY - startY;
+
+        if (!dragThresholdPassed && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+          dragThresholdPassed = true;
+          isDragging = true;
+          // Select source square if not already selected to highlight legal moves
+          if (!this.selectedPieceSquare || this.selectedPieceSquare.r !== r || this.selectedPieceSquare.c !== c) {
+            this.handleSquareClick(r, c);
+          }
+          pieceEl.classList.add('dragging');
+          pieceEl.style.zIndex = '9999';
+        }
+
+        if (isDragging) {
+          pieceEl.style.transform = `translate(${dx}px, ${dy}px)`;
+        }
+      };
+
+      const onPointerUp = (upEv) => {
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+
+        try {
+          pieceEl.releasePointerCapture(upEv.pointerId);
+        } catch {}
+
+        if (isDragging) {
+          pieceEl.classList.remove('dragging');
+          pieceEl.style.transform = '';
+          pieceEl.style.zIndex = '';
+          isDragging = false;
+
+          // Find target square under pointer release
+          pieceEl.style.pointerEvents = 'none';
+          const elemBelow = document.elementFromPoint(upEv.clientX, upEv.clientY);
+          pieceEl.style.pointerEvents = '';
+
+          const targetSq = elemBelow ? elemBelow.closest('.square') : null;
+          if (targetSq && targetSq.dataset.row !== undefined) {
+            const tr = parseInt(targetSq.dataset.row, 10);
+            const tc = parseInt(targetSq.dataset.col, 10);
+            if (tr !== r || tc !== c) {
+              this.handleSquareClick(tr, tc);
+              return;
+            }
+          }
+        }
+      };
+
+      window.addEventListener('pointermove', onPointerMove);
+      window.addEventListener('pointerup', onPointerUp, { once: true });
+    });
+
+    pieceEl.addEventListener('click', (e) => {
+      // If user dragged, suppress click bubbling to prevent deselect
+      if (dragThresholdPassed) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    });
   }
 
   handleSquareClick(r, c) {

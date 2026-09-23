@@ -139,8 +139,25 @@ $currentUser = getCurrentUser();
         <button id="btn-flip-board" class="btn btn-icon" title="Flip Board Perspective">
           <span class="icon">🔄</span>
         </button>
+        <button type="button" class="btn btn-icon lid-mobile-menu-toggle lid-mobile-only" id="btn-lid-mobile-menu" aria-label="Toggle navigation menu" title="Menu">
+          <span class="icon">☰</span>
+        </button>
       </div>
     </header>
+
+    <!-- ================= MOBILE NAVIGATION DRAWER ================= -->
+    <nav class="lid-mobile-drawer lid-mobile-only" id="lid-mobile-drawer">
+      <a href="index.php" class="nav-link"><span class="nav-icon">🏠</span> HOME</a>
+      <a href="dashboard.php" class="nav-link"><span class="nav-icon">👑</span> DASHBOARD</a>
+      <button id="nav-mobile-play" class="nav-link"><span class="nav-icon">🎮</span> PLAY</button>
+      <button id="nav-mobile-players" class="nav-link"><span class="nav-icon">👥</span> PLAYERS</button>
+      <button id="nav-mobile-games" class="nav-link"><span class="nav-icon">⚔️</span> GAMES</button>
+      <button id="nav-mobile-tournaments" class="nav-link"><span class="nav-icon">🏆</span> TOURNAMENTS</button>
+      <button id="nav-mobile-analysis" class="nav-link"><span class="nav-icon">🔬</span> ANALYSIS</button>
+      <button id="nav-mobile-chat" class="nav-link"><span class="nav-icon">💬</span> CHAT</button>
+      <button id="nav-mobile-rules" class="nav-link"><span class="nav-icon">📜</span> RULES</button>
+      <a href="puzzles.php" class="nav-link"><span class="nav-icon">🧩</span> PUZZLES</a>
+    </nav>
 
     <!-- ================= FLOATING DOCKS (ANALYSIS & REPLAY) ================= -->
 
@@ -360,6 +377,18 @@ $currentUser = getCurrentUser();
           </div>
         </div>
 
+        <!-- Mobile Opponent Bar (Displayed above board on mobile phones) -->
+        <div class="lid-mobile-player-bar lid-mobile-top lid-mobile-only" id="lid-mobile-p2-bar">
+          <div class="lid-ctrl-player-left">
+            <span class="green-dot"></span>
+            <span class="lid-mobile-player-name" id="p2-mobile-name">Scan AI level 4</span>
+            <span class="lid-player-rating-badge" id="p2-mobile-role">(2400)</span>
+          </div>
+          <div class="lid-mobile-clock-wrap">
+            <div class="lid-digital-clock lid-mobile-clock" id="p2-mobile-clock">10:00</div>
+          </div>
+        </div>
+
         <!-- 10x10 Wood Board Outer Frame with Rim Coordinates -->
         <div class="lid-board-outer">
           <div class="board-wood-frame" id="board-wood-frame" style="position: relative;">
@@ -395,6 +424,18 @@ $currentUser = getCurrentUser();
             <span>48</span>
             <span>49</span>
             <span>50</span>
+          </div>
+        </div>
+
+        <!-- Mobile Player Bar (Displayed below board on mobile phones) -->
+        <div class="lid-mobile-player-bar lid-mobile-bottom lid-mobile-only" id="lid-mobile-p1-bar">
+          <div class="lid-ctrl-player-left">
+            <span class="green-dot"></span>
+            <span class="lid-mobile-player-name" id="p1-mobile-name"><?= $currentUser ? htmlspecialchars($currentUser['username']) : 'Champion (Guest)' ?></span>
+            <span class="lid-player-rating-badge" id="p1-mobile-role">(<?= $currentUser ? (int)$currentUser['rating'] . '?' : '1459?' ?>)</span>
+          </div>
+          <div class="lid-mobile-clock-wrap">
+            <div class="lid-digital-clock active lid-mobile-clock" id="p1-mobile-clock">10:00</div>
           </div>
         </div>
 
