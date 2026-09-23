@@ -2674,48 +2674,87 @@ select.form-control option {
 
 /* ================= RESPONSIVE DESIGN ================= */
 
-/* Medium Screens & Laptops (1025px - 1280px) */
-@media (min-width: 1025px) and (max-width: 1280px) {
+/* Medium Desktops & Laptops (1201px - 1400px) */
+@media (min-width: 1201px) and (max-width: 1400px) {
   .nav-container {
-    padding: 0 12px;
-    gap: 6px;
-  }
-  .brand-title {
-    font-size: 1.25rem;
-    letter-spacing: 1px;
+    padding: 0 14px;
+    gap: 8px;
   }
   .brand-tagline {
     display: none;
   }
   .dash-nav-links {
-    gap: 3px;
+    gap: 4px;
   }
   .dash-nav-btn {
-    padding: 6px 8px;
-    font-size: 0.78rem;
-    letter-spacing: 0.2px;
+    padding: 6px 9px;
+    font-size: 0.8rem;
+    gap: 4px;
+  }
+  .nav-wallet-pill {
+    padding: 5px 9px;
+    font-size: 0.8rem;
+    gap: 4px;
+  }
+  .dash-header-user {
+    gap: 6px;
+  }
+  .dash-header-user .btn {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Laptops & Standard Viewports (961px - 1200px, e.g. 1084px, 1100px, 1152px) */
+@media (min-width: 961px) and (max-width: 1200px) {
+  .nav-container {
+    padding: 0 10px;
+    gap: 5px;
+  }
+  .brand-wrap {
+    gap: 8px;
+  }
+  .flag-stripes {
+    width: 20px;
+    height: 32px;
+  }
+  .brand-title {
+    font-size: 1.15rem;
+    letter-spacing: 0.5px;
+  }
+  .brand-tagline {
+    display: none;
+  }
+  .dash-nav-links {
+    gap: 2px;
+  }
+  .dash-nav-btn {
+    padding: 5px 7px;
+    font-size: 0.76rem;
+    letter-spacing: 0;
     gap: 3px;
   }
   .nav-wallet-pill {
-    padding: 5px 8px;
-    font-size: 0.78rem;
-    gap: 4px;
+    padding: 4px 7px;
+    font-size: 0.76rem;
+    gap: 3px;
   }
   .nav-wallet-pill .wallet-action-btn {
-    font-size: 0.68rem;
-    padding: 2px 5px;
+    font-size: 0.65rem;
+    padding: 2px 4px;
   }
   .dash-header-user {
     gap: 4px;
   }
   .dash-header-user .btn {
     padding: 5px 8px;
-    font-size: 0.78rem;
+    font-size: 0.76rem;
+    white-space: nowrap;
   }
 }
 
-/* Tablets & Mobile Screens (<= 1024px) */
-@media (max-width: 1024px) {
+/* Tablets & Mobile Screens (<= 960px) */
+@media (max-width: 960px) {
   .packages-grid {
     grid-template-columns: repeat(2, 1fr);
   }
