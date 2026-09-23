@@ -115,6 +115,12 @@ export class DraughtsTimer {
     this.onTick(this.getTimeStrings(), this.timeLeft, this.activePlayer);
   }
 
+  addTime(player, seconds = 15) {
+    if (this.isUntimed()) return;
+    this.timeLeft[player] = (this.timeLeft[player] || 0) + seconds;
+    this.onTick(this.getTimeStrings(), this.timeLeft, this.activePlayer);
+  }
+
   stop() {
     this.isRunning = false;
     if (this.intervalId) {
@@ -138,6 +144,8 @@ export class DraughtsTimer {
     return {
       [PLAYER_1]: this.formatTime(this.timeLeft[PLAYER_1]),
       [PLAYER_2]: this.formatTime(this.timeLeft[PLAYER_2]),
+      isP1Low: !this.isUntimed() && (this.timeLeft[PLAYER_1] <= 30) && (this.timeLeft[PLAYER_1] > 0),
+      isP2Low: !this.isUntimed() && (this.timeLeft[PLAYER_2] <= 30) && (this.timeLeft[PLAYER_2] > 0)
     };
   }
 

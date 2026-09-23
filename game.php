@@ -17,6 +17,7 @@ $currentUser = getCurrentUser();
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css?v=<?= filemtime(__DIR__ . '/style.css') ?>">
+  <link rel="stylesheet" href="lidraughts_game.css?v=<?= filemtime(__DIR__ . '/lidraughts_game.css') ?>">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="alternate icon" href="favicon.ico">
@@ -25,7 +26,7 @@ $currentUser = getCurrentUser();
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
-<body data-logged-in="<?= $currentUser ? 'true' : 'false' ?>" data-user-id="<?= $currentUser ? (int)$currentUser['id'] : '' ?>">
+<body class="lidraughts-theme" data-logged-in="<?= $currentUser ? 'true' : 'false' ?>" data-user-id="<?= $currentUser ? (int)$currentUser['id'] : '' ?>">
   <div class="app-wrapper">
 
     <!-- ================= TOP NAVIGATION BAR (AFRODRAUGHT-STYLE) ================= -->
@@ -207,152 +208,160 @@ $currentUser = getCurrentUser();
       </div>
     </div>
 
-    <!-- ================= MAIN GAME ARENA ================= -->
+    <!-- ================= MAIN GAME ARENA (LIDRAUGHTS 3-COLUMN LAYOUT) ================= -->
     <main class="game-container">
       
-      <!-- Left Panel: Player 2 (Top/Dark) -->
-      <aside class="sidebar player-card p2-card" id="card-p2">
-        <div class="player-header">
-          <div class="avatar p2-avatar">
-            <span class="piece-icon p2-seed"></span>
+      <!-- ================= COLUMN 1: LEFT GAME INFO & CONTROLS ================= -->
+      <aside class="lid-game-sidebar-left">
+        <!-- Lidraughts Top-Left Match Metadata Card -->
+        <div class="lid-meta-card" id="lid-meta-card">
+          <div class="lid-meta-card-header">
+            <span class="lid-meta-cogs-icon">⚙️</span>
+            <div class="lid-meta-info-text">
+              <span class="lid-meta-time-title" id="lid-game-time-mode">10+0 • Casual • Rapid</span>
+              <span class="lid-meta-status-sub">Playing right now</span>
+            </div>
           </div>
-          <div class="player-meta">
-            <h2 class="player-name" id="p2-name">Street Hustler</h2>
-            <span class="player-role" id="p2-role">Computer (AI)</span>
+
+          <div class="lid-meta-players-list">
+            <div class="lid-meta-player-item">
+              <span class="dot-circle white"></span>
+              <span class="lid-meta-player-name" id="lid-meta-p1-name"><?= $currentUser ? htmlspecialchars($currentUser['username']) : 'Champion (Guest)' ?></span>
+              <span class="lid-meta-player-rating" id="lid-meta-p1-rating">(<?= $currentUser ? (int)$currentUser['rating'] : '1459?' ?>)</span>
+            </div>
+            <div class="lid-meta-player-item">
+              <span class="dot-circle dark"></span>
+              <span class="lid-meta-player-name" id="lid-meta-p2-name">Scan AI level 4</span>
+              <span class="lid-meta-player-rating" id="lid-meta-p2-rating">(2400)</span>
+            </div>
           </div>
-          <div class="clock-badge" id="p2-clock">05:00</div>
+
+          <div class="lid-meta-ruleset-wrap">
+            <div class="lid-ruleset-badge" id="lid-ruleset-badge">
+              <span id="lid-ruleset-flag">🇳🇬</span> <span id="lid-ruleset-title">Nigerian Rules</span>
+            </div>
+          </div>
         </div>
 
-        <div class="turn-indicator" id="p2-indicator">Waiting Turn</div>
+        <!-- Collapsible Match Tools, Engine HUD & Captured Trays -->
+        <details class="lid-left-accordion" id="lid-left-accordion">
+          <summary>⚙️ Match Options & Engine Telemetry</summary>
+          <div class="lid-left-accordion-content">
+            <!-- Quick Actions Toolbar -->
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">
+              <button id="btn-open-game-setup" class="btn btn-small btn-primary" title="New Game Setup">⚡ New Match</button>
+              <button id="btn-undo-move" class="btn btn-small btn-secondary" title="Undo Move">↩️ Undo</button>
+              <button id="btn-toggle-trap-radar" class="btn btn-small btn-secondary" title="Toggle Trap Radar">⚡ Radar</button>
+              <button id="btn-share-match-link" class="btn btn-small btn-secondary" title="Share Match Replay URL">🔗 Share</button>
+              <button id="btn-copy-pdn-match" class="btn btn-small btn-secondary" title="Copy PDN">📋 PDN</button>
+              <a href="puzzles.php" id="btn-quick-puzzles" class="btn btn-small btn-secondary" style="text-decoration: none;" title="Puzzles">🧩 Puzzles</a>
+            </div>
 
-        <div class="stats-row">
-          <div class="stat-box">
-            <span class="stat-label">Seeds</span>
-            <span class="stat-val" id="p2-seeds-count">20</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-label">Kings (Oba)</span>
-            <span class="stat-val" id="p2-kings-count">0</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-label">Score</span>
-            <span class="stat-val" id="p2-score">0</span>
-          </div>
-        </div>
+            <!-- Captured Seeds -->
+            <div style="font-size: 0.8rem; margin-bottom: 10px;">
+              <div style="font-weight: 600; color: #555; margin-bottom: 4px;">Captured Pieces:</div>
+              <div style="display: flex; gap: 10px;">
+                <div style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 6px;">
+                  <span style="font-size: 0.72rem; color: #64748b; font-weight: 700;">White Taken:</span>
+                  <div class="captured-pieces-list" id="p1-captured-tray" style="min-height: 20px;"></div>
+                </div>
+                <div style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 6px;">
+                  <span style="font-size: 0.72rem; color: #64748b; font-weight: 700;">Dark Taken:</span>
+                  <div class="captured-pieces-list" id="p2-captured-tray" style="min-height: 20px;"></div>
+                </div>
+              </div>
+            </div>
 
-        <div class="captured-tray">
-          <span class="tray-title">Captured Seeds:</span>
-          <div class="captured-pieces-list" id="p2-captured-tray"></div>
-        </div>
+            <!-- Engine Telemetry Panel -->
+            <div class="engine-telemetry-panel" id="engine-telemetry-panel" style="margin-top: 8px;">
+              <div class="engine-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span class="engine-title" style="font-size: 0.8rem; font-weight: 700;"><span class="engine-pulse-dot" id="engine-pulse-dot"></span> 🤖 Engine Telemetry</span>
+                <span class="engine-eval-badge eval-neutral" id="engine-eval-badge" style="font-size: 0.75rem; padding: 2px 6px;">+0.00</span>
+              </div>
+              <div class="engine-stats-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; font-size: 0.72rem;">
+                <div class="stat-cell" style="background: #f1f5f9; padding: 4px; border-radius: 3px; text-align: center;">
+                  <span class="stat-cell-lbl" style="display: block; color: #64748b; font-size: 0.65rem;">RULESET</span>
+                  <span class="stat-cell-val" id="engine-stat-ruleset" style="color: #15803d; font-weight: 700;">NIGERIA</span>
+                </div>
+                <div class="stat-cell" style="background: #f1f5f9; padding: 4px; border-radius: 3px; text-align: center;">
+                  <span class="stat-cell-lbl" style="display: block; color: #64748b; font-size: 0.65rem;">DEPTH</span>
+                  <span class="stat-cell-val" id="engine-stat-depth">-</span>
+                </div>
+                <div class="stat-cell" style="background: #f1f5f9; padding: 4px; border-radius: 3px; text-align: center;">
+                  <span class="stat-cell-lbl" style="display: block; color: #64748b; font-size: 0.65rem;">NODES</span>
+                  <span class="stat-cell-val" id="engine-stat-nodes">0</span>
+                </div>
+                <div class="stat-cell" style="background: #f1f5f9; padding: 4px; border-radius: 3px; text-align: center;">
+                  <span class="stat-cell-lbl" style="display: block; color: #64748b; font-size: 0.65rem;">SPEED</span>
+                  <span class="stat-cell-val" id="engine-stat-nps">-</span>
+                </div>
+                <div class="stat-cell" style="background: #f1f5f9; padding: 4px; border-radius: 3px; text-align: center;">
+                  <span class="stat-cell-lbl" style="display: block; color: #64748b; font-size: 0.65rem;">TT HITS</span>
+                  <span class="stat-cell-val" id="engine-stat-tt">0%</span>
+                </div>
+              </div>
+              <div class="engine-pv-box" style="margin-top: 6px; font-size: 0.72rem; color: #475569;">
+                <span class="pv-lbl" style="font-weight: 700;">PV:</span>
+                <span class="pv-line" id="engine-pv-line">Position balanced. Waiting for turn...</span>
+              </div>
+              <div class="engine-thinking-bar" id="engine-thinking-bar" style="display:none;"></div>
+            </div>
 
-        <!-- Street Commentary Card -->
-        <div class="commentary-box">
-          <div class="commentary-header">
-            <span class="speaker-tag">🎙️ Naija Street Corner</span>
+            <!-- Street Commentary Ticker -->
+            <div style="margin-top: 10px; font-size: 0.78rem; font-style: italic; color: #555; background: #fffbeb; border: 1px solid #fef3c7; border-radius: 4px; padding: 6px 8px;">
+              <span style="font-style: normal; font-weight: 700; color: #b45309; display: block; font-size: 0.72rem;">🎙️ Street Commentary:</span>
+              <p class="commentary-text" id="commentary-ticker" style="margin: 2px 0 0;">"Oya welcome! Place your hand on the board, make we see who sabi play pass."</p>
+            </div>
           </div>
-          <p class="commentary-text" id="commentary-ticker">"Oya welcome! Place your hand on the board, make we see who sabi play pass."</p>
-        </div>
+        </details>
 
-        <!-- Engine Calculation Telemetry HUD (Active when playing vs AI) -->
-        <div class="engine-telemetry-panel" id="engine-telemetry-panel">
-          <div class="engine-header">
-            <span class="engine-title"><span class="engine-pulse-dot" id="engine-pulse-dot"></span> 🤖 Engine Telemetry</span>
-            <span class="engine-eval-badge eval-neutral" id="engine-eval-badge">+0.00</span>
-          </div>
-          <div class="engine-stats-grid">
-            <div class="stat-cell">
-              <span class="stat-cell-lbl">RULESET</span>
-              <span class="stat-cell-val" id="engine-stat-ruleset" style="color: #4ade80; font-weight: 700;">NIGERIA</span>
-            </div>
-            <div class="stat-cell">
-              <span class="stat-cell-lbl">DEPTH</span>
-              <span class="stat-cell-val" id="engine-stat-depth">-</span>
-            </div>
-            <div class="stat-cell">
-              <span class="stat-cell-lbl">NODES</span>
-              <span class="stat-cell-val" id="engine-stat-nodes">0</span>
-            </div>
-            <div class="stat-cell">
-              <span class="stat-cell-lbl">SPEED</span>
-              <span class="stat-cell-val" id="engine-stat-nps">-</span>
-            </div>
-            <div class="stat-cell">
-              <span class="stat-cell-lbl">TT HITS</span>
-              <span class="stat-cell-val" id="engine-stat-tt">0%</span>
+        <!-- Preserved Legacy DOM Elements to satisfy existing JS queries -->
+        <div style="display: none;" aria-hidden="true">
+          <aside class="sidebar player-card p2-card" id="card-p2">
+            <div class="turn-indicator" id="p2-indicator">Waiting Turn</div>
+            <span id="p2-seeds-count">20</span>
+            <span id="p2-kings-count">0</span>
+            <span id="p2-score">0</span>
+          </aside>
+          <aside class="sidebar player-card p1-card" id="card-p1">
+            <div class="turn-indicator active" id="p1-indicator">Active Turn</div>
+            <span id="p1-seeds-count">20</span>
+            <span id="p1-kings-count">0</span>
+            <span id="p1-score">0</span>
+          </aside>
+          <div class="ruleset-selector-bar" id="ruleset-selector-bar">
+            <div class="ruleset-pills-group" id="ruleset-pills-group">
+              <label id="lbl-ruleset-nigeria"><input type="radio" name="ruleset_choice" value="nigeria" checked></label>
+              <label id="lbl-ruleset-ghana"><input type="radio" name="ruleset_choice" value="ghana"></label>
+              <label id="lbl-ruleset-international"><input type="radio" name="ruleset_choice" value="international"></label>
             </div>
           </div>
-          <div class="engine-pv-box">
-            <span class="pv-lbl">PV LINE:</span>
-            <div class="pv-line" id="engine-pv-line">Position balanced. Waiting for turn...</div>
-          </div>
-          <div class="engine-thinking-bar" id="engine-thinking-bar" style="display:none;"></div>
+          <div id="highway-indicator"><span id="highway-indicator-text">Nigerian Highway</span></div>
+          <div id="network-ping-indicator"><span id="ping-text">35ms</span></div>
+          <div id="board-eval-bar"><div id="eval-bar-fill"></div><span id="eval-bar-score">0.0</span></div>
         </div>
       </aside>
 
-      <!-- Center: Board Arena -->
-      <section class="board-arena">
-        
-        <!-- Interactive Ruleset Selector Bar -->
-        <div class="ruleset-selector-bar" id="ruleset-selector-bar">
-          <span class="ruleset-bar-lbl">SELECT RULESET:</span>
-          <div class="ruleset-pills-group" id="ruleset-pills-group">
-            <label class="ruleset-pill-lbl active" id="lbl-ruleset-nigeria" title="Nigerian Street Draughts - Free Choice, Oba King, Highway">
-              <input type="radio" name="ruleset_choice" value="nigeria" checked class="ruleset-radio-hidden">
-              <span class="pill-flag">🇳🇬</span> <span class="pill-text">Nigeria</span>
-            </label>
-            <label class="ruleset-pill-lbl" id="lbl-ruleset-ghana" title="Ghana Damii - Free Choice, Immediate Crown Stop, 16-Move 3v1 Countdown">
-              <input type="radio" name="ruleset_choice" value="ghana" class="ruleset-radio-hidden">
-              <span class="pill-flag">🇬🇭</span> <span class="pill-text">Ghana</span>
-            </label>
-            <label class="ruleset-pill-lbl" id="lbl-ruleset-international" title="International Draughts (FMJD) - Strict Majority Capture, Rule 3.5 Non-Promotion">
-              <input type="radio" name="ruleset_choice" value="international" class="ruleset-radio-hidden">
-              <span class="pill-flag">🌍</span> <span class="pill-text">International</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="quick-status-bar">
-          <div class="highway-indicator" id="highway-indicator" title="Active Rules and Board Highway">
-            <span class="highway-dot"></span> <span id="highway-indicator-text">🇳🇬 Nigerian Highway (Central Line) Active — Free Capture Choice</span>
-          </div>
-          <div class="ping-indicator" id="network-ping-indicator" title="Connection Latency">
-            <span class="ping-dot"></span> <span id="ping-text">35ms</span>
-          </div>
-          <div class="quick-actions">
-            <a href="puzzles.php" id="btn-quick-puzzles" class="btn btn-small btn-quick-puzzles" title="Lidraughts-Style Tactical Draughts Puzzles" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">🧩 Puzzles</a>
-            <button id="btn-toggle-trap-radar" class="btn btn-small" title="Toggle Trap Radar (Tactical Shot Advisor)">⚡ Trap Radar</button>
-            <button id="btn-share-match-link" class="btn btn-small btn-secondary" title="Share Match Replay URL">🔗 Share</button>
-            <button id="btn-copy-pdn-match" class="btn btn-small btn-secondary" title="Copy Standard Draughts Notation (PDN)">📋 PDN</button>
-            <button id="btn-undo-move" class="btn btn-small" title="Undo Move">↩️ Undo</button>
-            <button id="btn-open-game-setup" class="btn btn-small btn-primary" title="New Game Setup">⚡ New Match</button>
-          </div>
-        </div>
-
-        <!-- Active Trap Banner (Active in Trap Academy Mode) -->
-        <div class="trap-active-banner" id="trap-active-banner" style="display:none;">
+      <!-- ================= COLUMN 2: CENTER BOARD ================= -->
+      <section class="lid-game-board-center">
+        <!-- Active Trap Banner (if in trap mode) -->
+        <div class="trap-active-banner" id="trap-active-banner" style="display:none; width: 100%;">
           <div class="trap-active-content" style="width: 100%;">
             <div class="trap-active-header">
               <span class="trap-title" id="trap-active-title">🪤 TRAP: The Nigerian Highway Ambush</span>
               <div class="trap-hud-actions">
                 <button id="btn-trap-hint" class="btn btn-small btn-secondary" title="Tactical Hint">💡 Hint</button>
                 <button id="btn-trap-reset" class="btn btn-small btn-secondary" title="Reset Trap Position">🔄 Reset</button>
-                <button id="btn-trap-exit" class="btn btn-small btn-secondary" title="Exit Trap Mode" style="color: #f87171; border-color: rgba(239, 68, 68, 0.4);">&times; Exit</button>
+                <button id="btn-trap-exit" class="btn btn-small btn-secondary" title="Exit Trap Mode">&times; Exit</button>
               </div>
             </div>
-            <p class="trap-brief" id="trap-active-brief" style="margin-top: 6px;"></p>
-            <div class="trap-step-instruction" id="trap-step-instruction" style="margin-top: 8px;"></div>
+            <p class="trap-brief" id="trap-active-brief" style="margin-top: 4px;"></p>
+            <div class="trap-step-instruction" id="trap-step-instruction" style="margin-top: 6px;"></div>
           </div>
         </div>
 
-        <!-- Board Arena Container with Live Evaluation Bar -->
-        <div class="board-container-with-eval">
-          <!-- Live Engine Evaluation Bar -->
-          <div class="board-eval-bar" id="board-eval-bar" title="Live Position Evaluation (White vs Black Advantage)">
-            <div class="eval-bar-fill" id="eval-bar-fill" style="height: 50%;"></div>
-            <span class="eval-bar-score" id="eval-bar-score">0.0</span>
-          </div>
-
-          <!-- Board Wood Frame (10x10 Nigerian Mirrored Board) -->
+        <!-- 10x10 Wood Board Outer Frame with Rim Coordinates -->
+        <div class="lid-board-outer">
           <div class="board-wood-frame" id="board-wood-frame" style="position: relative;">
             <svg id="board-tactical-svg" class="board-tactical-overlay">
               <defs>
@@ -367,63 +376,129 @@ $currentUser = getCurrentUser();
             <div class="board-inner" id="draughts-board">
               <!-- Squares generated dynamically via JavaScript -->
             </div>
+            <div class="lid-board-resize-handle">///</div>
+          </div>
+
+          <!-- Lidraughts Right Rim Coordinates: 5, 15, 25, 35, 45 -->
+          <div class="lid-coords-right" id="lid-coords-right" aria-hidden="true">
+            <span>5</span>
+            <span>15</span>
+            <span>25</span>
+            <span>35</span>
+            <span>45</span>
+          </div>
+
+          <!-- Lidraughts Bottom Rim Coordinates: 46, 47, 48, 49, 50 -->
+          <div class="lid-coords-bottom" id="lid-coords-bottom" aria-hidden="true">
+            <span>46</span>
+            <span>47</span>
+            <span>48</span>
+            <span>49</span>
+            <span>50</span>
           </div>
         </div>
 
         <!-- Status Notice / Alert Banner -->
-        <div class="status-banner" id="status-banner">
+        <div class="status-banner" id="status-banner" style="display: none;">
           <span id="banner-text">Game started! White to move. Compulsory capture is ON.</span>
         </div>
       </section>
 
-      <!-- Right Panel: Player 1 (Bottom/White) -->
-      <aside class="sidebar player-card p1-card" id="card-p1">
-        <div class="player-header">
-          <div class="avatar p1-avatar">
-            <span class="piece-icon p1-seed"></span>
-          </div>
-          <div class="player-meta">
-            <h2 class="player-name" id="p1-name"><?= $currentUser ? htmlspecialchars($currentUser['username']) : 'Champion (Guest)' ?></h2>
-            <span class="player-role" id="p1-role"><?= $currentUser ? 'Rating: ' . (int)$currentUser['rating'] . ' Elo' : 'Player 1' ?></span>
-          </div>
-          <div class="clock-badge active" id="p1-clock">05:00</div>
+      <!-- ================= COLUMN 3: RIGHT CLOCKS & CONTROLS ================= -->
+      <aside class="lid-game-sidebar-right">
+        
+        <!-- Opponent Clock Row -->
+        <div class="lid-clock-card-row">
+          <div class="lid-digital-clock" id="p2-clock">10:00</div>
+          <button type="button" class="lid-clock-add-btn" id="btn-lid-add-time" title="Add 15s to opponent clock">+</button>
         </div>
 
-        <div class="turn-indicator active" id="p1-indicator">Active Turn</div>
+        <!-- Main Lidraughts Control Box -->
+        <div class="lid-controls-card">
+          <!-- Opponent Player Info Bar -->
+          <div class="lid-ctrl-player-bar">
+            <div class="lid-ctrl-player-left">
+              <span class="green-dot"></span>
+              <span id="p2-name">Scan level 8</span>
+            </div>
+            <div class="lid-ctrl-player-right" id="p2-role">2700</div>
+          </div>
 
-        <div class="stats-row">
-          <div class="stat-box">
-            <span class="stat-label">Seeds</span>
-            <span class="stat-val" id="p1-seeds-count">20</span>
+          <!-- Move Navigation & Replay Toolbar -->
+          <div class="lid-nav-toolbar">
+            <button type="button" class="lid-nav-btn" id="btn-lid-flip" title="Flip Board Perspective">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            </button>
+            <button type="button" class="lid-nav-btn" id="btn-lid-start" title="First Move">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="5" width="2.5" height="14"></rect><polygon points="19,19 9,12 19,5"></polygon></svg>
+            </button>
+            <button type="button" class="lid-nav-btn" id="btn-lid-prev" title="Previous Move / Undo">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="17,19 7,12 17,5"></polygon></svg>
+            </button>
+            <button type="button" class="lid-nav-btn" id="btn-lid-next" title="Next Move">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="7,5 17,12 7,19"></polygon></svg>
+            </button>
+            <button type="button" class="lid-nav-btn" id="btn-lid-end" title="Last Move">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,5 15,12 5,19"></polygon><rect x="17.5" y="5" width="2.5" height="14"></rect></svg>
+            </button>
           </div>
-          <div class="stat-box">
-            <span class="stat-label">Kings (Oba)</span>
-            <span class="stat-val" id="p1-kings-count">0</span>
+
+          <!-- Turn Status / Instruction Box -->
+          <div class="lid-turn-info-box">
+            <div class="lid-info-icon-circle">i</div>
+            <div class="lid-turn-info-text">
+              <span class="lid-turn-sub" id="lid-turn-sub">You play the white pieces</span>
+              <span class="lid-turn-main" id="lid-turn-main">It's your turn!</span>
+            </div>
           </div>
-          <div class="stat-box">
-            <span class="stat-label">Score</span>
-            <span class="stat-val" id="p1-score">0</span>
+
+          <!-- Match Action Buttons (Resign, Draw, Options) -->
+          <div class="lid-action-icons-row">
+            <button type="button" class="lid-action-icon-btn resign" id="btn-lid-resign" title="Resign Match">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <button type="button" class="lid-action-icon-btn" id="btn-lid-draw" title="Offer Draw">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11v6a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-6"></path><path d="M18 10a3 3 0 0 0-3-3H9a3 3 0 0 0-3 3"></path><line x1="12" y1="3" x2="12" y2="7"></line></svg>
+            </button>
+            <button type="button" class="lid-action-icon-btn" id="btn-lid-options" title="New Match / Game Settings">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+            </button>
+          </div>
+
+          <!-- Player Info Bar -->
+          <div class="lid-ctrl-player-bar" style="border-top: 1px solid var(--lid-border-light);">
+            <div class="lid-ctrl-player-left">
+              <span class="green-dot"></span>
+              <span id="p1-name"><?= $currentUser ? htmlspecialchars($currentUser['username']) : 'Champion (Guest)' ?></span>
+            </div>
+            <div class="lid-ctrl-player-right" id="p1-role"><?= $currentUser ? (int)$currentUser['rating'] . '?' : '1459?' ?></div>
           </div>
         </div>
 
-        <div class="captured-tray">
-          <span class="tray-title">Captured Seeds:</span>
-          <div class="captured-pieces-list" id="p1-captured-tray"></div>
+        <!-- Player Clock Row -->
+        <div class="lid-clock-card-row">
+          <div class="lid-digital-clock active" id="p1-clock">10:00</div>
         </div>
 
-        <!-- Move History Box -->
-        <div class="history-panel">
-          <div class="history-header">
-            <span>Move History</span>
-            <span class="move-count" id="move-count-badge">0 moves</span>
+        <!-- Move History Panel -->
+        <div class="lid-meta-card" style="padding: 10px 14px; margin-top: 2px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 0.82rem; font-weight: 700; color: #555;">Move History</span>
+            <span class="move-count" id="move-count-badge" style="font-size: 0.75rem; color: #777;">0 moves</span>
           </div>
-          <div class="history-list" id="move-history-list">
-            <div class="history-empty">No moves yet. Make your opening move!</div>
+          <div class="history-list" id="move-history-list" style="max-height: 120px; overflow-y: auto;">
+            <div class="history-empty" style="font-size: 0.8rem; color: #888;">No moves yet. Make your opening move!</div>
           </div>
         </div>
+
       </aside>
 
     </main>
+
+    <!-- Bottom Right: Lidraughts Friends Online Indicator -->
+    <div class="lid-friends-bottom-widget" id="btn-lid-friends" title="Toggle Live Banter & Online Friends">
+      0 friends online
+    </div>
   </div>
 
   <!-- ================= SLIDE-OUT STREET CHAT DRAWER ================= -->

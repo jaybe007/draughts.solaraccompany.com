@@ -283,11 +283,11 @@ class NigerianDraughtsApp {
       onTick: (timeStrings, timeLeft, activePlayer) => {
         if (this.dom.p1Clock) {
           this.dom.p1Clock.textContent = timeStrings[PLAYER_1];
-          this.dom.p1Clock.classList.toggle('urgent', timeStrings.isP1Low);
+          this.dom.p1Clock.classList.toggle('urgent', Boolean(timeStrings.isP1Low));
         }
         if (this.dom.p2Clock) {
           this.dom.p2Clock.textContent = timeStrings[PLAYER_2];
-          this.dom.p2Clock.classList.toggle('urgent', timeStrings.isP2Low);
+          this.dom.p2Clock.classList.toggle('urgent', Boolean(timeStrings.isP2Low));
         }
       },
       onTimeout: (loserPlayer) => {
@@ -498,6 +498,59 @@ class NigerianDraughtsApp {
       if (this.premove || this.premoveSource) {
         this.clearPremove();
         this.showToast('Premove cancelled', 'info');
+      }
+    });
+
+    // Lidraughts Interactive Controls (Matching Screenshot Actions)
+    document.getElementById('btn-lid-flip')?.addEventListener('click', () => this.toggleBoardFlip());
+    document.getElementById('btn-lid-start')?.addEventListener('click', () => {
+      if (this.replayController && this.replayController.isOpen) this.replayController.goToStart();
+      else if (this.historyStateStack.length > 0) this.undoToStart();
+    });
+    document.getElementById('btn-lid-prev')?.addEventListener('click', () => {
+      if (this.replayController && this.replayController.isOpen) this.replayController.prevMove();
+      else this.undoMove();
+    });
+    document.getElementById('btn-lid-next')?.addEventListener('click', () => {
+      if (this.replayController && this.replayController.isOpen) this.replayController.nextMove();
+    });
+    document.getElementById('btn-lid-end')?.addEventListener('click', () => {
+      if (this.replayController && this.replayController.isOpen) this.replayController.goToEnd();
+    });
+    document.getElementById('btn-lid-resign')?.addEventListener('click', () => {
+      if (this.engine.gameOver) return;
+      if (confirm('Are you sure you want to resign this match?')) {
+        this.engine.gameOver = true;
+        this.engine.winner = PLAYER_2;
+        this.engine.winReason = 'Player 1 resigned.';
+        this.handleGameOver({ winner: PLAYER_2, winReason: 'Player 1 resigned the game.' });
+      }
+    });
+    document.getElementById('btn-lid-draw')?.addEventListener('click', () => {
+      if (this.engine.gameOver) return;
+      if (confirm('Offer a draw to opponent?')) {
+        const stats = this.engine.getStats();
+        const diff = Math.abs((stats.p1.men + stats.p1.kings * 2) - (stats.p2.men + stats.p2.kings * 2));
+        if (diff <= 2) {
+          this.engine.gameOver = true;
+          this.engine.winner = 'draw';
+          this.engine.winReason = 'Mutual agreement (Draw agreed).';
+          this.handleGameOver({ winner: 'draw', winReason: 'Draw agreed by mutual consent.' });
+        } else {
+          this.showToast('Opponent declined the draw offer: they see a winning advantage!', 'warning');
+        }
+      }
+    });
+    document.getElementById('btn-lid-options')?.addEventListener('click', () => {
+      this.openModal(this.dom.modalGameSetup);
+    });
+    document.getElementById('btn-lid-friends')?.addEventListener('click', () => {
+      if (this.chatController) this.chatController.toggle();
+    });
+    document.getElementById('btn-lid-add-time')?.addEventListener('click', () => {
+      if (this.timer && this.timer.addTime) {
+        this.timer.addTime(PLAYER_2, 15);
+        this.showToast('+15s added to opponent clock!', 'info');
       }
     });
 
@@ -1406,6 +1459,51 @@ class NigerianDraughtsApp {
       this.dom.p2Role.textContent = 'AI 2 (Spectate)';
       this.dom.p2Name.textContent = 'Grandmaster Engine (GM)';
     }
+
+    // Synchronize Lidraughts Left Metadata & Right Control Bar
+    const lidP1Name = document.getElementById('lid-meta-p1-name');
+    const lidP1Rating = document.getElementById('lid-meta-p1-rating');
+    const lidP2Name = document.getElementById('lid-meta-p2-name');
+    const lidP2Rating = document.getElementById('lid-meta-p2-rating');
+    const lidGameTime = document.getElementById('lid-game-time-mode');
+    const lidRulesFlag = document.getElementById('lid-ruleset-flag');
+    const lidRulesTitle = document.getElementById('lid-ruleset-title');
+
+    if (lidP1Name) lidP1Name.textContent = this.dom.p1Name.textContent;
+    if (lidP1Rating) lidP1Rating.textContent = `(${this.currentUser ? this.currentUser.rating : '1459?'})`;
+    if (lidP2Name) lidP2Name.textContent = this.dom.p2Name.textContent;
+    if (lidP2Rating) {
+      const elo = this.gameMode === 'pve'
+        ? (this.aiDifficulty === 'grandmaster' ? '2800' : this.aiDifficulty === 'master' ? '2600' : this.aiDifficulty === 'expert' ? '2400' : this.aiDifficulty === 'advanced' ? '2100' : this.aiDifficulty === 'intermediate' ? '1800' : '1500')
+        : (this.onlineOpponent ? this.onlineOpponent.rating : '1500');
+      lidP2Rating.textContent = `(${elo})`;
+      // Update role in control box if opponent is AI
+      if (this.gameMode === 'pve') {
+        this.dom.p2Role.textContent = elo;
+      }
+    }
+
+    if (lidRulesFlag && lidRulesTitle) {
+      if (this.ruleMode === 'ghana') {
+        lidRulesFlag.textContent = '🇬🇭';
+        lidRulesTitle.textContent = 'Ghana Damii';
+      } else if (this.ruleMode === 'international') {
+        lidRulesFlag.textContent = '🌍';
+        lidRulesTitle.textContent = 'FMJD International';
+      } else {
+        lidRulesFlag.textContent = '🇳🇬';
+        lidRulesTitle.textContent = 'Nigerian Rules';
+      }
+    }
+
+    if (lidGameTime) {
+      let tStr = '10+0 • Casual • Rapid';
+      if (this.timeControl === 'blitz_3') tStr = '3+0 • Blitz';
+      else if (this.timeControl === 'blitz_5' || this.timeControl === '5') tStr = '5+0 • Rapid';
+      else if (this.timeControl === 'rapid_10' || this.timeControl === '10') tStr = '10+0 • Casual • Rapid';
+      else if (this.timeControl === 'classical_15' || this.timeControl === '15') tStr = '15+0 • Classical';
+      lidGameTime.textContent = tStr;
+    }
   }
 
   restartGame() {
@@ -2295,6 +2393,30 @@ class NigerianDraughtsApp {
           this.setBannerNotice(`⚠️ ${playerStr} MUST CHOP! Mandatory capture in play.`, 'warning');
         } else {
           this.setBannerNotice(`${playerStr} to move.`);
+        }
+      }
+    }
+
+    // Synchronize Lidraughts Turn Status Banner
+    const lidTurnSub = document.getElementById('lid-turn-sub');
+    const lidTurnMain = document.getElementById('lid-turn-main');
+    if (lidTurnSub && lidTurnMain) {
+      if (this.engine.gameOver) {
+        lidTurnSub.textContent = 'Match finished';
+        if (this.engine.winner === 'draw') {
+          lidTurnMain.textContent = 'Draw / Stalemate!';
+        } else if (this.engine.winner === PLAYER_1) {
+          lidTurnMain.textContent = 'Victory! You won!';
+        } else {
+          lidTurnMain.textContent = 'Defeat / Game Over';
+        }
+      } else {
+        const isMyTurn = (stats.currentTurn === PLAYER_1);
+        lidTurnSub.textContent = this.isBoardFlipped ? 'You play the dark pieces' : 'You play the white pieces';
+        if (isMyTurn) {
+          lidTurnMain.textContent = "It's your turn!";
+        } else {
+          lidTurnMain.textContent = this.gameMode === 'pve' ? 'Scan AI is thinking...' : "Opponent's turn!";
         }
       }
     }

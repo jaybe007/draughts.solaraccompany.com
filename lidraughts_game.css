@@ -1,0 +1,854 @@
+/* =============================================================================
+   LIDRAUGHTS GAME EXPERIENCE STYLESHEET (lidraughts_game.css)
+   Exact match for the clean, minimalist Lidraughts.org game aesthetic.
+   100% compatible with existing engine, audio, timers, AI, rulesets, and modals.
+   ============================================================================= */
+
+:root {
+  --lid-bg: #edebe8;
+  --lid-card-bg: #ffffff;
+  --lid-border: #d5d3ce;
+  --lid-border-light: #e8e6e3;
+  --lid-text: #222222;
+  --lid-text-muted: #666666;
+  --lid-text-light: #888888;
+  --lid-blue: #1b78d6;
+  --lid-blue-hover: #1565c0;
+  --lid-green: #22c55e;
+  --lid-red: #ef4444;
+
+  /* Natural Draughts Board Wood Colors (Matching authentic Lidraughts) */
+  --lid-sq-dark: #a66a38;
+  --lid-sq-dark-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(0, 0, 0, 0.12) 100%);
+  --lid-sq-light: #d9b48f;
+  --lid-sq-light-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(0, 0, 0, 0.04) 100%);
+}
+
+/* ==================== GLOBAL PAGE THEME ==================== */
+body.lidraughts-theme {
+  background: var(--lid-bg) !important;
+  color: var(--lid-text) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body.lidraughts-theme .app-wrapper {
+  background: transparent !important;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==================== TOP NAVIGATION BAR ==================== */
+body.lidraughts-theme .app-header {
+  background: var(--lid-bg) !important;
+  border-bottom: 1px solid var(--lid-border) !important;
+  box-shadow: none !important;
+  padding: 0 24px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  z-index: 50;
+}
+
+body.lidraughts-theme .nav-brand-container {
+  display: flex;
+  align-items: center;
+}
+
+body.lidraughts-theme .brand-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+body.lidraughts-theme .brand-link .flag-stripes {
+  display: flex;
+  width: 18px;
+  height: 14px;
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+body.lidraughts-theme .brand-link .flag-stripes .stripe {
+  flex: 1;
+  height: 100%;
+}
+body.lidraughts-theme .brand-link .flag-stripes .stripe.green { background: #008751; }
+body.lidraughts-theme .brand-link .flag-stripes .stripe.white { background: #ffffff; }
+
+body.lidraughts-theme .brand-text .game-title {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.5px !important;
+  color: #444444 !important;
+  text-transform: lowercase !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  text-shadow: none !important;
+}
+
+body.lidraughts-theme .brand-text .game-subtitle {
+  display: none !important;
+}
+
+/* Nav Menu Items */
+body.lidraughts-theme .main-nav {
+  display: flex;
+  align-items: center;
+}
+
+body.lidraughts-theme .nav-list {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+body.lidraughts-theme .nav-link {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #666666 !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.6px !important;
+  text-transform: uppercase !important;
+  padding: 8px 12px !important;
+  border-radius: 3px !important;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+body.lidraughts-theme .nav-link .nav-icon {
+  display: none; /* Hide heavy emojis in Lidraughts minimalist top-bar */
+}
+
+body.lidraughts-theme .nav-link:hover,
+body.lidraughts-theme .nav-link.active {
+  color: #111111 !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Header Right Tools */
+body.lidraughts-theme .header-right-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+body.lidraughts-theme .header-right-tools .btn-icon {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #666666 !important;
+  font-size: 1.05rem !important;
+  padding: 6px !important;
+  border-radius: 3px !important;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+body.lidraughts-theme .header-right-tools .btn-icon:hover {
+  color: #111111 !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+body.lidraughts-theme .user-pill {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+  color: #444444 !important;
+  padding: 4px 8px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+body.lidraughts-theme .user-pill:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+body.lidraughts-theme .user-pill-avatar {
+  font-size: 1rem;
+}
+
+body.lidraughts-theme .user-pill-rating {
+  color: #777777 !important;
+  font-size: 0.78rem !important;
+}
+
+/* ==================== 3-COLUMN MAIN ARENA GRID ==================== */
+body.lidraughts-theme .game-container {
+  display: grid !important;
+  grid-template-columns: 240px minmax(460px, 580px) 320px !important;
+  gap: 24px !important;
+  max-width: 1240px !important;
+  margin: 18px auto 40px !important;
+  padding: 0 16px !important;
+  align-items: start !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 1180px) {
+  body.lidraughts-theme .game-container {
+    grid-template-columns: 220px 1fr 300px !important;
+    gap: 16px !important;
+  }
+}
+
+@media (max-width: 990px) {
+  body.lidraughts-theme .game-container {
+    grid-template-columns: 1fr !important;
+    max-width: 580px !important;
+  }
+}
+
+/* ==================== COLUMN 1: LEFT SIDEBAR ==================== */
+.lid-game-sidebar-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Game Metadata Card (Lidraughts Left Top Card) */
+.lid-meta-card {
+  background: var(--lid-card-bg);
+  border: 1px solid var(--lid-border);
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  padding: 14px 16px;
+  box-sizing: border-box;
+}
+
+.lid-meta-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.lid-meta-cogs-icon {
+  font-size: 1.6rem;
+  color: #777777;
+  line-height: 1;
+}
+
+.lid-meta-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lid-meta-time-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #333333;
+}
+
+.lid-meta-status-sub {
+  font-size: 0.8rem;
+  color: #888888;
+}
+
+/* Player Mini List in Left Card */
+.lid-meta-players-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--lid-border-light);
+}
+
+.lid-meta-player-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: #444444;
+}
+
+.lid-meta-player-item .dot-circle {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.lid-meta-player-item .dot-circle.white {
+  background: #ffffff;
+  border: 2px solid #555555;
+}
+
+.lid-meta-player-item .dot-circle.dark {
+  background: #333333;
+  border: 2px solid #333333;
+}
+
+.lid-meta-player-name {
+  font-weight: 600;
+  color: #222222;
+}
+
+.lid-meta-player-rating {
+  color: #777777;
+  font-size: 0.82rem;
+}
+
+/* Ruleset Badge & Mode Selector in Left Card */
+.lid-meta-ruleset-wrap {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--lid-border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lid-ruleset-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #334155;
+  background: #f1f3f5;
+  padding: 4px 8px;
+  border-radius: 3px;
+  align-self: flex-start;
+}
+
+/* Secondary Left Utilities (Collapsible Accordion for Telemetry / Commentary) */
+.lid-left-accordion {
+  border: 1px solid var(--lid-border);
+  border-radius: 4px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.lid-left-accordion summary {
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #555555;
+  cursor: pointer;
+  background: #fafaf9;
+  user-select: none;
+}
+
+.lid-left-accordion summary:hover {
+  background: #f1f0ee;
+  color: #111111;
+}
+
+.lid-left-accordion-content {
+  padding: 10px 12px;
+  border-top: 1px solid var(--lid-border-light);
+}
+
+/* ==================== COLUMN 2: CENTER BOARD ==================== */
+.lid-game-board-center {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Outer Board Container with Coordinates */
+.lid-board-outer {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  margin-right: 22px;
+  margin-bottom: 22px;
+}
+
+/* Wood Board Frame */
+body.lidraughts-theme .board-wood-frame {
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  border: 1px solid #7c4d29 !important;
+  border-radius: 2px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14) !important;
+  position: relative !important;
+  background: var(--lid-sq-dark) !important;
+}
+
+body.lidraughts-theme .board-wood-frame::before,
+body.lidraughts-theme .board-wood-frame::after {
+  display: none !important;
+  content: none !important;
+}
+
+body.lidraughts-theme .board-inner {
+  display: grid !important;
+  grid-template-columns: repeat(10, 1fr) !important;
+  grid-template-rows: repeat(10, 1fr) !important;
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 2px !important;
+  overflow: hidden !important;
+  background: transparent !important;
+}
+
+/* Squares */
+body.lidraughts-theme .square {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+}
+
+/* Hide internal board square alphanumeric coordinates (since border rim has 1-50 numbers) */
+body.lidraughts-theme .square-coord {
+  display: none !important;
+}
+
+body.lidraughts-theme .square.light {
+  background-color: var(--lid-sq-light) !important;
+  background-image: var(--lid-sq-light-gradient) !important;
+}
+
+body.lidraughts-theme .square.dark {
+  background-color: var(--lid-sq-dark) !important;
+  background-image: var(--lid-sq-dark-gradient) !important;
+}
+
+/* Last Move Highlights (Exact Lidraughts yellow-olive) */
+body.lidraughts-theme .square.sq-last-from,
+body.lidraughts-theme .square.sq-last-to {
+  background: rgba(205, 210, 106, 0.75) !important;
+  box-shadow: inset 0 0 0 1px rgba(188, 192, 87, 0.95) !important;
+}
+
+body.lidraughts-theme .square.sq-selected {
+  background: rgba(16, 185, 129, 0.42) !important;
+  box-shadow: inset 0 0 0 2px #10b981 !important;
+}
+
+body.lidraughts-theme .square.valid-target::after {
+  content: '';
+  position: absolute;
+  width: 24%;
+  height: 24%;
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
+  pointer-events: none;
+}
+
+body.lidraughts-theme .square.valid-capture-target::after {
+  content: '';
+  position: absolute;
+  width: 32%;
+  height: 32%;
+  background: #f59e0b;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.9);
+  pointer-events: none;
+}
+
+/* Outer Edge Coordinates: Right (5, 15, 25, 35, 45) & Bottom (46, 47, 48, 49, 50) */
+.lid-coords-right {
+  position: absolute;
+  right: -20px;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #666666;
+  pointer-events: none;
+  user-select: none;
+}
+
+.lid-coords-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -20px;
+  display: flex;
+  justify-content: space-around;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #666666;
+  pointer-events: none;
+  user-select: none;
+}
+
+.lid-board-resize-handle {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+  font-family: monospace;
+}
+
+/* ==================== 3D DRAUGHTS PIECES ==================== */
+body.lidraughts-theme .piece {
+  width: 84% !important;
+  height: 84% !important;
+  border-radius: 50% !important;
+  position: relative !important;
+  cursor: grab !important;
+  user-select: none !important;
+  touch-action: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 10 !important;
+  transition: transform 0.15s ease !important;
+}
+
+/* Concentric ring ridge on draughts pucks */
+body.lidraughts-theme .piece::before {
+  content: '';
+  position: absolute;
+  width: 64%;
+  height: 64%;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* White Pieces */
+body.lidraughts-theme .piece.white,
+body.lidraughts-theme .piece.p1 {
+  background: radial-gradient(circle at 40% 35%, #ffffff 0%, #f4f4f5 52%, #e2e8f0 82%, #cbd5e1 100%) !important;
+  border: 1.5px solid #a8b0b8 !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.28), inset 0 2px 3px rgba(255, 255, 255, 0.95) !important;
+}
+
+body.lidraughts-theme .piece.white::before,
+body.lidraughts-theme .piece.p1::before {
+  border: 1.5px solid rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* Dark Pieces */
+body.lidraughts-theme .piece.dark,
+body.lidraughts-theme .piece.p2 {
+  background: radial-gradient(circle at 40% 35%, #32353a 0%, #202226 52%, #121416 82%, #08090a 100%) !important;
+  border: 1.5px solid #202226 !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.18) !important;
+}
+
+body.lidraughts-theme .piece.dark::before,
+body.lidraughts-theme .piece.p2::before {
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.08);
+}
+
+body.lidraughts-theme .piece.selected {
+  transform: scale(1.12) !important;
+  box-shadow: 0 0 0 3px #10b981, 0 8px 16px rgba(16, 185, 129, 0.5) !important;
+  z-index: 99 !important;
+}
+
+body.lidraughts-theme .piece.dragging {
+  cursor: grabbing !important;
+  transform: scale(1.16) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6) !important;
+  z-index: 999 !important;
+}
+
+body.lidraughts-theme .piece.king::after {
+  content: '👑';
+  font-size: 1.25rem;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.8));
+}
+
+/* ==================== COLUMN 3: RIGHT SIDEBAR ==================== */
+.lid-game-sidebar-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Large Floating Digital Clocks */
+.lid-clock-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.lid-digital-clock {
+  background: #ffffff !important;
+  border: 1px solid var(--lid-border) !important;
+  border-radius: 4px !important;
+  padding: 6px 16px !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace !important;
+  font-size: 2.3rem !important;
+  font-weight: 700 !important;
+  color: #222222 !important;
+  letter-spacing: 0.5px !important;
+  line-height: 1 !important;
+  min-width: 140px;
+  text-align: center;
+}
+
+.lid-digital-clock.urgent {
+  color: #ef4444 !important;
+  background: #fef2f2 !important;
+  border-color: #fca5a5 !important;
+  animation: lidClockPulse 1s infinite alternate;
+}
+
+@keyframes lidClockPulse {
+  from { box-shadow: 0 0 0 1px #ef4444; }
+  to { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35); }
+}
+
+/* Increment "+" button beside Opponent Clock */
+.lid-clock-add-btn {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.lid-clock-add-btn:hover {
+  background: #bae6fd;
+  color: #0369a1;
+}
+
+/* Main Controls Box */
+.lid-controls-card {
+  background: var(--lid-card-bg);
+  border: 1px solid var(--lid-border);
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Player Bar Inside Control Box */
+.lid-ctrl-player-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #333333;
+}
+
+.lid-ctrl-player-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lid-ctrl-player-left .green-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--lid-green);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.lid-ctrl-player-right {
+  font-size: 0.82rem;
+  color: #777777;
+  font-weight: 500;
+}
+
+/* Replay & Move Navigation Toolbar */
+.lid-nav-toolbar {
+  display: flex;
+  border-top: 1px solid var(--lid-border-light);
+  border-bottom: 1px solid var(--lid-border-light);
+  background: #fafaf9;
+}
+
+.lid-nav-btn {
+  flex: 1;
+  height: 38px;
+  border: none;
+  background: transparent;
+  font-size: 1.05rem;
+  color: #666666;
+  cursor: pointer;
+  border-right: 1px solid var(--lid-border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.lid-nav-btn:last-child {
+  border-right: none;
+}
+
+.lid-nav-btn:hover {
+  background: #f1f0ee;
+  color: #111111;
+}
+
+/* Turn Status / Information Banner */
+.lid-turn-info-box {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 18px;
+  background: #ffffff;
+  min-height: 80px;
+  box-sizing: border-box;
+}
+
+.lid-info-icon-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #777777;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-family: Georgia, serif;
+  font-weight: bold;
+  font-style: italic;
+  flex-shrink: 0;
+}
+
+.lid-turn-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lid-turn-sub {
+  font-size: 0.88rem;
+  color: #555555;
+}
+
+.lid-turn-main {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #222222;
+}
+
+/* Action Icons Row (Resign, Draw, Flag) */
+.lid-action-icons-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--lid-border-light);
+  background: #ffffff;
+}
+
+.lid-action-icon-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  color: #777777;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lid-action-icon-btn:hover {
+  color: #111111;
+  background: #f1f0ee;
+}
+
+.lid-action-icon-btn.resign:hover {
+  color: #ef4444;
+  background: #fee2e2;
+}
+
+/* ==================== BOTTOM-RIGHT ONLINE WIDGET ==================== */
+.lid-friends-bottom-widget {
+  position: fixed;
+  bottom: 0;
+  right: 24px;
+  background: #ffffff;
+  border: 1px solid var(--lid-border);
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  padding: 6px 16px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #666666;
+  cursor: pointer;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+  z-index: 100;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+.lid-friends-bottom-widget:hover {
+  background: #f8fafc;
+  color: #111111;
+}
+
+/* ==================== PRESERVE ORIGINAL DOM HOOKS & CONTROLS ==================== */
+/* Hide bulky legacy containers that are now replaced by the Lidraughts elements, while keeping them alive in the DOM for js/app.js */
+body.lidraughts-theme .player-header,
+body.lidraughts-theme .stats-row,
+body.lidraughts-theme .quick-status-bar,
+body.lidraughts-theme .ruleset-selector-bar {
+  display: none !important;
+}
+
+/* Legacy sidebars reset */
+body.lidraughts-theme .sidebar.player-card {
+  display: contents !important;
+}
+
+/* Turn indicators (preserved for JS DOM query, but hidden visually since replaced by lid-turn-info-box) */
+body.lidraughts-theme .turn-indicator {
+  display: none !important;
+}
