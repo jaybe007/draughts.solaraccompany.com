@@ -82,6 +82,25 @@ class PuzzleTrainer {
     }
   }
 
+  syncEngineFromBoardState(turn = PLAYER_1) {
+    if (!this.engine) return;
+    for (let r = 0; r < 10; r++) {
+      for (let c = 0; c < 10; c++) {
+        const p = this.boardState[r][c];
+        if (p) {
+          this.engine.board[r][c] = {
+            player: p.player,
+            isKing: Boolean(p.isKing)
+          };
+        } else {
+          this.engine.board[r][c] = null;
+        }
+      }
+    }
+    this.engine.currentTurn = turn;
+    this.engine.activeMultiJump = null;
+  }
+
   init() {
     this.cacheDOM();
     this.bindEvents();
@@ -943,10 +962,19 @@ class PuzzleTrainer {
       return;
     }
 
+    const puzzle = this.puzzles[this.currentPuzzleIdx];
+    const expectedStep = puzzle?.steps ? puzzle.steps[this.currentStepIdx] : null;
+    const isExpectedPiece = Boolean(
+      expectedStep &&
+      expectedStep.mover === PLAYER_1 &&
+      expectedStep.from.r === r &&
+      expectedStep.from.c === c
+    );
+
     const allMoves = this.engine.getAllLegalMoves(PLAYER_1);
     const pieceMoves = allMoves.filter(m => m.from.r === r && m.from.c === c);
 
-    if (pieceMoves.length === 0) {
+    if (pieceMoves.length === 0 && !isExpectedPiece) {
       const hasAnyCaptures = allMoves.some(m => m.isCapture);
       if (hasAnyCaptures) {
         sound.playError();
@@ -1146,8 +1174,17 @@ class PuzzleTrainer {
       engineMove: m
     }));
 
-    // If expected step is a multi-jump sequence from this piece, also project the final landing square
-    if (expectedStep && expectedStep.from.r === r && expectedStep.from.c === c) {
+    // If expected step is from this piece, ALWAYS ensure expectedStep target is included!
+    if (expectedStep && expectedStep.mover === PLAYER_1 && expectedStep.from.r === r && expectedStep.from.c === c) {
+      if (!moves.some(m => m.r === expectedStep.to.r && m.c === expectedStep.to.c)) {
+        moves.push({
+          r: expectedStep.to.r,
+          c: expectedStep.to.c,
+          isCapture: Boolean(expectedStep.isJump)
+        });
+      }
+
+      // If expected step is a multi-jump sequence from this piece, also project the final landing square
       let chainIdx = this.currentStepIdx;
       let currPos = { r, c };
       let lastHop = null;
@@ -1267,11 +1304,24 @@ class PuzzleTrainer {
 
   processNextPuzzleStep() {
     const puzzle = this.puzzles[this.currentPuzzleIdx];
-    if (this.currentStepIdx < puzzle.steps.length) {
-      const nextStep = puzzle.steps[this.currentStepIdx];
+    if (!puzzle) return;
 
-      if (nextStep.mover === PLAYER_1) {
-        // Consecutive player jump in multi-jump chain
+    if (this.currentStepIdx >= puzzle.steps.length) {
+      this.onPuzzleSolved(puzzle);
+      return;
+    }
+
+    const nextStep = puzzle.steps[this.currentStepIdx];
+
+    if (nextStep.mover === PLAYER_1) {
+      this.isOpponentMoving = false;
+      this.updateTurnBanner(PLAYER_1);
+
+      // Check if continuing a multi-jump
+      const prevStep = this.currentStepIdx > 0 ? puzzle.steps[this.currentStepIdx - 1] : null;
+      const isContinuation = Boolean(prevStep && prevStep.mover === PLAYER_1 && prevStep.isJump);
+
+      if (isContinuation) {
         this.setFeedback({
           icon: '⚡',
           title: 'Best move! Continue the multi-jump...',
@@ -1280,24 +1330,36 @@ class PuzzleTrainer {
         });
         // Auto-select the jumping piece with its next target dot
         this.selectSquare(nextStep.from.r, nextStep.from.c);
-      } else if (nextStep.isAi || nextStep.mover === PLAYER_2) {
-        // Forced opponent response
+      } else {
         this.setFeedback({
-          icon: '✓',
-          title: 'Best move! Keep going...',
-          desc: 'You found the tactical key! Watch opponent response.',
+          icon: '🎯',
+          title: 'Your turn: Deliver the winning move!',
+          desc: nextStep.note || 'Spot the tactical continuation and strike!',
           statusClass: 'progress'
         });
-        this.updateTurnBanner(PLAYER_2);
-        this.isOpponentMoving = true;
-
-        setTimeout(() => {
-          this.executeOpponentMove(nextStep);
-        }, 200);
       }
-    } else {
-      // Fully solved!
-      this.onPuzzleSolved(puzzle);
+      this.renderPieces();
+    } else if (nextStep.isAi || nextStep.mover === PLAYER_2) {
+      // Gather ALL consecutive opponent steps (multi-jump hops or consecutive responses)
+      const opponentSteps = [];
+      let idx = this.currentStepIdx;
+      while (idx < puzzle.steps.length && (puzzle.steps[idx].mover === PLAYER_2 || puzzle.steps[idx].isAi)) {
+        opponentSteps.push(puzzle.steps[idx]);
+        idx++;
+      }
+
+      this.isOpponentMoving = true;
+      this.updateTurnBanner(PLAYER_2, 'Opponent is responding...');
+      this.setFeedback({
+        icon: '✓',
+        title: 'Best move! Keep going...',
+        desc: 'You found the tactical key! Watch opponent response.',
+        statusClass: 'progress'
+      });
+
+      setTimeout(() => {
+        this.executeOpponentSequence(opponentSteps);
+      }, 250);
     }
   }
 
@@ -1317,7 +1379,7 @@ class PuzzleTrainer {
     const dist = Math.abs(dr);
     const isJump = dist >= 2;
 
-    // Collect captured pieces to smoothly fade them out
+    // Collect captured pieces to smoothly fade them out and remove from boardState
     const capturedPieceEls = [];
     if (isJump) {
       const stepR = dr > 0 ? 1 : -1;
@@ -1359,15 +1421,25 @@ class PuzzleTrainer {
         sound.playMove();
       }
 
-      if (this.engine) {
-        this.engine.makeMove({ from, to });
-      }
-      this.syncBoardStateFromEngine();
+      // Move piece in authoritative boardState
+      this.boardState[to.r][to.c] = piece;
+      this.boardState[from.r][from.c] = null;
 
-      const newPiece = this.boardState[to.r][to.c];
-      const promoted = Boolean(newPiece && newPiece.isKing && !piece.isKing);
+      // Promotion check:
+      // In International/Nigerian: White promotes on row 0, Black promotes on row 9
+      const reachedBackline = (
+        (piece.player === PLAYER_1 && to.r === 0) ||
+        (piece.player === PLAYER_2 && to.r === 9)
+      );
+      const promoted = !piece.isKing && reachedBackline;
       if (promoted) {
+        piece.isKing = true;
         sound.playKing();
+      }
+
+      // Synchronize engine board with authoritative boardState
+      if (this.engine) {
+        this.syncEngineFromBoardState(piece.player === PLAYER_1 ? PLAYER_2 : PLAYER_1);
       }
 
       this.renderPieces();
@@ -1405,27 +1477,43 @@ class PuzzleTrainer {
     }
   }
 
-  executeOpponentMove(step) {
-    this.executeMove(step.from, step.to, () => {
-      this.highlightMoveSquares(step.from, step.to);
-      this.currentStepIdx++;
+  executeOpponentSequence(opponentSteps) {
+    if (!opponentSteps || opponentSteps.length === 0) {
       this.isOpponentMoving = false;
+      this.processNextPuzzleStep();
+      return;
+    }
 
-      const puzzle = this.puzzles[this.currentPuzzleIdx];
+    this.isOpponentMoving = true;
+    let hopIdx = 0;
 
-      if (this.currentStepIdx < puzzle.steps.length) {
-        this.updateTurnBanner(PLAYER_1);
-        this.setFeedback({
-          icon: '🎯',
-          title: 'Your turn: Deliver the winning counter-strike!',
-          desc: step.note || 'Dark was forced to take the bait. Now execute the trap!',
-          statusClass: 'progress'
-        });
-        this.renderPieces();
-      } else {
-        this.onPuzzleSolved(puzzle);
+    const playNextOpponentHop = () => {
+      if (hopIdx >= opponentSteps.length) {
+        this.isOpponentMoving = false;
+        this.currentStepIdx += opponentSteps.length;
+        const lastHop = opponentSteps[opponentSteps.length - 1];
+        const firstHop = opponentSteps[0];
+        this.highlightMoveSquares(firstHop.from, lastHop.to);
+        this.processNextPuzzleStep();
+        return;
       }
-    });
+
+      const hop = opponentSteps[hopIdx];
+      this.executeMove(hop.from, hop.to, () => {
+        hopIdx++;
+        if (hopIdx < opponentSteps.length) {
+          setTimeout(playNextOpponentHop, 220);
+        } else {
+          playNextOpponentHop();
+        }
+      });
+    };
+
+    playNextOpponentHop();
+  }
+
+  executeOpponentMove(step) {
+    this.executeOpponentSequence([step]);
   }
 
   onPuzzleFailed(from, to, customDesc = null) {
@@ -2029,6 +2117,7 @@ class PuzzleTrainer {
 
     // Reconstruct board state from snapshot
     this.boardState = snap.board.map(row => row.map(cell => cell ? { ...cell } : null));
+    this.syncEngineFromBoardState(PLAYER_1);
     this.renderBoard();
     this.renderPieces();
     this.highlightMoveSquares(snap.from, snap.to);
