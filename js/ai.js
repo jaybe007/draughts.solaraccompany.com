@@ -199,30 +199,35 @@ export class NigerianDraughtsAI {
     switch (this.difficulty) {
       case 'easy':
       case 'beginner':
-        return { maxDepth: 6, timeLimit: 150, useOpening: true };
+        // Level 1: Casual - Solid draughts fundamentals, 8 plies calculation depth, avoiding 1-ply hangs
+        return { maxDepth: 8, timeLimit: 220, useOpening: true };
 
       case 'medium':
       case 'intermediate':
-        return { maxDepth: 10, timeLimit: 280, useOpening: true };
+        // Level 2: Club Player - 12 plies calculation, tactical multi-hop chains, bridge & center awareness
+        return { maxDepth: 12, timeLimit: 380, useOpening: true };
 
       case 'advanced':
-        return { maxDepth: 14, timeLimit: 450, useOpening: true };
+        // Level 3: State Contender - 16 plies calculation, breakthrough races, highway corridor domination
+        return { maxDepth: 16, timeLimit: 550, useOpening: true };
 
       case 'expert':
-        return { maxDepth: 18, timeLimit: 650, useOpening: true };
+        // Level 4: National Master - 20 plies calculation, blocus/pin exploitation, double attacks & fork threats
+        return { maxDepth: 20, timeLimit: 750, useOpening: true };
 
       case 'hard':
       case 'master':
-        return { maxDepth: 22, timeLimit: 850, useOpening: true };
+        // Level 5: Grandmaster Oba - 24 plies calculation, multi-sacrifice combinations, overcrown setups
+        return { maxDepth: 24, timeLimit: 1000, useOpening: true };
 
       case 'grandmaster':
       default: {
-        // Dynamic time allocation based on game clock (fast & responsive)
-        let budget = 900;
+        // Level 6: World Champion Engine (GM) - 28 plies analytical depth, endgame tablebase, aspiration search
+        let budget = 1100;
         if (clockTimeLeft && clockTimeLeft > 0) {
-          budget = Math.max(500, Math.min(1400, Math.floor((clockTimeLeft / 35) * 1000) + timeIncrement * 300));
+          budget = Math.max(600, Math.min(1800, Math.floor((clockTimeLeft / 30) * 1000) + timeIncrement * 350));
         }
-        return { maxDepth: 24, timeLimit: budget, useOpening: true };
+        return { maxDepth: 28, timeLimit: budget, useOpening: true };
       }
     }
   }

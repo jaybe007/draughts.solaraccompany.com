@@ -301,6 +301,11 @@ export class DraughtsSearchEngine {
       board.makeMove(move);
 
       let score;
+      // Search Extensions:
+      // Promotion Extension: Crowning to King alters tactical options drastically. Extend depth by 1 ply!
+      const extension = (move.promoted && ply < 40) ? 1 : 0;
+      const nextDepth = Math.max(0, depth - 1 + extension);
+
       // Late Move Reductions (LMR)
       let reduction = 0;
       if (depth >= 3 && i >= 3 && !move.isCapture && !move.promoted) {
@@ -309,19 +314,20 @@ export class DraughtsSearchEngine {
       }
 
       if (i === 0) {
-        score = -this.pvs(board, depth - 1, -beta, -alpha, ply + 1, nextHash);
+        score = -this.pvs(board, nextDepth, -beta, -alpha, ply + 1, nextHash);
       } else {
         // Scout search with zero window and potential reduction
-        score = -this.pvs(board, Math.max(0, depth - 1 - reduction), -alpha - 1, -alpha, ply + 1, nextHash);
+        const scoutDepth = Math.max(0, nextDepth - reduction);
+        score = -this.pvs(board, scoutDepth, -alpha - 1, -alpha, ply + 1, nextHash);
 
         if (score > alpha && reduction > 0 && !this.stopSearch) {
           // Re-search without reduction
-          score = -this.pvs(board, depth - 1, -alpha - 1, -alpha, ply + 1, nextHash);
+          score = -this.pvs(board, nextDepth, -alpha - 1, -alpha, ply + 1, nextHash);
         }
 
         if (score > alpha && score < beta && !this.stopSearch) {
           // Full window re-search
-          score = -this.pvs(board, depth - 1, -beta, -alpha, ply + 1, nextHash);
+          score = -this.pvs(board, nextDepth, -beta, -alpha, ply + 1, nextHash);
         }
       }
 
@@ -441,12 +447,16 @@ export class DraughtsSearchEngine {
 
     // 2. Captures prioritized by number of pieces captured and king capture value
     if (m.isCapture) {
-      score += 1000000 + (m.jumpedSquares ? m.jumpedSquares.length * 20000 : 20000);
+      score += 1000000 + (m.jumpedSquares ? m.jumpedSquares.length * 35000 : 25000);
+      if (m.promoted) {
+        // Overcrown capture chains are game-deciding!
+        score += 500000;
+      }
       if (m.jumpedPieces) {
         for (let i = 0; i < m.jumpedPieces.length; i++) {
           const p = m.jumpedPieces[i];
           if (p === P1_KING || p === P2_KING) {
-            score += 60000;
+            score += 100000;
             break;
           }
         }
@@ -455,30 +465,31 @@ export class DraughtsSearchEngine {
 
     // 3. Promotions
     if (m.promoted) {
-      score += 600000;
+      score += 700000;
     }
 
     // 4. Killer moves
     if (ply < 64) {
       const k1 = this.killerMoves[ply][0];
       const k2 = this.killerMoves[ply][1];
-      if (k1 && m.from === k1.from && m.to === k1.to) score += 250000;
-      else if (k2 && m.from === k2.from && m.to === k2.to) score += 150000;
+      if (k1 && m.from === k1.from && m.to === k1.to) score += 300000;
+      else if (k2 && m.from === k2.from && m.to === k2.to) score += 200000;
     }
 
     // 5. History heuristic
     if (!m.isCapture && m.prevPiece) {
-      score += Math.min(80000, this.historyTable[m.prevPiece][m.to] || 0);
+      score += Math.min(100000, this.historyTable[m.prevPiece][m.to] || 0);
     }
 
     // 6. Quiet move positional heuristics
     if (!m.isCapture) {
       const highwayMask = this.isCurrentIntl ? IS_GRANDE_LIGNE : IS_HIGHWAY;
       const edgeMask = this.isCurrentIntl ? IS_EDGE_INTL : IS_EDGE_NIGERIA;
-      if (IS_CENTER[m.to]) score += 18000;
-      if (highwayMask[m.to]) score += 14000;
-      if (edgeMask[m.to]) score -= 10000;
-      if (m.prevPiece === P1_KING || m.prevPiece === P2_KING) score += 12000;
+      if (IS_CENTER[m.to]) score += 22000;
+      if (highwayMask[m.to]) score += 18000;
+      if (m.to === 23 || m.to === 28 || m.to === 22 || m.to === 29) score += 16000;
+      if (edgeMask[m.to]) score -= 12000;
+      if (m.prevPiece === P1_KING || m.prevPiece === P2_KING) score += 16000;
     }
 
     return score;

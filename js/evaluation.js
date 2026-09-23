@@ -97,6 +97,16 @@ export class DraughtsEvaluation50 {
           egP1 += 30;
         }
 
+        // Unstoppable coronation / breakthrough threat when forward diagonal path to row 0 is clear
+        if (r <= 2) {
+          const ul = neighbors[sq][0];
+          const ur = neighbors[sq][1];
+          if ((ul === 0 || board[ul] === EMPTY) && (ur === 0 || board[ur] === EMPTY)) {
+            mgP1 += 28;
+            egP1 += 48;
+          }
+        }
+
         // Center control
         if (IS_CENTER[sq]) {
           mgP1 += isIntl ? 28 : 22; // Center wedges are critical in FMJD majority capture traps
@@ -167,6 +177,16 @@ export class DraughtsEvaluation50 {
         if (isGhana && r >= 7) {
           mgP2 += 22;
           egP2 += 30;
+        }
+
+        // Unstoppable coronation / breakthrough threat when forward diagonal path to row 9 is clear
+        if (r >= 7) {
+          const dl = neighbors[sq][2];
+          const dr = neighbors[sq][3];
+          if ((dl === 0 || board[dl] === EMPTY) && (dr === 0 || board[dr] === EMPTY)) {
+            mgP2 += 28;
+            egP2 += 48;
+          }
         }
 
         if (IS_CENTER[sq]) {
@@ -247,6 +267,12 @@ export class DraughtsEvaluation50 {
         const distFromCenter = Math.abs(r - 4.5) + Math.abs(c - 4.5);
         egP1 -= distFromCenter * 4;
 
+        // Crossroad multi-diagonal intersection dominance (sq 23, 28, 22, 29)
+        if (sq === 23 || sq === 28 || sq === 22 || sq === 29) {
+          mgP1 += 35;
+          egP1 += 50;
+        }
+
       } else if (piece === P2_KING) {
         p2Kings++;
         mgP2 += 460;
@@ -270,6 +296,12 @@ export class DraughtsEvaluation50 {
 
         const distFromCenter = Math.abs(r - 4.5) + Math.abs(c - 4.5);
         egP2 -= distFromCenter * 4;
+
+        // Crossroad multi-diagonal intersection dominance (sq 23, 28, 22, 29)
+        if (sq === 23 || sq === 28 || sq === 22 || sq === 29) {
+          mgP2 += 35;
+          egP2 += 50;
+        }
       }
     }
 
@@ -278,6 +310,54 @@ export class DraughtsEvaluation50 {
     const p2Imbalance = Math.abs(p2LeftWing - p2RightWing);
     if (p1Imbalance >= 4) mgP1 -= (p1Imbalance - 3) * 12;
     if (p2Imbalance >= 4) mgP2 -= (p2Imbalance - 3) * 12;
+
+    // Classic Bridge Fortress ("Le Pont")
+    if (board[46] === P1_MAN && board[50] === P1_MAN && board[48] === P1_MAN) mgP1 += 26;
+    if (board[1] === P2_MAN && board[5] === P2_MAN && board[3] === P2_MAN) mgP2 += 26;
+
+    // Blocus (Paralyzed pieces with 0 forward exits)
+    let p1Frozen = 0, p2Frozen = 0;
+    for (let s = 1; s <= 50; s++) {
+      const pc = board[s];
+      if (pc === P1_MAN && SQ_TO_R[s] >= 4) {
+        const ul = neighbors[s][0];
+        const ur = neighbors[s][1];
+        if (ul !== 0 && ur !== 0 && board[ul] !== EMPTY && board[ur] !== EMPTY) {
+          p1Frozen++;
+        }
+      } else if (pc === P2_MAN && SQ_TO_R[s] <= 5) {
+        const dl = neighbors[s][2];
+        const dr = neighbors[s][3];
+        if (dl !== 0 && dr !== 0 && board[dl] !== EMPTY && board[dr] !== EMPTY) {
+          p2Frozen++;
+        }
+      }
+    }
+    if (p1Frozen > 0) { mgP1 -= p1Frozen * 12; egP1 -= p1Frozen * 16; }
+    if (p2Frozen > 0) { mgP2 -= p2Frozen * 12; egP2 -= p2Frozen * 16; }
+
+    // Nigerian Overcrown Attack Setup (rank 1 / rank 8 immediate coronation jumps)
+    if (isNigeria) {
+      for (let s = 1; s <= 50; s++) {
+        if (board[s] === P1_MAN && SQ_TO_R[s] === 1) {
+          const ul = neighbors[s][0];
+          const ur = neighbors[s][1];
+          if ((ul !== 0 && (board[ul] === P2_MAN || board[ul] === P2_KING)) ||
+              (ur !== 0 && (board[ur] === P2_MAN || board[ur] === P2_KING))) {
+            mgP1 += 25;
+            egP1 += 35;
+          }
+        } else if (board[s] === P2_MAN && SQ_TO_R[s] === 8) {
+          const dl = neighbors[s][2];
+          const dr = neighbors[s][3];
+          if ((dl !== 0 && (board[dl] === P1_MAN || board[dl] === P1_KING)) ||
+              (dr !== 0 && (board[dr] === P1_MAN || board[dr] === P1_KING))) {
+            mgP2 += 25;
+            egP2 += 35;
+          }
+        }
+      }
+    }
 
     // Endgame King vs Man hunting
     if (p1Kings > 0 && p2Kings === 0 && p2Men > 0) {
