@@ -519,7 +519,8 @@ export class NigerianDraughtsEngine {
   getMaxCaptureChainLength(r, c, piece, jumpedPieces, promotes) {
     if (promotes && (this.ruleMode === 'ghana' || this.ruleMode === 'damii')) return 1;
 
-    const testPiece = piece.isKing ? piece : { ...piece, isKing: false };
+    const isCrowned = piece.isKing || (this.ruleMode === 'nigeria' && (promotes || this.willPromote(piece, r)));
+    const testPiece = { ...piece, isKing: isCrowned };
     const nextCaptures = this.simulatePieceCaptures(r, c, testPiece, jumpedPieces);
     if (nextCaptures.length === 0) return 1;
 
@@ -657,6 +658,13 @@ export class NigerianDraughtsEngine {
       const reachedBackline = this.willPromote(piece, effectiveMove.to.r);
       const touchedBackline = Boolean(this.activeMultiJump?.touchedBackline || reachedBackline);
 
+      // In Nigerian rules: reaching or touching the crown row crowns the piece immediately!
+      // The piece becomes an Oba / Flying King and continues capturing as an overcrown king!
+      if (this.ruleMode === 'nigeria' && (reachedBackline || touchedBackline) && !piece.isKing) {
+        piece.isKing = true;
+        justPromoted = true;
+      }
+
       // Check if further captures are possible from new position (r, c)
       let subsequentCaptures = [];
       if (this.ruleMode === 'ghana' || this.ruleMode === 'damii') {
@@ -665,8 +673,8 @@ export class NigerianDraughtsEngine {
           ? []
           : this.getPieceCaptures(effectiveMove.to.r, effectiveMove.to.c, piece, jumpedPieces);
       } else {
-        // In Nigerian and International FMJD rules: a man passing through the king row continues jumping as a man;
-        // crowns to Oba/King upon finishing its move on the back rank!
+        // In Nigerian rules: piece is already crowned if it reached backline, so it captures as a flying king!
+        // In International FMJD rules: piece continues jumping as a man!
         subsequentCaptures = this.getPieceCaptures(effectiveMove.to.r, effectiveMove.to.c, piece, jumpedPieces);
       }
 
@@ -676,7 +684,7 @@ export class NigerianDraughtsEngine {
           r: effectiveMove.to.r,
           c: effectiveMove.to.c,
           jumpedPieces,
-          touchedBackline
+          touchedBackline: true
         };
         turnEnded = false;
       } else {

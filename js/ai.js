@@ -127,29 +127,7 @@ export class NigerianDraughtsAI {
     const fromRC = fromSq ? sqToRC(fromSq, isIntl) : (bestMove50.from && typeof bestMove50.from.r === 'number' ? bestMove50.from : null);
     const toRC = toSq ? sqToRC(toSq, isIntl) : (bestMove50.to && typeof bestMove50.to.r === 'number' ? bestMove50.to : null);
 
-    // 1. Direct match (for single-step moves or single captures)
-    if (fromRC && toRC) {
-      const directMatch = legalMoves.find(
-        m => m.from.r === fromRC.r && m.from.c === fromRC.c &&
-             m.to.r === toRC.r && m.to.c === toRC.c
-      );
-      if (directMatch) return directMatch;
-    }
-
-    // 2. Multi-jump first step match (if bestMove50 has path: [start, step1, step2, ...])
-    if (bestMove50.path && bestMove50.path.length > 1 && fromRC) {
-      const firstDestSq = bestMove50.path[1];
-      const firstDestRC = typeof firstDestSq === 'number' ? sqToRC(firstDestSq, isIntl) : firstDestSq;
-      if (firstDestRC) {
-        const stepMatch = legalMoves.find(
-          m => m.from.r === fromRC.r && m.from.c === fromRC.c &&
-               m.to.r === firstDestRC.r && m.to.c === firstDestRC.c
-        );
-        if (stepMatch) return stepMatch;
-      }
-    }
-
-    // 3. Mid-multijump continuation match
+    // 1. Mid-multijump continuation match (prioritize completing active multi-jump)
     if (engine.activeMultiJump) {
       if (bestMove50.path) {
         for (let i = 1; i < bestMove50.path.length; i++) {
@@ -170,6 +148,37 @@ export class NigerianDraughtsAI {
         );
         if (multiMatch) return multiMatch;
       }
+
+      if (fromRC) {
+        const fromMatch = legalMoves.find(
+          m => m.from.r === fromRC.r && m.from.c === fromRC.c
+        );
+        if (fromMatch) return fromMatch;
+      }
+
+      return legalMoves[0];
+    }
+
+    // 2. Multi-jump first step match (if bestMove50 has path: [start, step1, step2, ...])
+    if (bestMove50.path && bestMove50.path.length > 1 && fromRC) {
+      const firstDestSq = bestMove50.path[1];
+      const firstDestRC = typeof firstDestSq === 'number' ? sqToRC(firstDestSq, isIntl) : firstDestSq;
+      if (firstDestRC) {
+        const stepMatch = legalMoves.find(
+          m => m.from.r === fromRC.r && m.from.c === fromRC.c &&
+               m.to.r === firstDestRC.r && m.to.c === firstDestRC.c
+        );
+        if (stepMatch) return stepMatch;
+      }
+    }
+
+    // 3. Direct match (for single-step moves or single captures)
+    if (fromRC && toRC) {
+      const directMatch = legalMoves.find(
+        m => m.from.r === fromRC.r && m.from.c === fromRC.c &&
+             m.to.r === toRC.r && m.to.c === toRC.c
+      );
+      if (directMatch) return directMatch;
     }
 
     // 4. Same source piece match
