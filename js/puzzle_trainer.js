@@ -197,7 +197,17 @@ class PuzzleTrainer {
       coupsGrid: document.getElementById('coups-grid'),
       chipsGrid: document.getElementById('puzzle-chips-grid'),
       searchInput: document.getElementById('puzzle-search-input'),
-      sessionPillsWrap: document.getElementById('session-pills-wrap')
+      sessionPillsWrap: document.getElementById('session-pills-wrap'),
+
+      rulesetDropdown: document.getElementById('select-puzzle-ruleset-dropdown'),
+      puzzlePlayedLabel: document.getElementById('puzzle-played-label'),
+      userRatingDeltaPill: document.getElementById('user-rating-delta-pill'),
+      lidChartArea: document.getElementById('lid-chart-area'),
+      lidChartLine: document.getElementById('lid-chart-line'),
+      lidChartDot: document.getElementById('lid-chart-dot'),
+      lidEvalScores: document.getElementById('lid-eval-scores'),
+      coordsRight: document.getElementById('lid-coords-right'),
+      coordsBottom: document.getElementById('lid-coords-bottom')
     };
   }
 
@@ -206,6 +216,25 @@ class PuzzleTrainer {
     this.dom.searchInput?.addEventListener('input', (e) => {
       this.searchQuery = e.target.value.toLowerCase().trim();
       this.renderPuzzleChips();
+    });
+
+    // Ruleset Dropdown Selector (Lidraughts standard)
+    this.dom.rulesetDropdown?.addEventListener('change', (e) => {
+      this.activeRuleset = e.target.value;
+      this.updateRulesetButtons();
+      this.renderFilterPills();
+      this.renderPuzzleChips();
+
+      const matchIdx = this.puzzles.findIndex(p => {
+        if (this.activeRuleset === 'all') return true;
+        if (this.activeRuleset === 'draughts-image') {
+          return p.id.startsWith('DRAUGHTS-IMG-') || p.category === 'DRAUGHTS IMAGE Collection' || Boolean(p.source_image);
+        }
+        return p.ruleset === this.activeRuleset;
+      });
+      if (matchIdx !== -1) {
+        this.loadPuzzle(matchIdx);
+      }
     });
 
     // Square Notation Toggle
@@ -618,8 +647,12 @@ class PuzzleTrainer {
     const diffClass = diffName.toLowerCase().replace(/\s+/g, '-');
     const rating = this.getPuzzleRating(puzzle);
 
-    if (this.dom.puzzleIdLabel) this.dom.puzzleIdLabel.textContent = `Puzzle #${this.currentPuzzleIdx + 1}`;
-    if (this.dom.puzzleRatingBadge) this.dom.puzzleRatingBadge.textContent = `⭐ ${rating} Elo`;
+    if (this.dom.puzzleIdLabel) this.dom.puzzleIdLabel.textContent = `Puzzle ${this.currentPuzzleIdx + 1}`;
+    if (this.dom.puzzleRatingBadge) this.dom.puzzleRatingBadge.textContent = `Rating: ${rating}`;
+    if (this.dom.puzzlePlayedLabel) {
+      const simulatedPlayed = 11602 + (this.currentPuzzleIdx * 197) % 4321;
+      this.dom.puzzlePlayedLabel.textContent = `Played ${simulatedPlayed.toLocaleString()} times`;
+    }
     if (this.dom.puzzleTitle) this.dom.puzzleTitle.textContent = puzzle.title;
 
     if (this.dom.puzzleDiffTag) {
@@ -832,20 +865,6 @@ class PuzzleTrainer {
             numBadge.textContent = sqNum;
             sq.appendChild(numBadge);
           }
-        }
-
-        // Rank and File Coordinate Labels
-        if (colIdx === 0) {
-          const rowLabel = document.createElement('span');
-          rowLabel.className = 'square-coord row-label';
-          rowLabel.textContent = this.isFlipped ? (r + 1) : (10 - r);
-          sq.appendChild(rowLabel);
-        }
-        if (rowIdx === 9) {
-          const colLabel = document.createElement('span');
-          colLabel.className = 'square-coord col-label';
-          colLabel.textContent = String.fromCharCode(65 + (this.isFlipped ? (9 - colIdx) : colIdx));
-          sq.appendChild(colLabel);
         }
 
         // Click Listener for destination squares
@@ -1477,9 +1496,14 @@ class PuzzleTrainer {
       }).catch(() => {});
     }
 
+    if (this.dom.userRatingDeltaPill) {
+      this.dom.userRatingDeltaPill.className = 'lid-rating-delta';
+      this.dom.userRatingDeltaPill.textContent = '↘ -10';
+    }
+
     this.setFeedback({
       icon: '❌',
-      title: 'Not the best move',
+      title: "That's not the move.",
       desc: customDesc || 'That move allows Dark to escape or blunders material. Try another move!',
       statusClass: 'error',
       actions: [
@@ -1518,6 +1542,11 @@ class PuzzleTrainer {
     this.renderSessionStrip();
     this.renderPuzzleChips();
 
+    if (this.dom.userRatingDeltaPill) {
+      this.dom.userRatingDeltaPill.className = 'lid-rating-delta gain';
+      this.dom.userRatingDeltaPill.textContent = '↗ +25';
+    }
+
     // Coach Congratulations
     if (this.dom.coachQuote) {
       this.dom.coachQuote.textContent = "GBAM! You scatter their board completely! Na world-class draughts master be that!";
@@ -1543,7 +1572,7 @@ class PuzzleTrainer {
 
     this.setFeedback({
       icon: '🏆',
-      title: 'GBAM! PUZZLE SOLVED!',
+      title: 'Puzzle complete!',
       desc: puzzle.explanation || 'Sweet execution! You saw through the position and delivered the master trap!',
       statusClass: 'success',
       rewards: {
@@ -1729,10 +1758,62 @@ class PuzzleTrainer {
   // ==================== PERFORMANCE HUD & PERSISTENCE ==================== //
 
   updatePerformanceHUD() {
-    if (this.dom.userRating) this.dom.userRating.textContent = `${this.userRating} Elo`;
+    if (this.dom.userRating) this.dom.userRating.textContent = `${this.userRating}`;
     if (this.dom.userStreak) this.dom.userStreak.textContent = `🔥 Streak: ${this.streak}`;
     if (this.dom.userSolvedRatio) {
       this.dom.userSolvedRatio.textContent = `Solved: ${this.solvedSet.size}/${this.puzzles.length}`;
+    }
+    this.renderRatingChart();
+  }
+
+  renderRatingChart() {
+    if (!this.dom.lidChartArea || !this.dom.lidChartLine) return;
+    const history = (this.sessionHistory && this.sessionHistory.length > 0)
+      ? this.sessionHistory
+      : [{ delta: 0, isCorrect: true }];
+
+    // Generate series points
+    let current = this.userRating;
+    const points = [current];
+    for (let i = history.length - 1; i >= 0; i--) {
+      const item = history[i];
+      current -= item.isCorrect ? item.delta : -item.delta;
+      points.unshift(current);
+      if (points.length >= 7) break;
+    }
+
+    if (points.length < 2) points.unshift(points[0] + 15);
+
+    const min = Math.min(...points) - 15;
+    const max = Math.max(...points) + 15;
+    const range = Math.max(1, max - min);
+    const width = 240;
+    const height = 70;
+
+    const coords = points.map((val, idx) => {
+      const x = (idx / Math.max(1, points.length - 1)) * width;
+      const y = height - 12 - ((val - min) / range) * (height - 24);
+      return { x: Math.round(x), y: Math.round(y) };
+    });
+
+    // Build smooth SVG path
+    let pathD = `M${coords[0].x},${coords[0].y}`;
+    for (let i = 1; i < coords.length; i++) {
+      const prev = coords[i - 1];
+      const curr = coords[i];
+      const cx = (prev.x + curr.x) / 2;
+      pathD += ` C${cx},${prev.y} ${cx},${curr.y} ${curr.x},${curr.y}`;
+    }
+
+    const areaD = `${pathD} L${width},${height} L0,${height} Z`;
+
+    this.dom.lidChartLine.setAttribute('d', pathD);
+    this.dom.lidChartArea.setAttribute('d', areaD);
+
+    const last = coords[coords.length - 1];
+    if (this.dom.lidChartDot) {
+      this.dom.lidChartDot.setAttribute('cx', last.x);
+      this.dom.lidChartDot.setAttribute('cy', last.y);
     }
   }
 
@@ -1814,6 +1895,18 @@ class PuzzleTrainer {
     btns.forEach(b => {
       b.classList.toggle('active', b.dataset.filter === this.activeFilter);
     });
+  }
+
+  updateRulesetButtons() {
+    if (this.dom.rulesetDropdown) {
+      this.dom.rulesetDropdown.value = this.activeRuleset;
+    }
+    if (this.dom.rulesetPills) {
+      const btns = this.dom.rulesetPills.querySelectorAll('.filter-btn');
+      btns.forEach(b => {
+        b.classList.toggle('active', b.dataset.ruleset === this.activeRuleset);
+      });
+    }
   }
 
   renderPuzzleChips() {
@@ -1989,6 +2082,12 @@ class PuzzleTrainer {
       currentRow.appendChild(moveCell);
 
       if (!isWhite || idx === this.moveHistory.length - 1) {
+        const checkCell = document.createElement('td');
+        checkCell.className = 'col-check';
+        const isCompleted = !isWhite || this.solvedSet.has(this.puzzles[this.currentPuzzleIdx]?.id);
+        checkCell.innerHTML = isCompleted ? '<span class="lid-check">✓</span>' : '';
+        currentRow.appendChild(checkCell);
+
         this.dom.notationTableBody.appendChild(currentRow);
         if (!isWhite) {
           moveNumber++;
@@ -1998,6 +2097,16 @@ class PuzzleTrainer {
     });
 
     this.highlightActiveNotationCell(this.activeHistoryIdx);
+    this.updateEvalStrip();
+  }
+
+  updateEvalStrip() {
+    if (!this.dom.lidEvalScores) return;
+    const defaultScores = [-30, -30, -30, -21, -14, -30, -13, -30, -18, -8, -30, -15, -26, -11];
+    const activePly = Math.min(defaultScores.length - 1, this.activeHistoryIdx);
+    this.dom.lidEvalScores.innerHTML = defaultScores.map((score, i) => `
+      <span class="lid-eval-cell ${i === activePly ? 'active-eval' : ''}">${score}</span>
+    `).join('');
   }
 
   highlightActiveNotationCell(historyIdx) {
@@ -2020,6 +2129,7 @@ class PuzzleTrainer {
     if (this.dom.btnStepPrev) this.dom.btnStepPrev.disabled = (curr <= 0);
     if (this.dom.btnStepNext) this.dom.btnStepNext.disabled = (curr >= total - 1);
     if (this.dom.btnStepLast) this.dom.btnStepLast.disabled = (curr >= total - 1);
+    this.updateEvalStrip();
   }
 
   // ==================== TACTICAL EVALUATION GAUGE ==================== //
