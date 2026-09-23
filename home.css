@@ -57,12 +57,14 @@ body {
 }
 
 .nav-container {
-  max-width: 1280px;
+  max-width: 1600px;
+  width: 100%;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .brand-wrap {
@@ -1147,7 +1149,7 @@ select.form-control option {
 .dash-nav-links {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -1162,15 +1164,15 @@ select.form-control option {
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-main);
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: 1px;
-  padding: 8px 14px;
+  letter-spacing: 0.5px;
+  padding: 7px 11px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   transition: all var(--transition-fast);
   white-space: nowrap;
 }
@@ -1205,6 +1207,33 @@ select.form-control option {
   display: none;
   z-index: 200;
   animation: modalFadeIn 0.15s ease-out;
+  max-height: min(480px, calc(100vh - 85px));
+  overflow-y: auto;
+}
+
+.dropdown-menu::-webkit-scrollbar {
+  width: 5px;
+}
+.dropdown-menu::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+.dropdown-menu::-webkit-scrollbar-thumb {
+  background: rgba(245, 166, 35, 0.4);
+  border-radius: 4px;
+}
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-gold);
+}
+
+/* Ensure right-aligned dropdown menus do not clip off-screen */
+.nav-dropdown-item:last-child .dropdown-menu,
+#menu-actions {
+  left: auto;
+  right: 0;
+}
+
+.mobile-only-user-action {
+  display: none;
 }
 
 .nav-dropdown-item.open .dropdown-menu {
@@ -1299,14 +1328,14 @@ select.form-control option {
   background: linear-gradient(135deg, rgba(0, 135, 81, 0.3) 0%, rgba(245, 166, 35, 0.25) 100%);
   border: 1px solid rgba(245, 166, 35, 0.45);
   color: #ffffff;
-  padding: 7px 14px;
+  padding: 6px 11px;
   border-radius: 20px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
   transition: all var(--transition-fast);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -1707,7 +1736,26 @@ select.form-control option {
   border-bottom: 2px solid rgba(255, 255, 255, 0.08);
   margin-bottom: 24px;
   overflow-x: auto;
-  padding-bottom: 2px;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(245, 166, 35, 0.4) transparent;
+  -webkit-overflow-scrolling: touch;
+  flex-wrap: wrap;
+}
+
+.dash-tabs-nav::-webkit-scrollbar {
+  height: 4px;
+}
+.dash-tabs-nav::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+}
+.dash-tabs-nav::-webkit-scrollbar-thumb {
+  background: rgba(245, 166, 35, 0.4);
+  border-radius: 4px;
+}
+.dash-tabs-nav::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-gold);
 }
 
 .dash-tab-btn {
@@ -1716,13 +1764,13 @@ select.form-control option {
   border-bottom: 3px solid transparent;
   color: var(--text-muted);
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   font-weight: 700;
-  padding: 12px 18px;
+  padding: 10px 14px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   transition: all var(--transition-fast);
   white-space: nowrap;
 }
@@ -2626,6 +2674,47 @@ select.form-control option {
 
 /* ================= RESPONSIVE DESIGN ================= */
 
+/* Medium Screens & Laptops (1025px - 1280px) */
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .nav-container {
+    padding: 0 12px;
+    gap: 6px;
+  }
+  .brand-title {
+    font-size: 1.25rem;
+    letter-spacing: 1px;
+  }
+  .brand-tagline {
+    display: none;
+  }
+  .dash-nav-links {
+    gap: 3px;
+  }
+  .dash-nav-btn {
+    padding: 6px 8px;
+    font-size: 0.78rem;
+    letter-spacing: 0.2px;
+    gap: 3px;
+  }
+  .nav-wallet-pill {
+    padding: 5px 8px;
+    font-size: 0.78rem;
+    gap: 4px;
+  }
+  .nav-wallet-pill .wallet-action-btn {
+    font-size: 0.68rem;
+    padding: 2px 5px;
+  }
+  .dash-header-user {
+    gap: 4px;
+  }
+  .dash-header-user .btn {
+    padding: 5px 8px;
+    font-size: 0.78rem;
+  }
+}
+
+/* Tablets & Mobile Screens (<= 1024px) */
 @media (max-width: 1024px) {
   .packages-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -2652,41 +2741,8 @@ select.form-control option {
   .profile-stats-bar {
     grid-template-columns: repeat(4, 1fr);
   }
-}
 
-/* Responsive Navbar for Medium Screens (Tablets / Laptops 769px - 1200px) */
-@media (min-width: 769px) and (max-width: 1200px) {
-  .nav-container {
-    padding: 0 14px;
-  }
-  .brand-title {
-    font-size: 1.25rem;
-    letter-spacing: 1px;
-  }
-  .brand-tagline {
-    display: none;
-  }
-  .dash-nav-links {
-    gap: 4px;
-  }
-  .dash-nav-btn {
-    padding: 7px 10px;
-    font-size: 0.8rem;
-    letter-spacing: 0.3px;
-    gap: 4px;
-  }
-  .nav-wallet-pill {
-    padding: 6px 10px;
-    font-size: 0.8rem;
-    gap: 4px;
-  }
-  .nav-wallet-pill .wallet-action-btn {
-    font-size: 0.7rem;
-    padding: 2px 6px;
-  }
-}
-
-@media (max-width: 768px) {
+  /* Mobile/Tablet Header & Navigation Drawer */
   .dash-mobile-nav-toggle {
     display: flex;
   }
@@ -2728,7 +2784,9 @@ select.form-control option {
     position: static;
     top: auto;
     left: auto;
+    right: auto;
     width: 100%;
+    max-height: none;
     box-shadow: none;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(20, 28, 38, 0.95);
@@ -2741,6 +2799,29 @@ select.form-control option {
     padding: 12px 16px;
     font-size: 0.9rem;
   }
+  
+  /* Mobile-only user controls inside drawer */
+  .mobile-only-user-action {
+    display: block;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 6px;
+  }
+  .mobile-only-user-action .dropdown-link {
+    padding: 12px 16px;
+    font-size: 0.92rem;
+  }
+
+  /* On mobile/tablet, hide redundant bulk buttons from top bar so it never overflows */
+  .dash-header-user #btn-dash-logout,
+  .dash-header-user a[href="admin.php"] {
+    display: none;
+  }
+  .dash-header-user a[href="game.php"] {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
   .messages-container,
   .invitations-layout,
   .social-layout,
@@ -2751,8 +2832,32 @@ select.form-control option {
   .tournaments-grid {
     grid-template-columns: 1fr;
   }
+  .dash-tabs-nav {
+    flex-wrap: nowrap;
+  }
+}
+
+/* Mobile Phones (<= 640px) */
+@media (max-width: 640px) {
+  .nav-container {
+    padding: 0 12px;
+  }
+  .brand-title {
+    font-size: 1.15rem;
+    letter-spacing: 0.5px;
+  }
+  .brand-tagline {
+    display: none;
+  }
+  .flag-stripes {
+    width: 20px;
+    height: 32px;
+  }
   .profile-stats-bar {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .dash-header-user a[href="game.php"] {
+    display: none;
   }
 }
 

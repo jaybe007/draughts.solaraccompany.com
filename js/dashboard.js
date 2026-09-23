@@ -81,7 +81,11 @@ function setupDropdowns() {
 function activateMainTab(tabName) {
   // Update Tab Buttons
   document.querySelectorAll('.dash-tab-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.tab === tabName);
+    const isActive = btn.dataset.tab === tabName;
+    btn.classList.toggle('active', isActive);
+    if (isActive) {
+      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    }
   });
 
   // Update Panels

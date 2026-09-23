@@ -247,6 +247,25 @@ $pkgBadge = getPackageBadge($package);
             </ul>
           </li>
 
+          <!-- 7. MOBILE-ONLY USER CONTROLS IN DRAWER -->
+          <?php if (!empty($user['role']) && in_array($user['role'], ['admin', 'super_admin'])): ?>
+          <li class="mobile-only-user-action">
+            <a href="admin.php" class="dropdown-link highlight-gold" title="Open Admin Command Center">
+              <span class="icon">🛡️</span> Admin Command Center
+            </a>
+          </li>
+          <?php endif; ?>
+          <li class="mobile-only-user-action">
+            <a href="game.php" class="dropdown-link highlight-green" style="font-weight: 800;">
+              <span class="icon">🎮</span> Enter Game Arena &rarr;
+            </a>
+          </li>
+          <li class="mobile-only-user-action">
+            <button type="button" class="dropdown-link" onclick="handleDashboardLogout()" style="color: #f87171;">
+              <span class="icon">🚪</span> Sign Out
+            </button>
+          </li>
+
         </ul>
       </nav>
 
