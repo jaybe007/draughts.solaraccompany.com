@@ -42,6 +42,7 @@ $currentUser = getCurrentUser();
         <li><a href="index.php" class="home-nav-link active">HOME</a></li>
         <li><a href="dashboard.php" class="home-nav-link" style="color: var(--accent-gold); font-weight: 800;">👑 DASHBOARD</a></li>
         <li><a href="game.php" class="home-nav-link btn-play-cta">🎮 PLAY</a></li>
+        <li><a href="#board-showcase" class="home-nav-link">BOARD</a></li>
         <li><a href="#champions" class="home-nav-link">PLAYERS</a></li>
         <li><a href="#tournaments" class="home-nav-link">TOURNAMENTS</a></li>
         <li><a href="puzzles.php" class="home-nav-link nav-link-puzzles" style="color: #fde047; font-weight: 800; text-shadow: 0 0 10px rgba(245, 158, 11, 0.4);"><span style="margin-right: 4px;">🧩</span>PUZZLES</a></li>
@@ -86,6 +87,7 @@ $currentUser = getCurrentUser();
 
         <div class="hero-cta-group">
           <a href="game.php" class="btn btn-primary btn-large">⚡ Play Online Now</a>
+          <a href="#board-showcase" class="btn btn-secondary" style="border-color: rgba(245, 166, 35, 0.45); color: #fde68a;">🪵 View 10x10 Board</a>
           <a href="puzzles.php" class="btn btn-secondary" style="background: linear-gradient(135deg, rgba(245, 166, 35, 0.25), rgba(217, 119, 6, 0.35)); border-color: rgba(245, 166, 35, 0.6); color: #fef08a; font-weight: 700;">🧩 Tactical Puzzles</a>
           <a href="game.php?mode=pve&diff=expert" class="btn btn-secondary">🤖 Challenge Master AI</a>
           <a href="game.php?mode=pvp" class="btn btn-secondary">👥 Pass & Play</a>
@@ -269,6 +271,114 @@ $currentUser = getCurrentUser();
 
       </div>
 
+    </div>
+  </section>
+
+  <!-- ================= GRAND DRAUGHTS BOARD SHOWCASE ================= -->
+  <section class="home-section hero-showcase-section" id="board-showcase">
+    <div class="section-header">
+      <span class="section-tag">🇳🇬 Authentic African Craftsmanship</span>
+      <h2 class="section-title">The Board of Champions</h2>
+      <p class="section-sub">
+        Every match in Naija Draughts honors the legendary 10x10 handcrafted mahogany battleground. Experience the speed of flying Oba kings, mirrored long diagonals, and fierce street combat.
+      </p>
+    </div>
+
+    <div class="showcase-container">
+      <div class="showcase-card">
+        <div class="showcase-image-wrapper">
+          <img src="images/hero_draughts.jpg" 
+               alt="Handcrafted Nigerian 10x10 Draughts Board with Flying Oba King and Polished Seeds" 
+               class="showcase-img"
+               loading="eager"
+               width="1280"
+               height="720">
+          
+          <div class="showcase-overlay-vignette"></div>
+
+          <!-- Interactive / Informational Badges Overlaid on the Board -->
+          <div class="showcase-badge showcase-badge-top-left">
+            <span class="badge-icon">👑</span>
+            <div class="badge-text">
+              <strong>Royal Oba (Flying King)</strong>
+              <span>Unlimited diagonal reach & multi-jump flight</span>
+            </div>
+          </div>
+
+          <div class="showcase-badge showcase-badge-top-right">
+            <span class="badge-icon">🪵</span>
+            <div class="badge-text">
+              <strong>Handcrafted Mahogany</strong>
+              <span>10x10 mirrored 100-square street standard</span>
+            </div>
+          </div>
+
+          <div class="showcase-badge showcase-badge-bottom-left">
+            <span class="badge-icon">⚡</span>
+            <div class="badge-text">
+              <strong>Two-Way Seed Captures</strong>
+              <span>Ordinary seeds jump forward & backward</span>
+            </div>
+          </div>
+
+          <div class="showcase-badge showcase-badge-bottom-right">
+            <span class="badge-icon">🛣️</span>
+            <div class="badge-text">
+              <strong>The Central Highway</strong>
+              <span>Squares 5-46: The decisive winning line</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Luxury Bottom Action Bar -->
+        <div class="showcase-action-bar">
+          <div class="showcase-bar-info">
+            <div class="showcase-chips">
+              <span class="chip-item">📐 10x10 Mirrored Layout</span>
+              <span class="chip-item">🪙 40 Polished Seeds</span>
+              <span class="chip-item">🇳🇬 Lagos & Benin Rules</span>
+              <span class="chip-item">🏆 Official Tournament Spec</span>
+            </div>
+            <p class="showcase-bar-desc">
+              Ready to test your street tactics or challenge the AI Grandmaster on this exact layout?
+            </p>
+          </div>
+          <div class="showcase-bar-actions">
+            <a href="game.php" class="btn btn-primary btn-large showcase-cta-btn">
+              <span>🎮 Play on this Board Now</span>
+              <span class="btn-arrow">&rarr;</span>
+            </a>
+            <a href="puzzles.php" class="btn btn-secondary showcase-secondary-btn">
+              <span>🧩 Solve Tactics Puzzle</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Feature Highlight Mini-Cards Below the Image -->
+      <div class="showcase-features-row">
+        <div class="showcase-feature-item">
+          <div class="feature-icon">✨</div>
+          <div class="feature-content">
+            <h4>Tournament Precision</h4>
+            <p>100 squares with authentic mirrored numbering (1-50 playable dark squares) ensuring true Nigerian street and club play.</p>
+          </div>
+        </div>
+        <div class="showcase-feature-item">
+          <div class="feature-icon">🦅</div>
+          <div class="feature-content">
+            <h4>Flying King Flight</h4>
+            <p>Oba kings fly across any distance along unobstructed diagonals, executing devastating long-range multi-piece ambushes.</p>
+          </div>
+        </div>
+        <div class="showcase-feature-item">
+          <div class="feature-icon">🤖</div>
+          <div class="feature-content">
+            <h4>Live Engine Telemetry</h4>
+            <p>Every move calculates depth, nodes evaluated, win probability, and street slang commentary in real-time.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
