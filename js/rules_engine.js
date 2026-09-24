@@ -237,7 +237,7 @@ export class BaseRules {
   /**
    * Recursive capture sequence finder for a single piece.
    */
-  generateCaptureSequences(boardInstance, sq, piece, player, jumpedSquares = [], jumpedPieces = [], pathSquares = [sq]) {
+  generateCaptureSequences(boardInstance, sq, piece, player, jumpedSquares = [], jumpedPieces = [], pathSquares = [sq], touchedKingRow = false) {
     const isKing = boardInstance.isKing(piece);
     const sequences = [];
     const isAlreadyJumped = (targetSq) => jumpedSquares.includes(targetSq);
@@ -285,45 +285,24 @@ export class BaseRules {
               continue;
             }
 
-            // In Nigerian Rules: Reaching the king row crowns the piece to King immediately!
-            // It continues the multi-jump sequence AS A FLYING KING ("overcrown capturing")!
-            const promotesMidChain = this.id === 'nigeria' || promoCheck.promotesMidChain;
-            if (reachedKingRow && promotesMidChain) {
-              const crownedPiece = (player === PLAYER_1 ? P1_KING : P2_KING);
-              const subJumps = this.generateCaptureSequences(
-                boardInstance, dest, crownedPiece, player, nextJumpedSq, nextJumpedPc, nextPath
-              );
-
-              if (subJumps.length > 0) {
-                for (let s = 0; s < subJumps.length; s++) {
-                  subJumps[s].promoted = true;
-                }
-                sequences.push(...subJumps);
-              } else {
-                sequences.push({
-                  from: pathSquares[0],
-                  to: dest,
-                  isCapture: true,
-                  path: nextPath,
-                  jumpedSquares: nextJumpedSq,
-                  jumpedPieces: nextJumpedPc,
-                  promoted: true,
-                  prevPiece: board[pathSquares[0]]
-                });
-              }
-              continue;
-            }
-
-            // Continue recursion as a MAN (under FMJD Rule 3.5 and standard international rules)
+            // In Nigerian Rules and International (FMJD) rules:
+            // A seed does NOT crown before capturing the rest!
+            // It continues the multi-jump sequence AS A SEED / MAN.
+            const hasTouchedKingRow = touchedKingRow || reachedKingRow;
             const subJumps = this.generateCaptureSequences(
-              boardInstance, dest, piece, player, nextJumpedSq, nextJumpedPc, nextPath
+              boardInstance, dest, piece, player, nextJumpedSq, nextJumpedPc, nextPath, hasTouchedKingRow
             );
 
             if (subJumps.length > 0) {
               sequences.push(...subJumps);
             } else {
-              // End of capture sequence: crown only if stopping on king row!
-              const finalPromo = this.getPromotionRules(dest, false, player);
+              // End of capture sequence:
+              // In Nigerian rules: "Touch and Crown" — crowns after completing all captures if it touched the king row at any point!
+              // In International FMJD: crowns only if stopping on king row!
+              const shouldCrown = (this.id === 'nigeria')
+                ? hasTouchedKingRow
+                : this.isKingRow(dest, player);
+
               sequences.push({
                 from: pathSquares[0],
                 to: dest,
@@ -331,7 +310,7 @@ export class BaseRules {
                 path: nextPath,
                 jumpedSquares: nextJumpedSq,
                 jumpedPieces: nextJumpedPc,
-                promoted: finalPromo.promotes,
+                promoted: shouldCrown,
                 prevPiece: board[pathSquares[0]]
               });
             }
@@ -376,11 +355,6 @@ export class BaseRules {
             );
             if (subJumps.length > 0) {
               rayHasContinuation = true;
-              if (!boardInstance.isKing(board[pathSquares[0]])) {
-                for (let s = 0; s < subJumps.length; s++) {
-                  subJumps[s].promoted = true;
-                }
-              }
               raySequences.push(...subJumps);
             } else {
               raySequences.push({
@@ -390,7 +364,7 @@ export class BaseRules {
                 path: nextPath,
                 jumpedSquares: nextJumpedSq,
                 jumpedPieces: nextJumpedPc,
-                promoted: !boardInstance.isKing(board[pathSquares[0]]),
+                promoted: false,
                 prevPiece: board[pathSquares[0]]
               });
             }
@@ -505,8 +479,7 @@ export class NigeriaRules extends BaseRules {
   getPromotionRules(destSq, isMidChain, player) {
     const reached = this.isKingRow(destSq, player);
     return {
-      promotes: reached,
-      promotesMidChain: true,
+      promotes: reached && !isMidChain,
       endsTurnImmediately: false
     };
   }

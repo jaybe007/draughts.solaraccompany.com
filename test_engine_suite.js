@@ -143,7 +143,7 @@ assert(
 // TEST 5: Flying King ("Oba") Rules
 // -----------------------------------------------------------------------------
 console.log('\n5. Flying King ("Oba") Long Diagonal & Landing Choice:');
-const bKing = new DraughtsBoard50({ ruleMode: 'tournament' });
+const bKing = new DraughtsBoard50({ ruleMode: 'nigerian' });
 bKing.board.fill(EMPTY);
 // P1 King at 50 (bottom corner), P2 Man at 28
 bKing.board[50] = P1_KING;
@@ -161,16 +161,16 @@ assert(
 // TEST 6: FMJD Mid-Jump Backline Promotion Rule
 // -----------------------------------------------------------------------------
 console.log('\n6. FMJD Mid-Jump Backline Promotion Rule:');
-const bPromo = new DraughtsBoard50({ ruleMode: 'tournament' });
+const bPromo = new DraughtsBoard50({ ruleMode: 'international' });
 bPromo.board.fill(EMPTY);
-// P1 Man at 15. Jump P2 Man at 9 to 4 (backline), then jump P2 Man at 8 to 13.
-bPromo.board[15] = P1_MAN;
-bPromo.board[9] = P2_MAN;
+// FMJD coordinate topology: P1 Man at 13. Jump P2 Man at 8 to 2 (backline), then jump P2 Man at 7 to 11.
+bPromo.board[13] = P1_MAN;
 bPromo.board[8] = P2_MAN;
+bPromo.board[7] = P2_MAN;
 bPromo.currentTurn = PLAYER_1;
 
 const promoMoves = bPromo.generateLegalMoves();
-const multiJumpThroughBackline = promoMoves.find(m => m.path && m.path.includes(4) && m.to === 13);
+const multiJumpThroughBackline = promoMoves.find(m => m.path && m.path.includes(2) && m.to === 11);
 assert(
   multiJumpThroughBackline !== undefined,
   'Man successfully executes multi-jump passing through rank 1 without stopping'
@@ -179,8 +179,8 @@ assert(
 if (multiJumpThroughBackline) {
   const undo = bPromo.makeMove(multiJumpThroughBackline);
   assert(
-    bPromo.board[13] === P1_MAN,
-    `Piece landing at final square 13 remains a MAN (${bPromo.board[13]} === ${P1_MAN}) because it did not rest on backline`
+    bPromo.board[11] === P1_MAN,
+    `Piece landing at final square 11 remains a MAN (${bPromo.board[11]} === ${P1_MAN}) because it did not rest on backline`
   );
   bPromo.unmakeMove(multiJumpThroughBackline, undo);
 }

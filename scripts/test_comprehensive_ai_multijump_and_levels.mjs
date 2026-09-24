@@ -63,32 +63,34 @@ console.log('--- TEST 1: 3-Seed Capture Chain to Corner/Edge (No False Crowning)
 }
 
 // -----------------------------------------------------------------------------
-// TEST 2: True Nigerian Overcrown Capture (Genuine Mid-Chain Backline Hit)
+// TEST 2: True Nigerian Overcrown Capture (Seed captures over crown row, crowns after all captures)
 // -----------------------------------------------------------------------------
-console.log('\n--- TEST 2: Genuine Nigerian Overcrown Capture (Hits Row 0, Continues as Oba) ---');
+console.log('\n--- TEST 2: True Nigerian Overcrown Capture (Touches Row 0, Continues as Seed, Crowns at End) ---');
 {
   const engine = new NigerianDraughtsEngine({ boardSize: 10, ruleMode: 'nigeria' });
   for (let r = 0; r < 10; r++) for (let c = 0; c < 10; c++) engine.board[r][c] = null;
 
   // P1 man at (2,0). Enemy 1 at (1,1) (jump to 0,2 - crown row).
-  // Enemy 2 at (2,4) - distance 2 along DR diagonal from (0,2).
+  // Enemy 2 at (1,3) (adjacent to 0,2 - jump to 2,4).
   engine.board[2][0] = { id: 1, player: PLAYER_1, isKing: false };
   engine.board[1][1] = { id: 2, player: PLAYER_2, isKing: false };
-  engine.board[2][4] = { id: 3, player: PLAYER_2, isKing: false };
+  engine.board[1][3] = { id: 3, player: PLAYER_2, isKing: false };
   engine.currentTurn = PLAYER_1;
 
   const step1 = engine.getAllLegalMoves(PLAYER_1).find(m => m.to.r === 0 && m.to.c === 2);
   assert(step1 !== undefined, 'Found overcrown step 1 jumping to crown square (0,2)');
   const res1 = engine.makeMove(step1);
   assert(!res1.turnEnded, 'Overcrown step 1 continues capturing');
-  assert(engine.board[0][2].isKing === true, 'Piece at (0,2) is crowned as Oba/King');
+  assert(res1.justPromoted === false, 'Seed is NOT crowned before capturing the rest (justPromoted is false)');
+  assert(engine.board[0][2].isKing === false, 'Piece at (0,2) remains a SEED while multi-jump is ongoing');
 
   const continuations = engine.getAllLegalMoves(PLAYER_1);
-  assert(continuations.length > 0, `Oba has flying continuations (got ${continuations.length})`);
-  const step2 = continuations.find(m => m.to.r === 4 && m.to.c === 6) || continuations[0];
+  assert(continuations.length === 1, `Seed has 1 continuation jump (got ${continuations.length})`);
+  const step2 = continuations.find(m => m.to.r === 2 && m.to.c === 4) || continuations[0];
   const res2 = engine.makeMove(step2);
   assert(res2.turnEnded, 'Overcrown step 2 completes sequence');
-  assert(engine.board[step2.to.r][step2.to.c].isKing === true, 'Piece remains an Oba/King at final destination');
+  assert(res2.justPromoted === true, 'justPromoted is true upon finishing the capture sequence');
+  assert(engine.board[step2.to.r][step2.to.c].isKing === true, 'Piece crowns into an Oba/King after completing all captures');
 }
 
 // -----------------------------------------------------------------------------
