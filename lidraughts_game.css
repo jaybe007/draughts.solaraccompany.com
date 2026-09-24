@@ -1,34 +1,54 @@
 /* =============================================================================
-   LIDRAUGHTS GAME EXPERIENCE STYLESHEET (lidraughts_game.css)
-   Exact match for the clean, minimalist Lidraughts.org game aesthetic.
-   100% compatible with existing engine, audio, timers, AI, rulesets, and modals.
+   NAIJA DRAUGHTS - BLENDED GAME EXPERIENCE STYLESHEET (lidraughts_game.css)
+   Seamlessly blends the African Mahogany, Nigerian Emerald Green, and Warm Gold
+   aesthetic of the Home, Dashboard, and Puzzles pages with the high-performance
+   Lidraughts-style 3-column board layout and responsive mobile drawers.
    ============================================================================= */
 
 :root {
-  --lid-bg: #edebe8;
-  --lid-card-bg: #ffffff;
-  --lid-border: #d5d3ce;
-  --lid-border-light: #e8e6e3;
-  --lid-text: #222222;
-  --lid-text-muted: #666666;
-  --lid-text-light: #888888;
-  --lid-blue: #1b78d6;
-  --lid-blue-hover: #1565c0;
-  --lid-green: #22c55e;
-  --lid-red: #ef4444;
+  /* Blended Dark Luxury Palette matching home.css & style.css */
+  --bg-primary: #0a0e14;
+  --bg-secondary: #121820;
+  --lid-bg: radial-gradient(circle at 50% 15%, #182332 0%, #0a0e14 70%, #05070a 100%);
+  --lid-card-bg: rgba(22, 29, 39, 0.92);
+  --lid-card-bg-solid: #161d27;
+  --lid-border: rgba(245, 166, 35, 0.22);
+  --lid-border-light: rgba(255, 255, 255, 0.08);
+  --lid-border-gold: rgba(245, 166, 35, 0.35);
+  
+  --lid-text: #f8fafc;
+  --lid-text-muted: #94a3b8;
+  --lid-text-light: #64748b;
 
-  /* Natural Draughts Board Wood Colors (Matching authentic Lidraughts) */
-  --lid-sq-dark: #a66a38;
-  --lid-sq-dark-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(0, 0, 0, 0.12) 100%);
+  --accent-green: #008751;
+  --accent-green-light: #05a867;
+  --accent-green-glow: rgba(0, 135, 81, 0.45);
+
+  --accent-gold: #f5a623;
+  --accent-gold-light: #fcd34d;
+  --accent-gold-glow: rgba(245, 166, 35, 0.4);
+
+  --accent-red: #ef4444;
+  --accent-red-glow: rgba(239, 68, 68, 0.45);
+
+  /* Authentic Handcrafted West African Draughts Board Wood Finishes */
+  --wood-rim-dark: #2c1609;
+  --wood-rim-light: #4a2711;
+  --lid-sq-dark: #4a2711;
+  --lid-sq-dark-gradient: linear-gradient(135deg, #532d18 0%, #3a1c0d 100%);
   --lid-sq-light: #d9b48f;
-  --lid-sq-light-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(0, 0, 0, 0.04) 100%);
+  --lid-sq-light-gradient: linear-gradient(135deg, #e4c4a1 0%, #cfa67f 100%);
+
+  /* Typography */
+  --font-display: 'Cinzel', serif, Georgia;
+  --font-body: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* ==================== GLOBAL PAGE THEME ==================== */
 body.lidraughts-theme {
   background: var(--lid-bg) !important;
   color: var(--lid-text) !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-family: var(--font-body) !important;
   margin: 0;
   padding: 0;
   min-height: 100vh;
@@ -42,18 +62,20 @@ body.lidraughts-theme .app-wrapper {
   flex-direction: column;
 }
 
-/* ==================== TOP NAVIGATION BAR ==================== */
+/* ==================== TOP NAVIGATION BAR (AFRODRAUGHT-STYLE) ==================== */
 body.lidraughts-theme .app-header {
-  background: var(--lid-bg) !important;
+  background: rgba(10, 14, 20, 0.94) !important;
+  backdrop-filter: blur(16px) !important;
   border-bottom: 1px solid var(--lid-border) !important;
-  box-shadow: none !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
   padding: 0 24px !important;
-  height: 48px !important;
-  min-height: 48px !important;
+  height: 52px !important;
+  min-height: 52px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   z-index: 50;
+  box-sizing: border-box !important;
 }
 
 body.lidraughts-theme .nav-brand-container {
@@ -64,38 +86,52 @@ body.lidraughts-theme .nav-brand-container {
 body.lidraughts-theme .brand-link {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   text-decoration: none;
 }
 
 body.lidraughts-theme .brand-link .flag-stripes {
   display: flex;
-  width: 18px;
-  height: 14px;
-  border-radius: 2px;
+  width: 22px;
+  height: 32px;
+  border-radius: 3px;
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
 }
 
 body.lidraughts-theme .brand-link .flag-stripes .stripe {
   flex: 1;
   height: 100%;
 }
-body.lidraughts-theme .brand-link .flag-stripes .stripe.green { background: #008751; }
+body.lidraughts-theme .brand-link .flag-stripes .stripe.green { background: var(--accent-green); }
 body.lidraughts-theme .brand-link .flag-stripes .stripe.white { background: #ffffff; }
 
+body.lidraughts-theme .brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
 body.lidraughts-theme .brand-text .game-title {
-  font-size: 1.25rem !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.5px !important;
-  color: #444444 !important;
-  text-transform: lowercase !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-family: var(--font-display) !important;
+  font-size: 1.35rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 1.8px !important;
+  background: linear-gradient(135deg, #ffffff 30%, var(--accent-gold) 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  text-transform: uppercase !important;
   text-shadow: none !important;
 }
 
 body.lidraughts-theme .brand-text .game-subtitle {
-  display: none !important;
+  display: block !important;
+  font-size: 0.62rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 1.2px !important;
+  color: var(--lid-text-muted) !important;
+  text-transform: uppercase !important;
 }
 
 /* Nav Menu Items */
@@ -107,7 +143,7 @@ body.lidraughts-theme .main-nav {
 body.lidraughts-theme .nav-list {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -115,31 +151,46 @@ body.lidraughts-theme .nav-list {
 
 body.lidraughts-theme .nav-link {
   background: transparent !important;
-  border: none !important;
+  border: 1px solid transparent !important;
   box-shadow: none !important;
-  color: #666666 !important;
+  color: #cbd5e1 !important;
   font-size: 0.82rem !important;
   font-weight: 700 !important;
   letter-spacing: 0.6px !important;
   text-transform: uppercase !important;
-  padding: 8px 12px !important;
-  border-radius: 3px !important;
+  padding: 7px 12px !important;
+  border-radius: 6px !important;
   cursor: pointer;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  transition: all 0.15s ease;
+  gap: 6px;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body.lidraughts-theme .nav-link .nav-icon {
-  display: none; /* Hide heavy emojis in Lidraughts minimalist top-bar */
+  display: inline-block;
+  font-size: 0.95rem;
 }
 
-body.lidraughts-theme .nav-link:hover,
+body.lidraughts-theme .nav-link:hover {
+  color: #ffffff !important;
+  background: rgba(245, 166, 35, 0.12) !important;
+  border-color: rgba(245, 166, 35, 0.3) !important;
+}
+
+body.lidraughts-theme .nav-link.btn-nav-highlight,
 body.lidraughts-theme .nav-link.active {
-  color: #111111 !important;
-  background: rgba(0, 0, 0, 0.04) !important;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #008751 0%, #05a867 100%) !important;
+  border-color: rgba(5, 168, 103, 0.5) !important;
+  box-shadow: 0 2px 10px rgba(0, 135, 81, 0.45) !important;
+}
+
+body.lidraughts-theme .nav-link.nav-highlight-traps {
+  color: #fcd34d !important;
+  font-weight: 800 !important;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
 }
 
 /* Header Right Tools */
@@ -150,48 +201,52 @@ body.lidraughts-theme .header-right-tools {
 }
 
 body.lidraughts-theme .header-right-tools .btn-icon {
-  background: transparent !important;
-  border: none !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
   box-shadow: none !important;
-  color: #666666 !important;
+  color: #cbd5e1 !important;
   font-size: 1.05rem !important;
-  padding: 6px !important;
-  border-radius: 3px !important;
+  padding: 6px 9px !important;
+  border-radius: 6px !important;
   cursor: pointer;
-  transition: color 0.15s;
+  transition: all 0.18s ease;
 }
 
 body.lidraughts-theme .header-right-tools .btn-icon:hover {
-  color: #111111 !important;
-  background: rgba(0, 0, 0, 0.04) !important;
+  color: var(--accent-gold-light) !important;
+  background: rgba(245, 166, 35, 0.14) !important;
+  border-color: rgba(245, 166, 35, 0.35) !important;
 }
 
 body.lidraughts-theme .user-pill {
-  background: transparent !important;
-  border: 1px solid transparent !important;
-  box-shadow: none !important;
-  color: #444444 !important;
-  padding: 4px 8px !important;
+  background: rgba(245, 166, 35, 0.08) !important;
+  border: 1px solid var(--lid-border) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  color: #f8fafc !important;
+  padding: 5px 12px !important;
   font-size: 0.85rem !important;
   font-weight: 600 !important;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: 6px;
+  transition: all 0.18s ease;
 }
 
 body.lidraughts-theme .user-pill:hover {
-  background: rgba(0, 0, 0, 0.04) !important;
+  background: rgba(245, 166, 35, 0.16) !important;
+  border-color: var(--accent-gold) !important;
 }
 
 body.lidraughts-theme .user-pill-avatar {
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 
 body.lidraughts-theme .user-pill-rating {
-  color: #777777 !important;
-  font-size: 0.78rem !important;
+  color: var(--accent-gold-light) !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
 }
 
 /* Default visibility for mobile-only vs desktop-only components */
@@ -222,7 +277,7 @@ body.lidraughts-theme .game-container {
 @media (max-width: 990px) {
   /* ================= MOBILE PHONE & TABLET OPTIMIZED LAYOUT ================= */
   body.lidraughts-theme .app-header {
-    padding: 0 10px !important;
+    padding: 0 12px !important;
     height: 48px !important;
     min-height: 48px !important;
     max-height: 48px !important;
@@ -232,35 +287,20 @@ body.lidraughts-theme .game-container {
     align-items: center !important;
     justify-content: space-between !important;
     gap: 6px !important;
-    overflow: visible !important;
-  }
-
-  body.lidraughts-theme .nav-brand-container {
-    flex-shrink: 0 !important;
   }
 
   body.lidraughts-theme .brand-text .game-title {
-    font-size: 1.05rem !important;
+    font-size: 1.1rem !important;
   }
 
   body.lidraughts-theme .main-nav {
-    display: none !important; /* Managed via mobile drawer on touch devices */
-  }
-
-  body.lidraughts-theme .header-right-tools {
-    flex-shrink: 0 !important;
-    gap: 4px !important;
-  }
-
-  body.lidraughts-theme .header-right-tools .user-pill {
-    padding: 3px 6px !important;
-    font-size: 0.78rem !important;
+    display: none !important;
   }
 
   .lid-mobile-menu-toggle {
     display: inline-flex !important;
     font-size: 1.25rem !important;
-    padding: 4px 6px !important;
+    padding: 4px 8px !important;
     line-height: 1 !important;
   }
 
@@ -272,7 +312,7 @@ body.lidraughts-theme .game-container {
     max-width: 100vw !important;
     padding: 4px 8px 30px !important;
     margin: 4px auto 20px !important;
-    gap: 8px !important;
+    gap: 10px !important;
     align-items: center !important;
     box-sizing: border-box !important;
   }
@@ -297,7 +337,7 @@ body.lidraughts-theme .game-container {
     margin: 0 auto !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 8px !important;
+    gap: 10px !important;
     box-sizing: border-box !important;
   }
 
@@ -309,11 +349,11 @@ body.lidraughts-theme .game-container {
     margin: 0 auto !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 8px !important;
+    gap: 10px !important;
     box-sizing: border-box !important;
   }
 
-  /* Full-width Responsive Draughts Board (No collapse, zero overflow) */
+  /* Full-width Responsive Draughts Board */
   .lid-board-outer {
     width: 100% !important;
     max-width: 500px !important;
@@ -326,7 +366,6 @@ body.lidraughts-theme .game-container {
     display: block !important;
   }
 
-  /* Hide outer rim coordinates on mobile to give 100% of viewport to active squares */
   .lid-coords-right,
   .lid-coords-bottom {
     display: none !important;
@@ -337,7 +376,7 @@ body.lidraughts-theme .game-container {
     height: 100% !important;
     aspect-ratio: 1 / 1 !important;
     box-sizing: border-box !important;
-    border-radius: 4px !important;
+    border-radius: 6px !important;
     padding: 0 !important;
     margin: 0 !important;
   }
@@ -347,7 +386,7 @@ body.lidraughts-theme .game-container {
     height: 100% !important;
     aspect-ratio: 1 / 1 !important;
     box-sizing: border-box !important;
-    border-radius: 4px !important;
+    border-radius: 6px !important;
     display: grid !important;
     grid-template-columns: repeat(10, 1fr) !important;
     grid-template-rows: repeat(10, 1fr) !important;
@@ -364,11 +403,12 @@ body.lidraughts-theme .game-container {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    padding: 6px 12px !important;
+    padding: 7px 14px !important;
     background: var(--lid-card-bg) !important;
+    backdrop-filter: blur(12px) !important;
     border: 1px solid var(--lid-border) !important;
-    border-radius: 4px !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
     box-sizing: border-box !important;
   }
 
@@ -383,14 +423,14 @@ body.lidraughts-theme .game-container {
 
   .lid-mobile-player-name {
     font-weight: 700 !important;
-    font-size: 0.92rem !important;
-    color: #222222 !important;
+    font-size: 0.95rem !important;
+    color: var(--lid-text) !important;
   }
 
   .lid-player-rating-badge {
-    font-size: 0.78rem !important;
-    color: #777777 !important;
-    font-weight: 600 !important;
+    font-size: 0.8rem !important;
+    color: var(--accent-gold-light) !important;
+    font-weight: 700 !important;
   }
 
   .lid-mobile-clock-wrap {
@@ -401,12 +441,16 @@ body.lidraughts-theme .game-container {
 
   .lid-mobile-clock {
     font-size: 1.35rem !important;
-    padding: 4px 10px !important;
-    min-width: 78px !important;
-    border-radius: 4px !important;
+    padding: 4px 12px !important;
+    min-width: 82px !important;
+    border-radius: 6px !important;
     line-height: 1 !important;
-    font-weight: 700 !important;
+    font-weight: 800 !important;
     box-sizing: border-box !important;
+    background: #0a0e14 !important;
+    border: 1px solid var(--lid-border-gold) !important;
+    color: var(--accent-gold-light) !important;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8) !important;
   }
 
   /* Hide separate desktop clocks and duplicate info in right sidebar on mobile */
@@ -420,32 +464,32 @@ body.lidraughts-theme .game-container {
 
   /* Compact Turn Info Banner and Action Icons */
   .lid-turn-info-box {
-    padding: 10px 14px !important;
+    padding: 12px 14px !important;
     min-height: 56px !important;
     gap: 10px !important;
   }
 
   .lid-info-icon-circle {
-    width: 28px !important;
-    height: 28px !important;
-    font-size: 1.1rem !important;
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 1.15rem !important;
   }
 
   .lid-turn-main {
-    font-size: 0.92rem !important;
+    font-size: 0.95rem !important;
   }
 
   .lid-turn-sub {
-    font-size: 0.78rem !important;
+    font-size: 0.8rem !important;
   }
 
   .lid-action-icons-row {
-    padding: 8px 12px !important;
-    gap: 18px !important;
+    padding: 10px 14px !important;
+    gap: 20px !important;
   }
 }
 
-/* Extra Compact Phones (iPhone SE, smaller Androids < 600px) */
+/* Extra Compact Phones */
 @media (max-width: 600px) {
   .lid-coords-right,
   .lid-coords-bottom {
@@ -467,19 +511,20 @@ body.lidraughts-theme .game-container {
 /* ================= MOBILE NAVIGATION DRAWER ================= */
 .lid-mobile-drawer {
   position: fixed;
-  top: 48px;
+  top: 52px;
   left: 0;
   right: 0;
-  background: #ffffff;
-  border-bottom: 2px solid var(--lid-border);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  background: rgba(10, 14, 20, 0.98);
+  backdrop-filter: blur(18px);
+  border-bottom: 2px solid var(--lid-border-gold);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
   z-index: 1000;
   display: none !important;
   flex-direction: column;
-  padding: 6px 0;
-  max-height: calc(100vh - 48px);
+  padding: 8px 0;
+  max-height: calc(100vh - 52px);
   overflow-y: auto;
-  animation: lidDrawerSlide 0.2s ease-out;
+  animation: lidDrawerSlide 0.22s ease-out;
 }
 
 @keyframes lidDrawerSlide {
@@ -492,14 +537,14 @@ body.lidraughts-theme .game-container {
 }
 
 .lid-mobile-drawer .nav-link {
-  padding: 11px 18px !important;
-  font-size: 0.88rem !important;
-  font-weight: 600 !important;
+  padding: 12px 20px !important;
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
   border-bottom: 1px solid var(--lid-border-light) !important;
   display: flex !important;
   align-items: center !important;
-  gap: 10px !important;
-  color: #333333 !important;
+  gap: 12px !important;
+  color: #cbd5e1 !important;
   text-align: left !important;
   width: 100% !important;
   box-sizing: border-box !important;
@@ -508,42 +553,43 @@ body.lidraughts-theme .game-container {
 }
 
 .lid-mobile-drawer .nav-link:hover {
-  background: #f8fafc !important;
-  color: #111111 !important;
+  background: rgba(245, 166, 35, 0.12) !important;
+  color: var(--accent-gold-light) !important;
 }
 
 .lid-mobile-drawer .nav-link .nav-icon {
   display: inline-block !important;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
 }
 
 /* ==================== COLUMN 1: LEFT SIDEBAR ==================== */
 .lid-game-sidebar-left {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 /* Game Metadata Card (Lidraughts Left Top Card) */
 .lid-meta-card {
   background: var(--lid-card-bg);
+  backdrop-filter: blur(14px);
   border: 1px solid var(--lid-border);
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  padding: 14px 16px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  padding: 16px 18px;
   box-sizing: border-box;
 }
 
 .lid-meta-card-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .lid-meta-cogs-icon {
-  font-size: 1.6rem;
-  color: #777777;
+  font-size: 1.7rem;
+  color: var(--accent-gold);
   line-height: 1;
 }
 
@@ -554,14 +600,14 @@ body.lidraughts-theme .game-container {
 }
 
 .lid-meta-time-title {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 700;
-  color: #333333;
+  color: var(--lid-text);
 }
 
 .lid-meta-status-sub {
-  font-size: 0.8rem;
-  color: #888888;
+  font-size: 0.82rem;
+  color: var(--lid-text-muted);
 }
 
 /* Player Mini List in Left Card */
@@ -569,21 +615,21 @@ body.lidraughts-theme .game-container {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding-top: 10px;
+  padding-top: 12px;
   border-top: 1px solid var(--lid-border-light);
 }
 
 .lid-meta-player-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.88rem;
-  color: #444444;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #e2e8f0;
 }
 
 .lid-meta-player-item .dot-circle {
-  width: 11px;
-  height: 11px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   box-sizing: border-box;
   flex-shrink: 0;
@@ -591,32 +637,35 @@ body.lidraughts-theme .game-container {
 
 .lid-meta-player-item .dot-circle.white {
   background: #ffffff;
-  border: 2px solid #555555;
+  border: 2px solid #cbd5e1;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
 }
 
 .lid-meta-player-item .dot-circle.dark {
-  background: #333333;
-  border: 2px solid #333333;
+  background: #111418;
+  border: 2px solid #475569;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
 }
 
 .lid-meta-player-name {
-  font-weight: 600;
-  color: #222222;
+  font-weight: 700;
+  color: var(--lid-text);
 }
 
 .lid-meta-player-rating {
-  color: #777777;
+  color: var(--accent-gold-light);
   font-size: 0.82rem;
+  font-weight: 600;
 }
 
 /* Ruleset Badge & Mode Selector in Left Card */
 .lid-meta-ruleset-wrap {
-  margin-top: 12px;
-  padding-top: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
   border-top: 1px solid var(--lid-border-light);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .lid-ruleset-badge {
@@ -625,46 +674,51 @@ body.lidraughts-theme .game-container {
   gap: 6px;
   font-size: 0.82rem;
   font-weight: 700;
-  color: #334155;
-  background: #f1f3f5;
-  padding: 4px 8px;
-  border-radius: 3px;
+  color: #34d399;
+  background: rgba(0, 135, 81, 0.22);
+  border: 1px solid rgba(0, 135, 81, 0.45);
+  padding: 4px 10px;
+  border-radius: 6px;
   align-self: flex-start;
+  box-shadow: 0 2px 8px rgba(0, 135, 81, 0.2);
 }
 
 /* Secondary Left Utilities (Collapsible Accordion for Telemetry / Commentary) */
 .lid-left-accordion {
   border: 1px solid var(--lid-border);
-  border-radius: 4px;
-  background: #ffffff;
+  border-radius: 8px;
+  background: var(--lid-card-bg);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   overflow: hidden;
 }
 
 .lid-left-accordion summary {
-  padding: 8px 12px;
-  font-size: 0.82rem;
+  padding: 10px 14px;
+  font-size: 0.84rem;
   font-weight: 700;
-  color: #555555;
+  color: #cbd5e1;
   cursor: pointer;
-  background: #fafaf9;
+  background: rgba(14, 19, 27, 0.85);
   user-select: none;
+  transition: all 0.15s ease;
 }
 
 .lid-left-accordion summary:hover {
-  background: #f1f0ee;
-  color: #111111;
+  background: rgba(245, 166, 35, 0.12);
+  color: var(--accent-gold-light);
 }
 
 .lid-left-accordion-content {
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-top: 1px solid var(--lid-border-light);
+  color: var(--lid-text-muted);
 }
 
 /* ==================== COLUMN 2: CENTER BOARD ==================== */
 .lid-game-board-center {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
 }
 
@@ -679,18 +733,18 @@ body.lidraughts-theme .game-container {
   margin-bottom: 22px;
 }
 
-/* Wood Board Frame */
+/* Wood Board Frame - Rich African Mahogany & Brass Bezel */
 body.lidraughts-theme .board-wood-frame {
   width: 100% !important;
   height: 100% !important;
   padding: 0 !important;
   margin: 0 !important;
   box-sizing: border-box !important;
-  border: 1px solid #7c4d29 !important;
-  border-radius: 2px !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14) !important;
+  border: 2px solid var(--lid-border-gold) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 20px rgba(245, 166, 35, 0.12) !important;
   position: relative !important;
-  background: var(--lid-sq-dark) !important;
+  background: var(--wood-rim-dark) !important;
 }
 
 body.lidraughts-theme .board-wood-frame::before,
@@ -706,7 +760,7 @@ body.lidraughts-theme .board-inner {
   width: 100% !important;
   height: 100% !important;
   aspect-ratio: 1 / 1 !important;
-  border-radius: 2px !important;
+  border-radius: 6px !important;
   overflow: hidden !important;
   background: transparent !important;
 }
@@ -722,7 +776,7 @@ body.lidraughts-theme .square {
   user-select: none;
 }
 
-/* Hide internal board square alphanumeric coordinates (since border rim has 1-50 numbers) */
+/* Internal square coordinates hidden, outer rim numbers display */
 body.lidraughts-theme .square-coord {
   display: none !important;
 }
@@ -737,76 +791,79 @@ body.lidraughts-theme .square.dark {
   background-image: var(--lid-sq-dark-gradient) !important;
 }
 
-/* Last Move Highlights (Exact Lidraughts yellow-olive) */
+/* Last Move Highlights (Warm Brass/Amber Glow) */
 body.lidraughts-theme .square.sq-last-from,
 body.lidraughts-theme .square.sq-last-to {
-  background: rgba(205, 210, 106, 0.75) !important;
-  box-shadow: inset 0 0 0 1px rgba(188, 192, 87, 0.95) !important;
+  background: rgba(245, 166, 35, 0.38) !important;
+  box-shadow: inset 0 0 0 2px rgba(245, 166, 35, 0.85) !important;
 }
 
+/* Selected Piece Square (Nigerian Emerald Glow) */
 body.lidraughts-theme .square.sq-selected {
-  background: rgba(16, 185, 129, 0.42) !important;
-  box-shadow: inset 0 0 0 2px #10b981 !important;
+  background: rgba(0, 135, 81, 0.45) !important;
+  box-shadow: inset 0 0 0 2px #05a867, 0 0 16px rgba(0, 135, 81, 0.5) !important;
 }
 
 body.lidraughts-theme .square.valid-target::after {
   content: '';
   position: absolute;
-  width: 24%;
-  height: 24%;
+  width: 26%;
+  height: 26%;
   background: #10b981;
   border-radius: 50%;
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.95);
   pointer-events: none;
 }
 
 body.lidraughts-theme .square.valid-capture-target::after {
   content: '';
   position: absolute;
-  width: 32%;
-  height: 32%;
+  width: 34%;
+  height: 34%;
   background: #f59e0b;
   border-radius: 50%;
-  box-shadow: 0 0 8px rgba(245, 158, 11, 0.9);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.98);
   pointer-events: none;
 }
 
-/* Outer Edge Coordinates: Right (5, 15, 25, 35, 45) & Bottom (46, 47, 48, 49, 50) */
+/* Outer Edge Coordinates: Right & Bottom Brass Numbers */
 .lid-coords-right {
   position: absolute;
-  right: -20px;
+  right: -22px;
   top: 0;
   bottom: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #666666;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--accent-gold);
   pointer-events: none;
   user-select: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 .lid-coords-bottom {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -20px;
+  bottom: -22px;
   display: flex;
   justify-content: space-around;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #666666;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--accent-gold);
   pointer-events: none;
   user-select: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 .lid-board-resize-handle {
   position: absolute;
-  right: 3px;
-  bottom: 3px;
-  font-size: 0.65rem;
-  color: rgba(255, 255, 255, 0.45);
+  right: 4px;
+  bottom: 4px;
+  font-size: 0.7rem;
+  color: var(--accent-gold);
   pointer-events: none;
   user-select: none;
   line-height: 1;
@@ -839,61 +896,61 @@ body.lidraughts-theme .piece::before {
   pointer-events: none;
 }
 
-/* White Pieces */
+/* White / Light Pieces (Polished Ivory & Brass) */
 body.lidraughts-theme .piece.white,
 body.lidraughts-theme .piece.p1 {
-  background: radial-gradient(circle at 40% 35%, #ffffff 0%, #f4f4f5 52%, #e2e8f0 82%, #cbd5e1 100%) !important;
-  border: 1.5px solid #a8b0b8 !important;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.28), inset 0 2px 3px rgba(255, 255, 255, 0.95) !important;
+  background: radial-gradient(circle at 38% 32%, #ffffff 0%, #f6f3ed 45%, #e6decb 78%, #cfc4ac 100%) !important;
+  border: 1.5px solid #d5caa8 !important;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.95) !important;
 }
 
 body.lidraughts-theme .piece.white::before,
 body.lidraughts-theme .piece.p1::before {
-  border: 1.5px solid rgba(0, 0, 0, 0.12);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+  border: 1.5px solid rgba(138, 115, 68, 0.28);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 
-/* Dark Pieces */
+/* Dark Pieces (Deep Ebony & Mahogany Walnut) */
 body.lidraughts-theme .piece.dark,
 body.lidraughts-theme .piece.p2 {
-  background: radial-gradient(circle at 40% 35%, #32353a 0%, #202226 52%, #121416 82%, #08090a 100%) !important;
-  border: 1.5px solid #202226 !important;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.18) !important;
+  background: radial-gradient(circle at 38% 32%, #382417 0%, #24140b 52%, #140904 85%, #080301 100%) !important;
+  border: 1.5px solid #4a2814 !important;
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.7), inset 0 1px 3px rgba(255, 255, 255, 0.22) !important;
 }
 
 body.lidraughts-theme .piece.dark::before,
 body.lidraughts-theme .piece.p2::before {
-  border: 1.5px solid rgba(255, 255, 255, 0.15);
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(245, 166, 35, 0.25);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 body.lidraughts-theme .piece.selected {
-  transform: scale(1.12) !important;
-  box-shadow: 0 0 0 3px #10b981, 0 8px 16px rgba(16, 185, 129, 0.5) !important;
+  transform: scale(1.14) !important;
+  box-shadow: 0 0 0 3px #10b981, 0 10px 20px rgba(16, 185, 129, 0.6) !important;
   z-index: 99 !important;
 }
 
 body.lidraughts-theme .piece.dragging {
   cursor: grabbing !important;
-  transform: scale(1.16) !important;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6) !important;
+  transform: scale(1.18) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.8) !important;
   z-index: 999 !important;
 }
 
 body.lidraughts-theme .piece.king::after {
   content: '👑';
-  font-size: 1.25rem;
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.8));
+  font-size: 1.3rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
 }
 
 /* ==================== COLUMN 3: RIGHT SIDEBAR ==================== */
 .lid-game-sidebar-right {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
-/* Large Floating Digital Clocks */
+/* Large Floating Digital Clocks - Sleek Dark Carbon & Warm Gold LED Face */
 .lid-clock-card-row {
   display: flex;
   align-items: center;
@@ -902,62 +959,66 @@ body.lidraughts-theme .piece.king::after {
 }
 
 .lid-digital-clock {
-  background: #ffffff !important;
-  border: 1px solid var(--lid-border) !important;
-  border-radius: 4px !important;
-  padding: 6px 16px !important;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06) !important;
+  background: #0a0e14 !important;
+  border: 1px solid var(--lid-border-gold) !important;
+  border-radius: 8px !important;
+  padding: 6px 18px !important;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.9), 0 4px 16px rgba(0, 0, 0, 0.5) !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace !important;
   font-size: 2.3rem !important;
-  font-weight: 700 !important;
-  color: #222222 !important;
-  letter-spacing: 0.5px !important;
+  font-weight: 800 !important;
+  color: var(--accent-gold-light) !important;
+  letter-spacing: 0.8px !important;
   line-height: 1 !important;
   min-width: 140px;
   text-align: center;
+  text-shadow: 0 0 10px rgba(245, 166, 35, 0.35);
 }
 
 .lid-digital-clock.urgent {
   color: #ef4444 !important;
-  background: #fef2f2 !important;
-  border-color: #fca5a5 !important;
+  background: #180505 !important;
+  border-color: #ef4444 !important;
+  text-shadow: 0 0 14px rgba(239, 68, 68, 0.6) !important;
   animation: lidClockPulse 1s infinite alternate;
 }
 
 @keyframes lidClockPulse {
-  from { box-shadow: 0 0 0 1px #ef4444; }
-  to { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35); }
+  from { box-shadow: inset 0 2px 8px rgba(0,0,0,0.9), 0 0 0 1px #ef4444; }
+  to { box-shadow: inset 0 2px 8px rgba(0,0,0,0.9), 0 0 16px rgba(239, 68, 68, 0.6); }
 }
 
 /* Increment "+" button beside Opponent Clock */
 .lid-clock-add-btn {
-  background: #e0f2fe;
-  color: #0284c7;
-  border: 1px solid #bae6fd;
-  border-radius: 4px;
-  width: 32px;
-  height: 32px;
+  background: rgba(0, 135, 81, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(0, 135, 81, 0.45);
+  border-radius: 6px;
+  width: 34px;
+  height: 34px;
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 800;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.18s ease;
   line-height: 1;
 }
 
 .lid-clock-add-btn:hover {
-  background: #bae6fd;
-  color: #0369a1;
+  background: var(--accent-green);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 135, 81, 0.4);
 }
 
 /* Main Controls Box */
 .lid-controls-card {
   background: var(--lid-card-bg);
+  backdrop-filter: blur(14px);
   border: 1px solid var(--lid-border);
-  border-radius: 4px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -967,31 +1028,33 @@ body.lidraughts-theme .piece.king::after {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: #333333;
+  padding: 11px 16px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--lid-text);
+  background: rgba(14, 19, 27, 0.7);
 }
 
 .lid-ctrl-player-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .lid-ctrl-player-left .green-dot {
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: var(--lid-green);
+  background: #10b981;
   display: inline-block;
   flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
 }
 
 .lid-ctrl-player-right {
-  font-size: 0.82rem;
-  color: #777777;
-  font-weight: 500;
+  font-size: 0.84rem;
+  color: var(--accent-gold-light);
+  font-weight: 700;
 }
 
 /* Replay & Move Navigation Toolbar */
@@ -999,22 +1062,22 @@ body.lidraughts-theme .piece.king::after {
   display: flex;
   border-top: 1px solid var(--lid-border-light);
   border-bottom: 1px solid var(--lid-border-light);
-  background: #fafaf9;
+  background: rgba(14, 19, 27, 0.85);
 }
 
 .lid-nav-btn {
   flex: 1;
-  height: 38px;
+  height: 40px;
   border: none;
   background: transparent;
   font-size: 1.05rem;
-  color: #666666;
+  color: #94a3b8;
   cursor: pointer;
   border-right: 1px solid var(--lid-border-light);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s ease;
+  transition: all 0.18s ease;
 }
 
 .lid-nav-btn:last-child {
@@ -1022,35 +1085,36 @@ body.lidraughts-theme .piece.king::after {
 }
 
 .lid-nav-btn:hover {
-  background: #f1f0ee;
-  color: #111111;
+  background: rgba(245, 166, 35, 0.12);
+  color: var(--accent-gold-light);
 }
 
 /* Turn Status / Information Banner */
 .lid-turn-info-box {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 22px 18px;
-  background: #ffffff;
+  gap: 16px;
+  padding: 20px 18px;
+  background: var(--lid-card-bg);
   min-height: 80px;
   box-sizing: border-box;
 }
 
 .lid-info-icon-circle {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: #777777;
+  background: linear-gradient(135deg, #008751 0%, #05a867 100%);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
-  font-family: Georgia, serif;
+  font-size: 1.35rem;
+  font-family: var(--font-display);
   font-weight: bold;
   font-style: italic;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 135, 81, 0.4);
 }
 
 .lid-turn-info-text {
@@ -1060,17 +1124,17 @@ body.lidraughts-theme .piece.king::after {
 }
 
 .lid-turn-sub {
-  font-size: 0.88rem;
-  color: #555555;
+  font-size: 0.86rem;
+  color: var(--lid-text-muted);
 }
 
 .lid-turn-main {
   font-size: 1.05rem;
   font-weight: 800;
-  color: #222222;
+  color: var(--lid-text);
 }
 
-/* Action Icons Row (Resign, Draw, Flag) */
+/* Action Icons Row (Resign, Draw, Settings) */
 .lid-action-icons-row {
   display: flex;
   align-items: center;
@@ -1078,31 +1142,31 @@ body.lidraughts-theme .piece.king::after {
   gap: 28px;
   padding: 12px 18px;
   border-top: 1px solid var(--lid-border-light);
-  background: #ffffff;
+  background: rgba(14, 19, 27, 0.9);
 }
 
 .lid-action-icon-btn {
   background: transparent;
   border: none;
   font-size: 1.25rem;
-  color: #777777;
+  color: #94a3b8;
   cursor: pointer;
-  padding: 6px 12px;
-  border-radius: 4px;
-  transition: all 0.15s ease;
+  padding: 6px 14px;
+  border-radius: 6px;
+  transition: all 0.18s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
 .lid-action-icon-btn:hover {
-  color: #111111;
-  background: #f1f0ee;
+  color: var(--accent-gold-light);
+  background: rgba(245, 166, 35, 0.14);
 }
 
 .lid-action-icon-btn.resign:hover {
   color: #ef4444;
-  background: #fee2e2;
+  background: rgba(239, 68, 68, 0.18);
 }
 
 /* ==================== BOTTOM-RIGHT ONLINE WIDGET ==================== */
@@ -1110,28 +1174,28 @@ body.lidraughts-theme .piece.king::after {
   position: fixed;
   bottom: 0;
   right: 24px;
-  background: #ffffff;
-  border: 1px solid var(--lid-border);
+  background: rgba(18, 24, 34, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--lid-border-gold);
   border-bottom: none;
-  border-radius: 4px 4px 0 0;
-  padding: 6px 16px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #666666;
+  border-radius: 6px 6px 0 0;
+  padding: 7px 18px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #cbd5e1;
   cursor: pointer;
-  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.5);
   z-index: 100;
   user-select: none;
-  transition: background 0.15s;
+  transition: all 0.18s ease;
 }
 
 .lid-friends-bottom-widget:hover {
-  background: #f8fafc;
-  color: #111111;
+  background: rgba(24, 32, 45, 0.98);
+  color: var(--accent-gold-light);
 }
 
 /* ==================== PRESERVE ORIGINAL DOM HOOKS & CONTROLS ==================== */
-/* Hide bulky legacy containers that are now replaced by the Lidraughts elements, while keeping them alive in the DOM for js/app.js */
 body.lidraughts-theme .player-header,
 body.lidraughts-theme .stats-row,
 body.lidraughts-theme .quick-status-bar,
@@ -1139,12 +1203,10 @@ body.lidraughts-theme .ruleset-selector-bar {
   display: none !important;
 }
 
-/* Legacy sidebars reset */
 body.lidraughts-theme .sidebar.player-card {
   display: contents !important;
 }
 
-/* Turn indicators (preserved for JS DOM query, but hidden visually since replaced by lid-turn-info-box) */
 body.lidraughts-theme .turn-indicator {
   display: none !important;
 }
