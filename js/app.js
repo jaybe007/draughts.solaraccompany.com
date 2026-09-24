@@ -23,7 +23,7 @@ class NigerianDraughtsApp {
     this.ruleMode = 'nigeria';
     this.gameMode = 'pve'; // 'pve' | 'pvp' | 'eve'
     this.aiDifficulty = 'expert';
-    this.timeControl = 'rapid_5';
+    this.timeControl = '10';
     this.isBoardFlipped = false;
     this.selectedPieceSquare = null;
     this.validMovesForSelected = [];
@@ -103,8 +103,8 @@ class NigerianDraughtsApp {
       difficulty: this.aiDifficulty
     });
 
-    this.initTimer();
     this.initDOMReferences();
+    this.initTimer();
     this.bindEvents();
 
     // Sub-controllers
@@ -281,7 +281,7 @@ class NigerianDraughtsApp {
     this.timer = new DraughtsTimer({
       preset: this.timeControl,
       onTick: (timeStrings, timeLeft, activePlayer) => {
-        if (this.dom.p1Clock) {
+        if (this.dom?.p1Clock) {
           this.dom.p1Clock.textContent = timeStrings[PLAYER_1];
           this.dom.p1Clock.classList.toggle('urgent', Boolean(timeStrings.isP1Low));
         }
@@ -292,7 +292,7 @@ class NigerianDraughtsApp {
           p1MobClock.classList.toggle('active', this.engine.currentTurn === PLAYER_1);
         }
 
-        if (this.dom.p2Clock) {
+        if (this.dom?.p2Clock) {
           this.dom.p2Clock.textContent = timeStrings[PLAYER_2];
           this.dom.p2Clock.classList.toggle('urgent', Boolean(timeStrings.isP2Low));
         }
@@ -319,6 +319,9 @@ class NigerianDraughtsApp {
         });
       }
     });
+
+    // Synchronize initial clock displays with the actual timer preset
+    this.timer.reset();
   }
 
   initDOMReferences() {
@@ -1565,11 +1568,32 @@ class NigerianDraughtsApp {
 
     if (lidGameTime) {
       let tStr = '10+0 • Casual • Rapid';
-      if (this.timeControl === 'blitz_3') tStr = '3+0 • Blitz';
-      else if (this.timeControl === 'blitz_5' || this.timeControl === '5') tStr = '5+0 • Rapid';
-      else if (this.timeControl === 'rapid_10' || this.timeControl === '10') tStr = '10+0 • Casual • Rapid';
+      if (this.timeControl === 'blitz_1' || this.timeControl === '1') tStr = '1+0 • Bullet';
+      else if (this.timeControl === 'blitz_3' || this.timeControl === '3') tStr = '3+0 • Blitz';
+      else if (this.timeControl === 'blitz_4' || this.timeControl === '4') tStr = '4+0 • Blitz';
+      else if (this.timeControl === 'rapid_5' || this.timeControl === '5') tStr = '5+0 • Rapid';
+      else if (this.timeControl === 'rapid_6' || this.timeControl === '6') tStr = '6+0 • Rapid';
+      else if (this.timeControl === 'rapid_7' || this.timeControl === '7') tStr = '7+0 • Rapid';
+      else if (this.timeControl === 'rapid_8' || this.timeControl === '8') tStr = '8+0 • Rapid';
+      else if (this.timeControl === 'rapid_9' || this.timeControl === '9') tStr = '9+0 • Rapid';
+      else if (this.timeControl === 'rapid_10' || this.timeControl === '10' || this.timeControl === 'classical_10') tStr = '10+0 • Casual • Rapid';
       else if (this.timeControl === 'classical_15' || this.timeControl === '15') tStr = '15+0 • Classical';
+      else if (this.timeControl === 'classical_20' || this.timeControl === '20') tStr = '20+0 • Classical';
+      else if (this.timeControl === 'classical_30' || this.timeControl === '30') tStr = '30+0 • Classical';
+      else if (this.timeControl === 'none' || this.timeControl === 'unlimited') tStr = '∞ Unlimited';
+      else if (parseInt(this.timeControl, 10) > 0) tStr = `${this.timeControl}+0 • Custom`;
       lidGameTime.textContent = tStr;
+    }
+
+    // Ensure DOM clocks match the timer preset
+    if (this.timer && !this.timer.isRunning) {
+      const timeStrings = this.timer.getTimeStrings();
+      if (this.dom.p1Clock) this.dom.p1Clock.textContent = timeStrings[PLAYER_1];
+      if (this.dom.p2Clock) this.dom.p2Clock.textContent = timeStrings[PLAYER_2];
+      const p1Mob = document.getElementById('p1-mobile-clock');
+      const p2Mob = document.getElementById('p2-mobile-clock');
+      if (p1Mob) p1Mob.textContent = timeStrings[PLAYER_1];
+      if (p2Mob) p2Mob.textContent = timeStrings[PLAYER_2];
     }
   }
 
