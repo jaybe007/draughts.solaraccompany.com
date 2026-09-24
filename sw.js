@@ -3,7 +3,7 @@
  * Caches essential static assets for fast loading and offline play.
  */
 
-const CACHE_NAME = 'naija-draughts-v2.0';
+const CACHE_NAME = 'naija-draughts-v2.1';
 const STATIC_ASSETS = [
   './',
   './index.php',
@@ -14,6 +14,7 @@ const STATIC_ASSETS = [
   './puzzles.css',
   './js/app.js',
   './js/engine.js',
+  './js/rules_engine.js',
   './js/traps.js',
   './js/puzzle_trainer.js',
   './js/audio.js',
