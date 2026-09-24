@@ -655,7 +655,6 @@ export class NigerianDraughtsEngine {
         : [effectiveMove.jumped];
 
       const reachedBackline = this.willPromote(piece, effectiveMove.to.r);
-      const touchedBackline = Boolean(this.activeMultiJump?.touchedBackline || reachedBackline);
 
       // Check if further captures are possible from new position (r, c)
       let subsequentCaptures = [];
@@ -666,7 +665,7 @@ export class NigerianDraughtsEngine {
           : this.getPieceCaptures(effectiveMove.to.r, effectiveMove.to.c, piece, jumpedPieces);
       } else {
         // In Nigerian and International FMJD rules: a man passing through the king row continues jumping as a man;
-        // It does NOT crown before capturing the rest!
+        // It does NOT crown before capturing the rest, and capturing over the crown does NOT crown!
         subsequentCaptures = this.getPieceCaptures(effectiveMove.to.r, effectiveMove.to.c, piece, jumpedPieces);
       }
 
@@ -675,8 +674,7 @@ export class NigerianDraughtsEngine {
         this.activeMultiJump = {
           r: effectiveMove.to.r,
           c: effectiveMove.to.c,
-          jumpedPieces,
-          touchedBackline: touchedBackline
+          jumpedPieces
         };
         turnEnded = false;
       } else {
@@ -687,11 +685,9 @@ export class NigerianDraughtsEngine {
         }
         this.activeMultiJump = null;
 
-        // In Nigerian rules: "Touch and Crown" — if it touched the backline at any point or ended on it!
-        // In International FMJD: crowns only if stopping on the back rank!
-        const shouldCrown = (this.ruleMode === 'nigeria')
-          ? (touchedBackline || reachedBackline)
-          : reachedBackline;
+        // A piece ONLY crowns if it terminates its move resting on the back rank!
+        // Capturing over the crown row does NOT crown.
+        const shouldCrown = reachedBackline;
 
         if (shouldCrown && !piece.isKing) {
           piece.isKing = true;

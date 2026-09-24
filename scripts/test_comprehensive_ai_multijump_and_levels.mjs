@@ -63,15 +63,15 @@ console.log('--- TEST 1: 3-Seed Capture Chain to Corner/Edge (No False Crowning)
 }
 
 // -----------------------------------------------------------------------------
-// TEST 2: True Nigerian Overcrown Capture (Seed captures over crown row, crowns after all captures)
+// TEST 2: Nigerian Overcrown Capture (Seed captures over crown row: NOT a crown)
 // -----------------------------------------------------------------------------
-console.log('\n--- TEST 2: True Nigerian Overcrown Capture (Touches Row 0, Continues as Seed, Crowns at End) ---');
+console.log('\n--- TEST 2: Nigerian Overcrown Capture (Capturing Over Crown Row Is NOT a Crown) ---');
 {
   const engine = new NigerianDraughtsEngine({ boardSize: 10, ruleMode: 'nigeria' });
   for (let r = 0; r < 10; r++) for (let c = 0; c < 10; c++) engine.board[r][c] = null;
 
   // P1 man at (2,0). Enemy 1 at (1,1) (jump to 0,2 - crown row).
-  // Enemy 2 at (1,3) (adjacent to 0,2 - jump to 2,4).
+  // Enemy 2 at (1,3) (adjacent to 0,2 - jump to 2,4 - off crown row).
   engine.board[2][0] = { id: 1, player: PLAYER_1, isKing: false };
   engine.board[1][1] = { id: 2, player: PLAYER_2, isKing: false };
   engine.board[1][3] = { id: 3, player: PLAYER_2, isKing: false };
@@ -89,8 +89,8 @@ console.log('\n--- TEST 2: True Nigerian Overcrown Capture (Touches Row 0, Conti
   const step2 = continuations.find(m => m.to.r === 2 && m.to.c === 4) || continuations[0];
   const res2 = engine.makeMove(step2);
   assert(res2.turnEnded, 'Overcrown step 2 completes sequence');
-  assert(res2.justPromoted === true, 'justPromoted is true upon finishing the capture sequence');
-  assert(engine.board[step2.to.r][step2.to.c].isKing === true, 'Piece crowns into an Oba/King after completing all captures');
+  assert(res2.justPromoted === false, 'justPromoted is false upon finishing (it is NOT a crown when capturing over crown)');
+  assert(engine.board[step2.to.r][step2.to.c].isKing === false, 'Piece at (2,4) remains a SEED (not a crown)');
 }
 
 // -----------------------------------------------------------------------------

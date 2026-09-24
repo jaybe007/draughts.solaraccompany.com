@@ -237,7 +237,7 @@ export class BaseRules {
   /**
    * Recursive capture sequence finder for a single piece.
    */
-  generateCaptureSequences(boardInstance, sq, piece, player, jumpedSquares = [], jumpedPieces = [], pathSquares = [sq], touchedKingRow = false) {
+  generateCaptureSequences(boardInstance, sq, piece, player, jumpedSquares = [], jumpedPieces = [], pathSquares = [sq]) {
     const isKing = boardInstance.isKing(piece);
     const sequences = [];
     const isAlreadyJumped = (targetSq) => jumpedSquares.includes(targetSq);
@@ -286,22 +286,18 @@ export class BaseRules {
             }
 
             // In Nigerian Rules and International (FMJD) rules:
-            // A seed does NOT crown before capturing the rest!
+            // A seed does NOT crown before capturing the rest.
             // It continues the multi-jump sequence AS A SEED / MAN.
-            const hasTouchedKingRow = touchedKingRow || reachedKingRow;
             const subJumps = this.generateCaptureSequences(
-              boardInstance, dest, piece, player, nextJumpedSq, nextJumpedPc, nextPath, hasTouchedKingRow
+              boardInstance, dest, piece, player, nextJumpedSq, nextJumpedPc, nextPath
             );
 
             if (subJumps.length > 0) {
               sequences.push(...subJumps);
             } else {
-              // End of capture sequence:
-              // In Nigerian rules: "Touch and Crown" — crowns after completing all captures if it touched the king row at any point!
-              // In International FMJD: crowns only if stopping on king row!
-              const shouldCrown = (this.id === 'nigeria')
-                ? hasTouchedKingRow
-                : this.isKingRow(dest, player);
+              // End of capture sequence: piece ONLY crowns if stopping/resting on king row!
+              // Capturing over the crown row does NOT crown if the piece does not stop on the king row.
+              const shouldCrown = this.isKingRow(dest, player);
 
               sequences.push({
                 from: pathSquares[0],
