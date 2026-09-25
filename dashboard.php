@@ -1087,7 +1087,7 @@ $pkgBadge = getPackageBadge($package);
         <!-- Currency Selector Bar -->
         <div style="margin-bottom: 16px;">
           <label style="font-size: 0.78rem; text-transform: uppercase; color: #94a3b8; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; display: block;">Select Payment Currency</label>
-          <div class="deposit-currency-selector" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;">
+          <div class="deposit-currency-selector">
             <button type="button" class="btn-currency-pill active" data-currency="NGN" onclick="switchDepositCurrency('NGN')">🇳🇬 NGN (₦)</button>
             <button type="button" class="btn-currency-pill" data-currency="USD" onclick="switchDepositCurrency('USD')">🇺🇸 USD ($)</button>
             <button type="button" class="btn-currency-pill" data-currency="GHS" onclick="switchDepositCurrency('GHS')">🇬🇭 GHS (GH₵)</button>

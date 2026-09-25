@@ -27,23 +27,22 @@ $isLocal = (!empty($_SERVER['HTTP_HOST']) && (
 
 define('MAIL_DEV_MODE', getenv('MAIL_DEV_MODE') !== false ? filter_var(getenv('MAIL_DEV_MODE'), FILTER_VALIDATE_BOOLEAN) : $isLocal);
 
-/**
- * Automatically determine application base URL for links in emails.
- */
-function getAppBaseUrl() {
-    if (!empty(getenv('APP_URL'))) {
-        return rtrim(getenv('APP_URL'), '/') . '/';
+if (!function_exists('getAppBaseUrl')) {
+    function getAppBaseUrl() {
+        if (!empty(getenv('APP_URL'))) {
+            return rtrim(getenv('APP_URL'), '/') . '/';
+        }
+        if (!empty($_SERVER['HTTP_HOST'])) {
+            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+            $host = $_SERVER['HTTP_HOST'];
+            $uri = $_SERVER['REQUEST_URI'] ?? '';
+            // Find base path up to /api/ or root
+            $path = preg_replace('#/(api|database|scripts)/.*$#i', '', $uri);
+            $path = rtrim($path, '/') . '/';
+            return $protocol . $host . $path;
+        }
+        return 'http://localhost/nigerian-draughts/';
     }
-    if (!empty($_SERVER['HTTP_HOST'])) {
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
-        $host = $_SERVER['HTTP_HOST'];
-        $uri = $_SERVER['REQUEST_URI'] ?? '';
-        // Find base path up to /api/ or root
-        $path = preg_replace('#/(api|database|scripts)/.*$#i', '', $uri);
-        $path = rtrim($path, '/') . '/';
-        return $protocol . $host . $path;
-    }
-    return 'http://localhost/nigerian-draughts/';
 }
 
 /**

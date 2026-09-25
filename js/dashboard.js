@@ -870,10 +870,10 @@ async function loadWalletSummary() {
     const res = await fetch('api/wallet.php?action=get_wallet');
     const data = await res.json();
 
-    if (data.success && data.wallet) {
-      const w = data.wallet;
-      const nairaStr = '₦' + parseFloat(w.wallet_balance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      const coinsStr = parseInt(w.coins, 10).toLocaleString('en-US');
+    if (data.success) {
+      const w = data.wallet || data;
+      const nairaStr = '₦' + parseFloat(w.wallet_balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const coinsStr = parseInt(w.coins || 0, 10).toLocaleString('en-US');
 
       // Update Nav
       const navW = document.getElementById('nav-wallet-val');
@@ -904,16 +904,28 @@ async function loadWalletSummary() {
         if (data.transactions.length === 0) {
           tbody.innerHTML = '<tr><td colspan="6" class="text-center">No transactions recorded yet.</td></tr>';
         } else {
-          tbody.innerHTML = data.transactions.map(t => `
-            <tr>
-              <td>#${t.id}</td>
-              <td><span class="badge-type ${t.type}">${t.type}</span></td>
-              <td><strong>₦${parseFloat(t.amount).toFixed(2)}</strong></td>
-              <td>₦${parseFloat(t.balance_after).toFixed(2)}</td>
-              <td>${escapeHtml(t.description || '')}</td>
-              <td>${t.created_at || ''}</td>
-            </tr>
-          `).join('');
+          tbody.innerHTML = data.transactions.map(t => {
+            const hasAmt = parseFloat(t.amount || 0) !== 0;
+            const hasCoins = parseInt(t.coins || 0, 10) !== 0;
+            let displayVal = '₦' + parseFloat(t.amount || 0).toFixed(2);
+            if (!hasAmt && hasCoins) {
+              const c = parseInt(t.coins, 10);
+              displayVal = (c > 0 ? '+' : '') + c.toLocaleString() + ' 🪙';
+            } else if (hasAmt) {
+              const a = parseFloat(t.amount);
+              displayVal = (a > 0 ? '+' : '') + '₦' + a.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+            return `
+              <tr>
+                <td>#${t.id}</td>
+                <td><span class="badge-type ${t.type}">${t.type}</span></td>
+                <td><strong style="color:${parseFloat(t.amount || 0) < 0 || parseInt(t.coins || 0) < 0 ? '#f43f5e' : '#34d399'};">${displayVal}</strong></td>
+                <td>₦${parseFloat(t.balance_after || 0).toFixed(2)}</td>
+                <td>${escapeHtml(t.description || '')}</td>
+                <td>${t.created_at || ''}</td>
+              </tr>
+            `;
+          }).join('');
         }
       }
     }
@@ -1075,7 +1087,13 @@ async function checkPaymentReturnCallback() {
   }
 }
 
+let isDepositBusy = false;
+
 async function submitDeposit(amount, currency = 'NGN', coinsToAdd = 0, bundleId = '') {
+  if (isDepositBusy) return;
+  isDepositBusy = true;
+  showToast('Connecting to payment gateway...', 'info');
+
   try {
     const initRes = await fetch('api/wallet.php?action=init_deposit', {
       method: 'POST',
@@ -1083,6 +1101,12 @@ async function submitDeposit(amount, currency = 'NGN', coinsToAdd = 0, bundleId 
       body: JSON.stringify({ amount, currency, coins: coinsToAdd, bundle_id: bundleId })
     });
     const initData = await initRes.json();
+
+    if (!initData.success) {
+      showToast(initData.message || 'Deposit initialization failed.', 'error');
+      isDepositBusy = false;
+      return;
+    }
 
     if (initData.authorization_url) {
       window.location.href = initData.authorization_url;
@@ -1114,6 +1138,8 @@ async function submitDeposit(amount, currency = 'NGN', coinsToAdd = 0, bundleId 
   } catch (err) {
     console.error(err);
     showToast('Network error on deposit.', 'error');
+  } finally {
+    isDepositBusy = false;
   }
 }
 

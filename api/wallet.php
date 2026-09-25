@@ -68,8 +68,17 @@ try {
             $txStmt->execute([$currentUser['id']]);
             $transactions = $txStmt->fetchAll();
 
+            $walletInfo = [
+                'wallet_balance' => (float)$user['wallet_balance'],
+                'coins' => (int)$user['coins'],
+                'package' => $user['package'],
+                'package_expiry' => $user['package_expiry'],
+                'daily_games_left' => (int)$user['daily_games_left']
+            ];
+
             jsonResponse([
                 'success' => true,
+                'wallet' => $walletInfo,
                 'wallet_balance' => (float)$user['wallet_balance'],
                 'coins' => (int)$user['coins'],
                 'package' => $user['package'],

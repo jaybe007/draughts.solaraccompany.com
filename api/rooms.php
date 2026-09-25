@@ -165,13 +165,14 @@ try {
                 }
             }
 
-            // Real-Money Naira verification if cash wagered
+            // Real-Money Naira verification if cash wagered (supports coins fallback for international players)
             if ($wagerNaira > 0) {
                 $userBal = $currentUser ? (float)$currentUser['wallet_balance'] : 0.0;
-                if (!$currentUser || $userBal < $wagerNaira) {
+                $userCoins = $currentUser ? (int)$currentUser['coins'] : 0;
+                if (!$currentUser || ($userBal < $wagerNaira && $userCoins < (int)ceil($wagerNaira))) {
                     jsonResponse([
                         'success' => false,
-                        'message' => "Insufficient wallet balance! You need ₦" . number_format($wagerNaira, 2) . " to create this cash stake match. (Available: ₦" . number_format($userBal, 2) . ")"
+                        'message' => "Insufficient balance! You need ₦" . number_format($wagerNaira, 2) . " (or " . number_format($wagerNaira) . " Coins) to create this match. (Available: ₦" . number_format($userBal, 2) . " / " . number_format($userCoins) . " Coins)"
                     ], 400);
                 }
             }
@@ -234,16 +235,30 @@ try {
                 }
             }
 
-            // Deduct escrow Naira from host if cash wagered
+            // Deduct escrow from host if cash wagered
             if ($wagerNaira > 0 && $hostId) {
-                $db->prepare("UPDATE users SET wallet_balance = GREATEST(0, wallet_balance - ?) WHERE id = ?")->execute([$wagerNaira, $hostId]);
-                $freshBal = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$hostId}")->fetchColumn();
-                $db->prepare("
-                    INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, description)
-                    VALUES (?, 'wager_lock', ?, 0, ?, 'completed', ?)
-                ")->execute([$hostId, -$wagerNaira, $freshBal, "Escrow: Cash Match Wager for Room {$roomCode}"]);
-                if (isset($_SESSION['user']['wallet_balance'])) {
-                    $_SESSION['user']['wallet_balance'] = $freshBal;
+                $userBal = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$hostId}")->fetchColumn();
+                if ($userBal >= $wagerNaira) {
+                    $db->prepare("UPDATE users SET wallet_balance = GREATEST(0, wallet_balance - ?) WHERE id = ?")->execute([$wagerNaira, $hostId]);
+                    $freshBal = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$hostId}")->fetchColumn();
+                    $db->prepare("
+                        INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, description)
+                        VALUES (?, 'wager_lock', ?, 0, ?, 'completed', ?)
+                    ")->execute([$hostId, -$wagerNaira, $freshBal, "Escrow: Cash Match Wager for Room {$roomCode}"]);
+                    if (isset($_SESSION['user']['wallet_balance'])) {
+                        $_SESSION['user']['wallet_balance'] = $freshBal;
+                    }
+                } else {
+                    $coinDeduct = (int)ceil($wagerNaira);
+                    $db->prepare("UPDATE users SET coins = GREATEST(0, coins - ?) WHERE id = ?")->execute([$coinDeduct, $hostId]);
+                    $freshCoins = (int)$db->query("SELECT coins FROM users WHERE id = {$hostId}")->fetchColumn();
+                    $db->prepare("
+                        INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, description)
+                        VALUES (?, 'wager_escrow', 0, ?, ?, 'completed', ?)
+                    ")->execute([$hostId, -$coinDeduct, $userBal, "Escrow: Cash Match Wager via Global Coins for Room {$roomCode}"]);
+                    if (isset($_SESSION['user']['coins'])) {
+                        $_SESSION['user']['coins'] = $freshCoins;
+                    }
                 }
             }
 
@@ -378,17 +393,23 @@ try {
                 }
             }
 
-            // Validate and deduct cash Naira wager from joining guest
+            // Validate and deduct cash Naira wager from joining guest (with coins fallback for international players)
             $roomWagerNaira = (float)($room['wager_naira'] ?? 0);
             if ($roomWagerNaira > 0) {
-                $availNaira = $currentUser ? (float)$currentUser['wallet_balance'] : 0.0;
-                if (!$currentUser || $availNaira < $roomWagerNaira) {
+                if (!$currentUser) {
+                    jsonResponse(['success' => false, 'message' => 'Please sign in to join a cash stake match.'], 401);
+                }
+                $availNaira = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$guestId}")->fetchColumn();
+                $availCoins = (int)$db->query("SELECT coins FROM users WHERE id = {$guestId}")->fetchColumn();
+
+                if ($availNaira < $roomWagerNaira && $availCoins < (int)ceil($roomWagerNaira)) {
                     jsonResponse([
                         'success' => false,
-                        'message' => "Insufficient wallet balance! This match requires a ₦" . number_format($roomWagerNaira, 2) . " cash stake. (Available: ₦" . number_format($availNaira, 2) . ")"
+                        'message' => "Insufficient balance! This match requires a ₦" . number_format($roomWagerNaira, 2) . " (or " . number_format($roomWagerNaira) . " Coins) stake. (Available: ₦" . number_format($availNaira, 2) . " / " . number_format($availCoins) . " Coins)"
                     ], 400);
                 }
-                if ($guestId) {
+
+                if ($availNaira >= $roomWagerNaira) {
                     $db->prepare("UPDATE users SET wallet_balance = GREATEST(0, wallet_balance - ?) WHERE id = ?")->execute([$roomWagerNaira, $guestId]);
                     $freshGuestBal = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$guestId}")->fetchColumn();
                     $db->prepare("
@@ -397,6 +418,17 @@ try {
                     ")->execute([$guestId, -$roomWagerNaira, $freshGuestBal, "Escrow: Match Cash Stake for Room {$roomCode}"]);
                     if (isset($_SESSION['user']['wallet_balance'])) {
                         $_SESSION['user']['wallet_balance'] = $freshGuestBal;
+                    }
+                } else {
+                    $coinDeduct = (int)ceil($roomWagerNaira);
+                    $db->prepare("UPDATE users SET coins = GREATEST(0, coins - ?) WHERE id = ?")->execute([$coinDeduct, $guestId]);
+                    $freshCoins = (int)$db->query("SELECT coins FROM users WHERE id = {$guestId}")->fetchColumn();
+                    $db->prepare("
+                        INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, description)
+                        VALUES (?, 'wager_escrow', 0, ?, ?, 'completed', ?)
+                    ")->execute([$guestId, -$coinDeduct, $availNaira, "Escrow: Match Cash Stake via Global Coins for Room {$roomCode}"]);
+                    if (isset($_SESSION['user']['coins'])) {
+                        $_SESSION['user']['coins'] = $freshCoins;
                     }
                 }
             }
