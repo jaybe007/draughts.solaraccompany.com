@@ -256,6 +256,14 @@ if ($currentUser) {
               <span class="flag">🇳🇬</span> <span class="text" id="puzzle-variant-text">Nigerian Rules</span>
             </div>
             <div class="lid-board-tools">
+              <select id="select-puzzle-board-theme" class="form-select form-select-sm" style="background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 4px; padding: 3px 8px; font-size: 0.8rem; cursor: pointer;" title="Select Board Theme">
+                <option value="default">🪵 Default Classic</option>
+                <option value="eco_giant">🌿 Eco Giant</option>
+                <option value="golden_state">👑 Golden State</option>
+                <option value="safari_land">🦁 Safari Land</option>
+                <option value="mineral_grove">💎 Mineral Grove</option>
+                <option value="diamond_coast">🌊 Diamond Coast</option>
+              </select>
               <button type="button" class="btn btn-small btn-secondary" id="btn-toggle-coords" title="Toggle 1-50 Draughts Notation Numbers">
                 🔢 <span id="label-coords-toggle">Square 1-50: On</span>
               </button>

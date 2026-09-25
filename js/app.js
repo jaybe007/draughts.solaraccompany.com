@@ -206,9 +206,8 @@ class NigerianDraughtsApp {
         this.timer.setPreset(paramTime, increment, advantage);
       }
 
-      if (paramTheme) {
-        this.setBoardTheme(paramTheme);
-      }
+      const savedTheme = paramTheme || localStorage.getItem('draughts_board_theme') || 'default';
+      this.setBoardTheme(savedTheme);
 
       if (paramUndo !== null) {
         const undoAllowed = paramUndo === '1';
@@ -657,6 +656,34 @@ class NigerianDraughtsApp {
         }
       }
     });
+
+    // Game Setup: Live Board Theme preview / selection
+    this.dom.setupBoardType?.addEventListener('change', (e) => {
+      this.setBoardTheme(e.target.value);
+    });
+
+    // Quick Board Theme cycle button (on board controls toolbar)
+    const btnLidTheme = document.getElementById('btn-lid-theme');
+    if (btnLidTheme) {
+      btnLidTheme.addEventListener('click', () => {
+        const themes = ['default', 'eco_giant', 'golden_state', 'safari_land', 'mineral_grove', 'diamond_coast'];
+        const current = (localStorage.getItem('draughts_board_theme') || 'default').replace('-', '_');
+        const nextIdx = (themes.indexOf(current) + 1) % themes.length;
+        const nextTheme = themes[nextIdx];
+        this.setBoardTheme(nextTheme);
+        const prettyNames = {
+          default: 'Default Classic',
+          eco_giant: 'Eco Giant',
+          golden_state: 'Golden State',
+          safari_land: 'Safari Land',
+          mineral_grove: 'Mineral Grove',
+          diamond_coast: 'Diamond Coast'
+        };
+        if (typeof showToast === 'function') {
+          showToast(`Board Theme: ${prettyNames[nextTheme] || nextTheme}`, 'info');
+        }
+      });
+    }
 
     // Launch Match Button
     this.dom.btnStartMatch?.addEventListener('click', async (e) => {
@@ -1472,10 +1499,15 @@ class NigerianDraughtsApp {
     this.dom.boardFrame.classList.remove(...themeClasses);
     const clean = (theme || 'default').replace('_', '-');
     const target = `theme-${clean}`;
-    if (themeClasses.includes(target)) {
-      this.dom.boardFrame.classList.add(target);
-    } else {
-      this.dom.boardFrame.classList.add('theme-default');
+    const selected = themeClasses.includes(target) ? target : 'theme-default';
+    this.dom.boardFrame.classList.add(selected);
+    const rawVal = selected.replace('theme-', '').replace('-', '_');
+    try {
+      localStorage.setItem('draughts_board_theme', rawVal);
+    } catch (e) {}
+
+    if (this.dom.setupBoardType && this.dom.setupBoardType.value !== rawVal) {
+      this.dom.setupBoardType.value = rawVal;
     }
   }
 

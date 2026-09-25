@@ -336,6 +336,9 @@ async function triggerRandomOpponentMatch() {
 
 // ================= CREATE GAME MODAL ================= //
 function openCreateGameModal() {
+  const savedTheme = localStorage.getItem('draughts_board_theme');
+  const sel = document.getElementById('create-board-type');
+  if (savedTheme && sel) sel.value = savedTheme;
   openModal('modal-create-game');
 }
 
@@ -395,6 +398,7 @@ async function handleCreateGameSubmit(e) {
   const p1Short = document.getElementById('create-p1-short') ? (parseInt(document.getElementById('create-p1-short').value, 10) || 0) : 0;
   const modifications = document.getElementById('create-modifications') ? document.getElementById('create-modifications').value : 'none';
   const boardType = document.getElementById('create-board-type') ? document.getElementById('create-board-type').value : 'default';
+  try { localStorage.setItem('draughts_board_theme', boardType); } catch (e) {}
 
   // 7 ON/OFF Toggles
   const settings = {
@@ -819,9 +823,8 @@ function openWalletModal() {
   activateMainTab('wallet');
 }
 
-function openDepositModal() {
-  openModal('modal-deposit');
-}
+
+// Note: openDepositModal and openDepositModalWithCurrency are defined in the Multi-Currency Deposit Section below
 
 let currentCoinRates = {
   buy_rate_per_100: 1500,
@@ -918,12 +921,128 @@ async function loadWalletSummary() {
   }
 }
 
-async function submitDeposit(amount) {
+let currentDepositCurrency = 'NGN';
+let supportedCurrencies = {
+  NGN: { symbol: '₦', rate: 1.0, min: 500, presets: [500, 1000, 2500, 5000, 10000] },
+  USD: { symbol: '$', rate: 1500.0, min: 1, presets: [1, 5, 10, 25, 50] },
+  GHS: { symbol: 'GH₵', rate: 100.0, min: 15, presets: [15, 50, 100, 250, 500] },
+  EUR: { symbol: '€', rate: 1650.0, min: 1, presets: [1, 5, 10, 25, 50] },
+  GBP: { symbol: '£', rate: 1950.0, min: 1, presets: [1, 5, 10, 20, 50] },
+  KES: { symbol: 'KSh', rate: 12.0, min: 150, presets: [150, 500, 1000, 2500, 5000] }
+};
+
+function openDepositModal() {
+  switchDepositCurrency(currentDepositCurrency || 'NGN');
+  switchDepositTab('cash');
+  openModal('modal-deposit');
+}
+
+function openDepositModalWithCurrency(currency = 'USD', tab = 'coins') {
+  switchDepositCurrency(currency);
+  switchDepositTab(tab);
+  openModal('modal-deposit');
+}
+
+function switchDepositTab(tab) {
+  const cashView = document.getElementById('deposit-view-cash');
+  const coinsView = document.getElementById('deposit-view-coins');
+  const tabCash = document.getElementById('tab-dep-cash');
+  const tabCoins = document.getElementById('tab-dep-coins');
+
+  if (tab === 'cash') {
+    if (cashView) cashView.style.display = 'block';
+    if (coinsView) coinsView.style.display = 'none';
+    if (tabCash) { tabCash.style.background = '#10b981'; tabCash.style.color = '#fff'; }
+    if (tabCoins) { tabCoins.style.background = 'transparent'; tabCoins.style.color = '#94a3b8'; }
+  } else {
+    if (cashView) cashView.style.display = 'none';
+    if (coinsView) coinsView.style.display = 'block';
+    if (tabCash) { tabCash.style.background = 'transparent'; tabCash.style.color = '#94a3b8'; }
+    if (tabCoins) { tabCoins.style.background = '#f59e0b'; tabCoins.style.color = '#0f172a'; }
+    loadCoinBundles(currentDepositCurrency);
+  }
+}
+
+function switchDepositCurrency(curr) {
+  currentDepositCurrency = curr || 'NGN';
+  const cInfo = supportedCurrencies[currentDepositCurrency] || supportedCurrencies.NGN;
+
+  // Update currency pills
+  document.querySelectorAll('.btn-currency-pill').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.currency === currentDepositCurrency);
+  });
+
+  // Render presets
+  const presetsContainer = document.getElementById('deposit-presets-container');
+  if (presetsContainer) {
+    presetsContainer.innerHTML = cInfo.presets.map((amt, idx) => `
+      <button type="button" class="topup-preset-btn ${idx === 1 ? 'active' : ''}" onclick="submitDeposit(${amt}, '${currentDepositCurrency}')">
+        ${cInfo.symbol}${amt.toLocaleString()}
+      </button>
+    `).join('');
+  }
+
+  // Update Custom Input
+  const customInput = document.getElementById('custom-deposit-amt');
+  const customLabel = document.getElementById('label-custom-amt');
+  if (customInput) {
+    customInput.min = cInfo.min;
+    customInput.placeholder = `Min ${cInfo.symbol}${cInfo.min}`;
+  }
+  if (customLabel) {
+    customLabel.textContent = `Or Enter Custom Amount (${cInfo.symbol})`;
+  }
+
+  // FX Notice
+  const fxNotice = document.getElementById('deposit-fx-notice');
+  const fxText = document.getElementById('deposit-fx-text');
+  if (fxNotice && fxText) {
+    if (currentDepositCurrency === 'NGN') {
+      fxNotice.style.display = 'none';
+    } else {
+      fxNotice.style.display = 'block';
+      fxText.textContent = `1 ${currentDepositCurrency} = ₦${cInfo.rate.toLocaleString()}. Your payment will be billed in ${currentDepositCurrency} and converted to Naira/Coins instantly without bank blocks.`;
+    }
+  }
+
+  // Reload Coin bundles
+  loadCoinBundles(currentDepositCurrency);
+}
+
+async function loadCoinBundles(currency) {
+  const container = document.getElementById('coin-bundles-container');
+  if (!container) return;
+  try {
+    const res = await fetch(`api/wallet.php?action=get_coin_bundles&currency=${encodeURIComponent(currency)}`);
+    const data = await res.json();
+    if (data.success && data.bundles) {
+      container.innerHTML = data.bundles.map(b => `
+        <div class="coin-bundle-card" onclick="submitDeposit(${b.price}, '${b.currency}', ${b.total_coins}, '${b.id}')">
+          <div class="coin-bundle-badge">${b.badge}</div>
+          <div>
+            <div style="font-size:1.15rem; font-weight:800; color:#f59e0b; margin-bottom:4px;">
+              🪙 ${b.total_coins.toLocaleString()} Coins
+            </div>
+            <div style="font-size:0.75rem; color:#94a3b8; font-weight:600;">${b.title}</div>
+          </div>
+          <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:1.05rem; font-weight:800; color:#38bdf8;">${b.formatted_price}</span>
+            <span style="background:rgba(16,185,129,0.2); color:#34d399; font-size:0.75rem; font-weight:700; padding:3px 8px; border-radius:6px;">Instant &rarr;</span>
+          </div>
+        </div>
+      `).join('');
+    }
+  } catch (e) {
+    console.error('Failed to load coin bundles:', e);
+  }
+}
+
+async function submitDeposit(amount, currency = 'NGN', coinsToAdd = 0, bundleId = '') {
   try {
     const initRes = await fetch('api/wallet.php?action=init_deposit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount })
+      body: JSON.stringify({ amount, currency, coins: coinsToAdd, bundle_id: bundleId })
     });
     const initData = await initRes.json();
 
@@ -936,13 +1055,20 @@ async function submitDeposit(amount) {
     const res = await fetch('api/wallet.php?action=deposit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount, reference: initData.reference, channel: 'Paystack/Simulator' })
+      body: JSON.stringify({
+        amount,
+        currency,
+        reference: initData.reference,
+        channel: `${currency} Card/Flutterwave Simulator`,
+        coins: coinsToAdd,
+        bundle_id: bundleId
+      })
     });
     const data = await res.json();
 
     if (data.success) {
       closeModal('modal-deposit');
-      showToast(`₦${amount.toLocaleString()} credited to your wallet balance!`, 'success');
+      showToast(data.message || `Deposit successful!`, 'success');
       loadWalletSummary();
     } else {
       showToast(data.message || 'Deposit failed.', 'error');
@@ -956,61 +1082,119 @@ async function submitDeposit(amount) {
 function handleCustomDeposit(e) {
   e.preventDefault();
   const amt = parseFloat(document.getElementById('custom-deposit-amt').value);
-  if (amt >= 100) {
-    submitDeposit(amt);
+  const cInfo = supportedCurrencies[currentDepositCurrency] || supportedCurrencies.NGN;
+  if (amt >= cInfo.min) {
+    submitDeposit(amt, currentDepositCurrency);
   } else {
-    showToast('Minimum deposit is ₦100.', 'error');
+    showToast(`Minimum deposit is ${cInfo.symbol}${cInfo.min}.`, 'error');
   }
 }
 
 function openWithdrawModal() {
+  switchWithdrawChannel('nigerian_bank');
   openModal('modal-withdraw');
+}
+
+function switchWithdrawChannel(channel) {
+  const channels = ['nigerian_bank', 'usdt_crypto', 'ghana_momo', 'kenya_mpesa', 'paypal'];
+  channels.forEach(ch => {
+    const el = document.getElementById(`channel-fields-${ch}`);
+    if (el) el.style.display = (ch === channel) ? 'block' : 'none';
+  });
+  updateWithdrawEstimate();
+}
+
+function updateWithdrawEstimate() {
+  const amt = parseFloat(document.getElementById('withdraw-amt')?.value) || 0;
+  const channel = document.getElementById('withdraw-channel-type')?.value || 'nigerian_bank';
+  const box = document.getElementById('withdraw-estimate-box');
+  const val = document.getElementById('withdraw-estimate-val');
+
+  if (!box || !val) return;
+
+  if (amt < 1000 || channel === 'nigerian_bank') {
+    box.style.display = 'none';
+    return;
+  }
+
+  box.style.display = 'block';
+  if (channel === 'usdt_crypto') {
+    const usdt = (amt / 1500.0).toFixed(2);
+    val.textContent = `~${usdt} USDT (at ₦1,500/$) • Instant TRC-20 Payout`;
+  } else if (channel === 'ghana_momo') {
+    const ghs = (amt / 100.0).toFixed(2);
+    val.textContent = `~GH₵${ghs} (at ₦100/GH₵) • Direct to Mobile Money`;
+  } else if (channel === 'kenya_mpesa') {
+    const kes = (amt / 12.0).toFixed(2);
+    val.textContent = `~KSh${kes} (at ₦12/KSh) • Direct to M-Pesa`;
+  } else if (channel === 'paypal') {
+    const usd = (amt / 1500.0).toFixed(2);
+    val.textContent = `~$${usd} USD • Transfer to PayPal email`;
+  }
 }
 
 async function handleWithdrawalSubmit(e) {
   e.preventDefault();
   const amount = parseFloat(document.getElementById('withdraw-amt').value);
-  const bankVal = document.getElementById('withdraw-bank').value;
-  const accountNumber = document.getElementById('withdraw-account-num').value.trim();
-  const accountName = document.getElementById('withdraw-account-name').value.trim();
+  const channelType = document.getElementById('withdraw-channel-type').value;
 
   if (amount < 1000) {
     showToast('Minimum withdrawal is ₦1,000.', 'error');
     return;
   }
-  if (!bankVal) {
-    showToast('Please select your destination bank.', 'error');
-    return;
-  }
-  if (accountNumber.length !== 10) {
-    showToast('Account number must be exactly 10 digits.', 'error');
-    return;
+
+  const payload = { amount, channel_type: channelType };
+
+  if (channelType === 'nigerian_bank') {
+    const bankVal = document.getElementById('withdraw-bank').value;
+    const accountNumber = document.getElementById('withdraw-account-num').value.trim();
+    const accountName = document.getElementById('withdraw-account-name').value.trim();
+    if (!bankVal) { showToast('Please select your destination bank.', 'error'); return; }
+    if (accountNumber.length !== 10) { showToast('Account number must be 10 digits.', 'error'); return; }
+    const [bankCode, bankName] = bankVal.split('|');
+    payload.bank_code = bankCode;
+    payload.bank_name = bankName;
+    payload.account_number = accountNumber;
+    payload.account_name = accountName;
+  } else if (channelType === 'usdt_crypto') {
+    const address = document.getElementById('withdraw-usdt-address').value.trim();
+    const network = document.getElementById('withdraw-usdt-network').value;
+    if (!address || address.length < 20) { showToast('Please enter a valid USDT address.', 'error'); return; }
+    payload.wallet_address = address;
+    payload.network = network;
+  } else if (channelType === 'ghana_momo') {
+    const num = document.getElementById('withdraw-momo-number').value.trim();
+    const network = document.getElementById('withdraw-momo-network').value;
+    if (!num || num.length < 9) { showToast('Please enter a valid Ghana MoMo number.', 'error'); return; }
+    payload.momo_number = num;
+    payload.momo_network = network;
+  } else if (channelType === 'kenya_mpesa') {
+    const num = document.getElementById('withdraw-mpesa-number').value.trim();
+    if (!num || num.length < 9) { showToast('Please enter a valid M-Pesa number.', 'error'); return; }
+    payload.mpesa_number = num;
+  } else if (channelType === 'paypal') {
+    const email = document.getElementById('withdraw-paypal-email').value.trim();
+    if (!email || !email.includes('@')) { showToast('Please enter a valid PayPal email.', 'error'); return; }
+    payload.paypal_email = email;
   }
 
-  const [bankCode, bankName] = bankVal.split('|');
   const btn = document.getElementById('btn-submit-withdraw');
   if (btn) {
     btn.disabled = true;
-    btn.textContent = 'Processing withdrawal...';
+    btn.textContent = 'Processing payout request...';
   }
 
   try {
     const res = await fetch('api/wallet.php?action=request_withdrawal', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        amount,
-        bank_code: bankCode,
-        bank_name: bankName,
-        account_number: accountNumber,
-        account_name: accountName
-      })
+      body: JSON.stringify(payload)
     });
     const data = await res.json();
 
     if (data.success) {
       closeModal('modal-withdraw');
-      showToast(data.message || `Withdrawal request of ₦${amount.toLocaleString()} submitted!`, 'success');
+      showToast(data.message || `Payout request submitted!`, 'success');
       loadWalletSummary();
       e.target.reset();
     } else {
@@ -1021,7 +1205,7 @@ async function handleWithdrawalSubmit(e) {
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = 'Confirm Bank Withdrawal →';
+      btn.textContent = 'Confirm Payout Request →';
     }
   }
 }

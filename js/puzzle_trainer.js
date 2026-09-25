@@ -145,6 +145,9 @@ class PuzzleTrainer {
       if (foundIdx !== -1) initialIdx = foundIdx;
     }
 
+    const savedBoardTheme = params.get('board_type') || localStorage.getItem('draughts_board_theme') || 'default';
+    this.setBoardTheme(savedBoardTheme);
+
     this.loadPuzzle(initialIdx);
   }
 
@@ -152,6 +155,7 @@ class PuzzleTrainer {
     this.dom = {
       boardInner: document.getElementById('draughts-board'),
       boardFrame: document.getElementById('board-wood-frame'),
+      selectBoardTheme: document.getElementById('select-puzzle-board-theme'),
       tacticalSvg: document.getElementById('board-tactical-svg'),
       coordsRight: document.getElementById('lid-coords-right'),
       coordsBottom: document.getElementById('lid-coords-bottom'),
@@ -235,7 +239,33 @@ class PuzzleTrainer {
     };
   }
 
+  setBoardTheme(theme) {
+    if (!this.dom.boardFrame) return;
+    const themeClasses = [
+      'theme-default', 'theme-eco-giant', 'theme-golden-state',
+      'theme-safari-land', 'theme-mineral-grove', 'theme-diamond-coast'
+    ];
+    this.dom.boardFrame.classList.remove(...themeClasses);
+    const clean = (theme || 'default').replace('_', '-');
+    const target = `theme-${clean}`;
+    const selected = themeClasses.includes(target) ? target : 'theme-default';
+    this.dom.boardFrame.classList.add(selected);
+    const rawVal = selected.replace('theme-', '').replace('-', '_');
+    try {
+      localStorage.setItem('draughts_board_theme', rawVal);
+    } catch (e) {}
+
+    if (this.dom.selectBoardTheme && this.dom.selectBoardTheme.value !== rawVal) {
+      this.dom.selectBoardTheme.value = rawVal;
+    }
+  }
+
   bindEvents() {
+    // Board Theme Selector (Header / Board Toolbar)
+    this.dom.selectBoardTheme?.addEventListener('change', (e) => {
+      this.setBoardTheme(e.target.value);
+    });
+
     // Puzzle Search Input
     this.dom.searchInput?.addEventListener('input', (e) => {
       this.searchQuery = e.target.value.toLowerCase().trim();

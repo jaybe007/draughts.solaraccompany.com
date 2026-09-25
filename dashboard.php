@@ -792,6 +792,25 @@ $pkgBadge = getPackageBadge($package);
           </button>
         </div>
 
+        <!-- International Players Welcome Banner -->
+        <div class="intl-welcome-banner" style="display:flex; align-items:center; justify-content:space-between; gap:16px; background:linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border:1px solid rgba(59, 130, 246, 0.35); border-radius:12px; padding:14px 20px; margin-bottom:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+          <div style="display:flex; align-items:center; gap:14px;">
+            <div style="font-size:1.8rem; background:rgba(59,130,246,0.15); border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center;">🌍</div>
+            <div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <strong style="color:#60a5fa; font-size:0.95rem;">International Champions Welcome</strong>
+                <span style="font-size:0.7rem; background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); padding:2px 8px; border-radius:12px; font-weight:700;">GLOBAL READY</span>
+              </div>
+              <p style="margin:2px 0 0 0; color:#94a3b8; font-size:0.82rem;">
+                Foreign players can fund entry fees and match stakes seamlessly using <strong>USD ($)</strong>, <strong>EUR (€)</strong>, <strong>GBP (£)</strong>, <strong>GHS (GH₵)</strong>, <strong>KES (KSh)</strong>, or <strong>USDT Crypto</strong>. Universal Platform Coins are accepted across all tournaments!
+              </p>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary btn-small" onclick="openDepositModalWithCurrency('USD', 'coins')" style="white-space:nowrap; border-color:rgba(59,130,246,0.5); color:#93c5fd;">
+            🪙 Global Deposit / Coins &rarr;
+          </button>
+        </div>
+
         <!-- Active Tournaments List -->
         <div class="tournaments-grid" id="tournaments-grid">
           <div class="empty-state">Loading active championships...</div>
@@ -881,7 +900,7 @@ $pkgBadge = getPackageBadge($package);
                 <input type="number" id="create-custom-coins-val" class="form-control" placeholder="Enter coin amount (e.g. 250)" min="1" max="100000">
               </div>
               <small class="form-hint" style="margin-top: 6px; display: block; color: var(--gold-400); font-size: 0.82rem;">
-                💡 <em>Have Naira in your wallet? Any coin shortfall will automatically convert from your Naira balance (₦1 = 1 Coin)!</em>
+                💡 <em>Universal Stakes: Coins allow domestic (₦) and international ($/€/£/GH₵/KSh/Crypto) players to wager together fairly. Any coin shortfall converts automatically from your Naira balance (₦1 = 1 Coin)!</em>
               </small>
             </div>
 
@@ -1056,77 +1075,187 @@ $pkgBadge = getPackageBadge($package);
     </div>
   </div>
 
-  <!-- 3. DEPOSIT / TOP-UP MODAL -->
+  <!-- 3. MULTI-CURRENCY DEPOSIT & COIN STORE MODAL -->
   <div class="home-modal-overlay" id="modal-deposit">
-    <div class="home-modal-dialog">
+    <div class="home-modal-dialog" style="max-width: 560px;">
       <div class="home-modal-header">
-        <h3 class="home-modal-title">💳 Fund Naira Wallet</h3>
+        <h3 class="home-modal-title">💳 Fund Wallet / Buy Coins</h3>
         <button type="button" class="btn-close-home-modal" onclick="closeModal('modal-deposit')">&times;</button>
       </div>
-      <div class="home-modal-body">
-        <p class="form-hint">Select amount to instantly top up your account balance:</p>
-        <div class="topup-presets-grid">
-          <button type="button" class="topup-preset-btn" onclick="submitDeposit(500)">₦500</button>
-          <button type="button" class="topup-preset-btn active" onclick="submitDeposit(1000)">₦1,000</button>
-          <button type="button" class="topup-preset-btn" onclick="submitDeposit(2500)">₦2,500</button>
-          <button type="button" class="topup-preset-btn" onclick="submitDeposit(5000)">₦5,000</button>
-          <button type="button" class="topup-preset-btn" onclick="submitDeposit(10000)">₦10,000</button>
-        </div>
-        <form onsubmit="handleCustomDeposit(event)" style="margin-top: 16px;">
-          <div class="form-group">
-            <label for="custom-deposit-amt">Or Enter Custom Amount (₦)</label>
-            <input type="number" id="custom-deposit-amt" class="form-control" placeholder="e.g. 3000" min="100" max="500000" required>
+      <div class="home-modal-body" style="padding: 20px 24px;">
+        
+        <!-- Currency Selector Bar -->
+        <div style="margin-bottom: 16px;">
+          <label style="font-size: 0.78rem; text-transform: uppercase; color: #94a3b8; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; display: block;">Select Payment Currency</label>
+          <div class="deposit-currency-selector" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;">
+            <button type="button" class="btn-currency-pill active" data-currency="NGN" onclick="switchDepositCurrency('NGN')">🇳🇬 NGN (₦)</button>
+            <button type="button" class="btn-currency-pill" data-currency="USD" onclick="switchDepositCurrency('USD')">🇺🇸 USD ($)</button>
+            <button type="button" class="btn-currency-pill" data-currency="GHS" onclick="switchDepositCurrency('GHS')">🇬🇭 GHS (GH₵)</button>
+            <button type="button" class="btn-currency-pill" data-currency="EUR" onclick="switchDepositCurrency('EUR')">🇪🇺 EUR (€)</button>
+            <button type="button" class="btn-currency-pill" data-currency="GBP" onclick="switchDepositCurrency('GBP')">🇬🇧 GBP (£)</button>
+            <button type="button" class="btn-currency-pill" data-currency="KES" onclick="switchDepositCurrency('KES')">🇰🇪 KES (KSh)</button>
           </div>
-          <button type="submit" class="btn btn-primary btn-block btn-large">
-            Deposit Funds Now &rarr;
+        </div>
+
+        <!-- Mode Tabs: Fund Wallet vs Direct Coin Bundles -->
+        <div style="display:flex; background:rgba(15,23,42,0.6); padding:4px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); margin-bottom:18px;">
+          <button type="button" id="tab-dep-cash" onclick="switchDepositTab('cash')" style="flex:1; padding:8px 12px; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.85rem; background:#10b981; color:#fff;">
+            💵 Cash Deposit
           </button>
-        </form>
+          <button type="button" id="tab-dep-coins" onclick="switchDepositTab('coins')" style="flex:1; padding:8px 12px; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.85rem; background:transparent; color:#94a3b8;">
+            🪙 Global Coin Packs (Direct)
+          </button>
+        </div>
+
+        <!-- Section A: Cash Deposit -->
+        <div id="deposit-view-cash">
+          <p class="form-hint" id="deposit-presets-hint">Select amount to instantly top up your account balance:</p>
+          <div class="topup-presets-grid" id="deposit-presets-container">
+            <!-- Dynamic presets rendered via JS based on selected currency -->
+          </div>
+
+          <!-- Live FX conversion notice -->
+          <div id="deposit-fx-notice" style="display:none; background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); border-radius:8px; padding:10px 14px; margin: 14px 0; font-size:0.82rem; color:#bae6fd;">
+            💡 <strong>Foreign Currency Notice:</strong> <span id="deposit-fx-text">Your deposit in USD will be converted to Naira at the official market rate and credited immediately.</span>
+          </div>
+
+          <form onsubmit="handleCustomDeposit(event)" style="margin-top: 14px;">
+            <div class="form-group">
+              <label for="custom-deposit-amt" id="label-custom-amt">Or Enter Custom Amount (₦)</label>
+              <input type="number" id="custom-deposit-amt" class="form-control" placeholder="e.g. 3000" min="100" max="500000" step="any" required>
+            </div>
+            <button type="submit" id="btn-submit-custom-deposit" class="btn btn-primary btn-block btn-large">
+              Deposit Funds Now &rarr;
+            </button>
+          </form>
+        </div>
+
+        <!-- Section B: Direct Coin Bundles -->
+        <div id="deposit-view-coins" style="display:none;">
+          <p class="form-hint">Universal platform chips for match staking & international tournament entries:</p>
+          <div id="coin-bundles-container" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+            <!-- Rendered dynamically via JS -->
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 
   <!-- WITHDRAWAL MODAL -->
   <div class="home-modal-overlay" id="modal-withdraw">
-    <div class="home-modal-dialog">
+    <div class="home-modal-dialog" style="max-width: 560px;">
       <div class="home-modal-header">
-        <h3 class="home-modal-title">🏦 Cash Out / Bank Withdrawal</h3>
+        <h3 class="home-modal-title">🏦 Cash Out / Payout Request</h3>
         <button type="button" class="btn-close-home-modal" onclick="closeModal('modal-withdraw')">&times;</button>
       </div>
-      <div class="home-modal-body">
-        <p class="form-hint">Withdraw your match winnings directly to your Nigerian bank. Min: ₦1,000.</p>
+      <div class="home-modal-body" style="padding: 20px 24px;">
+        <p class="form-hint">Withdraw your match winnings. Supported in Nigeria, Ghana, Kenya, and globally via USDT/PayPal.</p>
+        
         <form id="form-withdraw" onsubmit="handleWithdrawalSubmit(event)">
+          <!-- Amount to withdraw from Naira balance -->
           <div class="form-group">
-            <label for="withdraw-amt">Amount to Withdraw (₦)</label>
-            <input type="number" id="withdraw-amt" class="form-control" placeholder="Min ₦1,000" min="1000" step="100" required>
+            <label for="withdraw-amt">Amount to Withdraw from Wallet (₦)</label>
+            <input type="number" id="withdraw-amt" class="form-control" placeholder="Min ₦1,000" min="1000" step="100" required oninput="updateWithdrawEstimate()">
           </div>
+
+          <!-- Payout Channel Selector -->
           <div class="form-group">
-            <label for="withdraw-bank">Destination Nigerian Bank</label>
-            <select id="withdraw-bank" class="form-control" required>
-              <option value="">-- Choose Your Bank --</option>
-              <option value="044|Access Bank">Access Bank</option>
-              <option value="058|Guaranty Trust Bank (GTBank)">Guaranty Trust Bank (GTBank)</option>
-              <option value="057|Zenith Bank">Zenith Bank</option>
-              <option value="011|First Bank of Nigeria">First Bank of Nigeria</option>
-              <option value="033|United Bank for Africa (UBA)">United Bank for Africa (UBA)</option>
-              <option value="999992|OPay Digital Services">OPay Digital Services</option>
-              <option value="999991|PalmPay">PalmPay</option>
-              <option value="090267|Kuda Microfinance Bank">Kuda Microfinance Bank</option>
-              <option value="214|First City Monument Bank (FCMB)">FCMB</option>
-              <option value="221|Stanbic IBTC Bank">Stanbic IBTC Bank</option>
-              <option value="035|Wema Bank (ALAT)">Wema Bank (ALAT)</option>
-              <option value="070|Fidelity Bank">Fidelity Bank</option>
+            <label for="withdraw-channel-type">Select Payout Destination</label>
+            <select id="withdraw-channel-type" class="form-control" onchange="switchWithdrawChannel(this.value)" required>
+              <option value="nigerian_bank" selected>🇳🇬 Nigerian Bank Account (NUBAN)</option>
+              <option value="usdt_crypto">🌐 USDT Crypto (TRC-20 / BEP-20) • Global / International</option>
+              <option value="ghana_momo">🇬🇭 Ghana Mobile Money (MTN / Telecel / AirtelTigo)</option>
+              <option value="kenya_mpesa">🇰🇪 Kenya M-Pesa (Safaricom)</option>
+              <option value="paypal">🌍 PayPal Global Payout</option>
             </select>
           </div>
-          <div class="form-group">
-            <label for="withdraw-account-num">10-Digit Account Number (NUBAN)</label>
-            <input type="text" id="withdraw-account-num" class="form-control" placeholder="0123456789" maxlength="10" pattern="[0-9]{10}" required>
+
+          <!-- Live Payout Estimate Badge -->
+          <div id="withdraw-estimate-box" style="display:none; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:8px; padding:10px 14px; margin-bottom:14px; font-size:0.83rem; color:#4ade80;">
+            Estimated Payout: <strong id="withdraw-estimate-val">~$10.00 USDT</strong>
           </div>
-          <div class="form-group">
-            <label for="withdraw-account-name">Account Holder Full Name</label>
-            <input type="text" id="withdraw-account-name" class="form-control" placeholder="Must match your bank name" required>
+
+          <!-- Channel 1: Nigerian Bank -->
+          <div id="channel-fields-nigerian_bank">
+            <div class="form-group">
+              <label for="withdraw-bank">Destination Nigerian Bank</label>
+              <select id="withdraw-bank" class="form-control">
+                <option value="">-- Choose Your Bank --</option>
+                <option value="044|Access Bank">Access Bank</option>
+                <option value="058|Guaranty Trust Bank (GTBank)">Guaranty Trust Bank (GTBank)</option>
+                <option value="057|Zenith Bank">Zenith Bank</option>
+                <option value="011|First Bank of Nigeria">First Bank of Nigeria</option>
+                <option value="033|United Bank for Africa (UBA)">United Bank for Africa (UBA)</option>
+                <option value="999992|OPay Digital Services">OPay Digital Services</option>
+                <option value="999991|PalmPay">PalmPay</option>
+                <option value="090267|Kuda Microfinance Bank">Kuda Microfinance Bank</option>
+                <option value="214|First City Monument Bank (FCMB)">FCMB</option>
+                <option value="221|Stanbic IBTC Bank">Stanbic IBTC Bank</option>
+                <option value="035|Wema Bank (ALAT)">Wema Bank (ALAT)</option>
+                <option value="070|Fidelity Bank">Fidelity Bank</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="withdraw-account-num">10-Digit Account Number (NUBAN)</label>
+              <input type="text" id="withdraw-account-num" class="form-control" placeholder="0123456789" maxlength="10" pattern="[0-9]{10}">
+            </div>
+            <div class="form-group">
+              <label for="withdraw-account-name">Account Holder Full Name</label>
+              <input type="text" id="withdraw-account-name" class="form-control" placeholder="Must match your bank account name">
+            </div>
           </div>
-          <button type="submit" id="btn-submit-withdraw" class="btn btn-primary btn-block btn-large">
-            Confirm Bank Withdrawal &rarr;
+
+          <!-- Channel 2: USDT Crypto -->
+          <div id="channel-fields-usdt_crypto" style="display:none;">
+            <div class="form-group">
+              <label for="withdraw-usdt-network">Blockchain Network</label>
+              <select id="withdraw-usdt-network" class="form-control">
+                <option value="TRC-20" selected>TRON (TRC-20) - Fast & Low Fee (Recommended)</option>
+                <option value="BEP-20">BNB Smart Chain (BEP-20)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="withdraw-usdt-address">USDT Wallet Address</label>
+              <input type="text" id="withdraw-usdt-address" class="form-control" placeholder="e.g. T..." maxlength="60">
+              <small style="color:#94a3b8; font-size:0.75rem;">Make sure this address matches the selected network to prevent loss of funds.</small>
+            </div>
+          </div>
+
+          <!-- Channel 3: Ghana Mobile Money -->
+          <div id="channel-fields-ghana_momo" style="display:none;">
+            <div class="form-group">
+              <label for="withdraw-momo-network">Mobile Money Network</label>
+              <select id="withdraw-momo-network" class="form-control">
+                <option value="MTN" selected>MTN Mobile Money</option>
+                <option value="Telecel">Telecel Cash (Vodafone)</option>
+                <option value="AirtelTigo">AirtelTigo Money</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="withdraw-momo-number">Mobile Money Phone Number</label>
+              <input type="text" id="withdraw-momo-number" class="form-control" placeholder="e.g. 0244123456" maxlength="15">
+            </div>
+          </div>
+
+          <!-- Channel 4: Kenya M-Pesa -->
+          <div id="channel-fields-kenya_mpesa" style="display:none;">
+            <div class="form-group">
+              <label for="withdraw-mpesa-number">Safaricom M-Pesa Phone Number</label>
+              <input type="text" id="withdraw-mpesa-number" class="form-control" placeholder="e.g. 0712345678" maxlength="15">
+            </div>
+          </div>
+
+          <!-- Channel 5: PayPal -->
+          <div id="channel-fields-paypal" style="display:none;">
+            <div class="form-group">
+              <label for="withdraw-paypal-email">PayPal Account Email Address</label>
+              <input type="email" id="withdraw-paypal-email" class="form-control" placeholder="your-paypal-email@example.com">
+            </div>
+          </div>
+
+          <button type="submit" id="btn-submit-withdraw" class="btn btn-primary btn-block btn-large" style="margin-top:16px;">
+            Confirm Payout Request &rarr;
           </button>
         </form>
       </div>

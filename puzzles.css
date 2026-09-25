@@ -500,6 +500,84 @@ body.puzzle-trainer-body {
   background-image: url('images/board/wood-1024_100_mirrored.jpg') !important;
 }
 
+/* Theme: Default Classic */
+.puzzle-trainer-body .board-wood-frame.theme-default {
+  border-color: #7c4d29 !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 20px rgba(245, 166, 35, 0.12) !important;
+}
+.puzzle-trainer-body .board-wood-frame.theme-default .board-inner {
+  background-image: url('images/board/wood-1024_100.jpg') !important;
+}
+.puzzle-trainer-body .board-wood-frame.theme-default.rules-nigerian .board-inner,
+.puzzle-trainer-body .board-wood-frame.theme-default .board-inner.rules-nigerian {
+  background-image: url('images/board/wood-1024_100_mirrored.jpg') !important;
+}
+
+/* Theme: Eco Giant */
+.puzzle-trainer-body .board-wood-frame.theme-eco-giant {
+  border-color: #1e5a32 !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 24px rgba(16, 185, 129, 0.25) !important;
+}
+.puzzle-trainer-body .board-wood-frame.theme-eco-giant .board-inner {
+  background-image: url('images/board/wood-1024_eco_giant.jpg') !important;
+}
+.puzzle-trainer-body .board-wood-frame.theme-eco-giant.rules-nigerian .board-inner,
+.puzzle-trainer-body .board-wood-frame.theme-eco-giant .board-inner.rules-nigerian {
+  background-image: url('images/board/wood-1024_eco_giant_mirrored.jpg') !important;
+}
+
+/* Theme: Golden State */
+.puzzle-trainer-body .board-wood-frame.theme-golden-state {
+  border-color: #b47a18 !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 26px rgba(245, 158, 11, 0.28) !important;
+}
+.puzzle-trainer-body .board-wood-frame.theme-golden-state .board-inner {
+  background-image: url('images/board/wood-1024_golden_state.jpg') !important;
+}
+.puzzle-trainer-body .board-wood-frame.theme-golden-state.rules-nigerian .board-inner,
+.puzzle-trainer-body .board-wood-frame.theme-golden-state .board-inner.rules-nigerian {
+  background-image: url('images/board/wood-1024_golden_state_mirrored.jpg') !important;
+}
+
+/* Theme: Safari Land */
+.puzzle-trainer-body .board-wood-frame.theme-safari-land {
+  border-color: #944a1e !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 24px rgba(217, 119, 6, 0.24) !important;
+}
+.puzzle-trainer-body .board-wood-frame.theme-safari-land .board-inner {
+  background-image: url('images/board/wood-1024_safari_land.jpg') !important;
+}
+.puzzle-trainer-body .board-wood-frame.theme-safari-land.rules-nigerian .board-inner,
+.puzzle-trainer-body .board-wood-frame.theme-safari-land .board-inner.rules-nigerian {
+  background-image: url('images/board/wood-1024_safari_land_mirrored.jpg') !important;
+}
+
+/* Theme: Mineral Grove */
+.puzzle-trainer-body .board-wood-frame.theme-mineral-grove {
+  border-color: #0f6158 !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 25px rgba(20, 184, 166, 0.26) !important;
+}
+.puzzle-trainer-body .board-wood-frame.theme-mineral-grove .board-inner {
+  background-image: url('images/board/wood-1024_mineral_grove.jpg') !important;
+}
+.puzzle-trainer-body .board-wood-frame.theme-mineral-grove.rules-nigerian .board-inner,
+.puzzle-trainer-body .board-wood-frame.theme-mineral-grove .board-inner.rules-nigerian {
+  background-image: url('images/board/wood-1024_mineral_grove_mirrored.jpg') !important;
+}
+
+/* Theme: Diamond Coast */
+.puzzle-trainer-body .board-wood-frame.theme-diamond-coast {
+  border-color: #1a568c !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 28px rgba(14, 165, 233, 0.28) !important;
+}
+.puzzle-trainer-body .board-wood-frame.theme-diamond-coast .board-inner {
+  background-image: url('images/board/wood-1024_diamond_coast.jpg') !important;
+}
+.puzzle-trainer-body .board-wood-frame.theme-diamond-coast.rules-nigerian .board-inner,
+.puzzle-trainer-body .board-wood-frame.theme-diamond-coast .board-inner.rules-nigerian {
+  background-image: url('images/board/wood-1024_diamond_coast_mirrored.jpg') !important;
+}
+
 /* Lidraughts Board Squares */
 .square {
   position: relative;

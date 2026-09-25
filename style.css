@@ -625,6 +625,84 @@ body {
   background-image: url('images/board/wood-1024_100_mirrored.jpg');
 }
 
+/* Theme: Default Classic */
+.board-wood-frame.theme-default {
+  border-color: #7c4d29;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 20px rgba(245, 166, 35, 0.12);
+}
+.board-wood-frame.theme-default .board-inner {
+  background-image: url('images/board/wood-1024_100.jpg');
+}
+.board-wood-frame.theme-default.rules-nigerian .board-inner,
+.board-wood-frame.theme-default .board-inner.rules-nigerian {
+  background-image: url('images/board/wood-1024_100_mirrored.jpg');
+}
+
+/* Theme: Eco Giant */
+.board-wood-frame.theme-eco-giant {
+  border-color: #1e5a32;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 24px rgba(16, 185, 129, 0.25);
+}
+.board-wood-frame.theme-eco-giant .board-inner {
+  background-image: url('images/board/wood-1024_eco_giant.jpg');
+}
+.board-wood-frame.theme-eco-giant.rules-nigerian .board-inner,
+.board-wood-frame.theme-eco-giant .board-inner.rules-nigerian {
+  background-image: url('images/board/wood-1024_eco_giant_mirrored.jpg');
+}
+
+/* Theme: Golden State */
+.board-wood-frame.theme-golden-state {
+  border-color: #b47a18;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 26px rgba(245, 158, 11, 0.28);
+}
+.board-wood-frame.theme-golden-state .board-inner {
+  background-image: url('images/board/wood-1024_golden_state.jpg');
+}
+.board-wood-frame.theme-golden-state.rules-nigerian .board-inner,
+.board-wood-frame.theme-golden-state .board-inner.rules-nigerian {
+  background-image: url('images/board/wood-1024_golden_state_mirrored.jpg');
+}
+
+/* Theme: Safari Land */
+.board-wood-frame.theme-safari-land {
+  border-color: #944a1e;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 24px rgba(217, 119, 6, 0.24);
+}
+.board-wood-frame.theme-safari-land .board-inner {
+  background-image: url('images/board/wood-1024_safari_land.jpg');
+}
+.board-wood-frame.theme-safari-land.rules-nigerian .board-inner,
+.board-wood-frame.theme-safari-land .board-inner.rules-nigerian {
+  background-image: url('images/board/wood-1024_safari_land_mirrored.jpg');
+}
+
+/* Theme: Mineral Grove */
+.board-wood-frame.theme-mineral-grove {
+  border-color: #0f6158;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 25px rgba(20, 184, 166, 0.26);
+}
+.board-wood-frame.theme-mineral-grove .board-inner {
+  background-image: url('images/board/wood-1024_mineral_grove.jpg');
+}
+.board-wood-frame.theme-mineral-grove.rules-nigerian .board-inner,
+.board-wood-frame.theme-mineral-grove .board-inner.rules-nigerian {
+  background-image: url('images/board/wood-1024_mineral_grove_mirrored.jpg');
+}
+
+/* Theme: Diamond Coast */
+.board-wood-frame.theme-diamond-coast {
+  border-color: #1a568c;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 28px rgba(14, 165, 233, 0.28);
+}
+.board-wood-frame.theme-diamond-coast .board-inner {
+  background-image: url('images/board/wood-1024_diamond_coast.jpg');
+}
+.board-wood-frame.theme-diamond-coast.rules-nigerian .board-inner,
+.board-wood-frame.theme-diamond-coast .board-inner.rules-nigerian {
+  background-image: url('images/board/wood-1024_diamond_coast_mirrored.jpg');
+}
+
 /* Board Flip Transformation */
 .board-wood-frame.flipped .board-inner {
   transform: rotate(180deg);
@@ -4627,5 +4705,64 @@ body {
 
 .home-modal-dialog:not(.create-game-modal-card) .btn-block {
   margin-top: 12px;
+}
+
+/* Multi-Currency & International Wallet Styles */
+.btn-currency-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  border-radius: 6px;
+  padding: 6px 2px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  text-align: center;
+}
+.btn-currency-pill:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.btn-currency-pill.active {
+  background: rgba(16, 185, 129, 0.2) !important;
+  border-color: #10b981 !important;
+  color: #34d399 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.25) !important;
+}
+
+.coin-bundle-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9));
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  text-align: left;
+}
+.coin-bundle-card:hover {
+  transform: translateY(-2px);
+  border-color: #f59e0b;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.25);
+}
+.coin-bundle-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 1px solid rgba(245, 158, 11, 0.4);
 }
 

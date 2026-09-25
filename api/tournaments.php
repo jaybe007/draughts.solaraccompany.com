@@ -171,11 +171,34 @@ try {
             $uBal = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$currentUser['id']}")->fetchColumn();
             $uCoins = (int)$db->query("SELECT coins FROM users WHERE id = {$currentUser['id']}")->fetchColumn();
 
-            if ($feeNaira > 0 && $uBal < $feeNaira) {
-                jsonResponse([
-                    'success' => false,
-                    'message' => "Insufficient wallet balance! Entry fee: ₦" . number_format($feeNaira, 2) . " (Available: ₦" . number_format($uBal, 2) . "). Please fund wallet."
-                ], 400);
+            if ($feeNaira > 0) {
+                if ($uBal >= $feeNaira) {
+                    $db->prepare("UPDATE users SET wallet_balance = wallet_balance - ? WHERE id = ?")->execute([$feeNaira, $currentUser['id']]);
+                    $freshBal = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$currentUser['id']}")->fetchColumn();
+                    $db->prepare("
+                        INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, reference, description)
+                        VALUES (?, 'tournament_entry', ?, 0, ?, 'completed', ?, ?)
+                    ")->execute([$currentUser['id'], -$feeNaira, $freshBal, "TOURN-FEE-{$tournId}-" . time(), "Entry Fee: {$tournament['name']}"]);
+                    if (isset($_SESSION['user']['wallet_balance'])) {
+                        $_SESSION['user']['wallet_balance'] = $freshBal;
+                    }
+                } elseif ($uCoins >= (int)ceil($feeNaira)) {
+                    $coinDeduct = (int)ceil($feeNaira);
+                    $db->prepare("UPDATE users SET coins = coins - ? WHERE id = ?")->execute([$coinDeduct, $currentUser['id']]);
+                    $freshCoins = (int)$db->query("SELECT coins FROM users WHERE id = {$currentUser['id']}")->fetchColumn();
+                    $db->prepare("
+                        INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, reference, description)
+                        VALUES (?, 'tournament_entry', 0, ?, ?, 'completed', ?, ?)
+                    ")->execute([$currentUser['id'], -$coinDeduct, $uBal, "TOURN-COIN-{$tournId}-" . time(), "Tournament Entry via Global Coins: {$tournament['name']}"]);
+                    if (isset($_SESSION['user']['coins'])) {
+                        $_SESSION['user']['coins'] = $freshCoins;
+                    }
+                } else {
+                    jsonResponse([
+                        'success' => false,
+                        'message' => "Insufficient balance! Entry fee: ₦" . number_format($feeNaira, 2) . " or " . number_format($feeNaira) . " Coins (Available: ₦" . number_format($uBal, 2) . ", " . number_format($uCoins) . " Coins). Please fund wallet or purchase Coins."
+                    ], 400);
+                }
             }
 
             if ($feeCoins > 0) {
@@ -183,30 +206,14 @@ try {
                 if (!$coinCheck['success']) {
                     jsonResponse(['success' => false, 'message' => $coinCheck['message']], 400);
                 }
-            }
 
-            // Deduct fees
-            $db->beginTransaction();
-
-            if ($feeNaira > 0) {
-                $db->prepare("UPDATE users SET wallet_balance = wallet_balance - ? WHERE id = ?")->execute([$feeNaira, $currentUser['id']]);
-                $freshBal = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$currentUser['id']}")->fetchColumn();
-                $db->prepare("
-                    INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, reference, description)
-                    VALUES (?, 'tournament_entry', ?, 0, ?, 'completed', ?, ?)
-                ")->execute([$currentUser['id'], -$feeNaira, $freshBal, "TOURN-FEE-{$tournId}-" . time(), "Entry Fee: {$tournament['name']}"]);
-                if (isset($_SESSION['user']['wallet_balance'])) {
-                    $_SESSION['user']['wallet_balance'] = $freshBal;
-                }
-            }
-
-            if ($feeCoins > 0) {
                 $db->prepare("UPDATE users SET coins = coins - ? WHERE id = ?")->execute([$feeCoins, $currentUser['id']]);
                 $freshCoins = (int)$db->query("SELECT coins FROM users WHERE id = {$currentUser['id']}")->fetchColumn();
+                $curBal = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$currentUser['id']}")->fetchColumn();
                 $db->prepare("
-                    INSERT INTO wallet_transactions (user_id, type, amount, coins, description)
-                    VALUES (?, 'tournament_entry', 0, ?, ?)
-                ")->execute([$currentUser['id'], -$feeCoins, "Coins Entry: {$tournament['name']}"]);
+                    INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, reference, description)
+                    VALUES (?, 'tournament_entry', 0, ?, ?, 'completed', ?, ?)
+                ")->execute([$currentUser['id'], -$feeCoins, $curBal, "TOURN-COIN-{$tournId}-" . time(), "Coins Entry: {$tournament['name']}"]);
                 if (isset($_SESSION['user']['coins'])) {
                     $_SESSION['user']['coins'] = $freshCoins;
                 }
