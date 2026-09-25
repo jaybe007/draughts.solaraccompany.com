@@ -852,6 +852,11 @@ class PuzzleTrainer {
 
   renderBoard() {
     if (!this.dom.boardInner) return;
+    const isNigerian = this.engine && typeof this.engine.isDarkSquare === 'function' ? !this.engine.isDarkSquare(9, 0) : false;
+    this.dom.boardInner.classList.toggle('rules-nigerian', isNigerian);
+    if (this.dom.boardFrame) {
+      this.dom.boardFrame.classList.toggle('rules-nigerian', isNigerian);
+    }
     this.dom.boardInner.style.display = 'grid';
     this.dom.boardInner.style.gridTemplateColumns = 'repeat(10, 1fr)';
     this.dom.boardInner.style.gridTemplateRows = 'repeat(10, 1fr)';

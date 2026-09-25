@@ -290,24 +290,25 @@ if ($currentUser) {
               </svg>
               <!-- 10x10 Squares generated dynamically via JavaScript -->
               <div class="board-inner" id="draughts-board"></div>
+              <div class="lid-board-resize-handle">///</div>
             </div>
 
-            <!-- Lidraughts Right Rim Coordinates: 46, 36, 26, 16, 6 -->
+            <!-- Lidraughts Right Rim Coordinates: 5, 15, 25, 35, 45 -->
             <div class="lid-coords-right" id="lid-coords-right" aria-hidden="true">
-              <span>46</span>
-              <span>36</span>
-              <span>26</span>
-              <span>16</span>
-              <span>6</span>
+              <span>5</span>
+              <span>15</span>
+              <span>25</span>
+              <span>35</span>
+              <span>45</span>
             </div>
 
-            <!-- Lidraughts Bottom Rim Coordinates: 5, 4, 3, 2, 1 -->
+            <!-- Lidraughts Bottom Rim Coordinates: 46, 47, 48, 49, 50 -->
             <div class="lid-coords-bottom" id="lid-coords-bottom" aria-hidden="true">
-              <span>5</span>
-              <span>4</span>
-              <span>3</span>
-              <span>2</span>
-              <span>1</span>
+              <span>46</span>
+              <span>47</span>
+              <span>48</span>
+              <span>49</span>
+              <span>50</span>
             </div>
           </div>
 
@@ -496,7 +497,7 @@ if ($currentUser) {
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
+        navigator.serviceWorker.register('sw.js?v=<?= filemtime(__DIR__ . "/sw.js") ?>').catch(() => {});
       });
     }
   </script>

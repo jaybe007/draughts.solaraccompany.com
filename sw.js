@@ -3,7 +3,7 @@
  * Caches essential static assets for fast loading and offline play.
  */
 
-const CACHE_NAME = 'naija-draughts-v2.3';
+const CACHE_NAME = 'naija-draughts-v2.5';
 const STATIC_ASSETS = [
   './',
   './index.php',
@@ -14,9 +14,20 @@ const STATIC_ASSETS = [
   './lidraughts_game.css',
   './puzzles.css',
   './images/hero_draughts.jpg',
+  './images/board/wood-1024_100.jpg',
+  './images/board/wood-1024_100_mirrored.jpg',
+  './images/man_white.svg',
+  './images/man_black.svg',
+  './images/king_white.svg',
+  './images/king_black.svg',
   './js/app.js',
   './js/engine.js',
   './js/rules_engine.js',
+  './js/ai.js',
+  './js/timer.js',
+  './js/replay.js',
+  './js/analysis.js',
+  './js/chat.js',
   './js/traps.js',
   './js/puzzle_trainer.js',
   './js/audio.js',
@@ -63,7 +74,11 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(() => {
         return caches.match(event.request).then((cached) => {
-          return cached || caches.match('./index.php');
+          if (cached) return cached;
+          if (event.request.mode === 'navigate') {
+            return caches.match('./index.php');
+          }
+          return new Response('', { status: 404, statusText: 'Not Found' });
         });
       })
   );

@@ -611,11 +611,18 @@ body {
   width: min(72vw, 560px);
   height: min(72vw, 560px);
   aspect-ratio: 1 / 1;
-  border-radius: 8px;
+  border-radius: 4px;
   overflow: hidden;
   box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.8), 0 4px 12px rgba(0, 0, 0, 0.5);
-  border: 2px solid #231207;
-  background-color: var(--sq-dark);
+  border: 1px solid #7c4d29;
+  background-image: url('images/board/wood-1024_100.jpg');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.board-wood-frame.rules-nigerian .board-inner,
+.board-inner.rules-nigerian {
+  background-image: url('images/board/wood-1024_100_mirrored.jpg');
 }
 
 /* Board Flip Transformation */
@@ -634,19 +641,14 @@ body {
   justify-content: center;
   width: 100%;
   height: 100%;
+  background: transparent !important;
 }
 
-.square.light {
-  background: radial-gradient(circle at 50% 50%, var(--sq-light) 0%, var(--sq-light-edge) 100%);
-  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.05);
-}
-
+.square.light,
 .square.dark {
-  background: radial-gradient(circle at 40% 40%, var(--sq-dark) 0%, var(--sq-dark-grain) 100%);
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.4);
+  background: transparent !important;
+  background-image: none !important;
 }
-
-
 
 /* Subtle coordinate labels on edge squares */
 .square-coord {
@@ -695,54 +697,63 @@ body {
 /* ================= 3D PIECES (SEEDS) ================= */
 
 .piece {
-  width: 82%;
-  height: 82%;
-  border-radius: 50%;
-  position: relative;
-  cursor: grab;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-  z-index: 10;
+  width: 90% !important;
+  height: 90% !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background-color: transparent !important;
+  background-repeat: no-repeat !important;
+  background-position: center bottom !important;
+  background-size: contain !important;
+  position: relative !important;
+  cursor: grab !important;
+  user-select: none !important;
+  touch-action: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 10 !important;
+  filter: drop-shadow(0 6px 5px rgba(0, 0, 0, 0.45)) !important;
+  transition: transform var(--transition-fast), filter var(--transition-fast) !important;
 }
 
 .piece:active {
-  cursor: grabbing;
+  cursor: grabbing !important;
 }
 
-/* Player 1 (Ivory / Warm Cream) */
-.piece.p1 {
-  background: radial-gradient(circle at 35% 30%, #ffffff 0%, var(--p1-light-base) 45%, var(--p1-light-rim) 100%);
-  box-shadow: 
-    0 6px 12px var(--p1-light-shadow),
-    inset 0 3px 5px rgba(255, 255, 255, 0.9),
-    inset 0 -3px 5px rgba(0, 0, 0, 0.35);
-  border: 1px solid #ded6ca;
+/* White / Light Pieces (P1) */
+.piece.p1,
+.piece.white {
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMTAgMjEwIiB3aWR0aD0iMjEwIiBoZWlnaHQ9IjIxMCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJsZ3ciIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3ZjdmN2YiIHN0b3Atb3BhY2l0eT0iMSIvPjxzdG9wIG9mZnNldD0iMC41IiBzdG9wLWNvbG9yPSIjZmZmZmZmIiBzdG9wLW9wYWNpdHk9IjEiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmZmZmZmYiIHN0b3Atb3BhY2l0eT0iMSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwYXRoIGQ9Ik0xMCAxNDBjMCA2MCAxOTAgNjAgMTkwIDB2LTM1SDEweiIgZmlsbD0idXJsKCNsZ3cpIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLW9wYWNpdHk9IjAuNjUiLz48cGF0aCBkPSJNMTAgMTA1YzAgNjAgMTkwIDYwIDE5MCAwIDAtNjAtMTkwLTYwLTE5MCAweiIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjMDAwMDAwIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1vcGFjaXR5PSIwLjY1Ii8+PC9zdmc+') !important;
 }
 
-/* Player 2 (Ebony / Obsidian with Gold Trim) */
-.piece.p2 {
-  background: radial-gradient(circle at 35% 30%, #3a373d 0%, var(--p2-dark-base) 50%, #0d0c0e 100%);
-  box-shadow: 
-    0 6px 12px var(--p2-dark-shadow),
-    inset 0 2px 4px rgba(255, 255, 255, 0.35),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.8);
-  border: 1px solid #4a444f;
+/* White King */
+.piece.p1.king,
+.piece.white.king {
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMTAgMjEwIiB3aWR0aD0iMjEwIiBoZWlnaHQ9IjIxMCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJsZ3drIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjN2Y3ZjdmIiBzdG9wLW9wYWNpdHk9IjEiLz48c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIxIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmZmZmIiBzdG9wLW9wYWNpdHk9IjEiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cGF0aCBkPSJNMTAgMTQwYzAgNjAgMTkwIDYwIDE5MCAwdi0zNUgxMHoiIGZpbGw9InVybCgjbGd3aykiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2Utb3BhY2l0eT0iMC42NSIvPjxwYXRoIGQ9Ik0xMCAxMDVjMCA2MCAxOTAgNjAgMTkwIDBWNzBIMTB6IiBmaWxsPSJ1cmwoI2xnd2spIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLW9wYWNpdHk9IjAuNjUiLz48cGF0aCBkPSJNMTAgNzBjMCA2MCAxOTAgNjAgMTkwIDAgMC02MC0xOTAtNjAtMTkwIDB6IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLW9wYWNpdHk9IjAuNjUiLz48cGF0aCBkPSJNNTggNDUgNzEgODVoNThsMTMtNDAtMjUgMjUtMjItMzVMODMgNzB6IiBmaWxsPSIjYmY4YzE2Ii8+PHBhdGggZD0iTTc0IDk2IDcxLjYgODdIMTM4LjRMMTM2IDk2eiIgZmlsbD0iI2JmOGMxNiIvPmVsbGlwc2UgZmlsbD0iI2ZmZmZmZiIgY3g9IjEwNSIgY3k9IjY4IiByeD0iNSIgcnk9IjEwIi8+PC9zdmc+') !important;
 }
 
-/* Concentric Rings Carved on Top of Draughts Seed */
+/* Dark / Black Pieces (P2) */
+.piece.p2,
+.piece.dark {
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMTAgMjEwIiB3aWR0aD0iMjEwIiBoZWlnaHQ9IjIxMCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJsZ2IiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIxIi8+PHN0b3Agb2Zmc2V0PSIwLjUiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzlmOWY5ZiIgc3RvcC1vcGFjaXR5PSIxIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHBhdGggZD0iTTEwIDE0MGMwIDYwIDE5MCA2MCAxOTAgMHYtMzVIMTB6IiBmaWxsPSJ1cmwoI2xnYikiIHN0cm9rZT0iI2RmZGZkZiIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2Utb3BhY2l0eT0iMC41Ii8+PHBhdGggZD0iTTEwIDEwNWMwIDYwIDE5MCA2MCAxOTAgMCAwLTYwLTE5MC02MC0xOTAgMHoiIGZpbGw9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMSIgc3Ryb2tlPSIjZGZkZmRmIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1vcGFjaXR5PSIwLjUiLz48L3N2Zz4=') !important;
+}
+
+/* Dark King */
+.piece.p2.king,
+.piece.dark.king {
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMTAgMjEwIiB3aWR0aD0iMjEwIiBoZWlnaHQ9IjIxMCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJsZ2JrIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjEiLz48c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIxIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjOWY5ZjlmIiBzdG9wLW9wYWNpdHk9IjEiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cGF0aCBkPSJNMTAgMTQwYzAgNjAgMTkwIDYwIDE5MCAwdi0zNUgxMHoiIGZpbGw9InVybCgjbGdiaykiIHN0cm9rZT0iI2RmZGZkZiIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2Utb3BhY2l0eT0iMC41Ii8+PHBhdGggZD0iTTEwIDEwNWMwIDYwIDE5MCA2MCAxOTAgMFY3MEgxMHoiIGZpbGw9InVybCgjbGdiaykiIHN0cm9rZT0iI2RmZGZkZiIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2Utb3BhY2l0eT0iMC41Ii8+PHBhdGggZD0iTTEwIDcwYzAgNjAgMTkwIDYwIDE5MCAwIDAtNjAtMTkwLTYwLTE5MCAweiIgZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSIjZGZkZmRmIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1vcGFjaXR5PSIwLjUiLz48cGF0aCBkPSJNNTggNDUgNzEgODVoNThsMTMtNDAtMjUgMjUtMjItMzVMODMgNzB6IiBmaWxsPSIjYmY4YzE2Ii8+PHBhdGggZD0iTTc0IDk2IDcxLjYgODdIMTM4LjRMMTM2IDk2eiIgZmlsbD0iI2JmOGMxNiIvPmVsbGlwc2UgZmlsbD0iIzAwMDAwMCIgY3g9IjEwNSIgY3k9IjY4IiByeD0iNSIgcnk9IjEwIi8+PC9zdmc+') !important;
+}
+
 .piece::before {
-  content: '';
-  position: absolute;
-  width: 62%;
-  height: 62%;
-  border-radius: 50%;
-  border: 1.5px dashed rgba(0, 0, 0, 0.2);
-  pointer-events: none;
+  display: none !important;
+  content: none !important;
 }
-.piece.p2::before {
-  border-color: rgba(245, 166, 35, 0.3);
+
+.piece .crown-icon,
+.piece.king::after {
+  display: none !important;
+  content: none !important;
 }
 
 /* Selected Piece State */

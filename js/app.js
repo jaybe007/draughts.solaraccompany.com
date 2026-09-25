@@ -1751,6 +1751,11 @@ class NigerianDraughtsApp {
 
   renderBoard() {
     const size = this.boardSize;
+    const isNigerian = this.engine && typeof this.engine.isDarkSquare === 'function' ? !this.engine.isDarkSquare(9, 0) : true;
+    this.dom.boardInner.classList.toggle('rules-nigerian', isNigerian);
+    if (this.dom.boardFrame) {
+      this.dom.boardFrame.classList.toggle('rules-nigerian', isNigerian);
+    }
     this.dom.boardInner.innerHTML = '';
     this.dom.boardInner.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
     this.dom.boardInner.style.gridTemplateRows = `repeat(${size}, 1fr)`;
