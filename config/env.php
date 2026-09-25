@@ -71,3 +71,21 @@ if (!function_exists('loadEnv')) {
 
 // Automatically load project root .env upon inclusion
 loadEnv();
+
+if (!function_exists('getAppBaseUrl')) {
+    function getAppBaseUrl() {
+        if (!empty(getenv('APP_URL'))) {
+            return rtrim(getenv('APP_URL'), '/') . '/';
+        }
+        if (!empty($_SERVER['HTTP_HOST'])) {
+            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+            $host = $_SERVER['HTTP_HOST'];
+            $uri = $_SERVER['REQUEST_URI'] ?? '';
+            // Strip any subdirectory or api path
+            $path = preg_replace('#/(api|database|scripts)/.*$#i', '', $uri);
+            $path = rtrim($path, '/') . '/';
+            return $protocol . $host . $path;
+        }
+        return 'http://localhost/nigerian-draughts/';
+    }
+}

@@ -116,15 +116,7 @@ try {
             $coinsToAdd = (int)($input['coins'] ?? 0);
             $bundleId = trim($input['bundle_id'] ?? '');
 
-            if ($amount <= 0 && $coinsToAdd <= 0) {
-                jsonResponse(['success' => false, 'message' => 'Invalid deposit amount.'], 400);
-            }
-
-            $supported = getSupportedCurrencies($db);
-            $rateToNaira = $supported[$currency]['rate_to_naira'] ?? 1.0;
-            $amountNaira = round($amount * $rateToNaira, 2);
-
-            // If reference provided, check for duplicate processing
+            // If reference provided, check for duplicate processing and verify with gateway
             if (!empty($reference)) {
                 $checkRef = $db->prepare("SELECT id FROM wallet_transactions WHERE reference = ? AND type IN ('deposit', 'coin_exchange')");
                 $checkRef->execute([$reference]);
@@ -137,11 +129,37 @@ try {
                 if (!$verifyRes['success']) {
                     jsonResponse(['success' => false, 'message' => $verifyRes['message'] ?? 'Payment verification failed.'], 400);
                 }
+
                 if (!empty($verifyRes['amount'])) {
                     $amountNaira = (float)$verifyRes['amount'];
                 }
+                if (!empty($verifyRes['paid_amount'])) {
+                    $amount = (float)$verifyRes['paid_amount'];
+                }
+                if (!empty($verifyRes['currency'])) {
+                    $currency = strtoupper($verifyRes['currency']);
+                }
+                if (!empty($verifyRes['channel'])) {
+                    $channel = $verifyRes['channel'];
+                }
+                if ($coinsToAdd <= 0 && !empty($verifyRes['metadata']['coins_to_add'])) {
+                    $coinsToAdd = (int)$verifyRes['metadata']['coins_to_add'];
+                }
+                if (empty($bundleId) && !empty($verifyRes['metadata']['bundle_id'])) {
+                    $bundleId = $verifyRes['metadata']['bundle_id'];
+                }
             } else {
                 $reference = 'ND_DIR_' . date('YmdHis') . '_' . strtoupper(bin2hex(random_bytes(3)));
+            }
+
+            $supported = getSupportedCurrencies($db);
+            $rateToNaira = $supported[$currency]['rate_to_naira'] ?? 1.0;
+            if (empty($amountNaira) && $amount > 0) {
+                $amountNaira = round($amount * $rateToNaira, 2);
+            }
+
+            if ($amount <= 0 && $amountNaira <= 0 && $coinsToAdd <= 0) {
+                jsonResponse(['success' => false, 'message' => 'Invalid deposit amount.'], 400);
             }
 
             // Fetch current balance

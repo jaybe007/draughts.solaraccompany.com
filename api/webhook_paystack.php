@@ -77,33 +77,59 @@ try {
                 exit;
             }
 
+            $coinsToAdd = (int)($metadata['coins_to_add'] ?? 0);
+
             // 3. Credit Wallet & Log Transaction
             $db->beginTransaction();
 
-            $db->prepare("UPDATE users SET wallet_balance = wallet_balance + ? WHERE id = ?")
-               ->execute([$amountNaira, $userId]);
-
-            $newBal = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$userId}")->fetchColumn();
-
+            $currentBal = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$userId}")->fetchColumn();
             $channel = $data['channel'] ?? 'paystack';
-            $desc = "Deposit via Paystack Webhook ({$channel})";
 
-            $db->prepare("
-                INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, reference, description)
-                VALUES (?, 'deposit', ?, 0, ?, 'completed', ?, ?)
-            ")->execute([$userId, $amountNaira, $newBal, $reference, $desc]);
+            if ($coinsToAdd > 0) {
+                // Direct Coin Pack Purchase
+                $db->prepare("UPDATE users SET coins = coins + ? WHERE id = ?")->execute([$coinsToAdd, $userId]);
+                $newCoins = (int)$db->query("SELECT coins FROM users WHERE id = {$userId}")->fetchColumn();
+                $desc = "Global Coin Pack Purchase (+{$coinsToAdd} Coins via Paystack)";
+                $db->prepare("
+                    INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, reference, description)
+                    VALUES (?, 'coin_exchange', ?, ?, ?, 'completed', ?, ?)
+                ")->execute([$userId, $amountNaira, $coinsToAdd, $currentBal, $reference, $desc]);
 
-            $db->commit();
+                $db->commit();
+                http_response_code(200);
+                echo json_encode([
+                    'status' => 'success',
+                    'user_id' => $userId,
+                    'coins_added' => $coinsToAdd,
+                    'total_coins' => $newCoins,
+                    'reference' => $reference
+                ]);
+                break;
+            } else {
+                // Real-money Wallet Balance Funding
+                $db->prepare("UPDATE users SET wallet_balance = wallet_balance + ? WHERE id = ?")
+                   ->execute([$amountNaira, $userId]);
 
-            http_response_code(200);
-            echo json_encode([
-                'status' => 'success',
-                'user_id' => $userId,
-                'amount' => $amountNaira,
-                'wallet_balance' => $newBal,
-                'reference' => $reference
-            ]);
-            break;
+                $newBal = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$userId}")->fetchColumn();
+                $desc = "Deposit via Paystack Webhook ({$channel})";
+
+                $db->prepare("
+                    INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, reference, description)
+                    VALUES (?, 'deposit', ?, 0, ?, 'completed', ?, ?)
+                ")->execute([$userId, $amountNaira, $newBal, $reference, $desc]);
+
+                $db->commit();
+
+                http_response_code(200);
+                echo json_encode([
+                    'status' => 'success',
+                    'user_id' => $userId,
+                    'amount' => $amountNaira,
+                    'wallet_balance' => $newBal,
+                    'reference' => $reference
+                ]);
+                break;
+            }
 
         default:
             // Unhandled event type acknowledged

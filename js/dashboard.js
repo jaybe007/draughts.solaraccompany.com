@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadUnreadCounters();
   loadWalletSummary();
   loadTournamentsList();
+  checkPaymentReturnCallback();
 
   // Periodic updates every 6 seconds for live state
   pollInterval = setInterval(() => {
@@ -1034,6 +1035,43 @@ async function loadCoinBundles(currency) {
     }
   } catch (e) {
     console.error('Failed to load coin bundles:', e);
+  }
+}
+
+async function checkPaymentReturnCallback() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const ref = urlParams.get('payment_ref') || urlParams.get('tx_ref') || urlParams.get('reference') || urlParams.get('trxref');
+
+  if (ref) {
+    // Clean URL query params without reloading to prevent double trigger on manual refresh
+    const cleanUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, cleanUrl);
+
+    showToast('Verifying payment confirmation, please wait...', 'info');
+
+    try {
+      const res = await fetch('api/wallet.php?action=deposit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reference: ref, amount: 0 })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message || 'Payment confirmed! Funds added to your wallet.', 'success');
+        loadWalletSummary();
+      } else {
+        if (data.message && data.message.includes('already been processed')) {
+          showToast('Payment successful! Your wallet is up to date.', 'success');
+          loadWalletSummary();
+        } else {
+          showToast(data.message || 'Payment verification pending. Please check wallet shortly.', 'info');
+          loadWalletSummary();
+        }
+      }
+    } catch (e) {
+      console.error('Error verifying returned payment:', e);
+      loadWalletSummary();
+    }
   }
 }
 

@@ -227,9 +227,8 @@ function initializeDepositTransaction($email, $amount, $currencyOrMeta = 'NGN', 
     // 1. Live Flutterwave Multi-Currency (Supports USD, GHS, EUR, GBP, KES, NGN, Mobile Money, Apple Pay)
     if (!PAYMENT_DEV_MODE && !empty(FLUTTERWAVE_SECRET_KEY) && ($currency !== 'NGN' || empty(PAYSTACK_SECRET_KEY))) {
         $url = 'https://api.flutterwave.com/v3/payments';
-        $redirectUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . 
-                       '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . 
-                       '/nigerian-draughts/dashboard.php?payment_ref=' . urlencode($reference);
+        $baseUrl = function_exists('getAppBaseUrl') ? getAppBaseUrl() : 'http://localhost/nigerian-draughts/';
+        $redirectUrl = rtrim($baseUrl, '/') . '/dashboard.php?payment_ref=' . urlencode($reference);
 
         $payload = [
             'tx_ref' => $reference,
@@ -285,11 +284,20 @@ function initializeDepositTransaction($email, $amount, $currencyOrMeta = 'NGN', 
     // 2. Live Paystack API (for NGN)
     if (!PAYMENT_DEV_MODE && !empty(PAYSTACK_SECRET_KEY) && $currency === 'NGN') {
         $url = 'https://api.paystack.co/transaction/initialize';
+        $baseUrl = function_exists('getAppBaseUrl') ? getAppBaseUrl() : 'http://localhost/nigerian-draughts/';
+        $redirectUrl = rtrim($baseUrl, '/') . '/dashboard.php?payment_ref=' . urlencode($reference);
         $fields = [
             'email' => $email,
             'amount' => (int)($amountNaira * 100), // Amount in Kobo
             'reference' => $reference,
-            'metadata' => array_merge($metadata, ['platform' => 'NaijaDraughtsArena', 'currency' => 'NGN'])
+            'callback_url' => $redirectUrl,
+            'metadata' => array_merge($metadata, [
+                'platform' => 'NaijaDraughtsArena',
+                'currency' => 'NGN',
+                'amount_naira' => $amountNaira,
+                'coins_to_add' => $metadata['coins_to_add'] ?? 0,
+                'bundle_id' => $metadata['bundle_id'] ?? ''
+            ])
         ];
 
         $ch = curl_init();
@@ -386,6 +394,7 @@ function verifyDepositTransaction($reference) {
                     'currency' => $paidCurrency,
                     'channel' => $flwData['payment_type'] ?? 'flutterwave',
                     'paid_at' => $flwData['created_at'] ?? date('Y-m-d H:i:s'),
+                    'metadata' => $flwData['meta'] ?? [],
                     'dev_mode' => false
                 ];
             }
@@ -418,6 +427,7 @@ function verifyDepositTransaction($reference) {
                     'currency' => 'NGN',
                     'channel' => $res['data']['channel'] ?? 'paystack',
                     'paid_at' => $res['data']['paid_at'] ?? date('Y-m-d H:i:s'),
+                    'metadata' => $res['data']['metadata'] ?? [],
                     'dev_mode' => false
                 ];
             }
