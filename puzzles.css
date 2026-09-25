@@ -32,11 +32,27 @@ body.puzzle-trainer-body {
   overflow-x: hidden;
 }
 
+/* App Wrapper Reset for Puzzle Trainer - Prevents 48px horizontal overflow from style.css */
+.puzzle-trainer-body .app-wrapper {
+  width: 100% !important;
+  max-width: 100vw !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
 /* Make top header fit the clean theme nicely */
 .puzzle-trainer-body .app-header {
   background: #1e293b;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+  box-sizing: border-box !important;
+  padding: 10px 20px !important;
 }
 
 /* ==================== 3-COLUMN LIDRAUGHTS CONTAINER ==================== */
@@ -64,9 +80,55 @@ body.puzzle-trainer-body {
 
 @media (max-width: 980px) {
   .lid-puzzle-container {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     max-width: 580px;
     margin: 0 auto;
+    gap: 14px;
+  }
+
+  /* Optimal mobile gameplay hierarchy: Board first, Action Controls second, Secondary drawer third */
+  .lid-board-center {
+    order: 1;
+    width: 100%;
+  }
+
+  .lid-sidebar-right {
+    order: 2;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Inside right sidebar on mobile: Turn prompt & feedback immediately below board */
+  .lid-feedback-box {
+    order: 1;
+  }
+
+  .lid-btn-continue {
+    order: 2;
+  }
+
+  .lid-aux-toolbar {
+    order: 3;
+  }
+
+  .lid-step-controls {
+    order: 4;
+  }
+
+  .lid-notation-card {
+    order: 5;
+  }
+
+  .lid-engine-header {
+    order: 6;
+  }
+
+  .lid-sidebar-left {
+    order: 3;
+    width: 100%;
   }
 }
 
@@ -410,6 +472,25 @@ body.puzzle-trainer-body {
 .lid-board-tools {
   display: flex;
   gap: 6px;
+  align-items: center;
+}
+
+.lid-board-theme-select {
+  background: #ffffff !important;
+  border: 1px solid var(--lid-border) !important;
+  color: #333333 !important;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.lid-board-theme-select:focus {
+  border-color: var(--lid-blue) !important;
 }
 
 .lid-board-tools .btn {
@@ -588,6 +669,8 @@ body.puzzle-trainer-body {
   height: 100%;
   user-select: none;
   background: transparent !important;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .square.light,
@@ -668,6 +751,7 @@ body.puzzle-trainer-body {
   cursor: grab !important;
   user-select: none !important;
   touch-action: none !important;
+  -webkit-tap-highlight-color: transparent !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -1524,3 +1608,453 @@ body.puzzle-trainer-body {
   background: #fde68a;
   transform: scale(1.03);
 }
+
+/* =============================================================================
+   MOBILE VIEWPORT & TOUCHSCREEN OPTIMIZATION (puzzles.css)
+   Tailored for smartphones (360px – 480px) and small tablets (600px – 768px)
+   ============================================================================= */
+
+/* Universal Touch & Tap Highlight Polish */
+.filter-btn,
+.puzzle-chip,
+.btn,
+.lid-step-btn,
+.lid-aux-btn,
+.lid-btn-continue,
+.coup-star-pill,
+.btn-practice-coup {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Mobile Viewport Width Protection - Eliminates Any Horizontal Shift/Overflow */
+html, body.puzzle-trainer-body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden !important;
+}
+
+.puzzle-trainer-body .app-wrapper {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  /* Top App Header & Swipeable Horizontal Navigation */
+  .puzzle-trainer-body .app-header {
+    padding: 8px 10px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .puzzle-trainer-body .nav-brand-container {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .puzzle-trainer-body .header-right-tools {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .puzzle-trainer-body .main-nav {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    margin-top: 2px !important;
+  }
+
+  .puzzle-trainer-body .main-nav::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .puzzle-trainer-body .nav-list {
+    display: inline-flex !important;
+    flex-wrap: nowrap !important;
+    width: max-content !important;
+    gap: 4px !important;
+    padding: 2px 0 !important;
+    margin: 0 !important;
+    list-style: none !important;
+  }
+
+  .puzzle-trainer-body .nav-link {
+    padding: 6px 11px !important;
+    font-size: 0.74rem !important;
+    white-space: nowrap !important;
+    border-radius: 6px !important;
+    flex-shrink: 0 !important;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Compact Header Branding */
+  .puzzle-trainer-body .app-header {
+    padding: 8px 10px !important;
+  }
+
+  .puzzle-trainer-body .game-title {
+    font-size: 1.15rem !important;
+    letter-spacing: 1px !important;
+  }
+
+  .puzzle-trainer-body .game-subtitle {
+    font-size: 0.65rem !important;
+  }
+
+  .puzzle-trainer-body .flag-stripes {
+    width: 18px !important;
+    height: 28px !important;
+  }
+
+  /* Page Padding & Arena Bounds */
+  .puzzle-training-arena {
+    padding: 8px 8px 36px;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .lid-puzzle-container {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    gap: 12px;
+  }
+
+  .lid-board-center,
+  .lid-sidebar-right,
+  .lid-sidebar-left {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  /* Board Frame & Scaling: Clean margins for outer coordinates */
+  .lid-board-outer {
+    width: calc(100% - 20px) !important;
+    margin: 4px 20px 22px 0 !important;
+  }
+
+  .lid-coords-right {
+    right: -16px;
+    width: 14px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .lid-coords-bottom {
+    bottom: -18px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  /* 1-50 Draughts Notation Square Numbers */
+  .sq-draughts-num {
+    top: 1px;
+    right: 2px;
+    font-size: 0.52rem;
+    line-height: 1;
+    opacity: 0.85;
+  }
+
+  /* Board Header Toolbar */
+  .lid-board-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .puzzle-variant-tag {
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    white-space: nowrap;
+  }
+
+  .lid-board-tools {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .lid-board-theme-select {
+    max-width: 110px;
+    font-size: 0.72rem;
+    padding: 3px 4px;
+  }
+
+  .lid-board-tools .btn {
+    padding: 4px 7px;
+    font-size: 0.74rem;
+  }
+
+  /* Compact 1-50 notation toggle text on mobile */
+  #label-coords-toggle {
+    font-size: 0 !important;
+  }
+  #label-coords-toggle::after {
+    content: "1-50";
+    font-size: 0.74rem;
+  }
+
+  /* Hide physical keyboard shortcuts hint on touchscreen mobile */
+  .keyboard-shortcuts-hint {
+    display: none !important;
+  }
+
+  /* Turn Prompt & Feedback Card */
+  .lid-feedback-box {
+    padding: 10px 12px;
+    gap: 6px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .puzzle-trainer-body .turn-prompt {
+    font-size: 0.88rem !important;
+  }
+
+  .feedback-title {
+    font-size: 1.05rem;
+  }
+
+  .feedback-desc {
+    font-size: 0.8rem;
+    line-height: 1.35;
+  }
+
+  /* Prominent Big CTA Button */
+  .lid-btn-continue {
+    height: 48px;
+    font-size: 0.98rem;
+    letter-spacing: 0.3px;
+    border-radius: 6px;
+  }
+
+  /* Step Controls (|◀, ◀, ▶, ▶|) - Touch-friendly tap height */
+  .lid-step-btn {
+    padding: 10px 0;
+    font-size: 0.92rem;
+  }
+
+  /* Auxiliary Tools (Hint, Solution, Retry) - Touch-friendly tap height */
+  .lid-aux-btn {
+    padding: 9px 4px;
+    font-size: 0.82rem;
+  }
+
+  /* Evaluation Strip */
+  .lid-eval-strip {
+    height: 20px;
+    margin-top: 10px;
+  }
+
+  .lid-eval-cell {
+    font-size: 0.65rem;
+  }
+
+  /* Move History Table - Compact on mobile so it doesn't take too much height */
+  .lid-notation-card {
+    min-height: 90px;
+    max-height: 140px;
+  }
+
+  .lid-notation-scroll {
+    max-height: 140px;
+  }
+
+  .lid-notation-table {
+    font-size: 0.85rem;
+  }
+
+  .lid-notation-table td {
+    padding: 4px 8px;
+  }
+
+  /* Session Strip */
+  .puzzle-session-strip {
+    padding: 4px 8px;
+    gap: 6px;
+  }
+
+  .session-strip-label {
+    font-size: 0.68rem;
+  }
+
+  .session-pill {
+    padding: 2px 5px;
+    font-size: 0.68rem;
+  }
+
+  .puzzle-highway-status {
+    font-size: 0.72rem;
+    line-height: 1.3;
+  }
+
+  /* Left Sidebar Cards on mobile */
+  .lid-puzzle-info-card {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .lid-target-icon-wrap {
+    width: 38px;
+    height: 38px;
+  }
+
+  .lid-target-svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .lid-puzzle-link {
+    font-size: 0.98rem;
+  }
+
+  .lid-info-rating {
+    font-size: 0.82rem;
+  }
+
+  .lid-rating-graph-card {
+    padding: 10px 12px 8px;
+  }
+
+  .lid-chart-container {
+    height: 55px;
+  }
+
+  /* Filter Drawer & Chips */
+  .lid-filters-content {
+    padding: 10px 12px 14px;
+  }
+
+  .puzzle-chips-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 5px;
+    max-height: 160px;
+  }
+
+  .filter-btn {
+    padding: 5px 8px;
+    font-size: 0.72rem;
+  }
+
+  /* Classical Coups Modal */
+  .coups-modal-backdrop {
+    padding: 8px;
+  }
+
+  .coups-modal-dialog {
+    max-height: 95vh;
+    border-radius: 6px;
+  }
+
+  .coups-modal-header {
+    padding: 14px 16px 10px;
+  }
+
+  .coups-modal-title {
+    font-size: 1.12rem;
+  }
+
+  .coups-modal-subtitle {
+    font-size: 0.78rem;
+  }
+
+  .coups-modal-toolbar {
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  .coups-search-wrap {
+    min-width: 100%;
+  }
+
+  .coups-star-filters {
+    gap: 4px;
+  }
+
+  .coup-star-pill {
+    font-size: 0.72rem;
+    padding: 3px 8px;
+  }
+
+  .coups-grid {
+    grid-template-columns: 1fr;
+    padding: 12px 14px;
+    gap: 10px;
+    max-height: calc(95vh - 210px);
+  }
+}
+
+@media (max-width: 390px) {
+  /* Ultra-compact screen tuning (e.g. 360px - 375px screens) */
+  .puzzle-training-arena {
+    padding: 6px 6px 30px;
+  }
+
+  .lid-board-outer {
+    width: calc(100% - 15px);
+    margin: 0 15px 15px 0;
+  }
+
+  .lid-coords-right {
+    right: -13px;
+    font-size: 0.55rem;
+  }
+
+  .lid-coords-bottom {
+    bottom: -13px;
+    font-size: 0.55rem;
+  }
+
+  .sq-draughts-num {
+    font-size: 0.46rem;
+    top: 0;
+    right: 1px;
+  }
+
+  .lid-board-tools .btn {
+    padding: 4px 6px;
+    font-size: 0.7rem;
+  }
+
+  #btn-toggle-coords span {
+    display: none;
+  }
+
+  .lid-board-theme-select {
+    max-width: 105px;
+    font-size: 0.7rem;
+  }
+
+  .feedback-rewards {
+    flex-wrap: wrap;
+  }
+}
+

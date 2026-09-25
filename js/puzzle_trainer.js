@@ -1171,7 +1171,8 @@ class PuzzleTrainer {
         const dx = moveEv.clientX - startX;
         const dy = moveEv.clientY - startY;
 
-        if (!dragThresholdPassed && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+        const threshold = (moveEv.pointerType === 'touch') ? 10 : 5;
+        if (!dragThresholdPassed && (Math.abs(dx) > threshold || Math.abs(dy) > threshold)) {
           dragThresholdPassed = true;
           isDragging = true;
           // Ensure piece is selected when drag begins so target dots are visible
