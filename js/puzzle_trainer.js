@@ -31,6 +31,8 @@ class PuzzleTrainer {
     });
     this.currentPuzzleIdx = 0;
     this.currentStepIdx = 0;
+    this.playerColor = PLAYER_1;
+    this.opponentColor = PLAYER_2;
     this.boardState = Array.from({ length: 10 }, () => Array(10).fill(null));
     this.selectedSquare = null;
     this.validMoves = [];
@@ -82,8 +84,9 @@ class PuzzleTrainer {
     }
   }
 
-  syncEngineFromBoardState(turn = PLAYER_1) {
+  syncEngineFromBoardState(turn = null) {
     if (!this.engine) return;
+    const activeTurn = turn !== null ? turn : (this.playerColor || PLAYER_1);
     for (let r = 0; r < 10; r++) {
       for (let c = 0; c < 10; c++) {
         const p = this.boardState[r][c];
@@ -97,7 +100,7 @@ class PuzzleTrainer {
         }
       }
     }
-    this.engine.currentTurn = turn;
+    this.engine.currentTurn = activeTurn;
     this.engine.activeMultiJump = null;
   }
 
@@ -150,6 +153,8 @@ class PuzzleTrainer {
       boardInner: document.getElementById('draughts-board'),
       boardFrame: document.getElementById('board-wood-frame'),
       tacticalSvg: document.getElementById('board-tactical-svg'),
+      coordsRight: document.getElementById('lid-coords-right'),
+      coordsBottom: document.getElementById('lid-coords-bottom'),
 
       evalBar: document.getElementById('eval-bar-fill'),
       evalScore: document.getElementById('eval-score-label'),
@@ -639,7 +644,7 @@ class PuzzleTrainer {
 
   // ==================== PUZZLE LOADING & OPPONENT SETUP ==================== //
 
-  loadPuzzle(index) {
+  loadPuzzle(index, isSolutionMode = false) {
     if (index < 0 || index >= this.puzzles.length) index = 0;
     this.currentPuzzleIdx = index;
     this.currentStepIdx = 0;
@@ -647,7 +652,7 @@ class PuzzleTrainer {
     this.validMoves = [];
     this.hintLevel = 0;
     this.isOpponentMoving = false;
-    this.isAnimatingSolution = false;
+    this.isAnimatingSolution = isSolutionMode;
     this.clearMoveHighlights();
     this.clearTacticalSvg();
 
@@ -660,6 +665,24 @@ class PuzzleTrainer {
     if (!puzzle) return;
 
     const ruleMode = puzzle.ruleset || 'nigeria';
+
+    const steps = puzzle.steps || puzzle.solution?.steps || [];
+    const lastStep = steps.length > 0 ? steps[steps.length - 1] : null;
+
+    // Detect who the solver (player) is:
+    // If explicitly defined on puzzle object, use it;
+    // Otherwise, whoever executes the final winning blow (lastStep.mover) is the solver!
+    const solver = (puzzle.solver !== undefined)
+      ? puzzle.solver
+      : (lastStep && lastStep.mover === PLAYER_2 ? PLAYER_2 : PLAYER_1);
+
+    this.playerColor = solver;
+    this.opponentColor = (this.playerColor === PLAYER_1 ? PLAYER_2 : PLAYER_1);
+
+    // Board orientation:
+    // When playing as White, standard orientation (White at bottom).
+    // When playing as Black, flip so Black is at bottom, exactly matching Lidraughts (e.g. 4.PNG).
+    this.isFlipped = (this.playerColor === PLAYER_2);
 
     // 1. Populate metadata cards
     const diffName = this.getPuzzleDiffName(puzzle);
@@ -746,7 +769,8 @@ class PuzzleTrainer {
 
     // 2. Setup Engine & Board State from initialBoard
     this.engine = new NigerianDraughtsEngine({ boardSize: 10, ruleMode });
-    this.engine.loadCustomPosition(puzzle.initialBoard, PLAYER_1);
+    const initialEngineTurn = steps.length > 0 ? steps[0].mover : this.playerColor;
+    this.engine.loadCustomPosition(puzzle.initialBoard, initialEngineTurn);
     this.syncBoardStateFromEngine();
 
     // 3. Render Board & Pieces
@@ -759,43 +783,80 @@ class PuzzleTrainer {
     this.updateNotationTable();
 
     // 4. Opponent Setup Move (The Blunder/Pre-move in Lidraughts style)
-    if (puzzle.initialMove) {
+    if (isSolutionMode) {
+      this.currentStepIdx = 0;
+      return;
+    }
+
+    const hasOpponentPreMove = steps.length > 0 && steps[0].mover === this.opponentColor;
+
+    if (hasOpponentPreMove) {
+      const opponentInitialHops = [];
+      let idx = 0;
+      while (idx < steps.length && steps[idx].mover === this.opponentColor) {
+        opponentInitialHops.push(steps[idx]);
+        idx++;
+      }
+      this.currentStepIdx = opponentInitialHops.length;
+      this.playOpponentInitialSequence(opponentInitialHops);
+    } else if (puzzle.initialMove) {
       this.playOpponentInitialMove(puzzle.initialMove);
     } else {
       this.activatePlayerTurn();
     }
   }
 
-  playOpponentInitialMove(initMove) {
+  playOpponentInitialSequence(hops) {
+    if (!hops || hops.length === 0) {
+      this.activatePlayerTurn();
+      return;
+    }
+
     this.isOpponentMoving = true;
-    this.updateTurnBanner(PLAYER_2, 'Opponent is making their move...');
+    const oppName = this.opponentColor === PLAYER_1 ? 'White' : 'Black';
+    this.updateTurnBanner(this.opponentColor, `${oppName} is making their move...`);
     this.setFeedback({
       icon: '⏳',
       title: 'Opponent is moving...',
-      desc: 'Watch the board carefully to identify Black’s tactical mistake.',
+      desc: `Watch the board carefully to identify ${oppName}’s tactical mistake.`,
       statusClass: 'progress'
     });
 
-    // Highlight from square
-    this.highlightMoveSquares(initMove.from, null);
-
-    setTimeout(() => {
-      // Execute opponent move with smooth animation callback
-      this.executeMove(initMove.from, initMove.to, () => {
-        this.highlightMoveSquares(initMove.from, initMove.to);
+    let hopIdx = 0;
+    const playNextHop = () => {
+      if (hopIdx >= hops.length) {
+        this.highlightMoveSquares(hops[0].from, hops[hops.length - 1].to);
         this.isOpponentMoving = false;
         this.activatePlayerTurn();
+        return;
+      }
+
+      const hop = hops[hopIdx];
+      this.executeMove(hop.from, hop.to, () => {
+        hopIdx++;
+        if (hopIdx < hops.length) {
+          setTimeout(playNextHop, 220);
+        } else {
+          playNextHop();
+        }
       });
-    }, 200);
+    };
+
+    setTimeout(playNextHop, 220);
+  }
+
+  playOpponentInitialMove(initMove) {
+    this.playOpponentInitialSequence([initMove]);
   }
 
   activatePlayerTurn() {
     this.isOpponentMoving = false;
-    this.updateTurnBanner(PLAYER_1, 'Find the best move for White.');
+    const colorName = this.playerColor === PLAYER_1 ? 'White' : 'Black';
+    this.updateTurnBanner(this.playerColor, `Find the best move for ${colorName}.`);
     this.setFeedback({
       icon: '🎯',
       title: 'Find the winning move',
-      desc: 'Spot the tactical sequence that forces an inescapable trap or decisive material advantage.',
+      desc: `Spot the tactical sequence for ${colorName} that forces an inescapable trap or decisive material advantage.`,
       statusClass: 'normal'
     });
   }
@@ -805,10 +866,11 @@ class PuzzleTrainer {
       this.dom.turnDisc.className = `turn-disc ${player === PLAYER_1 ? 'white' : 'dark'}`;
     }
     if (this.dom.turnTagline) {
-      this.dom.turnTagline.textContent = player === PLAYER_1 ? 'YOUR TURN' : 'OPPONENT TURN';
+      this.dom.turnTagline.textContent = player === this.playerColor ? 'YOUR TURN' : 'OPPONENT TURN';
     }
     if (this.dom.turnPrompt) {
-      this.dom.turnPrompt.textContent = promptText || (player === PLAYER_1 ? 'Find the best move for White.' : 'Waiting for response...');
+      const colorName = player === PLAYER_1 ? 'White' : 'Black';
+      this.dom.turnPrompt.textContent = promptText || (player === this.playerColor ? `Find the best move for ${colorName}.` : 'Waiting for response...');
     }
   }
 
@@ -908,6 +970,21 @@ class PuzzleTrainer {
       const oldTrack = svg.querySelector('#highway-track-group');
       if (oldTrack) oldTrack.remove();
     }
+
+    this.updateRimCoords();
+  }
+
+  updateRimCoords() {
+    const rightEl = this.dom.coordsRight || document.getElementById('lid-coords-right');
+    const bottomEl = this.dom.coordsBottom || document.getElementById('lid-coords-bottom');
+    if (rightEl) {
+      const nums = this.isFlipped ? [46, 36, 26, 16, 6] : [5, 15, 25, 35, 45];
+      rightEl.innerHTML = nums.map(n => `<span>${n}</span>`).join('');
+    }
+    if (bottomEl) {
+      const nums = this.isFlipped ? [5, 4, 3, 2, 1] : [46, 47, 48, 49, 50];
+      bottomEl.innerHTML = nums.map(n => `<span>${n}</span>`).join('');
+    }
   }
 
   renderPieces() {
@@ -948,7 +1025,7 @@ class PuzzleTrainer {
         }
 
         // Setup Pointer Events for selection & drag-and-drop
-        if (piece.player === PLAYER_1) {
+        if (piece.player === this.playerColor) {
           this.setupPointerEvents(pieceEl, r, c);
         }
 
@@ -962,7 +1039,7 @@ class PuzzleTrainer {
   selectSquare(r, c) {
     if (!this.engine) return;
     const piece = this.boardState[r][c];
-    if (!piece || piece.player !== PLAYER_1) {
+    if (!piece || piece.player !== this.playerColor) {
       this.deselectSquare();
       return;
     }
@@ -971,12 +1048,12 @@ class PuzzleTrainer {
     const expectedStep = puzzle?.steps ? puzzle.steps[this.currentStepIdx] : null;
     const isExpectedPiece = Boolean(
       expectedStep &&
-      expectedStep.mover === PLAYER_1 &&
+      expectedStep.mover === this.playerColor &&
       expectedStep.from.r === r &&
       expectedStep.from.c === c
     );
 
-    const allMoves = this.engine.getAllLegalMoves(PLAYER_1);
+    const allMoves = this.engine.getAllLegalMoves(this.playerColor);
     const pieceMoves = allMoves.filter(m => m.from.r === r && m.from.c === c);
 
     if (pieceMoves.length === 0 && !isExpectedPiece) {
@@ -1048,7 +1125,7 @@ class PuzzleTrainer {
         this.jumpToHistoryStep(this.boardSnapshots.length - 1);
       }
       const piece = this.boardState[r][c];
-      if (!piece || piece.player !== PLAYER_1) return;
+      if (!piece || piece.player !== this.playerColor) return;
       if (e.button !== undefined && e.button !== 0) return; // Only left-click/touch
 
       startX = e.clientX;
@@ -1142,8 +1219,8 @@ class PuzzleTrainer {
 
     const piece = this.boardState[r][c];
 
-    // 1. If clicking own White piece: switch selection
-    if (piece && piece.player === PLAYER_1) {
+    // 1. If clicking own piece: switch selection
+    if (piece && piece.player === this.playerColor) {
       this.selectSquare(r, c);
       return;
     }
@@ -1166,10 +1243,10 @@ class PuzzleTrainer {
   calculatePossibleMovesForPiece(r, c) {
     const puzzle = this.puzzles[this.currentPuzzleIdx];
     const piece = this.boardState[r][c];
-    if (!piece || piece.player !== PLAYER_1 || !this.engine) return [];
+    if (!piece || piece.player !== this.playerColor || !this.engine) return [];
 
     const expectedStep = puzzle?.steps ? puzzle.steps[this.currentStepIdx] : null;
-    const allMoves = this.engine.getAllLegalMoves(PLAYER_1);
+    const allMoves = this.engine.getAllLegalMoves(this.playerColor);
     const pieceMoves = allMoves.filter(m => m.from.r === r && m.from.c === c);
 
     const moves = pieceMoves.map(m => ({
@@ -1180,7 +1257,7 @@ class PuzzleTrainer {
     }));
 
     // If expected step is from this piece, ALWAYS ensure expectedStep target is included!
-    if (expectedStep && expectedStep.mover === PLAYER_1 && expectedStep.from.r === r && expectedStep.from.c === c) {
+    if (expectedStep && expectedStep.mover === this.playerColor && expectedStep.from.r === r && expectedStep.from.c === c) {
       if (!moves.some(m => m.r === expectedStep.to.r && m.c === expectedStep.to.c)) {
         moves.push({
           r: expectedStep.to.r,
@@ -1195,7 +1272,7 @@ class PuzzleTrainer {
       let lastHop = null;
       while (chainIdx < puzzle.steps.length) {
         const s = puzzle.steps[chainIdx];
-        if (s.mover !== PLAYER_1) break;
+        if (s.mover !== this.playerColor) break;
         if (s.from.r !== currPos.r || s.from.c !== currPos.c) break;
         lastHop = s;
         currPos = { r: s.to.r, c: s.to.c };
@@ -1232,7 +1309,7 @@ class PuzzleTrainer {
     let currPiece = { ...from };
     while (chainIdx < puzzle.steps.length) {
       const s = puzzle.steps[chainIdx];
-      if (s.mover !== PLAYER_1) break;
+      if (s.mover !== this.playerColor) break;
       if (s.from.r !== currPiece.r || s.from.c !== currPiece.c) break;
       multiJumpSteps.push(s);
       currPiece = { r: s.to.r, c: s.to.c };
@@ -1248,7 +1325,7 @@ class PuzzleTrainer {
     );
 
     // Check legality under authentic draughts engine
-    const allLegalMoves = this.engine ? this.engine.getAllLegalMoves(PLAYER_1) : [];
+    const allLegalMoves = this.engine ? this.engine.getAllLegalMoves(this.playerColor) : [];
     const isLegalInEngine = allLegalMoves.some(m =>
       m.from.r === from.r && m.from.c === from.c &&
       m.to.r === to.r && m.to.c === to.c
@@ -1318,13 +1395,13 @@ class PuzzleTrainer {
 
     const nextStep = puzzle.steps[this.currentStepIdx];
 
-    if (nextStep.mover === PLAYER_1) {
+    if (nextStep.mover === this.playerColor) {
       this.isOpponentMoving = false;
-      this.updateTurnBanner(PLAYER_1);
+      this.updateTurnBanner(this.playerColor);
 
       // Check if continuing a multi-jump
       const prevStep = this.currentStepIdx > 0 ? puzzle.steps[this.currentStepIdx - 1] : null;
-      const isContinuation = Boolean(prevStep && prevStep.mover === PLAYER_1 && prevStep.isJump);
+      const isContinuation = Boolean(prevStep && prevStep.mover === this.playerColor && prevStep.isJump);
 
       if (isContinuation) {
         this.setFeedback({
@@ -1344,17 +1421,17 @@ class PuzzleTrainer {
         });
       }
       this.renderPieces();
-    } else if (nextStep.isAi || nextStep.mover === PLAYER_2) {
+    } else if (nextStep.mover === this.opponentColor) {
       // Gather ALL consecutive opponent steps (multi-jump hops or consecutive responses)
       const opponentSteps = [];
       let idx = this.currentStepIdx;
-      while (idx < puzzle.steps.length && (puzzle.steps[idx].mover === PLAYER_2 || puzzle.steps[idx].isAi)) {
+      while (idx < puzzle.steps.length && puzzle.steps[idx].mover === this.opponentColor) {
         opponentSteps.push(puzzle.steps[idx]);
         idx++;
       }
 
       this.isOpponentMoving = true;
-      this.updateTurnBanner(PLAYER_2, 'Opponent is responding...');
+      this.updateTurnBanner(this.opponentColor, 'Opponent is responding...');
       this.setFeedback({
         icon: '✓',
         title: 'Best move! Keep going...',
@@ -1594,10 +1671,11 @@ class PuzzleTrainer {
       this.dom.userRatingDeltaPill.textContent = '↘ -10';
     }
 
+    const oppName = this.opponentColor === PLAYER_1 ? 'White' : 'Dark';
     this.setFeedback({
       icon: '❌',
       title: "That's not the move.",
-      desc: customDesc || 'That move allows Dark to escape or blunders material. Try another move!',
+      desc: customDesc || `That move allows ${oppName} to escape or blunders material. Try another move!`,
       statusClass: 'error',
       actions: [
         {
@@ -1700,7 +1778,8 @@ class PuzzleTrainer {
 
     if (this.hintLevel === 1) {
       // Level 1: Pulsate the piece that needs to move & display broad thematic cue
-      const hintMsg = (puzzle.hints && puzzle.hints[0]) || puzzle.hint || 'Find the active tactical motif for White.';
+      const colorName = this.playerColor === PLAYER_1 ? 'White' : 'Black';
+      const hintMsg = (puzzle.hints && puzzle.hints[0]) || puzzle.hint || `Find the active tactical motif for ${colorName}.`;
       this.setFeedback({
         icon: '💡',
         title: 'Tactical Hint: Level 1 (Sector / Piece Identified)',
@@ -1737,7 +1816,7 @@ class PuzzleTrainer {
   handleSolutionClick() {
     if (this.isAnimatingSolution) return;
     this.isAnimatingSolution = true;
-    this.loadPuzzle(this.currentPuzzleIdx);
+    this.loadPuzzle(this.currentPuzzleIdx, true);
 
     const puzzle = this.puzzles[this.currentPuzzleIdx];
     let stepIndex = 0;
@@ -1995,9 +2074,18 @@ class PuzzleTrainer {
       this.dom.rulesetDropdown.value = this.activeRuleset;
     }
     if (this.dom.rulesetPills) {
+      const allCount = this.puzzles.length;
+      const intlCount = this.puzzles.filter(p => p.ruleset === 'international').length;
+      const ngaCount = this.puzzles.filter(p => p.ruleset === 'nigeria').length;
+      const ghaCount = this.puzzles.filter(p => p.ruleset === 'ghana').length;
+
       const btns = this.dom.rulesetPills.querySelectorAll('.filter-btn');
       btns.forEach(b => {
         b.classList.toggle('active', b.dataset.ruleset === this.activeRuleset);
+        if (b.dataset.ruleset === 'all') b.textContent = `All (${allCount})`;
+        else if (b.dataset.ruleset === 'international') b.textContent = `🌍 FMJD (${intlCount})`;
+        else if (b.dataset.ruleset === 'nigeria') b.textContent = `🇳🇬 Nigeria (${ngaCount})`;
+        else if (b.dataset.ruleset === 'ghana') b.textContent = `🇬🇭 Ghana (${ghaCount})`;
       });
     }
   }
@@ -2122,7 +2210,7 @@ class PuzzleTrainer {
 
     // Reconstruct board state from snapshot
     this.boardState = snap.board.map(row => row.map(cell => cell ? { ...cell } : null));
-    this.syncEngineFromBoardState(PLAYER_1);
+    this.syncEngineFromBoardState(this.playerColor);
     this.renderBoard();
     this.renderPieces();
     this.highlightMoveSquares(snap.from, snap.to);
@@ -2178,7 +2266,7 @@ class PuzzleTrainer {
       if (!isWhite || idx === this.moveHistory.length - 1) {
         const checkCell = document.createElement('td');
         checkCell.className = 'col-check';
-        const isCompleted = !isWhite || this.solvedSet.has(this.puzzles[this.currentPuzzleIdx]?.id);
+        const isCompleted = (move.mover === this.playerColor) || this.solvedSet.has(this.puzzles[this.currentPuzzleIdx]?.id);
         checkCell.innerHTML = isCompleted ? '<span class="lid-check">✓</span>' : '';
         currentRow.appendChild(checkCell);
 

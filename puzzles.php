@@ -198,10 +198,10 @@ if ($currentUser) {
                   <a href="admin_puzzles.php" class="btn btn-secondary btn-small" style="font-size: 0.72rem; padding: 2px 8px;" title="Open Puzzle Generator Lab">⚙️ Generator Lab</a>
                 </div>
                 <div class="puzzle-filter-pills" id="puzzle-ruleset-pills" style="margin-bottom: 12px;">
-                  <button type="button" class="filter-btn active" data-ruleset="all" title="All puzzles">All (390)</button>
+                  <button type="button" class="filter-btn active" data-ruleset="all" title="All puzzles">All (113)</button>
                   <button type="button" class="filter-btn" data-ruleset="international" title="International FMJD">🌍 FMJD (96)</button>
-                  <button type="button" class="filter-btn" data-ruleset="nigeria" title="Nigerian Highway">🇳🇬 Nigeria (20)</button>
-                  <button type="button" class="filter-btn" data-ruleset="ghana" title="Ghanaian Damii">🇬🇭 Ghana (15)</button>
+                  <button type="button" class="filter-btn" data-ruleset="nigeria" title="Nigerian Highway">🇳🇬 Nigeria (9)</button>
+                  <button type="button" class="filter-btn" data-ruleset="ghana" title="Ghanaian Damii">🇬🇭 Ghana (8)</button>
                 </div>
 
                 <span class="section-label">Difficulty Level:</span>
