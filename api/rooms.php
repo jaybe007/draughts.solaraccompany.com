@@ -85,6 +85,25 @@ try {
             $waitingRoom = $findWaiting->fetch();
 
             if ($waitingRoom) {
+                $roomWager = (int)($waitingRoom['wager_coins'] ?? 0);
+                if ($roomWager > 0) {
+                    if (!$guestId) {
+                        jsonResponse(['success' => false, 'message' => 'Please sign in to join a coin wager match.'], 401);
+                    }
+                    $coinCheck = ensureCoinsAvailable($db, $guestId, $roomWager, "Match Staking (Room {$waitingRoom['room_code']})");
+                    if (!$coinCheck['success']) {
+                        jsonResponse(['success' => false, 'message' => $coinCheck['message']], 400);
+                    }
+                    $db->prepare("UPDATE users SET coins = GREATEST(0, coins - ?) WHERE id = ?")->execute([$roomWager, $guestId]);
+                    $db->prepare("
+                        INSERT INTO wallet_transactions (user_id, type, amount, coins, description)
+                        VALUES (?, 'wager_escrow', 0, ?, ?)
+                    ")->execute([$guestId, -$roomWager, "Escrow: Match Wager for Room {$waitingRoom['room_code']}"]);
+                    if (isset($_SESSION['user']['coins'])) {
+                        $_SESSION['user']['coins'] = max(0, (int)$_SESSION['user']['coins'] - $roomWager);
+                    }
+                }
+
                 $db->prepare("
                     UPDATE game_rooms SET
                         guest_id = ?,

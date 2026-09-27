@@ -597,28 +597,14 @@ $currentUser = getCurrentUser();
               <span>🎮</span> 1. Match Format & Rules
             </div>
 
-            <!-- Game Type: 1 Player / Pass & Play / Online Room segmented options -->
+            <!-- Game Type: 1 Player / 2 Player segmented options -->
             <div class="form-group create-game-full">
-              <label class="form-label-bold" style="margin-bottom: 6px; display: block; font-weight: 600;">Game Mode</label>
+              <label class="form-label-bold" style="margin-bottom: 6px; display: block; font-weight: 600;">Game Type</label>
               <div class="segmented-options" id="setup-game-type-segmented">
-                <button type="button" class="segmented-btn active" data-type="1p" id="btn-setup-type-1p">🤖 vs AI Bot</button>
-                <button type="button" class="segmented-btn" data-type="pvp" id="btn-setup-type-pvp">👥 Pass & Play (Local)</button>
-                <button type="button" class="segmented-btn" data-type="2p" id="btn-setup-type-2p">🌐 Online (Create Room)</button>
+                <button type="button" class="segmented-btn active" data-type="1p" id="btn-setup-type-1p">👤 1 Player (vs AI)</button>
+                <button type="button" class="segmented-btn" data-type="2p" id="btn-setup-type-2p">👥 2 Player (Online Room)</button>
               </div>
               <input type="hidden" id="setup-game-type" value="1p">
-            </div>
-
-            <!-- Join Existing Room Quick Box (Visible for 2P Online) -->
-            <div class="form-group create-game-full" id="setup-join-room-wrap" style="display: none; background: rgba(16, 185, 129, 0.08); border: 1px dashed rgba(16, 185, 129, 0.4); border-radius: 8px; padding: 12px; margin-top: 4px;">
-              <label for="setup-join-code-input" style="font-weight: 600; color: #10b981; font-size: 0.88rem; display: block; margin-bottom: 6px;">
-                🔑 Have a Room Code from a Friend?
-              </label>
-              <div style="display: flex; gap: 8px;">
-                <input type="text" id="setup-join-code-input" class="form-input" placeholder="e.g. ND-8F4K" style="text-transform: uppercase; font-weight: bold; letter-spacing: 2px;">
-                <button type="button" id="btn-setup-join-room" class="btn btn-secondary" style="white-space: nowrap; padding: 0 16px;">
-                  Join &rarr;
-                </button>
-              </div>
             </div>
 
             <!-- AI Engine Strength (Visible for 1-Player vs AI) -->

@@ -391,12 +391,8 @@ class NigerianDraughtsApp {
       btnCancelGameSetup: document.getElementById('btn-cancel-game-setup'),
       btnStartMatch: document.getElementById('btn-start-match'),
       btnSetupType1p: document.getElementById('btn-setup-type-1p'),
-      btnSetupTypePvp: document.getElementById('btn-setup-type-pvp'),
       btnSetupType2p: document.getElementById('btn-setup-type-2p'),
       setupGameType: document.getElementById('setup-game-type'),
-      setupJoinRoomWrap: document.getElementById('setup-join-room-wrap'),
-      setupJoinCodeInput: document.getElementById('setup-join-code-input'),
-      btnSetupJoinRoom: document.getElementById('btn-setup-join-room'),
       setupRuleType: document.getElementById('setup-rule-type'),
       setupCoinsRequired: document.getElementById('setup-coins-required'),
       setupCashWagerGroup: document.getElementById('setup-cash-wager-group'),
@@ -648,39 +644,15 @@ class NigerianDraughtsApp {
     // Game Setup: 1P vs 2P segmented toggle
     this.dom.btnSetupType1p?.addEventListener('click', () => {
       this.dom.btnSetupType1p.classList.add('active');
-      this.dom.btnSetupTypePvp?.classList.remove('active');
       this.dom.btnSetupType2p?.classList.remove('active');
       if (this.dom.setupGameType) this.dom.setupGameType.value = '1p';
       if (this.dom.setupAiDifficultyWrap) this.dom.setupAiDifficultyWrap.style.display = 'block';
-      if (this.dom.setupCashWagerGroup) this.dom.setupCashWagerGroup.style.display = 'none';
-      if (this.dom.setupJoinRoomWrap) this.dom.setupJoinRoomWrap.style.display = 'none';
-    });
-    this.dom.btnSetupTypePvp?.addEventListener('click', () => {
-      this.dom.btnSetupTypePvp.classList.add('active');
-      this.dom.btnSetupType1p?.classList.remove('active');
-      this.dom.btnSetupType2p?.classList.remove('active');
-      if (this.dom.setupGameType) this.dom.setupGameType.value = 'pvp';
-      if (this.dom.setupAiDifficultyWrap) this.dom.setupAiDifficultyWrap.style.display = 'none';
-      if (this.dom.setupCashWagerGroup) this.dom.setupCashWagerGroup.style.display = 'none';
-      if (this.dom.setupJoinRoomWrap) this.dom.setupJoinRoomWrap.style.display = 'none';
     });
     this.dom.btnSetupType2p?.addEventListener('click', () => {
       this.dom.btnSetupType2p.classList.add('active');
       this.dom.btnSetupType1p?.classList.remove('active');
-      this.dom.btnSetupTypePvp?.classList.remove('active');
       if (this.dom.setupGameType) this.dom.setupGameType.value = '2p';
       if (this.dom.setupAiDifficultyWrap) this.dom.setupAiDifficultyWrap.style.display = 'none';
-      if (this.dom.setupCashWagerGroup) this.dom.setupCashWagerGroup.style.display = 'block';
-      if (this.dom.setupJoinRoomWrap) this.dom.setupJoinRoomWrap.style.display = 'block';
-    });
-
-    this.dom.btnSetupJoinRoom?.addEventListener('click', () => {
-      const code = this.dom.setupJoinCodeInput?.value.trim().toUpperCase();
-      if (!code) {
-        alert('Please enter a valid room code (e.g. ND-XXXX)');
-        return;
-      }
-      window.location.href = `game.php?room=${encodeURIComponent(code)}&role=p2`;
     });
 
     // Game Setup: Coins dropdown custom amount toggle
@@ -787,26 +759,22 @@ class NigerianDraughtsApp {
       this.engine.p1Short = p1Short;
       this.engine.modifications = modifications;
 
-      if (gameType === '1p' || gameType === 'pvp') {
-        // 1 Player (vs AI) or Local 2 Player (Pass & Play)
-        this.gameMode = gameType === 'pvp' ? 'pvp' : 'pve';
-        if (this.gameMode === 'pve') {
-          const aiDiff = this.dom.setupAiDifficulty ? this.dom.setupAiDifficulty.value : 'expert';
-          this.aiDifficulty = aiDiff;
-          this.ai.setDifficulty(aiDiff);
-        }
+      if (gameType === '1p') {
+        // 1 Player: Configure local AI engine & restart
+        this.gameMode = 'pve';
+        const aiDiff = this.dom.setupAiDifficulty ? this.dom.setupAiDifficulty.value : 'expert';
+        this.aiDifficulty = aiDiff;
+        this.ai.setDifficulty(aiDiff);
 
         let increment = 0;
         let advantage = 0;
         if (modifications === 'inc_1s') increment = 1;
         else if (modifications === 'inc_3s') increment = 3;
         else if (modifications === 'inc_5s') increment = 5;
-        if (this.gameMode === 'pve') {
-          if (modifications === 'adv_1m') advantage = 60;
-          else if (modifications === 'adv_3m') advantage = 180;
-          else if (modifications === 'adv_5m') advantage = 300;
-          else if (modifications === 'adv_7m') advantage = 420;
-        }
+        if (modifications === 'adv_1m') advantage = 60;
+        else if (modifications === 'adv_3m') advantage = 180;
+        else if (modifications === 'adv_5m') advantage = 300;
+        else if (modifications === 'adv_7m') advantage = 420;
 
         this.timeControl = playerTime;
         this.timer.setPreset(playerTime, increment, advantage);
@@ -827,15 +795,11 @@ class NigerianDraughtsApp {
         this.updatePlayerLabels();
         this.restartGame();
 
-        if (this.gameMode === 'pvp') {
-          this.setBannerNotice('👥 Pass & Play: Player 1 (White) moves first, then hand device to Player 2 (Dark).');
-        }
-
         if (settings.analysis_mode && this.analysisController) {
           setTimeout(() => this.analysisController.open(), 300);
         }
       } else {
-        // 2 Player: Create room via backend
+        // 2 Player: Create online room via backend
         let timeIncrement = 0;
         if (modifications === 'inc_1s') timeIncrement = 1;
         else if (modifications === 'inc_3s') timeIncrement = 3;
@@ -846,7 +810,7 @@ class NigerianDraughtsApp {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              game_type: 'p2p',
+              game_type: wagerCoins > 0 ? 'p2p' : 'standard',
               rule_type: ruleType,
               rule_mode: this.ruleMode,
               player_time: playerTime,
@@ -855,7 +819,7 @@ class NigerianDraughtsApp {
               modifications: modifications,
               board_type: boardType,
               wager_coins: wagerCoins,
-              wager_naira: wagerNaira,
+              wager_naira: 0,
               is_private: settings.private_game ? 1 : 0,
               settings: settings
             })
