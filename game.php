@@ -26,7 +26,7 @@ $currentUser = getCurrentUser();
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
-<body class="lidraughts-theme" data-logged-in="<?= $currentUser ? 'true' : 'false' ?>" data-user-id="<?= $currentUser ? (int)$currentUser['id'] : '' ?>">
+<body class="lidraughts-theme" data-logged-in="<?= $currentUser ? 'true' : 'false' ?>" data-user-id="<?= $currentUser ? (int)$currentUser['id'] : '' ?>" data-username="<?= $currentUser ? htmlspecialchars($currentUser['username']) : '' ?>">
   <div class="app-wrapper">
 
     <!-- ================= TOP NAVIGATION BAR (AFRODRAUGHT-STYLE) ================= -->

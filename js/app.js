@@ -30,6 +30,12 @@ class NigerianDraughtsApp {
     this.isAIThinking = false;
     this.historyStateStack = [];
     this.currentUser = null;
+    if (typeof document !== 'undefined' && document.body && document.body.dataset && document.body.dataset.userId) {
+      this.currentUser = {
+        id: parseInt(document.body.dataset.userId, 10),
+        username: document.body.dataset.username || 'Player'
+      };
+    }
     this.onlineRoomCode = null;
     this.onlinePlayerRole = 'p1';
     this.onlinePollingInterval = null;
