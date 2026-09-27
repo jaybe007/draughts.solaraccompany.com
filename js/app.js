@@ -2325,7 +2325,11 @@ class NigerianDraughtsApp {
       const dy = toRect.top - fromRect.top;
 
       pieceEl.classList.add('sliding');
-      pieceEl.style.transform = `translate(${dx}px, ${dy}px)`;
+      if (this.isBoardFlipped) {
+        pieceEl.style.transform = `translate(${-dx}px, ${-dy}px) rotate(180deg)`;
+      } else {
+        pieceEl.style.transform = `translate(${dx}px, ${dy}px)`;
+      }
       setTimeout(() => {
         if (typeof callback === 'function') callback();
       }, 140);
@@ -3169,7 +3173,13 @@ class NigerianDraughtsApp {
             }
             this.engine.moveHistory = remoteMoves;
             this.engine.currentTurn = parseInt(room.current_turn, 10);
-            sound.playMove();
+            if (latestMove && latestMove.justPromoted) {
+              sound.playKing();
+            } else if (latestMove && latestMove.isCapture) {
+              sound.playCapture();
+            } else {
+              sound.playMove();
+            }
             this.renderPieces();
             this.updateUI();
             this.tryExecutePremove();

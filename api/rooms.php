@@ -360,11 +360,19 @@ try {
                 ]);
             }
 
-            // Check if player is guest reconnecting
-            if ($room['guest_id'] && $guestId && (int)$room['guest_id'] === $guestId) {
+            // Check if player is guest reconnecting or entering room
+            $isGuestMatch = ($room['guest_id'] && $guestId && (int)$room['guest_id'] === $guestId)
+                || (!empty($room['guest_name']) && strcasecmp($room['guest_name'], $guestName) === 0)
+                || (!empty($input['player_role']) && $input['player_role'] === 'p2' && $room['status'] === 'active');
+
+            if ($isGuestMatch) {
                 if ($room['status'] === 'waiting') {
                     $db->prepare("UPDATE game_rooms SET status = 'active', last_move_time = ?, updated_at = NOW() WHERE id = ?")->execute([time(), $room['id']]);
                     $room['status'] = 'active';
+                }
+                if ($guestId && empty($room['guest_id'])) {
+                    $db->prepare("UPDATE game_rooms SET guest_id = ? WHERE id = ?")->execute([$guestId, $room['id']]);
+                    $room['guest_id'] = $guestId;
                 }
                 jsonResponse([
                     'success' => true,
@@ -372,15 +380,6 @@ try {
                     'player_role' => 'p2',
                     'room' => $room,
                     'message' => 'Connected as Guest (Player 2).'
-                ]);
-            }
-            if (!$guestId && !empty($room['guest_name']) && $room['guest_name'] === $guestName && $room['status'] === 'active') {
-                jsonResponse([
-                    'success' => true,
-                    'room_code' => $roomCode,
-                    'player_role' => 'p2',
-                    'room' => $room,
-                    'message' => 'Reconnected as Guest (Player 2).'
                 ]);
             }
 
