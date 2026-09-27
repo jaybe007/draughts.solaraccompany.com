@@ -123,9 +123,8 @@ class NigerianDraughtsApp {
 
   parseURLParameters() {
     try {
-      const urlParams = new URLSearchParams(window.location.search);
       const paramRoom = urlParams.get('room') || urlParams.get('room_code');
-      const paramRole = urlParams.get('role') || 'p1';
+      const paramRole = urlParams.get('role'); // null if not explicitly set
       const paramMode = urlParams.get('mode');
       const paramRules = urlParams.get('rules') || urlParams.get('rule') || urlParams.get('rule_type') || urlParams.get('ruleset') || urlParams.get('rule_mode');
       const paramTime = urlParams.get('time');
@@ -157,8 +156,17 @@ class NigerianDraughtsApp {
       if (paramMode && ['pve', 'pvp', 'eve'].includes(paramMode)) {
         this.gameMode = paramMode;
         if (this.dom.setupGameMode) this.dom.setupGameMode.value = this.gameMode;
+        if (this.dom.setupGameType) this.dom.setupGameType.value = paramMode === 'pvp' ? 'pvp' : '1p';
         if (this.dom.setupDiffBox) {
           this.dom.setupDiffBox.style.display = paramMode === 'pvp' ? 'none' : 'flex';
+        }
+        if (this.dom.setupAiDifficultyWrap) {
+          this.dom.setupAiDifficultyWrap.style.display = paramMode === 'pvp' ? 'none' : 'block';
+        }
+        if (paramMode === 'pvp' && this.dom.btnSetupTypePvp) {
+          this.dom.btnSetupTypePvp.classList.add('active');
+          this.dom.btnSetupType1p?.classList.remove('active');
+          this.dom.btnSetupType2p?.classList.remove('active');
         }
       }
 
@@ -383,8 +391,12 @@ class NigerianDraughtsApp {
       btnCancelGameSetup: document.getElementById('btn-cancel-game-setup'),
       btnStartMatch: document.getElementById('btn-start-match'),
       btnSetupType1p: document.getElementById('btn-setup-type-1p'),
+      btnSetupTypePvp: document.getElementById('btn-setup-type-pvp'),
       btnSetupType2p: document.getElementById('btn-setup-type-2p'),
       setupGameType: document.getElementById('setup-game-type'),
+      setupJoinRoomWrap: document.getElementById('setup-join-room-wrap'),
+      setupJoinCodeInput: document.getElementById('setup-join-code-input'),
+      btnSetupJoinRoom: document.getElementById('btn-setup-join-room'),
       setupRuleType: document.getElementById('setup-rule-type'),
       setupCoinsRequired: document.getElementById('setup-coins-required'),
       setupCashWagerGroup: document.getElementById('setup-cash-wager-group'),
@@ -534,19 +546,39 @@ class NigerianDraughtsApp {
     });
     document.getElementById('btn-lid-resign')?.addEventListener('click', () => {
       if (this.engine.gameOver) return;
-      if (confirm('Are you sure you want to resign this match?')) {
+      if (this.gameMode === 'room_online') {
+        this.resignOnlineRoom();
+        return;
+      }
+      const currentTurn = this.engine.currentTurn;
+      const resignerRole = currentTurn === PLAYER_1 ? 'Player 1 (White)' : (this.gameMode === 'pvp' ? 'Player 2 (Dark)' : 'Player 1');
+      if (confirm(`Are you sure ${resignerRole} wants to resign this match?`)) {
+        const winner = currentTurn === PLAYER_1 ? PLAYER_2 : PLAYER_1;
+        const resignerName = currentTurn === PLAYER_1
+          ? (this.currentUser ? this.currentUser.username : 'Player 1')
+          : (this.gameMode === 'pve' ? 'Computer (AI)' : 'Player 2');
         this.engine.gameOver = true;
-        this.engine.winner = PLAYER_2;
-        this.engine.winReason = 'Player 1 resigned.';
-        this.handleGameOver({ winner: PLAYER_2, winReason: 'Player 1 resigned the game.' });
+        this.engine.winner = winner;
+        this.engine.winReason = `${resignerName} resigned the game.`;
+        this.handleGameOver({ winner, winReason: `${resignerName} resigned the game.` });
       }
     });
     document.getElementById('btn-lid-draw')?.addEventListener('click', () => {
       if (this.engine.gameOver) return;
+      if (this.gameMode === 'room_online') {
+        if (confirm('Offer/agree a draw with your opponent?')) {
+          this.engine.gameOver = true;
+          this.engine.winner = 'draw';
+          this.engine.winReason = 'Mutual agreement (Draw agreed).';
+          this.sendRoomMove({ gameOver: true, winner: 'draw', winReason: 'Draw agreed by mutual consent.' });
+          this.handleGameOver({ winner: 'draw', winReason: 'Draw agreed by mutual consent.' });
+        }
+        return;
+      }
       if (confirm('Offer a draw to opponent?')) {
         const stats = this.engine.getStats();
         const diff = Math.abs((stats.p1.men + stats.p1.kings * 2) - (stats.p2.men + stats.p2.kings * 2));
-        if (diff <= 2) {
+        if (diff <= 2 || this.gameMode === 'pvp') {
           this.engine.gameOver = true;
           this.engine.winner = 'draw';
           this.engine.winReason = 'Mutual agreement (Draw agreed).';
@@ -616,17 +648,39 @@ class NigerianDraughtsApp {
     // Game Setup: 1P vs 2P segmented toggle
     this.dom.btnSetupType1p?.addEventListener('click', () => {
       this.dom.btnSetupType1p.classList.add('active');
+      this.dom.btnSetupTypePvp?.classList.remove('active');
       this.dom.btnSetupType2p?.classList.remove('active');
       if (this.dom.setupGameType) this.dom.setupGameType.value = '1p';
       if (this.dom.setupAiDifficultyWrap) this.dom.setupAiDifficultyWrap.style.display = 'block';
       if (this.dom.setupCashWagerGroup) this.dom.setupCashWagerGroup.style.display = 'none';
+      if (this.dom.setupJoinRoomWrap) this.dom.setupJoinRoomWrap.style.display = 'none';
+    });
+    this.dom.btnSetupTypePvp?.addEventListener('click', () => {
+      this.dom.btnSetupTypePvp.classList.add('active');
+      this.dom.btnSetupType1p?.classList.remove('active');
+      this.dom.btnSetupType2p?.classList.remove('active');
+      if (this.dom.setupGameType) this.dom.setupGameType.value = 'pvp';
+      if (this.dom.setupAiDifficultyWrap) this.dom.setupAiDifficultyWrap.style.display = 'none';
+      if (this.dom.setupCashWagerGroup) this.dom.setupCashWagerGroup.style.display = 'none';
+      if (this.dom.setupJoinRoomWrap) this.dom.setupJoinRoomWrap.style.display = 'none';
     });
     this.dom.btnSetupType2p?.addEventListener('click', () => {
       this.dom.btnSetupType2p.classList.add('active');
       this.dom.btnSetupType1p?.classList.remove('active');
+      this.dom.btnSetupTypePvp?.classList.remove('active');
       if (this.dom.setupGameType) this.dom.setupGameType.value = '2p';
       if (this.dom.setupAiDifficultyWrap) this.dom.setupAiDifficultyWrap.style.display = 'none';
       if (this.dom.setupCashWagerGroup) this.dom.setupCashWagerGroup.style.display = 'block';
+      if (this.dom.setupJoinRoomWrap) this.dom.setupJoinRoomWrap.style.display = 'block';
+    });
+
+    this.dom.btnSetupJoinRoom?.addEventListener('click', () => {
+      const code = this.dom.setupJoinCodeInput?.value.trim().toUpperCase();
+      if (!code) {
+        alert('Please enter a valid room code (e.g. ND-XXXX)');
+        return;
+      }
+      window.location.href = `game.php?room=${encodeURIComponent(code)}&role=p2`;
     });
 
     // Game Setup: Coins dropdown custom amount toggle
@@ -733,22 +787,26 @@ class NigerianDraughtsApp {
       this.engine.p1Short = p1Short;
       this.engine.modifications = modifications;
 
-      if (gameType === '1p') {
-        // 1 Player: Configure local engine & restart
-        this.gameMode = 'pve';
-        const aiDiff = this.dom.setupAiDifficulty ? this.dom.setupAiDifficulty.value : 'expert';
-        this.aiDifficulty = aiDiff;
-        this.ai.setDifficulty(aiDiff);
+      if (gameType === '1p' || gameType === 'pvp') {
+        // 1 Player (vs AI) or Local 2 Player (Pass & Play)
+        this.gameMode = gameType === 'pvp' ? 'pvp' : 'pve';
+        if (this.gameMode === 'pve') {
+          const aiDiff = this.dom.setupAiDifficulty ? this.dom.setupAiDifficulty.value : 'expert';
+          this.aiDifficulty = aiDiff;
+          this.ai.setDifficulty(aiDiff);
+        }
 
         let increment = 0;
         let advantage = 0;
         if (modifications === 'inc_1s') increment = 1;
         else if (modifications === 'inc_3s') increment = 3;
         else if (modifications === 'inc_5s') increment = 5;
-        else if (modifications === 'adv_1m') advantage = 60;
-        else if (modifications === 'adv_3m') advantage = 180;
-        else if (modifications === 'adv_5m') advantage = 300;
-        else if (modifications === 'adv_7m') advantage = 420;
+        if (this.gameMode === 'pve') {
+          if (modifications === 'adv_1m') advantage = 60;
+          else if (modifications === 'adv_3m') advantage = 180;
+          else if (modifications === 'adv_5m') advantage = 300;
+          else if (modifications === 'adv_7m') advantage = 420;
+        }
 
         this.timeControl = playerTime;
         this.timer.setPreset(playerTime, increment, advantage);
@@ -768,6 +826,10 @@ class NigerianDraughtsApp {
         this.closeModal(this.dom.modalGameSetup);
         this.updatePlayerLabels();
         this.restartGame();
+
+        if (this.gameMode === 'pvp') {
+          this.setBannerNotice('👥 Pass & Play: Player 1 (White) moves first, then hand device to Player 2 (Dark).');
+        }
 
         if (settings.analysis_mode && this.analysisController) {
           setTimeout(() => this.analysisController.open(), 300);
@@ -855,7 +917,11 @@ class NigerianDraughtsApp {
     this.dom.btnSound?.addEventListener('click', () => this.toggleSound());
     this.dom.btnPlayAgain?.addEventListener('click', () => {
       this.closeModal(this.dom.gameOverModal);
-      this.restartGame();
+      if (this.gameMode === 'room_online') {
+        this.openModal(this.dom.modalGameSetup);
+      } else {
+        this.restartGame();
+      }
     });
     this.dom.btnCloseGameOver?.addEventListener('click', () => {
       this.closeModal(this.dom.gameOverModal);
@@ -1755,6 +1821,10 @@ class NigerianDraughtsApp {
   }
 
   handleUndo() {
+    if (this.gameMode === 'room_online') {
+      this.showToast('Undo is not available during live online matches.', 'warning');
+      return;
+    }
     if (this.isAIThinking || this.historyStateStack.length === 0) return;
     if (this.ai && this.ai.stopSearch) this.ai.stopSearch();
 
@@ -2631,10 +2701,19 @@ class NigerianDraughtsApp {
         if (this.engine.winner === 'draw') {
           lidTurnMain.textContent = 'Draw / Stalemate!';
         } else if (this.engine.winner === PLAYER_1) {
-          lidTurnMain.textContent = 'Victory! You won!';
+          lidTurnMain.textContent = (this.gameMode === 'pvp') ? 'Player 1 Won!' : 'Victory! You won!';
         } else {
-          lidTurnMain.textContent = 'Defeat / Game Over';
+          lidTurnMain.textContent = (this.gameMode === 'pvp') ? 'Player 2 Won!' : 'Defeat / Game Over';
         }
+      } else if (this.gameMode === 'pvp') {
+        const isP1 = (stats.currentTurn === PLAYER_1);
+        lidTurnSub.textContent = isP1 ? "White's Turn (Player 1)" : "Dark's Turn (Player 2)";
+        lidTurnMain.textContent = isP1 ? "Player 1 to move" : "Player 2 to move";
+      } else if (this.gameMode === 'room_online') {
+        const isMyTurn = (this.onlinePlayerRole === 'p1' && stats.currentTurn === PLAYER_1) ||
+                         (this.onlinePlayerRole === 'p2' && stats.currentTurn === PLAYER_2);
+        lidTurnSub.textContent = this.onlinePlayerRole === 'p2' ? 'You play the dark pieces' : 'You play the white pieces';
+        lidTurnMain.textContent = isMyTurn ? "It's your turn!" : "Waiting for opponent's move...";
       } else {
         const isMyTurn = (stats.currentTurn === PLAYER_1);
         lidTurnSub.textContent = this.isBoardFlipped ? 'You play the dark pieces' : 'You play the white pieces';
@@ -2929,7 +3008,7 @@ class NigerianDraughtsApp {
   initOnlineRoomMode(roomCode, playerRole) {
     this.gameMode = 'room_online';
     this.onlineRoomCode = roomCode;
-    this.onlinePlayerRole = playerRole;
+    this.onlinePlayerRole = playerRole || null;
     this.timer?.stop?.();
 
     if (this.dom.onlineRoomBanner) {
@@ -2943,6 +3022,29 @@ class NigerianDraughtsApp {
     }
 
     this.setBannerNotice(`Online Room ${roomCode}. Connecting to game...`);
+
+    // If entering as Player 2 or unspecified role, notify backend to register and activate the room
+    if (this.onlinePlayerRole === 'p2' || !this.onlinePlayerRole) {
+      fetch('api/rooms.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'join_room',
+          room_code: roomCode,
+          player_name: this.currentUser ? this.currentUser.username : 'Guest Challenger'
+        })
+      }).then(r => r.json()).then(data => {
+        if (data.success && data.player_role) {
+          this.onlinePlayerRole = data.player_role;
+          if (this.onlinePlayerRole === 'p2' && !this.isBoardFlipped) {
+            this.toggleBoardFlip();
+          }
+        }
+        if (!data.success && data.message && !data.message.includes('already active')) {
+          this.setBannerNotice(data.message, true);
+        }
+      }).catch(() => {});
+    }
 
     // Start polling
     this.pollOnlineRoom();
@@ -2962,6 +3064,28 @@ class NigerianDraughtsApp {
       if (!data.success || !data.room) return;
 
       const room = data.room;
+
+      // Auto-resolve player role if not explicit
+      if (!this.onlinePlayerRole) {
+        if (this.currentUser) {
+          const uid = parseInt(this.currentUser.id, 10);
+          if (room.guest_id && uid === parseInt(room.guest_id, 10)) {
+            this.onlinePlayerRole = 'p2';
+          } else if (room.host_id && uid === parseInt(room.host_id, 10)) {
+            this.onlinePlayerRole = 'p1';
+          } else if (room.status === 'waiting') {
+            this.onlinePlayerRole = 'p2';
+          } else {
+            this.onlinePlayerRole = 'p1';
+          }
+        } else {
+          this.onlinePlayerRole = (room.status === 'waiting') ? 'p2' : 'p1';
+        }
+
+        if (this.onlinePlayerRole === 'p2' && !this.isBoardFlipped) {
+          this.toggleBoardFlip();
+        }
+      }
 
       // Apply room theme, rules, and handicap if available
       if (room.board_type && !this._appliedOnlineTheme) {

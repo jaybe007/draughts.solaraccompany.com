@@ -297,7 +297,7 @@ function formatStatusBadge(status) {
 
 function formatGameAction(game) {
   if (game.status === 'waiting') {
-    return `<a href="game.php?room_code=${encodeURIComponent(game.room_code)}" class="btn btn-primary btn-mini">Join Match &rarr;</a>`;
+    return `<a href="game.php?room_code=${encodeURIComponent(game.room_code)}&role=p2" class="btn btn-primary btn-mini">Join Match &rarr;</a>`;
   } else if (game.status === 'active') {
     return `<a href="game.php?room_code=${encodeURIComponent(game.room_code)}&mode=spectator" class="btn btn-secondary btn-mini">Watch Live 👁️</a>`;
   } else {
@@ -324,7 +324,8 @@ async function triggerRandomOpponentMatch() {
         showToast('Room created! Entering arena to await opponent...', 'info');
       }
       setTimeout(() => {
-        window.location.href = `game.php?room_code=${encodeURIComponent(data.room_code)}`;
+        const assignedRole = data.player_role || (data.matched ? 'p2' : 'p1');
+        window.location.href = `game.php?room_code=${encodeURIComponent(data.room_code)}&role=${encodeURIComponent(assignedRole)}`;
       }, 700);
     } else {
       showToast(data.message || 'Matchmaking error. Please try again.', 'error');
@@ -697,7 +698,7 @@ async function respondInvitation(inviteId, status) {
       if (status === 'accepted' && data.room_code) {
         showToast('Challenge accepted! Entering battle arena...', 'success');
         setTimeout(() => {
-          window.location.href = `game.php?room_code=${encodeURIComponent(data.room_code)}`;
+          window.location.href = `game.php?room_code=${encodeURIComponent(data.room_code)}&role=p2`;
         }, 600);
       } else {
         showToast('Invitation declined.', 'info');
