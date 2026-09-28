@@ -135,8 +135,8 @@ try {
             <?php endif; ?>
             <a href="dashboard.php" class="user-pill" id="user-pill" style="text-decoration: none;" title="Open Player Dashboard">
               <span class="user-pill-avatar">👑</span>
-              <span class="user-pill-name" id="user-pill-name"><?= htmlspecialchars($currentUser['username']) ?></span>
-              <span class="user-pill-rating" id="user-pill-rating"><?= (int)$currentUser['rating'] ?> Elo</span>
+              <span class="user-pill-name" id="user-pill-name"><?= htmlspecialchars($currentUser['username'] ?? 'Player') ?></span>
+              <span class="user-pill-rating" id="user-pill-rating"><?= (int)($currentUser['rating'] ?? 1500) ?> Elo</span>
             </a>
             <a href="dashboard.php" class="btn btn-small btn-primary" title="Command Portal">Dashboard</a>
             <button id="btn-logout" class="btn btn-small btn-secondary" title="Sign Out">Logout</button>
@@ -257,8 +257,8 @@ try {
           <div class="lid-meta-players-list">
             <div class="lid-meta-player-item">
               <span class="dot-circle white"></span>
-              <span class="lid-meta-player-name" id="lid-meta-p1-name"><?= $currentUser ? htmlspecialchars($currentUser['username']) : 'Champion (Guest)' ?></span>
-              <span class="lid-meta-player-rating" id="lid-meta-p1-rating">(<?= $currentUser ? (int)$currentUser['rating'] : '1459?' ?>)</span>
+              <span class="lid-meta-player-name" id="lid-meta-p1-name"><?= $currentUser ? htmlspecialchars($currentUser['username'] ?? 'Player 1') : 'Champion (Guest)' ?></span>
+              <span class="lid-meta-player-rating" id="lid-meta-p1-rating">(<?= $currentUser ? (int)($currentUser['rating'] ?? 1500) : '1459?' ?>)</span>
             </div>
             <div class="lid-meta-player-item">
               <span class="dot-circle dark"></span>
@@ -445,8 +445,8 @@ try {
         <div class="lid-mobile-player-bar lid-mobile-bottom lid-mobile-only" id="lid-mobile-p1-bar">
           <div class="lid-ctrl-player-left">
             <span class="green-dot"></span>
-            <span class="lid-mobile-player-name" id="p1-mobile-name"><?= $currentUser ? htmlspecialchars($currentUser['username']) : 'Champion (Guest)' ?></span>
-            <span class="lid-player-rating-badge" id="p1-mobile-role">(<?= $currentUser ? (int)$currentUser['rating'] . '?' : '1459?' ?>)</span>
+            <span class="lid-mobile-player-name" id="p1-mobile-name"><?= $currentUser ? htmlspecialchars($currentUser['username'] ?? 'Player 1') : 'Champion (Guest)' ?></span>
+            <span class="lid-player-rating-badge" id="p1-mobile-role">(<?= $currentUser ? (int)($currentUser['rating'] ?? 1500) . '?' : '1459?' ?>)</span>
           </div>
           <div class="lid-mobile-clock-wrap">
             <div class="lid-digital-clock active lid-mobile-clock" id="p1-mobile-clock">10:00</div>
@@ -527,9 +527,9 @@ try {
           <div class="lid-ctrl-player-bar" style="border-top: 1px solid var(--lid-border-light);">
             <div class="lid-ctrl-player-left">
               <span class="green-dot"></span>
-              <span id="p1-name"><?= $currentUser ? htmlspecialchars($currentUser['username']) : 'Champion (Guest)' ?></span>
+              <span id="p1-name"><?= $currentUser ? htmlspecialchars($currentUser['username'] ?? 'Player 1') : 'Champion (Guest)' ?></span>
             </div>
-            <div class="lid-ctrl-player-right" id="p1-role"><?= $currentUser ? (int)$currentUser['rating'] . '?' : '1459?' ?></div>
+            <div class="lid-ctrl-player-right" id="p1-role"><?= $currentUser ? (int)($currentUser['rating'] ?? 1500) . '?' : '1459?' ?></div>
           </div>
         </div>
 
