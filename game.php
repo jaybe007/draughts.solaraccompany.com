@@ -1185,7 +1185,59 @@ try {
     </div>
   </div>
 
-  <!-- 10. TOAST NOTIFICATIONS CONTAINER -->
+  <!-- 10. ONLINE MATCH CHALLENGE / JOIN MODAL -->
+  <div class="modal-overlay" id="modal-join-match" style="display: none; z-index: 1250;">
+    <div class="modal-card" style="max-width: 460px; text-align: center; border: 1px solid rgba(245, 166, 35, 0.35); box-shadow: 0 24px 60px rgba(0,0,0,0.75); background: linear-gradient(145deg, #131b26, #0d131c);">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px; margin-bottom: 16px;">
+        <div class="modal-title-wrap" style="width: 100%;">
+          <div style="font-size: 2.2rem; margin-bottom: 6px;">⚔️</div>
+          <h2 class="modal-title" style="font-size: 1.4rem; color: #f8fafc; font-weight: 800;">Match Challenge</h2>
+          <span class="modal-subtitle" style="color: #94a3b8; font-size: 0.88rem;">You have been invited to an online 2-player match!</span>
+        </div>
+      </div>
+      
+      <div class="modal-body" style="padding: 0 4px;">
+        <div class="join-challenge-details" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px; margin-bottom: 20px; text-align: left;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="color: #94a3b8; font-size: 0.85rem;">Challenger (Host):</span>
+            <strong id="join-modal-host" style="color: #f59e0b; font-size: 1.05rem;">Host</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="color: #94a3b8; font-size: 0.85rem;">Ruleset:</span>
+            <span id="join-modal-rules" class="meta-pill" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-weight: 700; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">Nigerian Rules</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="color: #94a3b8; font-size: 0.85rem;">Time Control:</span>
+            <span id="join-modal-time" style="color: #f8fafc; font-weight: 600; font-size: 0.88rem;">5 Minutes</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: #94a3b8; font-size: 0.85rem;">Stake / Pot:</span>
+            <strong id="join-modal-stake" style="color: #4ade80; font-size: 0.95rem;">Friendly (Free)</strong>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 20px; text-align: left;">
+          <label for="join-player-name" style="display: block; font-size: 0.85rem; font-weight: 600; color: #cbd5e1; margin-bottom: 6px;">
+            Your Display Name:
+          </label>
+          <input type="text" id="join-player-name" class="form-control" placeholder="Enter your name" style="width: 100%; box-sizing: border-box; background: #1e293b; border: 1px solid #334155; color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 0.95rem;" value="<?= $currentUser ? htmlspecialchars($currentUser['username'] ?? '') : '' ?>">
+        </div>
+
+        <div id="join-match-alert" style="display: none; padding: 10px 14px; border-radius: 8px; margin-bottom: 15px; font-size: 0.85rem; text-align: left;"></div>
+
+        <div style="display: flex; gap: 10px; justify-content: center;">
+          <button type="button" id="btn-accept-join-match" class="btn btn-primary btn-large" style="flex: 2; font-weight: 700; padding: 12px 18px; font-size: 1rem;">
+            ⚔️ Accept & Join Match
+          </button>
+          <button type="button" id="btn-decline-join-match" class="btn btn-secondary btn-large" style="flex: 1; padding: 12px 14px; font-size: 0.95rem;">
+            Decline
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. TOAST NOTIFICATIONS CONTAINER -->
   <div class="toast-container" id="toast-container"></div>
 
   <script type="module" src="js/app.js?v=<?= filemtime(__DIR__ . '/js/app.js') ?>"></script>

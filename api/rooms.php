@@ -491,8 +491,11 @@ try {
                 jsonResponse(['success' => false, 'message' => 'Room not found.'], 404);
             }
 
-            // If match is active, compute real-time clock deduction (unless untimed)
-            if ($room['status'] === 'active' && $room['last_move_time'] && (int)$room['p1_time_left'] > 0 && (int)$room['p2_time_left'] > 0 && ($room['player_time'] ?? '') !== 'none') {
+            // If match is active, compute real-time clock deduction (only once first move has been made, unless untimed)
+            $movesHistory = !empty($room['move_history_json']) ? json_decode($room['move_history_json'], true) : [];
+            $hasStartedMoves = is_array($movesHistory) && count($movesHistory) > 0;
+
+            if ($room['status'] === 'active' && $hasStartedMoves && $room['last_move_time'] && (int)$room['p1_time_left'] > 0 && (int)$room['p2_time_left'] > 0 && ($room['player_time'] ?? '') !== 'none') {
                 $elapsed = time() - (int)$room['last_move_time'];
                 if ($elapsed > 0) {
                     $turn = (int)$room['current_turn'];
@@ -609,9 +612,11 @@ try {
                 jsonResponse(['success' => false, 'message' => "Not your turn! Current turn is {$expectedRole}."], 403);
             }
 
-            // Deduct elapsed time (unless untimed)
+            // Deduct elapsed time (only after opening move has been played, unless untimed)
+            $existingMoves = !empty($room['move_history_json']) ? json_decode($room['move_history_json'], true) : [];
+            $hasExistingMoves = is_array($existingMoves) && count($existingMoves) > 0;
             $elapsed = 0;
-            if ($room['last_move_time'] && (int)$room['p1_time_left'] > 0 && (int)$room['p2_time_left'] > 0) {
+            if ($hasExistingMoves && $room['last_move_time'] && (int)$room['p1_time_left'] > 0 && (int)$room['p2_time_left'] > 0) {
                 $elapsed = max(0, time() - (int)$room['last_move_time']);
             }
             $p1Time = (int)$room['p1_time_left'];

@@ -491,6 +491,15 @@ class NigerianDraughtsApp {
       roomStatusDisplay: document.getElementById('room-status-display'),
       btnCopyRoomLink: document.getElementById('btn-copy-room-link'),
       btnResignRoom: document.getElementById('btn-resign-room'),
+      modalJoinMatch: document.getElementById('modal-join-match'),
+      joinModalHost: document.getElementById('join-modal-host'),
+      joinModalRules: document.getElementById('join-modal-rules'),
+      joinModalTime: document.getElementById('join-modal-time'),
+      joinModalStake: document.getElementById('join-modal-stake'),
+      joinPlayerName: document.getElementById('join-player-name'),
+      joinMatchAlert: document.getElementById('join-match-alert'),
+      btnAcceptJoinMatch: document.getElementById('btn-accept-join-match'),
+      btnDeclineJoinMatch: document.getElementById('btn-decline-join-match'),
 
       // Auth
       authSection: document.getElementById('auth-section'),
@@ -532,6 +541,11 @@ class NigerianDraughtsApp {
     // Online Room Actions
     this.dom.btnCopyRoomLink?.addEventListener('click', () => this.copyRoomLink());
     this.dom.btnResignRoom?.addEventListener('click', () => this.resignOnlineRoom());
+    this.dom.btnAcceptJoinMatch?.addEventListener('click', () => this.handleAcceptJoinMatch());
+    this.dom.btnDeclineJoinMatch?.addEventListener('click', () => {
+      this.closeModal(this.dom.modalJoinMatch);
+      window.location.href = 'index.php';
+    });
 
     // Share Match Replay URL
     this.dom.btnShareMatchLink?.addEventListener('click', () => this.shareMatchLink());
@@ -3043,6 +3057,7 @@ class NigerianDraughtsApp {
     this._appliedOnlineBoardConfig = false;
     this._appliedOnlineSettings = false;
     this._appliedOnlineTimerInit = false;
+    this._hasNotifiedOpponentJoined = false;
     this.timer?.stop?.();
 
     if (this.dom.onlineRoomBanner) {
@@ -3057,33 +3072,183 @@ class NigerianDraughtsApp {
 
     this.setBannerNotice(`Online Room ${roomCode}. Connecting to game...`);
 
-    // If entering as Player 2 or unspecified role, notify backend to register and activate the room
-    if (this.onlinePlayerRole === 'p2' || !this.onlinePlayerRole) {
-      fetch('api/rooms.php', {
+    const hasAlreadyJoined = sessionStorage.getItem('nd_joined_room_' + roomCode) === 'true';
+
+    // If entering with explicit role 'p1' (Room Creator / Host)
+    if (this.onlinePlayerRole === 'p1') {
+      this.startOnlinePolling();
+      return;
+    }
+
+    // If entering as Player 2 or unspecified role:
+    // First fetch current room state to verify if user should be shown the Match Challenge modal
+    fetch(`api/rooms.php?action=get_state&room_code=${encodeURIComponent(roomCode)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (!data.success || !data.room) {
+          this.setBannerNotice(data.message || 'Match room not found.', true);
+          return;
+        }
+
+        const room = data.room;
+
+        // If current logged-in user is host, resolve role as p1
+        if (this.currentUser && room.host_id && parseInt(room.host_id, 10) === parseInt(this.currentUser.id, 10)) {
+          this.onlinePlayerRole = 'p1';
+          this.startOnlinePolling();
+          return;
+        }
+
+        // If current user is already registered as guest or has already joined this room session
+        const isReconnectingGuest = (this.currentUser && room.guest_id && parseInt(room.guest_id, 10) === parseInt(this.currentUser.id, 10)) ||
+                                    (hasAlreadyJoined && room.status === 'active');
+
+        if (isReconnectingGuest) {
+          this.onlinePlayerRole = 'p2';
+          if (!this.isBoardFlipped) this.toggleBoardFlip();
+          this.startOnlinePolling();
+          return;
+        }
+
+        // If match is already concluded
+        if (room.status === 'finished' || room.status === 'abandoned') {
+          this.setBannerNotice('This match has already concluded.', true);
+          this.pollOnlineRoom();
+          return;
+        }
+
+        // If match is already full with another guest
+        if (room.status === 'active' && room.guest_name && (!this.currentUser || parseInt(room.guest_id, 10) !== parseInt(this.currentUser.id, 10))) {
+          this.setBannerNotice('Room is already full with 2 players.', true);
+          return;
+        }
+
+        // Fresh Player 2 arrival via Invite Link: Present Challenge & Join Prompt!
+        this.presentJoinMatchModal(room);
+      })
+      .catch(() => {
+        this.setBannerNotice('Network error connecting to match room.', true);
+      });
+  }
+
+  startOnlinePolling() {
+    this.pollOnlineRoom();
+    if (this.onlinePollingInterval) clearInterval(this.onlinePollingInterval);
+    this.onlinePollingInterval = setInterval(() => this.pollOnlineRoom(), 1200);
+  }
+
+  presentJoinMatchModal(room) {
+    if (!this.dom.modalJoinMatch) return;
+
+    if (this.dom.joinModalHost) {
+      this.dom.joinModalHost.textContent = room.host_name || 'Player 1';
+    }
+
+    if (this.dom.joinModalRules) {
+      const rawRule = (room.rule_type || room.rule_mode || 'nigeria').toLowerCase();
+      const ruleTitle = (rawRule === 'international' || rawRule === 'tournament' || rawRule === 'fmjd')
+        ? 'International (FMJD)'
+        : ((rawRule === 'ghana' || rawRule === 'damii') ? 'Ghanaian Rules' : 'Nigerian Rules');
+      this.dom.joinModalRules.textContent = ruleTitle;
+    }
+
+    if (this.dom.joinModalTime) {
+      const timeVal = room.player_time || '5';
+      const timeLabels = {
+        'none': 'Untimed / Casual',
+        '1': '1 Minute (Bullet)',
+        '3': '3 Minutes (Blitz)',
+        '5': '5 Minutes (Rapid)',
+        '10': '10 Minutes (Classical)'
+      };
+      this.dom.joinModalTime.textContent = timeLabels[timeVal] || `${timeVal} Minutes`;
+    }
+
+    if (this.dom.joinModalStake) {
+      const wCoins = parseInt(room.wager_coins, 10) || 0;
+      const wNaira = parseFloat(room.wager_naira) || 0;
+      if (wCoins > 0) {
+        this.dom.joinModalStake.innerHTML = `🪙 ${wCoins.toLocaleString()} Coins (Pot: ${(wCoins * 2).toLocaleString()} Coins)`;
+        this.dom.joinModalStake.style.color = '#fde047';
+      } else if (wNaira > 0) {
+        this.dom.joinModalStake.innerHTML = `₦${wNaira.toLocaleString()} Cash (Pot: ₦${(wNaira * 2).toLocaleString()})`;
+        this.dom.joinModalStake.style.color = '#4ade80';
+      } else {
+        this.dom.joinModalStake.textContent = 'Friendly / Casual (Free)';
+        this.dom.joinModalStake.style.color = '#4ade80';
+      }
+    }
+
+    if (this.dom.joinPlayerName && !this.dom.joinPlayerName.value && this.currentUser?.username) {
+      this.dom.joinPlayerName.value = this.currentUser.username;
+    }
+
+    this.showJoinMatchAlert('', false);
+    this.openModal(this.dom.modalJoinMatch);
+    this.setBannerNotice(`Match invite from ${room.host_name || 'Player 1'}. Accept challenge to enter match.`);
+  }
+
+  showJoinMatchAlert(msg, isError = true) {
+    if (!this.dom.joinMatchAlert) return;
+    if (!msg) {
+      this.dom.joinMatchAlert.style.display = 'none';
+      return;
+    }
+    this.dom.joinMatchAlert.style.display = 'block';
+    this.dom.joinMatchAlert.style.background = isError ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)';
+    this.dom.joinMatchAlert.style.border = isError ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(34, 197, 94, 0.4)';
+    this.dom.joinMatchAlert.style.color = isError ? '#fca5a5' : '#86efac';
+    this.dom.joinMatchAlert.textContent = msg;
+  }
+
+  async handleAcceptJoinMatch() {
+    const roomCode = this.onlineRoomCode;
+    if (!roomCode) return;
+
+    const pName = this.dom.joinPlayerName ? this.dom.joinPlayerName.value.trim() : '';
+    const playerName = pName || (this.currentUser ? this.currentUser.username : 'Guest Challenger');
+
+    const btn = this.dom.btnAcceptJoinMatch;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Connecting...';
+    }
+    this.showJoinMatchAlert('', false);
+
+    try {
+      const res = await fetch('api/rooms.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'join_room',
           room_code: roomCode,
-          player_name: this.currentUser ? this.currentUser.username : 'Guest Challenger'
+          player_name: playerName,
+          player_role: 'p2'
         })
-      }).then(r => r.json()).then(data => {
-        if (data.success && data.player_role) {
-          this.onlinePlayerRole = data.player_role;
-          if (this.onlinePlayerRole === 'p2' && !this.isBoardFlipped) {
-            this.toggleBoardFlip();
-          }
+      });
+      const data = await res.json();
+      if (data.success) {
+        sessionStorage.setItem('nd_joined_room_' + roomCode, 'true');
+        this.onlinePlayerRole = 'p2';
+        if (!this.isBoardFlipped) {
+          this.toggleBoardFlip();
         }
-        if (!data.success && data.message && !data.message.includes('already active')) {
-          this.setBannerNotice(data.message, true);
-        }
-      }).catch(() => {});
-    }
+        this.closeModal(this.dom.modalJoinMatch);
+        this.showToast('Joined match! Waiting for Player 1 to make opening move.', 'success');
+        sound.playMove();
 
-    // Start polling
-    this.pollOnlineRoom();
-    if (this.onlinePollingInterval) clearInterval(this.onlinePollingInterval);
-    this.onlinePollingInterval = setInterval(() => this.pollOnlineRoom(), 1200);
+        this.startOnlinePolling();
+      } else {
+        this.showJoinMatchAlert(data.message || 'Could not join match room.', true);
+      }
+    } catch (err) {
+      this.showJoinMatchAlert('Network error connecting to room.', true);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = '⚔️ Accept & Join Match';
+      }
+    }
   }
 
   async pollOnlineRoom() {
@@ -3233,24 +3398,41 @@ class NigerianDraughtsApp {
         const serverTurn = parseInt(room.current_turn, 10) === 2 ? PLAYER_2 : PLAYER_1;
         const serverP1 = parseInt(room.p1_time_left, 10) || 0;
         const serverP2 = parseInt(room.p2_time_left, 10) || 0;
+        let remoteMoves = [];
+        try { remoteMoves = room.move_history_json ? JSON.parse(room.move_history_json) : []; } catch(e){}
+        const hasStarted = Array.isArray(remoteMoves) && remoteMoves.length > 0;
 
-        if (!this._appliedOnlineTimerInit) {
-          this._appliedOnlineTimerInit = true;
+        if (!hasStarted) {
+          // Pre-game: Opponent has joined the room, but opening move has not been played yet!
+          // Clocks remain stationary at starting values until Player 1 makes the first move.
+          if (this.timer.isRunning) this.timer.stop();
           this.timer.increment = parseInt(room.time_increment || 0, 10);
-          this.timer.setTimeLeft(serverP1, serverP2);
-          this.timer.start(serverTurn);
-        } else {
-          if (!this.timer.isRunning) {
-            this.timer.start(serverTurn);
-          } else if (this.timer.activePlayer !== serverTurn) {
-            this.timer.switchTurn(serverTurn);
-          }
-
-          // Tolerant drift reconciliation: only snap if clock difference exceeds 2s polling window
-          const driftP1 = Math.abs((this.timer.timeLeft[PLAYER_1] || 0) - serverP1);
-          const driftP2 = Math.abs((this.timer.timeLeft[PLAYER_2] || 0) - serverP2);
-          if (driftP1 > 2 || driftP2 > 2) {
+          if (this.timer.timeLeft[PLAYER_1] !== serverP1 || this.timer.timeLeft[PLAYER_2] !== serverP2) {
             this.timer.setTimeLeft(serverP1, serverP2);
+          }
+          if (this.timer.onTick) {
+            this.timer.onTick(this.timer.getTimeStrings(), this.timer.timeLeft, null);
+          }
+        } else {
+          // First move has been played: clock runs authoritative
+          if (!this._appliedOnlineTimerInit) {
+            this._appliedOnlineTimerInit = true;
+            this.timer.increment = parseInt(room.time_increment || 0, 10);
+            this.timer.setTimeLeft(serverP1, serverP2);
+            this.timer.start(serverTurn);
+          } else {
+            if (!this.timer.isRunning) {
+              this.timer.start(serverTurn);
+            } else if (this.timer.activePlayer !== serverTurn) {
+              this.timer.switchTurn(serverTurn);
+            }
+
+            // Tolerant drift reconciliation: only snap if clock difference exceeds 2s polling window
+            const driftP1 = Math.abs((this.timer.timeLeft[PLAYER_1] || 0) - serverP1);
+            const driftP2 = Math.abs((this.timer.timeLeft[PLAYER_2] || 0) - serverP2);
+            if (driftP1 > 2 || driftP2 > 2) {
+              this.timer.setTimeLeft(serverP1, serverP2);
+            }
           }
         }
       } else if (room.status === 'finished') {
@@ -3266,14 +3448,38 @@ class NigerianDraughtsApp {
           this.dom.roomStatusDisplay.textContent = '⏳ Waiting for opponent to join code ' + room.room_code;
           this.setBannerNotice(`Share room code ${room.room_code} with a friend to begin.`);
         } else if (room.status === 'active') {
-          const isMyTurn = (this.onlinePlayerRole === 'p1' && parseInt(room.current_turn, 10) === 1) ||
-                           (this.onlinePlayerRole === 'p2' && parseInt(room.current_turn, 10) === 2);
-          if (isMyTurn) {
-            this.dom.roomStatusDisplay.textContent = '🟢 Your Turn! Make your move.';
-            this.setBannerNotice('🟢 Your Turn! Select a piece to move or chop.');
+          let remoteMoves = [];
+          try { remoteMoves = room.move_history_json ? JSON.parse(room.move_history_json) : []; } catch(e){}
+          const hasStarted = Array.isArray(remoteMoves) && remoteMoves.length > 0;
+
+          if (!hasStarted) {
+            if (this.onlinePlayerRole === 'p1') {
+              this.dom.roomStatusDisplay.textContent = '🟢 Opponent Connected! White to make opening move.';
+              this.setBannerNotice('🟢 Opponent connected! Make your opening move to begin.');
+              if (!this._hasNotifiedOpponentJoined) {
+                this._hasNotifiedOpponentJoined = true;
+                sound.playMove();
+                this.showToast(`🎉 ${room.guest_name || 'Opponent'} joined! Your turn to play White.`, 'success');
+              }
+            } else {
+              this.dom.roomStatusDisplay.textContent = '⏳ Opponent connected! Waiting for Player 1 (White) to make opening move.';
+              this.setBannerNotice('⏳ Waiting for Player 1 (White) to make opening move...');
+              if (!this._hasNotifiedOpponentJoined) {
+                this._hasNotifiedOpponentJoined = true;
+                sound.playMove();
+                this.showToast('Connected to match! Awaiting Player 1\'s opening move.', 'info');
+              }
+            }
           } else {
-            this.dom.roomStatusDisplay.textContent = '⏳ Opponent is calculating move...';
-            this.setBannerNotice("Opponent's turn. Awaiting their move...");
+            const isMyTurn = (this.onlinePlayerRole === 'p1' && parseInt(room.current_turn, 10) === 1) ||
+                             (this.onlinePlayerRole === 'p2' && parseInt(room.current_turn, 10) === 2);
+            if (isMyTurn) {
+              this.dom.roomStatusDisplay.textContent = '🟢 Your Turn! Make your move.';
+              this.setBannerNotice('🟢 Your Turn! Select a piece to move or chop.');
+            } else {
+              this.dom.roomStatusDisplay.textContent = '⏳ Opponent is calculating move...';
+              this.setBannerNotice("Opponent's turn. Awaiting their move...");
+            }
           }
         } else if (room.status === 'finished') {
           this.dom.roomStatusDisplay.textContent = `🏁 Match Concluded: ${room.win_reason || 'Game over'}`;
