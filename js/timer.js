@@ -61,7 +61,8 @@ export class DraughtsTimer {
       [PLAYER_2]: this.initialSeconds
     };
     this.activePlayer = null;
-    this.onTick(this.getTimeStrings(), this.timeLeft);
+    this.lastTickTime = null;
+    this.onTick(this.getTimeStrings(), this.timeLeft, null);
   }
 
   start(player = PLAYER_1) {
@@ -90,6 +91,8 @@ export class DraughtsTimer {
         }
       }
     }, 200);
+
+    this.onTick(this.getTimeStrings(), this.timeLeft, this.activePlayer);
   }
 
   switchTurn(newPlayer, prevPlayer = null) {
@@ -97,7 +100,7 @@ export class DraughtsTimer {
 
     // Apply Fischer increment to the player who just finished their move
     if (prevPlayer && this.increment > 0) {
-      this.timeLeft[prevPlayer] += this.increment;
+      this.timeLeft[prevPlayer] = (this.timeLeft[prevPlayer] || 0) + this.increment;
     }
 
     this.activePlayer = newPlayer;
@@ -111,7 +114,7 @@ export class DraughtsTimer {
 
   applyIncrement(player) {
     if (this.isUntimed() || this.increment <= 0) return;
-    this.timeLeft[player] += this.increment;
+    this.timeLeft[player] = (this.timeLeft[player] || 0) + this.increment;
     this.onTick(this.getTimeStrings(), this.timeLeft, this.activePlayer);
   }
 
@@ -127,16 +130,18 @@ export class DraughtsTimer {
       clearInterval(this.intervalId);
       this.intervalId = null;
     }
+    this.onTick(this.getTimeStrings(), this.timeLeft, null);
   }
 
   isUntimed() {
-    return this.preset === 'none' || this.preset === 'unlimited' || this.initialSeconds <= 0;
+    return this.preset === 'none' || this.preset === 'unlimited' || (this.initialSeconds <= 0 && this.timeLeft[PLAYER_1] <= 0 && this.timeLeft[PLAYER_2] <= 0);
   }
 
   formatTime(seconds) {
     if (this.isUntimed()) return '∞';
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
+    const total = Math.max(0, parseInt(seconds, 10) || 0);
+    const m = Math.floor(total / 60);
+    const s = total % 60;
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
 
@@ -150,8 +155,9 @@ export class DraughtsTimer {
   }
 
   setTimeLeft(p1Sec, p2Sec) {
-    this.timeLeft[PLAYER_1] = p1Sec;
-    this.timeLeft[PLAYER_2] = p2Sec;
-    this.onTick(this.getTimeStrings(), this.timeLeft, this.activePlayer);
+    this.timeLeft[PLAYER_1] = Math.max(0, parseInt(p1Sec, 10) || 0);
+    this.timeLeft[PLAYER_2] = Math.max(0, parseInt(p2Sec, 10) || 0);
+    this.lastTickTime = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+    this.onTick(this.getTimeStrings(), this.timeLeft, this.isRunning ? this.activePlayer : null);
   }
 }

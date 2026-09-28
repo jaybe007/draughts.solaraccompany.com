@@ -41,6 +41,7 @@ echo "   Guest: {$u2['username']} (ID: {$u2['id']}, Coins: {$u2['coins']})\n\n";
 
 // 2. jaybe007 creates a 2P game room with 20 coins
 echo "2. jaybe007 creates match room with 20 coins stake:\n";
+$db->exec("UPDATE game_rooms SET status = 'abandoned' WHERE status = 'waiting' AND host_id = {$u1['id']}");
 
 // Simulate POST to api/rooms.php?action=create_room
 $_SESSION['user'] = $u1;

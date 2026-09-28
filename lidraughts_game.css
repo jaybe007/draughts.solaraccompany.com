@@ -453,6 +453,18 @@ body.lidraughts-theme .game-container {
     box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8) !important;
   }
 
+  .lid-mobile-clock.active {
+    border-color: #10b981 !important;
+    color: #34d399 !important;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8), 0 0 10px rgba(16, 185, 129, 0.45) !important;
+  }
+
+  .lid-mobile-clock.urgent {
+    border-color: #ef4444 !important;
+    color: #ef4444 !important;
+    animation: lidClockPulse 0.8s infinite alternate !important;
+  }
+
   /* Hide separate desktop clocks and duplicate info in right sidebar on mobile */
   .lid-game-sidebar-right .lid-clock-card-row {
     display: none !important;
@@ -1078,12 +1090,26 @@ body.lidraughts-theme .piece.king::after {
   text-shadow: 0 0 10px rgba(245, 166, 35, 0.35);
 }
 
+.lid-digital-clock.active {
+  border-color: #10b981 !important;
+  color: #34d399 !important;
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.5) !important;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.9), 0 0 18px rgba(16, 185, 129, 0.35) !important;
+}
+
 .lid-digital-clock.urgent {
   color: #ef4444 !important;
   background: #180505 !important;
   border-color: #ef4444 !important;
   text-shadow: 0 0 14px rgba(239, 68, 68, 0.6) !important;
   animation: lidClockPulse 1s infinite alternate;
+}
+
+.lid-digital-clock.active.urgent {
+  border-color: #ef4444 !important;
+  color: #ef4444 !important;
+  text-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important;
+  animation: lidClockPulse 0.8s infinite alternate !important;
 }
 
 @keyframes lidClockPulse {

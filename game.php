@@ -521,7 +521,7 @@ $currentUser = getCurrentUser();
 
         <!-- Player Clock Row -->
         <div class="lid-clock-card-row">
-          <div class="lid-digital-clock active" id="p1-clock">10:00</div>
+          <div class="lid-digital-clock" id="p1-clock">10:00</div>
         </div>
 
         <!-- Move History Panel -->

@@ -856,6 +856,29 @@ try {
             ]);
             break;
 
+        // ================= ADD TIME (+15s) ================= //
+        case 'add_time':
+            $roomCode     = strtoupper(trim($input['room_code'] ?? ''));
+            $targetPlayer = trim($input['target_player'] ?? '');
+            $seconds      = max(1, min(120, (int)($input['seconds'] ?? 15)));
+
+            if (empty($roomCode)) {
+                jsonResponse(['success' => false, 'message' => 'Room code required.'], 400);
+            }
+            $stmt = $db->prepare("SELECT * FROM game_rooms WHERE room_code = ?");
+            $stmt->execute([$roomCode]);
+            $room = $stmt->fetch();
+            if (!$room || $room['status'] !== 'active') {
+                jsonResponse(['success' => false, 'message' => 'Active room not found.'], 404);
+            }
+            if ($targetPlayer === 'p1') {
+                $db->prepare("UPDATE game_rooms SET p1_time_left = p1_time_left + ? WHERE id = ?")->execute([$seconds, $room['id']]);
+            } else {
+                $db->prepare("UPDATE game_rooms SET p2_time_left = p2_time_left + ? WHERE id = ?")->execute([$seconds, $room['id']]);
+            }
+            jsonResponse(['success' => true, 'message' => "+{$seconds}s added"]);
+            break;
+
         // ================= RESIGN / LEAVE ROOM ================= //
         case 'resign':
             $roomCode   = strtoupper(trim($input['room_code'] ?? ''));

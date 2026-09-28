@@ -301,26 +301,33 @@ class NigerianDraughtsApp {
     this.timer = new DraughtsTimer({
       preset: this.timeControl,
       onTick: (timeStrings, timeLeft, activePlayer) => {
+        const isTimerRunning = Boolean(this.timer?.isRunning);
+        const effectiveActive = activePlayer || (isTimerRunning ? this.timer.activePlayer : null);
+        const isP1Active = isTimerRunning && effectiveActive === PLAYER_1;
+        const isP2Active = isTimerRunning && effectiveActive === PLAYER_2;
+
         if (this.dom?.p1Clock) {
           this.dom.p1Clock.textContent = timeStrings[PLAYER_1];
           this.dom.p1Clock.classList.toggle('urgent', Boolean(timeStrings.isP1Low));
+          this.dom.p1Clock.classList.toggle('active', isP1Active);
         }
         const p1MobClock = document.getElementById('p1-mobile-clock');
         if (p1MobClock) {
           p1MobClock.textContent = timeStrings[PLAYER_1];
           p1MobClock.classList.toggle('urgent', Boolean(timeStrings.isP1Low));
-          p1MobClock.classList.toggle('active', this.engine.currentTurn === PLAYER_1);
+          p1MobClock.classList.toggle('active', isP1Active);
         }
 
         if (this.dom?.p2Clock) {
           this.dom.p2Clock.textContent = timeStrings[PLAYER_2];
           this.dom.p2Clock.classList.toggle('urgent', Boolean(timeStrings.isP2Low));
+          this.dom.p2Clock.classList.toggle('active', isP2Active);
         }
         const p2MobClock = document.getElementById('p2-mobile-clock');
         if (p2MobClock) {
           p2MobClock.textContent = timeStrings[PLAYER_2];
           p2MobClock.classList.toggle('urgent', Boolean(timeStrings.isP2Low));
-          p2MobClock.classList.toggle('active', this.engine.currentTurn === PLAYER_2);
+          p2MobClock.classList.toggle('active', isP2Active);
         }
       },
       onTimeout: (loserPlayer) => {
@@ -337,6 +344,10 @@ class NigerianDraughtsApp {
           winner,
           winReason: `Player ${loserPlayer} ran out of time! ${winnerName} wins!`
         });
+
+        if (this.gameMode === 'room_online' && this.onlineRoomCode) {
+          this.pollOnlineRoom();
+        }
       }
     });
 
@@ -603,10 +614,25 @@ class NigerianDraughtsApp {
     document.getElementById('btn-lid-friends')?.addEventListener('click', () => {
       if (this.chatController) this.chatController.toggle();
     });
-    document.getElementById('btn-lid-add-time')?.addEventListener('click', () => {
+    document.getElementById('btn-lid-add-time')?.addEventListener('click', async () => {
+      const opp = (this.gameMode === 'room_online' && this.onlinePlayerRole === 'p2') ? PLAYER_1 : PLAYER_2;
       if (this.timer && this.timer.addTime) {
-        this.timer.addTime(PLAYER_2, 15);
+        this.timer.addTime(opp, 15);
         this.showToast('+15s added to opponent clock!', 'info');
+      }
+      if (this.gameMode === 'room_online' && this.onlineRoomCode) {
+        try {
+          await fetch('api/rooms.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'add_time',
+              room_code: this.onlineRoomCode,
+              target_player: opp === PLAYER_1 ? 'p1' : 'p2',
+              seconds: 15
+            })
+          });
+        } catch (e) {}
       }
     });
 
@@ -2669,8 +2695,16 @@ class NigerianDraughtsApp {
       this.dom.p1Indicator.classList.toggle('active', isP1);
       this.dom.p2Indicator.classList.toggle('active', !isP1);
 
-      if (this.dom.p1Clock) this.dom.p1Clock.classList.toggle('active', isP1);
-      if (this.dom.p2Clock) this.dom.p2Clock.classList.toggle('active', !isP1);
+      const isTimerActive = Boolean(this.timer && this.timer.isRunning);
+      const isP1ClockActive = isTimerActive && (this.timer.activePlayer === PLAYER_1);
+      const isP2ClockActive = isTimerActive && (this.timer.activePlayer === PLAYER_2);
+
+      if (this.dom.p1Clock) this.dom.p1Clock.classList.toggle('active', isP1ClockActive);
+      if (this.dom.p2Clock) this.dom.p2Clock.classList.toggle('active', isP2ClockActive);
+      const p1MobClock = document.getElementById('p1-mobile-clock');
+      const p2MobClock = document.getElementById('p2-mobile-clock');
+      if (p1MobClock) p1MobClock.classList.toggle('active', isP1ClockActive);
+      if (p2MobClock) p2MobClock.classList.toggle('active', isP2ClockActive);
 
       if (!this.isAIThinking) {
         const playerStr = isP1 ? 'White (Player 1)' : 'Dark (Player 2)';
@@ -2854,6 +2888,10 @@ class NigerianDraughtsApp {
     if (this.dom.p2Indicator) this.dom.p2Indicator.classList.remove('active');
     if (this.dom.p1Clock) this.dom.p1Clock.classList.remove('active');
     if (this.dom.p2Clock) this.dom.p2Clock.classList.remove('active');
+    const p1MobClock = document.getElementById('p1-mobile-clock');
+    const p2MobClock = document.getElementById('p2-mobile-clock');
+    if (p1MobClock) p1MobClock.classList.remove('active');
+    if (p2MobClock) p2MobClock.classList.remove('active');
 
     // 3. Engine Thinking Indicators
     if (this.dom.engineThinkingBar) this.dom.engineThinkingBar.style.display = 'none';
@@ -3000,6 +3038,11 @@ class NigerianDraughtsApp {
     this.gameMode = 'room_online';
     this.onlineRoomCode = roomCode;
     this.onlinePlayerRole = playerRole || null;
+    this._appliedOnlineTheme = false;
+    this._appliedOnlineHandicap = false;
+    this._appliedOnlineBoardConfig = false;
+    this._appliedOnlineSettings = false;
+    this._appliedOnlineTimerInit = false;
     this.timer?.stop?.();
 
     if (this.dom.onlineRoomBanner) {
@@ -3169,23 +3212,53 @@ class NigerianDraughtsApp {
         if (p2MobName) p2MobName.textContent = room.guest_name;
       }
 
-      // Update clocks
-      if (this.dom.p1Clock && room.p1_time_left !== null) {
-        const m = Math.floor(room.p1_time_left / 60);
-        const s = room.p1_time_left % 60;
-        this.dom.p1Clock.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-        this.dom.p1Clock.classList.toggle('urgent', room.p1_time_left <= 30);
+      // Synchronize Room Clocks smoothly via single authoritative timer controller
+      const isRoomUntimed = (room.player_time === 'none') || (parseInt(room.p1_time_left, 10) <= 0 && parseInt(room.p2_time_left, 10) <= 0 && room.status !== 'finished');
+      if (isRoomUntimed) {
+        if (this.timer.isRunning) this.timer.stop();
+        this.timer.preset = 'none';
+        this.timer.initialSeconds = 0;
+        this.timer.timeLeft = { [PLAYER_1]: 0, [PLAYER_2]: 0 };
+        this.timer.onTick(this.timer.getTimeStrings(), this.timer.timeLeft, null);
+      } else if (room.status === 'waiting') {
+        // While waiting for opponent to join, keep clocks stopped and stationary at starting values
+        if (this.timer.isRunning) this.timer.stop();
+        const p1Sec = parseInt(room.p1_time_left, 10) || 300;
+        const p2Sec = parseInt(room.p2_time_left, 10) || 300;
+        this.timer.increment = parseInt(room.time_increment || 0, 10);
+        if (this.timer.timeLeft[PLAYER_1] !== p1Sec || this.timer.timeLeft[PLAYER_2] !== p2Sec) {
+          this.timer.setTimeLeft(p1Sec, p2Sec);
+        }
+      } else if (room.status === 'active') {
+        const serverTurn = parseInt(room.current_turn, 10) === 2 ? PLAYER_2 : PLAYER_1;
+        const serverP1 = parseInt(room.p1_time_left, 10) || 0;
+        const serverP2 = parseInt(room.p2_time_left, 10) || 0;
+
+        if (!this._appliedOnlineTimerInit) {
+          this._appliedOnlineTimerInit = true;
+          this.timer.increment = parseInt(room.time_increment || 0, 10);
+          this.timer.setTimeLeft(serverP1, serverP2);
+          this.timer.start(serverTurn);
+        } else {
+          if (!this.timer.isRunning) {
+            this.timer.start(serverTurn);
+          } else if (this.timer.activePlayer !== serverTurn) {
+            this.timer.switchTurn(serverTurn);
+          }
+
+          // Tolerant drift reconciliation: only snap if clock difference exceeds 2s polling window
+          const driftP1 = Math.abs((this.timer.timeLeft[PLAYER_1] || 0) - serverP1);
+          const driftP2 = Math.abs((this.timer.timeLeft[PLAYER_2] || 0) - serverP2);
+          if (driftP1 > 2 || driftP2 > 2) {
+            this.timer.setTimeLeft(serverP1, serverP2);
+          }
+        }
+      } else if (room.status === 'finished') {
+        if (this.timer.isRunning) this.timer.stop();
+        if (room.p1_time_left !== null && room.p2_time_left !== null) {
+          this.timer.setTimeLeft(parseInt(room.p1_time_left, 10) || 0, parseInt(room.p2_time_left, 10) || 0);
+        }
       }
-      if (this.dom.p2Clock && room.p2_time_left !== null) {
-        const m = Math.floor(room.p2_time_left / 60);
-        const s = room.p2_time_left % 60;
-        this.dom.p2Clock.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-        this.dom.p2Clock.classList.toggle('urgent', room.p2_time_left <= 30);
-      }
-      const p1Mob = document.getElementById('p1-mobile-clock');
-      const p2Mob = document.getElementById('p2-mobile-clock');
-      if (p1Mob && this.dom.p1Clock) p1Mob.textContent = this.dom.p1Clock.textContent;
-      if (p2Mob && this.dom.p2Clock) p2Mob.textContent = this.dom.p2Clock.textContent;
 
       // Update room banner status
       if (this.dom.roomStatusDisplay) {
@@ -3229,7 +3302,14 @@ class NigerianDraughtsApp {
               this.engine.board = JSON.parse(room.board_state_json);
             }
             this.engine.moveHistory = remoteMoves;
-            this.engine.currentTurn = parseInt(room.current_turn, 10);
+            const newTurn = parseInt(room.current_turn, 10) === 2 ? PLAYER_2 : PLAYER_1;
+            const mover = newTurn === PLAYER_1 ? PLAYER_2 : PLAYER_1;
+            this.engine.currentTurn = newTurn;
+
+            // Immediately switch local timer to active turn with mover increment
+            if (this.timer) {
+              this.timer.switchTurn(newTurn, mover);
+            }
             if (latestMove && latestMove.justPromoted) {
               sound.playKing();
             } else if (latestMove && latestMove.isCapture) {
