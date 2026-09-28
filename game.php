@@ -25,17 +25,40 @@ $onlineRoleParam = trim($_GET['role'] ?? '');
 
 if ($isOnlineRoom) {
     $hostName = !empty($initialRoom['host_name']) ? $initialRoom['host_name'] : 'Host (White)';
-    $isHostViewer = ($currentUser && !empty($initialRoom['host_id']) && (int)$currentUser['id'] === (int)$initialRoom['host_id'] && $onlineRoleParam !== 'p2');
-    $isGuestViewer = ($onlineRoleParam === 'p2') || ($currentUser && !empty($initialRoom['guest_id']) && (int)$currentUser['id'] === (int)$initialRoom['guest_id']) || (!$isHostViewer && $currentUser && (int)($currentUser['id'] ?? 0) !== (int)($initialRoom['host_id'] ?? 0));
+
+    if ($onlineRoleParam === 'p1') {
+        $isHostViewer = true;
+        $isGuestViewer = false;
+    } elseif ($onlineRoleParam === 'p2') {
+        $isHostViewer = false;
+        $isGuestViewer = true;
+    } else {
+        // No explicit role in URL: resolve authoritatively from session
+        if ($currentUser && !empty($initialRoom['host_id']) && (int)$currentUser['id'] === (int)$initialRoom['host_id']) {
+            $isHostViewer = true;
+            $isGuestViewer = false;
+        } elseif ($currentUser && !empty($initialRoom['guest_id']) && (int)$currentUser['id'] === (int)$initialRoom['guest_id']) {
+            $isHostViewer = false;
+            $isGuestViewer = true;
+        } else {
+            // Default: if guest has joined, treat as guest/spectator, else host creator
+            $isHostViewer = empty($initialRoom['guest_id']) && empty($initialRoom['guest_name']);
+            $isGuestViewer = !$isHostViewer;
+        }
+    }
 
     // Player 1 is ALWAYS the room host in an online room
-    $initialP1Name = htmlspecialchars($hostName);
+    $p1Display = $hostName;
+    if ($isHostViewer && $currentUser && !empty($currentUser['username'])) {
+        $p1Display = $currentUser['username'];
+    }
+    $initialP1Name = htmlspecialchars($p1Display);
     $initialP1Rating = $isHostViewer ? '(You - White)' : '(Host - White)';
 
     // Player 2 is the opponent/challenger
     if ($isGuestViewer) {
         $p2Display = ($currentUser && !empty($currentUser['username'])) ? $currentUser['username'] : (!empty($initialRoom['guest_name']) && $initialRoom['guest_name'] !== 'Player 2' ? $initialRoom['guest_name'] : 'Guest Challenger');
-        if (strcasecmp($p2Display, $hostName) === 0) {
+        if (strcasecmp($p2Display, $p1Display) === 0) {
             $p2Display = $p2Display . ' (P2)';
         }
         $initialP2Name = htmlspecialchars($p2Display);
@@ -50,7 +73,7 @@ if ($isOnlineRoom) {
         }
     } else {
         $guestDisplay = (!empty($initialRoom['guest_name']) && $initialRoom['guest_name'] !== 'Player 2') ? $initialRoom['guest_name'] : 'Waiting for opponent...';
-        if (strcasecmp($guestDisplay, $hostName) === 0) {
+        if (strcasecmp($guestDisplay, $p1Display) === 0) {
             $guestDisplay = $guestDisplay . ' (P2)';
         }
         $initialP2Name = htmlspecialchars($guestDisplay);

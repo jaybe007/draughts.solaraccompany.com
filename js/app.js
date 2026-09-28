@@ -1664,12 +1664,15 @@ class NigerianDraughtsApp {
         this.dom.p2Name.textContent = p2Name;
         this.dom.p2Role.textContent = this.currentUser?.rating ? `Rating: ${this.currentUser.rating}` : 'Player 2 (You - Dark)';
       } else {
-        const isHostUser = this.currentUser && room && room.host_id && parseInt(this.currentUser.id, 10) === parseInt(room.host_id, 10);
-        this.dom.p1Name.textContent = hostName;
-        this.dom.p1Role.textContent = isHostUser ? 'Player 1 (You - White)' : 'Player 1 (Host - White)';
+        let p1Name = hostName;
+        if (this.currentUser && this.currentUser.username) {
+          p1Name = this.currentUser.username;
+        }
+        this.dom.p1Name.textContent = p1Name;
+        this.dom.p1Role.textContent = this.currentUser?.rating ? `Rating: ${this.currentUser.rating}` : 'Player 1 (You - White)';
 
         let p2Name = guestName || 'Waiting for opponent...';
-        if (hostName && p2Name.toLowerCase() === hostName.toLowerCase()) {
+        if (p1Name && p2Name.toLowerCase() === p1Name.toLowerCase()) {
           p2Name = `${p2Name} (P2)`;
         }
         this.dom.p2Name.textContent = p2Name;
@@ -2283,9 +2286,13 @@ class NigerianDraughtsApp {
 
     if (this.gameMode === 'room_online') {
       if (this.onlineRoomStatus === 'waiting') {
-        sound.playError();
-        this.setBannerNotice(`⏳ Waiting for opponent to join room ${this.onlineRoomCode}. Share the room link or code to begin!`, true);
-        return;
+        if (this.onlineRoomData && (this.onlineRoomData.guest_name || this.onlineRoomData.guest_id || this.onlineRoomData.status === 'active')) {
+          this.onlineRoomStatus = 'active';
+        } else if (this.onlinePlayerRole !== 'p1') {
+          sound.playError();
+          this.setBannerNotice(`⏳ Waiting for opponent to join room ${this.onlineRoomCode}. Share the room link or code to begin!`, true);
+          return;
+        }
       }
 
       // Pre-game check: If opening move has not been played yet and Player 2 clicks
@@ -3235,7 +3242,8 @@ class NigerianDraughtsApp {
   initOnlineRoomMode(roomCode, playerRole) {
     this.gameMode = 'room_online';
     this.onlineRoomCode = roomCode;
-    this.onlinePlayerRole = playerRole || this.onlinePlayerRole || null;
+    this.onlinePlayerRole = playerRole || this.onlinePlayerRole || (typeof window !== 'undefined' ? window.INITIAL_ONLINE_ROLE : null) || 'p1';
+    this.onlineRoomStatus = (this.onlineRoomData && this.onlineRoomData.status) || 'active';
     this._appliedOnlineTheme = false;
     this._appliedOnlineHandicap = false;
     this._appliedOnlineBoardConfig = false;
@@ -3252,13 +3260,15 @@ class NigerianDraughtsApp {
     // Flip board if Dark player
     if (this.onlinePlayerRole === 'p2' && !this.isBoardFlipped) {
       this.toggleBoardFlip();
+    } else if (this.onlinePlayerRole === 'p1' && this.isBoardFlipped) {
+      this.toggleBoardFlip();
     }
 
     this.setBannerNotice(`Online Room ${roomCode}. Connecting to game...`);
     this.updatePlayerLabels();
     this.updateUI();
 
-    const hasAlreadyJoined = sessionStorage.getItem('nd_joined_room_' + roomCode) === 'true';
+    const hasAlreadyJoined = (playerRole === 'p2' || this.onlinePlayerRole === 'p2') && (sessionStorage.getItem('nd_joined_room_' + roomCode) === 'true');
 
     // If entering with explicit role 'p1' (Room Creator / Host)
     if (this.onlinePlayerRole === 'p1') {
@@ -3299,8 +3309,8 @@ class NigerianDraughtsApp {
         }
 
         // If room is already active and user is already guest or has joined
-        const isReconnectingGuest = (this.currentUser && room.guest_id && parseInt(room.guest_id, 10) === parseInt(this.currentUser.id, 10)) ||
-                                    (hasAlreadyJoined && room.status === 'active');
+        const isReconnectingGuest = (this.onlinePlayerRole === 'p2') && ((this.currentUser && room.guest_id && parseInt(room.guest_id, 10) === parseInt(this.currentUser.id, 10)) ||
+                                    (hasAlreadyJoined && room.status === 'active'));
 
         if (isReconnectingGuest || (room.status === 'active' && this.onlinePlayerRole === 'p2')) {
           this.onlinePlayerRole = 'p2';
@@ -3527,20 +3537,22 @@ class NigerianDraughtsApp {
       if (!this.onlinePlayerRole) {
         if (this.currentUser) {
           const uid = parseInt(this.currentUser.id, 10);
-          if (room.guest_id && uid === parseInt(room.guest_id, 10)) {
-            this.onlinePlayerRole = 'p2';
-          } else if (room.host_id && uid === parseInt(room.host_id, 10)) {
+          if (room.host_id && uid === parseInt(room.host_id, 10)) {
             this.onlinePlayerRole = 'p1';
+          } else if (room.guest_id && uid === parseInt(room.guest_id, 10)) {
+            this.onlinePlayerRole = 'p2';
           } else if (room.status === 'waiting') {
-            this.onlinePlayerRole = 'p2';
-          } else {
             this.onlinePlayerRole = 'p1';
+          } else {
+            this.onlinePlayerRole = 'p2';
           }
         } else {
-          this.onlinePlayerRole = (room.status === 'waiting') ? 'p2' : 'p1';
+          this.onlinePlayerRole = (room.guest_name && room.status === 'active') ? 'p2' : 'p1';
         }
 
         if (this.onlinePlayerRole === 'p2' && !this.isBoardFlipped) {
+          this.toggleBoardFlip();
+        } else if (this.onlinePlayerRole === 'p1' && this.isBoardFlipped) {
           this.toggleBoardFlip();
         }
       }

@@ -637,8 +637,19 @@ try {
             $stmt->execute([$roomCode]);
             $room = $stmt->fetch();
 
-            if (!$room || $room['status'] !== 'active') {
-                jsonResponse(['success' => false, 'message' => 'Cannot make move: game is not active.'], 400);
+            if (!$room) {
+                jsonResponse(['success' => false, 'message' => 'Room not found.'], 404);
+            }
+
+            // Auto-activate room if waiting and guest has joined, or if host (p1) is making opening move
+            if ($room['status'] === 'waiting') {
+                if ($playerRole === 'p1' || !empty($room['guest_name']) || !empty($room['guest_id'])) {
+                    $room['status'] = (!empty($room['guest_name']) || !empty($room['guest_id'])) ? 'active' : 'waiting';
+                } else {
+                    jsonResponse(['success' => false, 'message' => 'Cannot make move: waiting for opponent to join.'], 400);
+                }
+            } elseif ($room['status'] !== 'active') {
+                jsonResponse(['success' => false, 'message' => 'Cannot make move: match is concluded.'], 400);
             }
 
             // Verify turn
