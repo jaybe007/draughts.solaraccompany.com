@@ -29,8 +29,8 @@ class NigerianDraughtsApp {
     this.validMovesForSelected = [];
     this.isAIThinking = false;
     this.historyStateStack = [];
-    this.currentUser = null;
-    if (typeof document !== 'undefined' && document.body && document.body.dataset && document.body.dataset.userId) {
+    this.currentUser = (typeof window !== 'undefined' && window.INITIAL_USER) ? window.INITIAL_USER : null;
+    if (!this.currentUser && typeof document !== 'undefined' && document.body?.dataset?.userId) {
       this.currentUser = {
         id: parseInt(document.body.dataset.userId, 10),
         username: document.body.dataset.username || 'Player'
@@ -1608,26 +1608,30 @@ class NigerianDraughtsApp {
     if (this.gameMode === 'room_online') {
       const room = this.onlineRoomData || (typeof window !== 'undefined' ? window.INITIAL_ROOM_DATA : null);
       const hostName = (room && room.host_name) || this._initialHostName || 'Player 1 (Host)';
-      let guestName = (room && room.guest_name) || (this.onlineOpponent ? this.onlineOpponent.name : '');
+      let guestName = (room && room.guest_name && room.guest_name !== 'Player 2') ? room.guest_name : '';
+      if (!guestName && this.onlineOpponent?.name && this.onlineOpponent.name !== 'Player 2') {
+        guestName = this.onlineOpponent.name;
+      }
 
       if (this.onlinePlayerRole === 'p2') {
         this.dom.p1Name.textContent = hostName;
         this.dom.p1Role.textContent = 'Player 1 (Host - White)';
 
-        let p2Name = guestName;
-        if (!p2Name) {
-          if (this.currentUser && (!room || !room.host_id || parseInt(this.currentUser.id, 10) !== parseInt(room.host_id, 10))) {
-            p2Name = this.currentUser.username;
-          } else {
-            p2Name = 'Player 2';
+        // For Player 2: Prioritize active logged-in user's username
+        let p2Name = '';
+        if (this.currentUser && this.currentUser.username) {
+          p2Name = this.currentUser.username;
+          if (hostName && p2Name.toLowerCase() === hostName.toLowerCase()) {
+            p2Name = `${this.currentUser.username} (P2)`;
           }
-        }
-        if (hostName && p2Name.toLowerCase() === hostName.toLowerCase()) {
+        } else if (guestName) {
+          p2Name = guestName;
+        } else {
           p2Name = 'Player 2';
         }
 
         this.dom.p2Name.textContent = p2Name;
-        this.dom.p2Role.textContent = 'Player 2 (You - Dark)';
+        this.dom.p2Role.textContent = this.currentUser?.rating ? `Rating: ${this.currentUser.rating}` : 'Player 2 (You - Dark)';
       } else {
         const isHostUser = this.currentUser && room && room.host_id && parseInt(this.currentUser.id, 10) === parseInt(room.host_id, 10);
         this.dom.p1Name.textContent = hostName;
@@ -1635,10 +1639,10 @@ class NigerianDraughtsApp {
 
         let p2Name = guestName || 'Waiting for opponent...';
         if (hostName && p2Name.toLowerCase() === hostName.toLowerCase()) {
-          p2Name = 'Player 2';
+          p2Name = `${p2Name} (P2)`;
         }
         this.dom.p2Name.textContent = p2Name;
-        this.dom.p2Role.textContent = 'Player 2 (Dark)';
+        this.dom.p2Role.textContent = (room?.guest_name && room.guest_name !== 'Player 2') ? 'Player 2 (Dark)' : 'Waiting for opponent...';
       }
 
       const lidP1Name = document.getElementById('lid-meta-p1-name');
@@ -3145,7 +3149,8 @@ class NigerianDraughtsApp {
     }
 
     // If entering as Player 2 or unspecified role:
-    fetch(`api/rooms.php?action=get_state&room_code=${encodeURIComponent(roomCode)}`)
+    const roleQ = (playerRole || this.onlinePlayerRole) ? `&role=${encodeURIComponent(playerRole || this.onlinePlayerRole)}` : '';
+    fetch(`api/rooms.php?action=get_state&room_code=${encodeURIComponent(roomCode)}${roleQ}`)
       .then(r => r.json())
       .then(data => {
         if (!data.success || !data.room) {
@@ -3284,8 +3289,14 @@ class NigerianDraughtsApp {
   async autoJoinOnlineMatch(room) {
     const roomCode = room.room_code || this.onlineRoomCode;
     let playerName = this.currentUser ? this.currentUser.username : '';
-    if (!playerName || (room.host_name && playerName.toLowerCase() === room.host_name.toLowerCase())) {
-      playerName = 'Player 2';
+    if (!playerName && typeof window !== 'undefined' && window.INITIAL_USER?.username) {
+      playerName = window.INITIAL_USER.username;
+    }
+    if (!playerName && typeof document !== 'undefined' && document.body?.dataset?.username) {
+      playerName = document.body.dataset.username;
+    }
+    if (playerName && room.host_name && playerName.toLowerCase() === room.host_name.toLowerCase()) {
+      playerName = `${playerName} (P2)`;
     }
 
     try {
@@ -3295,7 +3306,7 @@ class NigerianDraughtsApp {
         body: JSON.stringify({
           action: 'join_room',
           room_code: roomCode,
-          player_name: playerName,
+          player_name: playerName || 'Guest Challenger',
           player_role: 'p2'
         })
       });
@@ -3326,9 +3337,9 @@ class NigerianDraughtsApp {
     if (!roomCode) return;
 
     const pName = this.dom.joinPlayerName ? this.dom.joinPlayerName.value.trim() : '';
-    let playerName = pName || (this.currentUser ? this.currentUser.username : 'Guest Challenger');
+    let playerName = pName || (this.currentUser ? this.currentUser.username : (window.INITIAL_USER?.username || 'Guest Challenger'));
     if (this.onlineRoomData?.host_name && playerName.toLowerCase() === this.onlineRoomData.host_name.toLowerCase()) {
-      playerName = 'Player 2';
+      playerName = `${playerName} (P2)`;
     }
 
     const btn = this.dom.btnAcceptJoinMatch;
@@ -3383,7 +3394,8 @@ class NigerianDraughtsApp {
 
     try {
       const t0 = performance.now();
-      const res = await fetch(`api/rooms.php?action=get_state&room_code=${encodeURIComponent(this.onlineRoomCode)}`);
+      const roleQ = this.onlinePlayerRole ? `&role=${encodeURIComponent(this.onlinePlayerRole)}` : '';
+      const res = await fetch(`api/rooms.php?action=get_state&room_code=${encodeURIComponent(this.onlineRoomCode)}${roleQ}`);
       const pingMs = Math.max(10, Math.round(performance.now() - t0));
       this.updatePingIndicator(pingMs);
       const data = await res.json();
@@ -3498,11 +3510,13 @@ class NigerianDraughtsApp {
       }
       if (room.guest_name) {
         let p2Display = room.guest_name;
-        if (room.host_name && p2Display.toLowerCase() === room.host_name.toLowerCase()) {
-          p2Display = 'Player 2';
+        if (this.onlinePlayerRole === 'p2' && this.currentUser?.username) {
+          p2Display = this.currentUser.username;
+        } else if (room.host_name && p2Display.toLowerCase() === room.host_name.toLowerCase()) {
+          p2Display = `${p2Display} (P2)`;
         }
         this.dom.p2Name.textContent = p2Display;
-        this.dom.p2Role.textContent = this.onlinePlayerRole === 'p2' ? 'Player 2 (You - Dark)' : 'Player 2 (Dark)';
+        this.dom.p2Role.textContent = this.onlinePlayerRole === 'p2' ? (this.currentUser?.rating ? `Rating: ${this.currentUser.rating}` : 'Player 2 (You - Dark)') : 'Player 2 (Dark)';
         const lidP2Name = document.getElementById('lid-meta-p2-name');
         if (lidP2Name) lidP2Name.textContent = p2Display;
         const p2MobName = document.getElementById('p2-mobile-name');

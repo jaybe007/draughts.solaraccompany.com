@@ -34,18 +34,18 @@ if ($isOnlineRoom) {
 
     // Player 2 is the opponent/challenger
     if ($isGuestViewer) {
-        $p2Display = !empty($initialRoom['guest_name']) ? $initialRoom['guest_name'] : ($currentUser ? $currentUser['username'] : 'Player 2');
+        $p2Display = ($currentUser && !empty($currentUser['username'])) ? $currentUser['username'] : (!empty($initialRoom['guest_name']) && $initialRoom['guest_name'] !== 'Player 2' ? $initialRoom['guest_name'] : 'Guest Challenger');
         if (strcasecmp($p2Display, $hostName) === 0) {
-            $p2Display = 'Player 2';
+            $p2Display = $p2Display . ' (P2)';
         }
         $initialP2Name = htmlspecialchars($p2Display);
         $initialP2Rating = '(You - Dark)';
         $initialTurnSub = 'You play the dark pieces';
         $initialTurnMain = 'Waiting for Player 1 (White) to make opening move...';
     } else {
-        $guestDisplay = !empty($initialRoom['guest_name']) ? $initialRoom['guest_name'] : 'Waiting for opponent...';
+        $guestDisplay = (!empty($initialRoom['guest_name']) && $initialRoom['guest_name'] !== 'Player 2') ? $initialRoom['guest_name'] : 'Waiting for opponent...';
         if (strcasecmp($guestDisplay, $hostName) === 0) {
-            $guestDisplay = 'Player 2';
+            $guestDisplay = $guestDisplay . ' (P2)';
         }
         $initialP2Name = htmlspecialchars($guestDisplay);
         $initialP2Rating = '(Dark)';
@@ -446,8 +446,8 @@ if ($isOnlineRoom) {
         <div class="lid-mobile-player-bar lid-mobile-top lid-mobile-only" id="lid-mobile-p2-bar">
           <div class="lid-ctrl-player-left">
             <span class="green-dot"></span>
-            <span class="lid-mobile-player-name" id="p2-mobile-name">Scan AI level 4</span>
-            <span class="lid-player-rating-badge" id="p2-mobile-role">(2400)</span>
+            <span class="lid-mobile-player-name" id="p2-mobile-name"><?= $initialP2Name ?></span>
+            <span class="lid-player-rating-badge" id="p2-mobile-role"><?= $initialP2Rating ?></span>
           </div>
           <div class="lid-mobile-clock-wrap">
             <div class="lid-digital-clock lid-mobile-clock" id="p2-mobile-clock">10:00</div>
@@ -496,8 +496,8 @@ if ($isOnlineRoom) {
         <div class="lid-mobile-player-bar lid-mobile-bottom lid-mobile-only" id="lid-mobile-p1-bar">
           <div class="lid-ctrl-player-left">
             <span class="green-dot"></span>
-            <span class="lid-mobile-player-name" id="p1-mobile-name"><?= $currentUser ? htmlspecialchars($currentUser['username'] ?? 'Player 1') : 'Champion (Guest)' ?></span>
-            <span class="lid-player-rating-badge" id="p1-mobile-role">(<?= $currentUser ? (int)($currentUser['rating'] ?? 1500) . '?' : '1459?' ?>)</span>
+            <span class="lid-mobile-player-name" id="p1-mobile-name"><?= $initialP1Name ?></span>
+            <span class="lid-player-rating-badge" id="p1-mobile-role"><?= $initialP1Rating ?></span>
           </div>
           <div class="lid-mobile-clock-wrap">
             <div class="lid-digital-clock active lid-mobile-clock" id="p1-mobile-clock">10:00</div>
@@ -1294,6 +1294,7 @@ if ($isOnlineRoom) {
   <script>
     window.INITIAL_ROOM_DATA = <?= !empty($initialRoom) ? json_encode($initialRoom) : 'null' ?>;
     window.INITIAL_ONLINE_ROLE = <?= json_encode($onlineRoleParam ?: ($isOnlineRoom ? ($isGuestViewer ? 'p2' : 'p1') : null)) ?>;
+    window.INITIAL_USER = <?= $currentUser ? json_encode(['id' => (int)$currentUser['id'], 'username' => $currentUser['username'], 'rating' => (int)($currentUser['rating'] ?? 1500)]) : 'null' ?>;
   </script>
   <script type="module" src="js/app.js?v=<?= filemtime(__DIR__ . '/js/app.js') ?>"></script>
   <script>

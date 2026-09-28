@@ -332,9 +332,6 @@ try {
         case 'join_room':
             $roomCode = strtoupper(trim($input['room_code'] ?? ''));
             $guestName = trim($input['player_name'] ?? '');
-            if (empty($guestName)) {
-                $guestName = $currentUser ? $currentUser['username'] : 'Guest Challenger';
-            }
 
             if (empty($roomCode)) {
                 jsonResponse(['success' => false, 'message' => 'Please provide a valid room code.'], 400);
@@ -348,13 +345,23 @@ try {
                 jsonResponse(['success' => false, 'message' => "Room code '{$roomCode}' not found. Check code and try again."], 404);
             }
 
-            if (!empty($room['host_name']) && strcasecmp($guestName, $room['host_name']) === 0) {
-                $guestName = 'Player 2';
+            $guestId = $currentUser ? (int)$currentUser['id'] : null;
+
+            // Prioritize authenticated user's real username
+            if ($currentUser && !empty($currentUser['username'])) {
+                if (!$room['host_id'] || (int)$room['host_id'] !== $guestId) {
+                    $guestName = $currentUser['username'];
+                } else {
+                    $guestName = $currentUser['username'] . ' (P2)';
+                }
+            } elseif (empty($guestName) || $guestName === 'Player 2') {
+                $guestName = 'Guest Challenger';
+            } elseif (!empty($room['host_name']) && strcasecmp($guestName, $room['host_name']) === 0) {
+                $guestName = $guestName . ' (P2)';
             }
 
             // Check if player is already host reconnecting (only if NOT explicitly joining as p2)
             $requestedRole = trim($input['player_role'] ?? '');
-            $guestId = $currentUser ? (int)$currentUser['id'] : null;
             if ($requestedRole !== 'p2' && $room['host_id'] && $guestId && (int)$room['host_id'] === $guestId) {
                 jsonResponse([
                     'success' => true,
@@ -375,9 +382,10 @@ try {
                     $db->prepare("UPDATE game_rooms SET status = 'active', last_move_time = ?, updated_at = NOW() WHERE id = ?")->execute([time(), $room['id']]);
                     $room['status'] = 'active';
                 }
-                if ($guestId && empty($room['guest_id'])) {
-                    $db->prepare("UPDATE game_rooms SET guest_id = ? WHERE id = ?")->execute([$guestId, $room['id']]);
+                if ($guestId && (empty($room['guest_id']) || empty($room['guest_name']) || $room['guest_name'] === 'Player 2' || $room['guest_name'] === 'Guest Challenger')) {
+                    $db->prepare("UPDATE game_rooms SET guest_id = ?, guest_name = ? WHERE id = ?")->execute([$guestId, $guestName, $room['id']]);
                     $room['guest_id'] = $guestId;
+                    $room['guest_name'] = $guestName;
                 }
                 jsonResponse([
                     'success' => true,
@@ -494,6 +502,24 @@ try {
 
             if (!$room) {
                 jsonResponse(['success' => false, 'message' => 'Room not found.'], 404);
+            }
+
+            // Auto-heal guest_name if current logged-in user is guest and room has placeholder name
+            $guestId = $currentUser ? (int)$currentUser['id'] : null;
+            $roleParam = trim($_GET['role'] ?? '');
+            if ($currentUser && !empty($currentUser['username'])) {
+                $isSelfTest = ($room['host_id'] && $guestId && (int)$room['host_id'] === $guestId);
+                $isGuestUser = ($room['guest_id'] && $guestId && (int)$room['guest_id'] === $guestId && !$isSelfTest)
+                    || ($roleParam === 'p2')
+                    || (!$isSelfTest && (empty($room['guest_id']) || (int)$room['guest_id'] === $guestId));
+                if ($isGuestUser && (empty($room['guest_name']) || $room['guest_name'] === 'Player 2' || $room['guest_name'] === 'Guest Challenger')) {
+                    $freshGuest = ($isSelfTest || (!empty($room['host_name']) && strcasecmp($currentUser['username'], $room['host_name']) === 0))
+                        ? ($currentUser['username'] . ' (P2)')
+                        : $currentUser['username'];
+                    $db->prepare("UPDATE game_rooms SET guest_id = ?, guest_name = ? WHERE id = ?")->execute([$guestId, $freshGuest, $room['id']]);
+                    $room['guest_id'] = $guestId;
+                    $room['guest_name'] = $freshGuest;
+                }
             }
 
             // If match is active, compute real-time clock deduction (only once first move has been made, unless untimed)
