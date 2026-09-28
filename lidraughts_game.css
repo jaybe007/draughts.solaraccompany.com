@@ -267,6 +267,27 @@ body.lidraughts-theme .game-container {
   box-sizing: border-box !important;
 }
 
+@media (max-width: 1320px) {
+  body.lidraughts-theme .main-nav .nav-list {
+    gap: 3px !important;
+  }
+  body.lidraughts-theme .main-nav .nav-link {
+    padding: 6px 7px !important;
+    font-size: 0.74rem !important;
+    letter-spacing: 0.2px !important;
+  }
+  body.lidraughts-theme .brand-text .game-subtitle {
+    display: none !important;
+  }
+  body.lidraughts-theme .header-right-tools {
+    gap: 5px !important;
+  }
+  body.lidraughts-theme .user-pill {
+    padding: 3px 8px !important;
+    font-size: 0.78rem !important;
+  }
+}
+
 @media (max-width: 1180px) {
   body.lidraughts-theme .game-container {
     grid-template-columns: 220px 1fr 300px !important;
@@ -274,7 +295,7 @@ body.lidraughts-theme .game-container {
   }
 }
 
-@media (max-width: 990px) {
+@media (max-width: 1060px) {
   /* ================= MOBILE PHONE & TABLET OPTIMIZED LAYOUT ================= */
   body.lidraughts-theme .app-header {
     padding: 0 12px !important;
@@ -739,6 +760,8 @@ body.lidraughts-theme .game-container {
   position: relative;
   width: 100%;
   max-width: 580px;
+  min-width: 280px;
+  min-height: 280px;
   aspect-ratio: 1 / 1;
   box-sizing: border-box;
   margin-right: 22px;

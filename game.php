@@ -5,6 +5,10 @@ if ((isset($_GET['mode']) && in_array($_GET['mode'], ['traps', 'puzzles'])) || (
 }
 require_once __DIR__ . '/config/db.php';
 $currentUser = getCurrentUser();
+$db = null;
+try {
+    $db = getDB();
+} catch (Throwable $e) {}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -109,10 +113,20 @@ $currentUser = getCurrentUser();
             <?php 
               $userRole = $currentUser['role'] ?? null;
               if ($userRole === null && !empty($currentUser['id'])) {
-                  $roleCheckStmt = $db->prepare("SELECT role FROM users WHERE id = ?");
-                  $roleCheckStmt->execute([(int)$currentUser['id']]);
-                  $userRole = $roleCheckStmt->fetchColumn() ?: 'player';
+                  try {
+                      if (!$db) {
+                          $db = getDB();
+                      }
+                      if ($db) {
+                          $roleCheckStmt = $db->prepare("SELECT role FROM users WHERE id = ?");
+                          $roleCheckStmt->execute([(int)$currentUser['id']]);
+                          $userRole = $roleCheckStmt->fetchColumn() ?: 'player';
+                      }
+                  } catch (Throwable $e) {
+                      $userRole = 'player';
+                  }
               }
+              $userRole = $userRole ?: 'player';
             ?>
             <?php if (in_array($userRole, ['admin', 'super_admin'])): ?>
               <a href="admin.php" class="btn btn-small btn-secondary" style="background:rgba(245,158,11,0.18); border-color:#f59e0b; color:#fde047; font-weight:800;" title="Open Admin Command Center">
