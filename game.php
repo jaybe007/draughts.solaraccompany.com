@@ -40,8 +40,14 @@ if ($isOnlineRoom) {
         }
         $initialP2Name = htmlspecialchars($p2Display);
         $initialP2Rating = '(You - Dark)';
-        $initialTurnSub = 'You play the dark pieces';
-        $initialTurnMain = 'Waiting for Player 1 (White) to make opening move...';
+        if (($initialRoom['status'] ?? '') === 'finished') {
+            $initialTurnSub = 'Match finished';
+            $winnerDisp = !empty($initialRoom['winner_name']) ? $initialRoom['winner_name'] : $initialP2Name;
+            $initialTurnMain = !empty($initialRoom['win_reason']) ? $initialRoom['win_reason'] : "{$winnerDisp} Won!";
+        } else {
+            $initialTurnSub = 'You play the dark pieces';
+            $initialTurnMain = 'Waiting for Player 1 (White) to make opening move...';
+        }
     } else {
         $guestDisplay = (!empty($initialRoom['guest_name']) && $initialRoom['guest_name'] !== 'Player 2') ? $initialRoom['guest_name'] : 'Waiting for opponent...';
         if (strcasecmp($guestDisplay, $hostName) === 0) {
@@ -49,8 +55,14 @@ if ($isOnlineRoom) {
         }
         $initialP2Name = htmlspecialchars($guestDisplay);
         $initialP2Rating = '(Dark)';
-        $initialTurnSub = 'You play the white pieces';
-        $initialTurnMain = ($initialRoom['status'] ?? '') === 'active' ? "Opponent connected! Make opening move." : "Waiting for opponent to join...";
+        if (($initialRoom['status'] ?? '') === 'finished') {
+            $initialTurnSub = 'Match finished';
+            $winnerDisp = !empty($initialRoom['winner_name']) ? $initialRoom['winner_name'] : $initialP1Name;
+            $initialTurnMain = !empty($initialRoom['win_reason']) ? $initialRoom['win_reason'] : "{$winnerDisp} Won!";
+        } else {
+            $initialTurnSub = 'You play the white pieces';
+            $initialTurnMain = ($initialRoom['status'] ?? '') === 'active' ? "Opponent connected! Make opening move." : "Waiting for opponent to join...";
+        }
     }
 } else {
     $initialP1Name = htmlspecialchars($currentUser ? $currentUser['username'] : 'Champion (Guest)');

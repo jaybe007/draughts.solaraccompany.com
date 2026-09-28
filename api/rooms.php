@@ -535,11 +535,13 @@ try {
                         $room['p1_time_left'] = $p1NewTime;
                         if ($p1NewTime <= 0) {
                             // P1 timed out!
+                            $hostDisp = !empty($room['host_name']) ? $room['host_name'] : 'Player 1';
+                            $guestDisp = !empty($room['guest_name']) ? $room['guest_name'] : 'Player 2';
                             $room['status'] = 'finished';
                             $room['winner_id'] = $room['guest_id'];
                             $room['winner_name'] = $room['guest_name'];
                             $room['result'] = 'p2_won';
-                            $room['win_reason'] = ($room['host_name'] ?: 'Player 1') . ' ran out of time!';
+                            $room['win_reason'] = "{$hostDisp} ran out of time! {$guestDisp} wins!";
                             
                             $db->prepare("
                                 UPDATE game_rooms SET
@@ -574,11 +576,13 @@ try {
                         $room['p2_time_left'] = $p2NewTime;
                         if ($p2NewTime <= 0) {
                             // P2 timed out!
+                            $hostDisp = !empty($room['host_name']) ? $room['host_name'] : 'Player 1';
+                            $guestDisp = !empty($room['guest_name']) ? $room['guest_name'] : 'Player 2';
                             $room['status'] = 'finished';
                             $room['winner_id'] = $room['host_id'];
                             $room['winner_name'] = $room['host_name'];
                             $room['result'] = 'p1_won';
-                            $room['win_reason'] = ($room['guest_name'] ?: 'Player 2') . ' ran out of time!';
+                            $room['win_reason'] = "{$guestDisp} ran out of time! {$hostDisp} wins!";
 
                             $db->prepare("
                                 UPDATE game_rooms SET
@@ -681,21 +685,33 @@ try {
             $winnerName = null;
 
             if ($isGameOver) {
+                $hostDisp = !empty($room['host_name']) ? $room['host_name'] : 'Player 1';
+                $guestDisp = !empty($room['guest_name']) ? $room['guest_name'] : 'Player 2';
+
                 // Check Draw Odds modification: 2nd player find draw
                 if ($winnerRole === 'draw' && ($room['modifications'] ?? '') === 'draw_odds_p2') {
                     $winnerRole = 'p2';
-                    $winReason = 'Player 2 awarded victory by Draw Odds rule';
+                    $winReason = "{$guestDisp} awarded victory by Draw Odds rule!";
                 }
                 if ($winnerRole === 'p1') {
                     $result = 'p1_won';
                     $winnerId = $room['host_id'];
                     $winnerName = $room['host_name'];
+                    if (empty($winReason)) {
+                        $winReason = "{$hostDisp} won the match! All opponent seeds captured or locked.";
+                    }
                 } elseif ($winnerRole === 'p2') {
                     $result = 'p2_won';
                     $winnerId = $room['guest_id'];
                     $winnerName = $room['guest_name'];
+                    if (empty($winReason)) {
+                        $winReason = "{$guestDisp} won the match! All opponent seeds captured or locked.";
+                    }
                 } else {
                     $result = 'draw';
+                    if (empty($winReason)) {
+                        $winReason = 'Game ended in a draw.';
+                    }
                 }
 
                 // If host or guest are registered users, record in matches table and update stats

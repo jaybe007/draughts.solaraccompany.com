@@ -333,18 +333,17 @@ class NigerianDraughtsApp {
         }
       },
       onTimeout: (loserPlayer) => {
-        sound.playError();
         const winner = loserPlayer === PLAYER_1 ? PLAYER_2 : PLAYER_1;
-        const winnerName = winner === PLAYER_1
-          ? (this.currentUser ? this.currentUser.username : 'Player 1')
-          : (this.gameMode === 'pve' ? 'Computer (AI)' : 'Player 2');
+        const winnerName = this.getPlayerDisplayName(winner);
+        const loserName = this.getPlayerDisplayName(loserPlayer);
 
         this.engine.gameOver = true;
         this.engine.winner = winner;
-        this.engine.winReason = `Player ${loserPlayer} lost on time!`;
+        this.engine.winReason = `${loserName} ran out of time!`;
         this.handleGameOver({
           winner,
-          winReason: `Player ${loserPlayer} ran out of time! ${winnerName} wins!`
+          winReason: `${loserName} ran out of time! ${winnerName} wins!`,
+          winnerName
         });
 
         if (this.gameMode === 'room_online' && this.onlineRoomCode) {
@@ -587,16 +586,14 @@ class NigerianDraughtsApp {
         return;
       }
       const currentTurn = this.engine.currentTurn;
-      const resignerRole = currentTurn === PLAYER_1 ? 'Player 1 (White)' : (this.gameMode === 'pvp' ? 'Player 2 (Dark)' : 'Player 1');
-      if (confirm(`Are you sure ${resignerRole} wants to resign this match?`)) {
-        const winner = currentTurn === PLAYER_1 ? PLAYER_2 : PLAYER_1;
-        const resignerName = currentTurn === PLAYER_1
-          ? (this.currentUser ? this.currentUser.username : 'Player 1')
-          : (this.gameMode === 'pve' ? 'Computer (AI)' : 'Player 2');
+      const resignerName = this.getPlayerDisplayName(currentTurn);
+      const winner = currentTurn === PLAYER_1 ? PLAYER_2 : PLAYER_1;
+      const winnerName = this.getPlayerDisplayName(winner);
+      if (confirm(`Are you sure ${resignerName} wants to resign this match?`)) {
         this.engine.gameOver = true;
         this.engine.winner = winner;
-        this.engine.winReason = `${resignerName} resigned the game.`;
-        this.handleGameOver({ winner, winReason: `${resignerName} resigned the game.` });
+        this.engine.winReason = `${resignerName} surrendered! ${winnerName} wins!`;
+        this.handleGameOver({ winner, winReason: `${resignerName} surrendered! ${winnerName} wins!`, winnerName });
       }
     });
     document.getElementById('btn-lid-draw')?.addEventListener('click', () => {
@@ -1604,6 +1601,40 @@ class NigerianDraughtsApp {
     if (modal) modal.classList.remove('active');
   }
 
+  getPlayerDisplayName(player) {
+    if (player === PLAYER_1) {
+      if (this.gameMode === 'room_online') {
+        const room = this.onlineRoomData || (typeof window !== 'undefined' ? window.INITIAL_ROOM_DATA : null);
+        const hostName = (room && room.host_name) || this._initialHostName || this.dom.p1Name?.textContent?.trim() || '';
+        if (hostName && hostName !== 'Player 1 (Host)' && hostName !== 'Player 1') return hostName;
+        if (this.currentUser && this.onlinePlayerRole === 'p1') return this.currentUser.username;
+        return hostName || 'Player 1';
+      }
+      return (this.currentUser && this.currentUser.username) ? this.currentUser.username : (this.dom.p1Name?.textContent?.trim() || 'Player 1');
+    }
+
+    // player === PLAYER_2
+    if (this.gameMode === 'pve') {
+      return `Grandmaster Engine (${this.aiDifficulty})`;
+    }
+    if (this.gameMode === 'room_online') {
+      if (this.onlinePlayerRole === 'p2' && this.currentUser?.username) {
+        return this.currentUser.username;
+      }
+      const room = this.onlineRoomData || (typeof window !== 'undefined' ? window.INITIAL_ROOM_DATA : null);
+      let guest = (room && room.guest_name) || this.dom.p2Name?.textContent?.trim() || '';
+      if (guest && guest !== 'Player 2' && guest !== 'Waiting for opponent...') {
+        return guest;
+      }
+      if (this.currentUser && this.currentUser.username && this.onlinePlayerRole === 'p2') {
+        return this.currentUser.username;
+      }
+      return 'Player 2';
+    }
+    const localP2 = this.dom.p2Name?.textContent?.trim();
+    return (localP2 && localP2 !== 'Waiting for opponent...') ? localP2 : 'Player 2';
+  }
+
   updatePlayerLabels() {
     if (this.gameMode === 'room_online') {
       const room = this.onlineRoomData || (typeof window !== 'undefined' ? window.INITIAL_ROOM_DATA : null);
@@ -2315,11 +2346,14 @@ class NigerianDraughtsApp {
       if (allMoves.length === 0) {
         this.engine.gameOver = true;
         this.engine.winner = currentTurn === PLAYER_1 ? PLAYER_2 : PLAYER_1;
-        this.engine.winReason = `Player ${currentTurn === PLAYER_1 ? 1 : 2} has no legal moves (Locked)!`;
+        const loserName = this.getPlayerDisplayName(currentTurn);
+        const winnerName = this.getPlayerDisplayName(this.engine.winner);
+        this.engine.winReason = `${loserName} has no legal moves (Locked)!`;
         if (this.timer) this.timer.stop();
         this.handleGameOver({
           winner: this.engine.winner,
-          winReason: this.engine.winReason
+          winReason: `${loserName} has no legal moves (Locked)! ${winnerName} wins!`,
+          winnerName
         });
         return;
       }
@@ -2583,11 +2617,14 @@ class NigerianDraughtsApp {
           if (nextMoves.length === 0 && !this.engine.gameOver) {
             this.engine.gameOver = true;
             this.engine.winner = prevPlayer;
-            this.engine.winReason = `Player ${this.engine.currentTurn === PLAYER_1 ? 1 : 2} has no legal moves (Locked)!`;
+            const loserName = this.getPlayerDisplayName(this.engine.currentTurn);
+            const winnerName = this.getPlayerDisplayName(prevPlayer);
+            this.engine.winReason = `${loserName} has no legal moves (Locked)!`;
             this.timer?.stop();
             this.handleGameOver({
               winner: this.engine.winner,
-              winReason: this.engine.winReason
+              winReason: `${loserName} has no legal moves (Locked)! ${winnerName} wins!`,
+              winnerName
             });
             return;
           }
@@ -2626,9 +2663,15 @@ class NigerianDraughtsApp {
           if (nextMoves.length === 0 && !this.engine.gameOver) {
             this.engine.gameOver = true;
             this.engine.winner = mover;
-            this.engine.winReason = `Player ${this.engine.currentTurn === PLAYER_1 ? 1 : 2} has no legal moves (Locked)!`;
+            const loserName = this.getPlayerDisplayName(this.engine.currentTurn);
+            const winnerName = this.getPlayerDisplayName(mover);
+            this.engine.winReason = `${loserName} has no legal moves (Locked)!`;
             this.timer?.stop();
-            this.handleGameOver({ winner: this.engine.winner, winReason: this.engine.winReason });
+            this.handleGameOver({
+              winner: this.engine.winner,
+              winReason: `${loserName} has no legal moves (Locked)! ${winnerName} wins!`,
+              winnerName
+            });
             return;
           }
           if (this.gameMode === 'eve') {
@@ -2752,22 +2795,40 @@ class NigerianDraughtsApp {
       if (this.dom.p1Clock) this.dom.p1Clock.classList.remove('active');
       if (this.dom.p2Clock) this.dom.p2Clock.classList.remove('active');
 
-      const isWinnerP1 = this.engine.winner === PLAYER_1;
       const isDrawGame = this.engine.winner === 'draw';
       let bannerMsg = '';
       let bannerVariant = 'normal';
 
+      // Clean up win reason if it mentions "Player 2" or "Player 1"
+      let cleanWinReason = this.engine.winReason || '';
+      const p1Title = this.getPlayerDisplayName(PLAYER_1);
+      const p2Title = this.getPlayerDisplayName(PLAYER_2);
+      cleanWinReason = cleanWinReason
+        .replace(/\bPlayer 1\b/g, p1Title)
+        .replace(/\bPlayer 2\b/g, p2Title);
+
       if (isDrawGame) {
-        bannerMsg = `🏁 GAME OVER: Stalemate! ${this.engine.winReason || 'Game drawn.'}`;
+        bannerMsg = `🏁 GAME OVER: Stalemate! ${cleanWinReason || 'Game drawn.'}`;
         bannerVariant = 'normal';
-      } else if (isWinnerP1) {
-        const p1Title = this.currentUser ? this.currentUser.username : 'Player 1';
-        bannerMsg = `🏆 GAME OVER: Victory! ${p1Title} won the match! ${this.engine.winReason || ''}`;
-        bannerVariant = 'victory';
       } else {
-        const oppTitle = this.gameMode === 'pve' ? 'Grandmaster Engine' : 'Player 2';
-        bannerMsg = `💀 GAME OVER: ${oppTitle} Wins! ${this.engine.winReason || 'All opponent seeds captured or locked.'}`;
-        bannerVariant = 'gameover';
+        const winnerName = this.getPlayerDisplayName(this.engine.winner);
+        const isUserWinner = (this.onlinePlayerRole === 'p1' && this.engine.winner === PLAYER_1) ||
+                             (this.onlinePlayerRole === 'p2' && this.engine.winner === PLAYER_2) ||
+                             (this.gameMode === 'pve' && this.engine.winner === PLAYER_1);
+        const isUserLoser = (this.onlinePlayerRole === 'p1' && this.engine.winner === PLAYER_2) ||
+                            (this.onlinePlayerRole === 'p2' && this.engine.winner === PLAYER_1) ||
+                            (this.gameMode === 'pve' && this.engine.winner === PLAYER_2);
+
+        if (isUserWinner) {
+          bannerMsg = `🏆 GAME OVER: Victory! ${winnerName} won the match! ${cleanWinReason}`;
+          bannerVariant = 'victory';
+        } else if (isUserLoser) {
+          bannerMsg = `💀 GAME OVER: ${winnerName} Wins! ${cleanWinReason || 'All opponent seeds captured or locked.'}`;
+          bannerVariant = 'gameover';
+        } else {
+          bannerMsg = `🏆 GAME OVER: ${winnerName} Won! ${cleanWinReason}`;
+          bannerVariant = 'victory';
+        }
       }
       this.setBannerNotice(bannerMsg, bannerVariant);
     } else {
@@ -2805,15 +2866,23 @@ class NigerianDraughtsApp {
         lidTurnSub.textContent = 'Match finished';
         if (this.engine.winner === 'draw') {
           lidTurnMain.textContent = 'Draw / Stalemate!';
-        } else if (this.engine.winner === PLAYER_1) {
-          lidTurnMain.textContent = (this.gameMode === 'pvp') ? 'Player 1 Won!' : 'Victory! You won!';
         } else {
-          lidTurnMain.textContent = (this.gameMode === 'pvp') ? 'Player 2 Won!' : 'Defeat / Game Over';
+          const winnerName = this.getPlayerDisplayName(this.engine.winner);
+          const isUserWinner = (this.onlinePlayerRole === 'p1' && this.engine.winner === PLAYER_1) ||
+                               (this.onlinePlayerRole === 'p2' && this.engine.winner === PLAYER_2) ||
+                               (this.gameMode === 'pve' && this.engine.winner === PLAYER_1);
+          if (isUserWinner) {
+            lidTurnMain.textContent = 'Victory! You won!';
+          } else {
+            lidTurnMain.textContent = `${winnerName} Won!`;
+          }
         }
       } else if (this.gameMode === 'pvp') {
         const isP1 = (stats.currentTurn === PLAYER_1);
-        lidTurnSub.textContent = isP1 ? "White's Turn (Player 1)" : "Dark's Turn (Player 2)";
-        lidTurnMain.textContent = isP1 ? "Player 1 to move" : "Player 2 to move";
+        const p1Name = this.getPlayerDisplayName(PLAYER_1);
+        const p2Name = this.getPlayerDisplayName(PLAYER_2);
+        lidTurnSub.textContent = isP1 ? `White's Turn (${p1Name})` : `Dark's Turn (${p2Name})`;
+        lidTurnMain.textContent = isP1 ? `${p1Name} to move` : `${p2Name} to move`;
       } else if (this.gameMode === 'room_online') {
         const isMyTurn = (this.onlinePlayerRole === 'p1' && stats.currentTurn === PLAYER_1) ||
                          (this.onlinePlayerRole === 'p2' && stats.currentTurn === PLAYER_2);
@@ -2943,22 +3012,56 @@ class NigerianDraughtsApp {
     // Enforce 2nd player find draw condition
     if (res.winner === 'draw' && this.engine.modifications === 'draw_odds_p2') {
       res.winner = PLAYER_2;
-      res.winReason = 'Player 2 wins on Draw Odds (Nigerian Draughts rule)!';
+      const p2Title = this.getPlayerDisplayName(PLAYER_2);
+      res.winReason = `${p2Title} wins on Draw Odds (Nigerian Draughts rule)!`;
     }
 
     this.engine.gameOver = true;
     this.engine.winner = res.winner;
     this.engine.winReason = res.winReason;
 
-    const isP1 = res.winner === PLAYER_1;
     const isDraw = res.winner === 'draw';
     const isPvE = this.gameMode === 'pve';
 
+    // Determine authoritative winner name
+    let winnerName = '';
+    if (!isDraw) {
+      if (res.winnerName && res.winnerName !== 'PLAYER 2' && res.winnerName !== 'Player 2') {
+        winnerName = res.winnerName;
+      } else if (this.gameMode === 'room_online' && this.onlineRoomData?.winner_name && this.onlineRoomData.winner_name !== 'Player 2') {
+        winnerName = this.onlineRoomData.winner_name;
+      } else {
+        winnerName = this.getPlayerDisplayName(res.winner);
+      }
+    }
+
+    // Determine if the local viewing player won or lost
+    let isUserWinner = false;
+    let isUserLoser = false;
+
+    if (!isDraw) {
+      if (this.gameMode === 'room_online') {
+        if (this.onlinePlayerRole === 'p1') {
+          isUserWinner = (res.winner === PLAYER_1);
+          isUserLoser = (res.winner === PLAYER_2);
+        } else if (this.onlinePlayerRole === 'p2') {
+          isUserWinner = (res.winner === PLAYER_2);
+          isUserLoser = (res.winner === PLAYER_1);
+        }
+      } else if (this.gameMode === 'pve') {
+        isUserWinner = (res.winner === PLAYER_1);
+        isUserLoser = (res.winner === PLAYER_2);
+      } else if (this.currentUser && this.currentUser.username) {
+        isUserWinner = (winnerName.toLowerCase() === this.currentUser.username.toLowerCase());
+        isUserLoser = !isUserWinner;
+      }
+    }
+
     // 1. Audio Feedback
-    if (isP1) {
-      sound.playWin();
-    } else if (isDraw) {
+    if (isDraw) {
       sound.playMove();
+    } else if (isUserWinner || (this.gameMode === 'pvp' && res.winner)) {
+      sound.playWin();
     } else {
       sound.playError();
     }
@@ -2977,20 +3080,29 @@ class NigerianDraughtsApp {
     if (this.dom.engineThinkingBar) this.dom.engineThinkingBar.style.display = 'none';
     if (this.dom.enginePulseDot) this.dom.enginePulseDot.classList.remove('thinking');
 
+    // Clean up win reason if it mentions "Player 2" or "Player 1"
+    let cleanWinReason = res.winReason || '';
+    const p1Name = this.getPlayerDisplayName(PLAYER_1);
+    const p2Name = this.getPlayerDisplayName(PLAYER_2);
+    cleanWinReason = cleanWinReason
+      .replace(/\bPlayer 1\b/g, p1Name)
+      .replace(/\bPlayer 2\b/g, p2Name);
+
     // 4. Status Banner Feedback
     let bannerMsg = '';
     let bannerVariant = 'normal';
     if (isDraw) {
-      bannerMsg = `🏁 GAME OVER: Stalemate! ${res.winReason || 'Game ended in a draw.'}`;
+      bannerMsg = `🏁 GAME OVER: Stalemate! ${cleanWinReason || 'Game ended in a draw.'}`;
       bannerVariant = 'normal';
-    } else if (isP1) {
-      const p1Title = this.currentUser ? this.currentUser.username : 'Player 1';
-      bannerMsg = `🏆 GAME OVER: Victory! ${p1Title} won the match! ${res.winReason || ''}`;
+    } else if (isUserWinner) {
+      bannerMsg = `🏆 GAME OVER: Victory! ${winnerName} won the match! ${cleanWinReason}`;
       bannerVariant = 'victory';
-    } else {
-      const oppTitle = isPvE ? 'Grandmaster Engine' : 'Player 2';
-      bannerMsg = `💀 GAME OVER: ${oppTitle} Wins! ${res.winReason || 'All opponent seeds captured or locked.'}`;
+    } else if (isUserLoser) {
+      bannerMsg = `💀 GAME OVER: ${winnerName} Wins! ${cleanWinReason || 'All opponent seeds captured or locked.'}`;
       bannerVariant = 'gameover';
+    } else {
+      bannerMsg = `🏆 GAME OVER: ${winnerName} Won! ${cleanWinReason}`;
+      bannerVariant = 'victory';
     }
     this.setBannerNotice(bannerMsg, bannerVariant);
 
@@ -2998,10 +3110,12 @@ class NigerianDraughtsApp {
     if (this.dom.commentaryTicker) {
       if (isDraw) {
         this.setCommentary('draw');
-      } else if (isP1) {
+      } else if (isUserWinner) {
         this.setCommentary('win');
-      } else {
+      } else if (isUserLoser) {
         this.setCommentary('defeat');
+      } else {
+        this.setCommentary('win');
       }
     }
 
@@ -3009,11 +3123,11 @@ class NigerianDraughtsApp {
     if (this.dom.enginePvLine) {
       this.dom.enginePvLine.textContent = isDraw
         ? 'Game Over: Draw (Dead drawn position)'
-        : (isP1 ? 'Game Over: Player 1 Won (-M0)' : 'Game Over: Grandmaster Won (+M0)');
+        : (isUserWinner ? `Game Over: ${winnerName} Won` : `Game Over: ${winnerName} Won`);
     }
     if (this.dom.engineEvalBadge) {
-      this.dom.engineEvalBadge.textContent = isDraw ? '0.00' : (isP1 ? '-M0' : '+M0');
-      this.dom.engineEvalBadge.className = `engine-eval-badge ${isDraw ? 'eval-neutral' : (isP1 ? 'negative' : 'positive')}`;
+      this.dom.engineEvalBadge.textContent = isDraw ? '0.00' : (isUserWinner ? '+M0' : '-M0');
+      this.dom.engineEvalBadge.className = `engine-eval-badge ${isDraw ? 'eval-neutral' : (isUserWinner ? 'positive' : 'negative')}`;
     }
 
     // 7. Modal Presentation (Victory vs Defeat vs Stalemate)
@@ -3021,19 +3135,22 @@ class NigerianDraughtsApp {
       if (this.dom.winnerTrophyIcon) this.dom.winnerTrophyIcon.textContent = '🤝';
       this.dom.gameOverTitle.textContent = 'STALEMATE!';
       this.dom.gameOverTitle.style.color = '#94a3b8';
-      this.dom.gameOverSub.textContent = res.winReason || 'Game ended in a draw!';
-    } else if (isP1) {
+      this.dom.gameOverSub.textContent = cleanWinReason || 'Game ended in a draw!';
+    } else if (isUserWinner) {
       if (this.dom.winnerTrophyIcon) this.dom.winnerTrophyIcon.textContent = '🏆';
       this.dom.gameOverTitle.textContent = 'VICTORY!';
       this.dom.gameOverTitle.style.color = '#22c55e';
-      const winnerName = this.currentUser ? this.currentUser.username : 'PLAYER 1 (YOU)';
-      this.dom.gameOverSub.textContent = `${winnerName} WINS! ${res.winReason || ''}`;
-    } else {
+      this.dom.gameOverSub.textContent = `${winnerName.toUpperCase()} WINS! ${cleanWinReason}`;
+    } else if (isUserLoser) {
       if (this.dom.winnerTrophyIcon) this.dom.winnerTrophyIcon.textContent = isPvE ? '🤖' : '💀';
       this.dom.gameOverTitle.textContent = isPvE ? 'DEFEAT!' : 'GAME OVER!';
       this.dom.gameOverTitle.style.color = '#ef4444';
-      const winnerName = isPvE ? 'GRANDMASTER ENGINE' : 'PLAYER 2';
-      this.dom.gameOverSub.textContent = `${winnerName} WINS! ${res.winReason || ''}`;
+      this.dom.gameOverSub.textContent = `${winnerName.toUpperCase()} WINS! ${cleanWinReason}`;
+    } else {
+      if (this.dom.winnerTrophyIcon) this.dom.winnerTrophyIcon.textContent = '🏆';
+      this.dom.gameOverTitle.textContent = 'GAME OVER!';
+      this.dom.gameOverTitle.style.color = '#38bdf8';
+      this.dom.gameOverSub.textContent = `${winnerName.toUpperCase()} WINS! ${cleanWinReason}`;
     }
 
     this.dom.goMovesCount.textContent = this.engine.moveHistory.length;
@@ -3042,8 +3159,8 @@ class NigerianDraughtsApp {
 
     // Build completed match object for replay & automated accuracy review
     const currentMatch = {
-      player1_name: this.currentUser ? this.currentUser.username : 'Player 1',
-      player2_name: isPvE ? `Grandmaster Engine (${this.aiDifficulty})` : (this.dom.p2Name?.textContent || 'Player 2'),
+      player1_name: this.getPlayerDisplayName(PLAYER_1),
+      player2_name: this.getPlayerDisplayName(PLAYER_2),
       board_size: this.boardSize,
       rule_mode: this.ruleMode,
       move_history: [...this.engine.moveHistory],
@@ -3093,7 +3210,8 @@ class NigerianDraughtsApp {
         moves_count: this.engine.moveHistory.length,
         p1_chopped: this.engine.capturedPieces[PLAYER_1].length,
         p2_chopped: this.engine.capturedPieces[PLAYER_2].length,
-        player2_name: this.dom.p2Name.textContent,
+        player1_name: this.getPlayerDisplayName(PLAYER_1),
+        player2_name: this.getPlayerDisplayName(PLAYER_2),
         move_history_json: this.engine.moveHistory
       };
 
@@ -3629,14 +3747,20 @@ class NigerianDraughtsApp {
             }
           }
         } else if (room.status === 'finished') {
-          this.dom.roomStatusDisplay.textContent = `🏁 Match Concluded: ${room.win_reason || 'Game over'}`;
+          const finalReason = room.win_reason || 'Match concluded.';
+          this.dom.roomStatusDisplay.textContent = `🏁 Match Concluded: ${finalReason}`;
+          const finalWinner = room.result === 'p1_won' ? PLAYER_1 : (room.result === 'p2_won' ? PLAYER_2 : 'draw');
           if (!this.engine.gameOver) {
             this.engine.gameOver = true;
-            this.engine.winner = room.result === 'p1_won' ? PLAYER_1 : (room.result === 'p2_won' ? PLAYER_2 : 'draw');
+            this.engine.winner = finalWinner;
             this.handleGameOver({
-              winner: this.engine.winner,
-              winReason: room.win_reason || 'Match ended.'
+              winner: finalWinner,
+              winReason: finalReason,
+              winnerName: room.winner_name || null
             });
+          } else if (room.winner_name && this.dom.gameOverSub) {
+            const cleanSub = `${room.winner_name.toUpperCase()} WINS! ${finalReason}`;
+            this.dom.gameOverSub.textContent = cleanSub;
           }
           if (this.onlinePollingInterval) {
             clearInterval(this.onlinePollingInterval);
