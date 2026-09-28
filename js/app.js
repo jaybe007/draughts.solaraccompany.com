@@ -129,13 +129,14 @@ class NigerianDraughtsApp {
 
   parseURLParameters() {
     try {
+      const urlParams = (typeof window !== 'undefined' && window.location) ? new URLSearchParams(window.location.search) : new URLSearchParams();
       const paramRoom = urlParams.get('room') || urlParams.get('room_code');
       const paramRole = urlParams.get('role'); // null if not explicitly set
       const paramMode = urlParams.get('mode');
       const paramRules = urlParams.get('rules') || urlParams.get('rule') || urlParams.get('rule_type') || urlParams.get('ruleset') || urlParams.get('rule_mode');
       const paramTime = urlParams.get('time');
       const paramShort = urlParams.get('short');
-      const paramMod = urlParams.get('mod');
+      const paramMod = urlParams.get('mod') || urlParams.get('modifications');
       const paramTheme = urlParams.get('theme');
       const paramCoins = urlParams.get('coins');
       const paramUndo = urlParams.get('undo');
@@ -215,6 +216,10 @@ class NigerianDraughtsApp {
         else if (paramMod === 'adv_7m') advantage = 420;
       }
 
+      if (paramMod || (paramShort !== null && paramShort !== undefined)) {
+        this.engine.reset();
+      }
+
       if (paramTime) {
         this.timeControl = paramTime;
         this.timer.setPreset(paramTime, increment, advantage);
@@ -287,7 +292,9 @@ class NigerianDraughtsApp {
         window.location.href = 'puzzles.php';
         return;
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('Error parsing URL parameters:', e);
+    }
   }
 
   initTimer() {
@@ -833,7 +840,7 @@ class NigerianDraughtsApp {
           const data = await res.json();
           if (data.success && data.room_code) {
             this.closeModal(this.dom.modalGameSetup);
-            window.location.href = `game.php?room=${encodeURIComponent(data.room_code)}&role=p1&rules=${encodeURIComponent(this.ruleMode)}`;
+            window.location.href = `game.php?room=${encodeURIComponent(data.room_code)}&role=p1&rules=${encodeURIComponent(this.ruleMode)}&mod=${encodeURIComponent(modifications)}&time=${encodeURIComponent(playerTime)}&short=${encodeURIComponent(p1Short)}&theme=${encodeURIComponent(boardType)}`;
           } else {
             alert(data.message || 'Failed to create room.');
           }
@@ -1583,6 +1590,9 @@ class NigerianDraughtsApp {
     } else if (this.gameMode === 'pvp') {
       this.dom.p2Role.textContent = 'Player 2';
       this.dom.p2Name.textContent = 'Challenger';
+    } else if (this.gameMode === 'room_online') {
+      this.dom.p2Role.textContent = this.onlinePlayerRole === 'p2' ? 'Player 2 (You - Dark)' : 'Player 2 (Guest - Dark)';
+      this.dom.p2Name.textContent = this.onlineOpponent ? this.onlineOpponent.name : (this.onlinePlayerRole === 'p2' ? (this.currentUser ? this.currentUser.username : 'Player 2') : 'Challenger');
     } else {
       this.dom.p2Role.textContent = 'AI 2 (Spectate)';
       this.dom.p2Name.textContent = 'Grandmaster Engine (GM)';
@@ -2145,6 +2155,12 @@ class NigerianDraughtsApp {
 
     if (this.engine.gameOver || this.isAIThinking) return;
 
+    if (this.gameMode === 'room_online' && this.onlineRoomStatus === 'waiting') {
+      sound.playError();
+      this.setBannerNotice(`⏳ Waiting for opponent to join room ${this.onlineRoomCode}. Share the room link or code to begin!`, true);
+      return;
+    }
+
     // PREMOVE LOGIC: When it is opponent's turn in PvE or Online Match
     const isPveOpponent = (this.gameMode === 'pve' && this.engine.currentTurn === PLAYER_2);
     const isOnlineOpponent = (this.gameMode === 'room_online' && (
@@ -2339,11 +2355,12 @@ class NigerianDraughtsApp {
   }
 
   async scheduleAIMove() {
+    if (this.gameMode === 'room_online' || this.gameMode === 'pvp') return;
     if (this.engine.gameOver || this.isAIThinking) return;
     this.isAIThinking = true;
 
-    // Show telemetry HUD
-    if (this.dom.engineTelemetryPanel && this.gameMode !== 'pvp') {
+    // Show telemetry HUD (PvE only)
+    if (this.dom.engineTelemetryPanel && this.gameMode !== 'pvp' && this.gameMode !== 'room_online') {
       this.dom.engineTelemetryPanel.classList.remove('hidden');
     }
     if (this.dom.engineThinkingBar) {
@@ -3038,6 +3055,7 @@ class NigerianDraughtsApp {
       if (!data.success || !data.room) return;
 
       const room = data.room;
+      this.onlineRoomStatus = room.status;
 
       // Auto-resolve player role if not explicit
       if (!this.onlinePlayerRole) {
@@ -3086,6 +3104,30 @@ class NigerianDraughtsApp {
       if (room.modifications) {
         this.engine.modifications = room.modifications;
       }
+
+      // Apply initial board configuration (conditions / modifications / handicap)
+      if (!this._appliedOnlineBoardConfig) {
+        this._appliedOnlineBoardConfig = true;
+        if (room.modifications) {
+          this.engine.modifications = room.modifications;
+        }
+        if (room.p1_short) {
+          this.engine.p1Short = parseInt(room.p1_short, 10) || 0;
+        }
+        if (room.board_state_json && room.board_state_json !== 'null' && room.board_state_json !== '') {
+          try {
+            this.engine.board = JSON.parse(room.board_state_json);
+          } catch(e) {
+            this.engine.reset();
+          }
+        } else {
+          this.engine.reset();
+        }
+        this.renderBoard();
+        this.renderPieces();
+        this.updateUI();
+      }
+
       if (room.settings_json && !this._appliedOnlineSettings) {
         try {
           const stg = typeof room.settings_json === 'string' ? JSON.parse(room.settings_json) : room.settings_json;
@@ -3104,16 +3146,27 @@ class NigerianDraughtsApp {
           if (stg.highlight_moves !== undefined) {
             this.highlightMoves = !!stg.highlight_moves;
           }
+          if (stg.to_win !== undefined) {
+            this.toWinMode = !!stg.to_win;
+          }
         } catch(e){}
         this._appliedOnlineSettings = true;
       }
       if (room.host_name) {
         this.dom.p1Name.textContent = room.host_name;
         this.dom.p1Role.textContent = this.onlinePlayerRole === 'p1' ? 'Player 1 (You - White)' : 'Player 1 (Host - White)';
+        const lidP1Name = document.getElementById('lid-meta-p1-name');
+        if (lidP1Name) lidP1Name.textContent = room.host_name;
+        const p1MobName = document.getElementById('p1-mobile-name');
+        if (p1MobName) p1MobName.textContent = room.host_name;
       }
       if (room.guest_name) {
         this.dom.p2Name.textContent = room.guest_name;
         this.dom.p2Role.textContent = this.onlinePlayerRole === 'p2' ? 'Player 2 (You - Dark)' : 'Player 2 (Guest - Dark)';
+        const lidP2Name = document.getElementById('lid-meta-p2-name');
+        if (lidP2Name) lidP2Name.textContent = room.guest_name;
+        const p2MobName = document.getElementById('p2-mobile-name');
+        if (p2MobName) p2MobName.textContent = room.guest_name;
       }
 
       // Update clocks
@@ -3129,6 +3182,10 @@ class NigerianDraughtsApp {
         this.dom.p2Clock.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         this.dom.p2Clock.classList.toggle('urgent', room.p2_time_left <= 30);
       }
+      const p1Mob = document.getElementById('p1-mobile-clock');
+      const p2Mob = document.getElementById('p2-mobile-clock');
+      if (p1Mob && this.dom.p1Clock) p1Mob.textContent = this.dom.p1Clock.textContent;
+      if (p2Mob && this.dom.p2Clock) p2Mob.textContent = this.dom.p2Clock.textContent;
 
       // Update room banner status
       if (this.dom.roomStatusDisplay) {
