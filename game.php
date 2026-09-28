@@ -9,6 +9,57 @@ $db = null;
 try {
     $db = getDB();
 } catch (Throwable $e) {}
+
+$roomCodeParam = strtoupper(trim($_GET['room'] ?? ''));
+$initialRoom = null;
+if (!empty($roomCodeParam) && $db) {
+    try {
+        $rStmt = $db->prepare("SELECT * FROM game_rooms WHERE room_code = ?");
+        $rStmt->execute([$roomCodeParam]);
+        $initialRoom = $rStmt->fetch();
+    } catch (Throwable $e) {}
+}
+
+$isOnlineRoom = !empty($initialRoom);
+$onlineRoleParam = trim($_GET['role'] ?? '');
+
+if ($isOnlineRoom) {
+    $hostName = !empty($initialRoom['host_name']) ? $initialRoom['host_name'] : 'Host (White)';
+    $isHostViewer = ($currentUser && !empty($initialRoom['host_id']) && (int)$currentUser['id'] === (int)$initialRoom['host_id'] && $onlineRoleParam !== 'p2');
+    $isGuestViewer = ($onlineRoleParam === 'p2') || ($currentUser && !empty($initialRoom['guest_id']) && (int)$currentUser['id'] === (int)$initialRoom['guest_id']) || (!$isHostViewer && $currentUser && (int)($currentUser['id'] ?? 0) !== (int)($initialRoom['host_id'] ?? 0));
+
+    // Player 1 is ALWAYS the room host in an online room
+    $initialP1Name = htmlspecialchars($hostName);
+    $initialP1Rating = $isHostViewer ? '(You - White)' : '(Host - White)';
+
+    // Player 2 is the opponent/challenger
+    if ($isGuestViewer) {
+        $p2Display = !empty($initialRoom['guest_name']) ? $initialRoom['guest_name'] : ($currentUser ? $currentUser['username'] : 'Player 2');
+        if (strcasecmp($p2Display, $hostName) === 0) {
+            $p2Display = 'Player 2';
+        }
+        $initialP2Name = htmlspecialchars($p2Display);
+        $initialP2Rating = '(You - Dark)';
+        $initialTurnSub = 'You play the dark pieces';
+        $initialTurnMain = 'Waiting for Player 1 (White) to make opening move...';
+    } else {
+        $guestDisplay = !empty($initialRoom['guest_name']) ? $initialRoom['guest_name'] : 'Waiting for opponent...';
+        if (strcasecmp($guestDisplay, $hostName) === 0) {
+            $guestDisplay = 'Player 2';
+        }
+        $initialP2Name = htmlspecialchars($guestDisplay);
+        $initialP2Rating = '(Dark)';
+        $initialTurnSub = 'You play the white pieces';
+        $initialTurnMain = ($initialRoom['status'] ?? '') === 'active' ? "Opponent connected! Make opening move." : "Waiting for opponent to join...";
+    }
+} else {
+    $initialP1Name = htmlspecialchars($currentUser ? $currentUser['username'] : 'Champion (Guest)');
+    $initialP1Rating = '(' . ($currentUser ? (int)($currentUser['rating'] ?? 1500) : '1459?') . ')';
+    $initialP2Name = 'Scan AI level 4';
+    $initialP2Rating = '(2400)';
+    $initialTurnSub = 'You play the white pieces';
+    $initialTurnMain = "It's your turn!";
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -257,13 +308,13 @@ try {
           <div class="lid-meta-players-list">
             <div class="lid-meta-player-item">
               <span class="dot-circle white"></span>
-              <span class="lid-meta-player-name" id="lid-meta-p1-name"><?= $currentUser ? htmlspecialchars($currentUser['username'] ?? 'Player 1') : 'Champion (Guest)' ?></span>
-              <span class="lid-meta-player-rating" id="lid-meta-p1-rating">(<?= $currentUser ? (int)($currentUser['rating'] ?? 1500) : '1459?' ?>)</span>
+              <span class="lid-meta-player-name" id="lid-meta-p1-name"><?= $initialP1Name ?></span>
+              <span class="lid-meta-player-rating" id="lid-meta-p1-rating"><?= $initialP1Rating ?></span>
             </div>
             <div class="lid-meta-player-item">
               <span class="dot-circle dark"></span>
-              <span class="lid-meta-player-name" id="lid-meta-p2-name">Scan AI level 4</span>
-              <span class="lid-meta-player-rating" id="lid-meta-p2-rating">(2400)</span>
+              <span class="lid-meta-player-name" id="lid-meta-p2-name"><?= $initialP2Name ?></span>
+              <span class="lid-meta-player-rating" id="lid-meta-p2-rating"><?= $initialP2Rating ?></span>
             </div>
           </div>
 
@@ -474,9 +525,9 @@ try {
           <div class="lid-ctrl-player-bar">
             <div class="lid-ctrl-player-left">
               <span class="green-dot"></span>
-              <span id="p2-name">Scan level 8</span>
+              <span id="p2-name"><?= $initialP2Name ?></span>
             </div>
-            <div class="lid-ctrl-player-right" id="p2-role">2700</div>
+            <div class="lid-ctrl-player-right" id="p2-role"><?= $initialP2Rating ?></div>
           </div>
 
           <!-- Move Navigation & Replay Toolbar -->
@@ -502,8 +553,8 @@ try {
           <div class="lid-turn-info-box">
             <div class="lid-info-icon-circle">i</div>
             <div class="lid-turn-info-text">
-              <span class="lid-turn-sub" id="lid-turn-sub">You play the white pieces</span>
-              <span class="lid-turn-main" id="lid-turn-main">It's your turn!</span>
+              <span class="lid-turn-sub" id="lid-turn-sub"><?= $initialTurnSub ?></span>
+              <span class="lid-turn-main" id="lid-turn-main"><?= $initialTurnMain ?></span>
             </div>
           </div>
 
@@ -527,9 +578,9 @@ try {
           <div class="lid-ctrl-player-bar" style="border-top: 1px solid var(--lid-border-light);">
             <div class="lid-ctrl-player-left">
               <span class="green-dot"></span>
-              <span id="p1-name"><?= $currentUser ? htmlspecialchars($currentUser['username'] ?? 'Player 1') : 'Champion (Guest)' ?></span>
+              <span id="p1-name"><?= $initialP1Name ?></span>
             </div>
-            <div class="lid-ctrl-player-right" id="p1-role"><?= $currentUser ? (int)($currentUser['rating'] ?? 1500) . '?' : '1459?' ?></div>
+            <div class="lid-ctrl-player-right" id="p1-role"><?= $initialP1Rating ?></div>
           </div>
         </div>
 
@@ -1240,6 +1291,10 @@ try {
   <!-- 11. TOAST NOTIFICATIONS CONTAINER -->
   <div class="toast-container" id="toast-container"></div>
 
+  <script>
+    window.INITIAL_ROOM_DATA = <?= !empty($initialRoom) ? json_encode($initialRoom) : 'null' ?>;
+    window.INITIAL_ONLINE_ROLE = <?= json_encode($onlineRoleParam ?: ($isOnlineRoom ? ($isGuestViewer ? 'p2' : 'p1') : null)) ?>;
+  </script>
   <script type="module" src="js/app.js?v=<?= filemtime(__DIR__ . '/js/app.js') ?>"></script>
   <script>
     if ('serviceWorker' in navigator) {

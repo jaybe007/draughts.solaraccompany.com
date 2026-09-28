@@ -37,7 +37,9 @@ class NigerianDraughtsApp {
       };
     }
     this.onlineRoomCode = null;
-    this.onlinePlayerRole = 'p1';
+    this.onlineRoomData = (typeof window !== 'undefined' && window.INITIAL_ROOM_DATA) ? window.INITIAL_ROOM_DATA : null;
+    this.onlinePlayerRole = (typeof window !== 'undefined' && window.INITIAL_ONLINE_ROLE) ? window.INITIAL_ONLINE_ROLE : 'p1';
+    this._initialHostName = this.onlineRoomData?.host_name || null;
     this.onlinePollingInterval = null;
     this.premove = null; // Queued { from: { r, c }, to: { r, c } }
     this.premoveSource = null; // { r, c }
@@ -1603,6 +1605,62 @@ class NigerianDraughtsApp {
   }
 
   updatePlayerLabels() {
+    if (this.gameMode === 'room_online') {
+      const room = this.onlineRoomData || (typeof window !== 'undefined' ? window.INITIAL_ROOM_DATA : null);
+      const hostName = (room && room.host_name) || this._initialHostName || 'Player 1 (Host)';
+      let guestName = (room && room.guest_name) || (this.onlineOpponent ? this.onlineOpponent.name : '');
+
+      if (this.onlinePlayerRole === 'p2') {
+        this.dom.p1Name.textContent = hostName;
+        this.dom.p1Role.textContent = 'Player 1 (Host - White)';
+
+        let p2Name = guestName;
+        if (!p2Name) {
+          if (this.currentUser && (!room || !room.host_id || parseInt(this.currentUser.id, 10) !== parseInt(room.host_id, 10))) {
+            p2Name = this.currentUser.username;
+          } else {
+            p2Name = 'Player 2';
+          }
+        }
+        if (hostName && p2Name.toLowerCase() === hostName.toLowerCase()) {
+          p2Name = 'Player 2';
+        }
+
+        this.dom.p2Name.textContent = p2Name;
+        this.dom.p2Role.textContent = 'Player 2 (You - Dark)';
+      } else {
+        const isHostUser = this.currentUser && room && room.host_id && parseInt(this.currentUser.id, 10) === parseInt(room.host_id, 10);
+        this.dom.p1Name.textContent = hostName;
+        this.dom.p1Role.textContent = isHostUser ? 'Player 1 (You - White)' : 'Player 1 (Host - White)';
+
+        let p2Name = guestName || 'Waiting for opponent...';
+        if (hostName && p2Name.toLowerCase() === hostName.toLowerCase()) {
+          p2Name = 'Player 2';
+        }
+        this.dom.p2Name.textContent = p2Name;
+        this.dom.p2Role.textContent = 'Player 2 (Dark)';
+      }
+
+      const lidP1Name = document.getElementById('lid-meta-p1-name');
+      const lidP1Rating = document.getElementById('lid-meta-p1-rating');
+      const lidP2Name = document.getElementById('lid-meta-p2-name');
+      const lidP2Rating = document.getElementById('lid-meta-p2-rating');
+      const mobP1Name = document.getElementById('p1-mobile-name');
+      const mobP1Role = document.getElementById('p1-mobile-role');
+      const mobP2Name = document.getElementById('p2-mobile-name');
+      const mobP2Role = document.getElementById('p2-mobile-role');
+
+      if (lidP1Name) lidP1Name.textContent = this.dom.p1Name.textContent;
+      if (lidP1Rating) lidP1Rating.textContent = `(White)`;
+      if (lidP2Name) lidP2Name.textContent = this.dom.p2Name.textContent;
+      if (lidP2Rating) lidP2Rating.textContent = `(Dark)`;
+      if (mobP1Name) mobP1Name.textContent = this.dom.p1Name.textContent;
+      if (mobP1Role) mobP1Role.textContent = this.dom.p1Role.textContent;
+      if (mobP2Name) mobP2Name.textContent = this.dom.p2Name.textContent;
+      if (mobP2Role) mobP2Role.textContent = this.dom.p2Role.textContent;
+      return;
+    }
+
     if (this.currentUser) {
       this.dom.p1Name.textContent = this.currentUser.username;
       this.dom.p1Role.textContent = `Rating: ${this.currentUser.rating} Elo`;
@@ -1630,9 +1688,6 @@ class NigerianDraughtsApp {
     } else if (this.gameMode === 'pvp') {
       this.dom.p2Role.textContent = 'Player 2';
       this.dom.p2Name.textContent = 'Challenger';
-    } else if (this.gameMode === 'room_online') {
-      this.dom.p2Role.textContent = this.onlinePlayerRole === 'p2' ? 'Player 2 (You - Dark)' : 'Player 2 (Guest - Dark)';
-      this.dom.p2Name.textContent = this.onlineOpponent ? this.onlineOpponent.name : (this.onlinePlayerRole === 'p2' ? (this.currentUser ? this.currentUser.username : 'Player 2') : 'Challenger');
     } else {
       this.dom.p2Role.textContent = 'AI 2 (Spectate)';
       this.dom.p2Name.textContent = 'Grandmaster Engine (GM)';
@@ -1643,9 +1698,6 @@ class NigerianDraughtsApp {
     const lidP1Rating = document.getElementById('lid-meta-p1-rating');
     const lidP2Name = document.getElementById('lid-meta-p2-name');
     const lidP2Rating = document.getElementById('lid-meta-p2-rating');
-    const lidGameTime = document.getElementById('lid-game-time-mode');
-    const lidRulesFlag = document.getElementById('lid-ruleset-flag');
-    const lidRulesTitle = document.getElementById('lid-ruleset-title');
 
     if (lidP1Name) lidP1Name.textContent = this.dom.p1Name.textContent;
     if (lidP1Rating) lidP1Rating.textContent = `(${this.currentUser ? this.currentUser.rating : '1459?'})`;
@@ -1653,9 +1705,8 @@ class NigerianDraughtsApp {
     if (lidP2Rating) {
       const elo = this.gameMode === 'pve'
         ? (this.aiDifficulty === 'grandmaster' ? '2800' : this.aiDifficulty === 'master' ? '2600' : this.aiDifficulty === 'expert' ? '2400' : this.aiDifficulty === 'advanced' ? '2100' : this.aiDifficulty === 'intermediate' ? '1800' : '1500')
-        : (this.onlineOpponent ? this.onlineOpponent.rating : '1500');
+        : '1500';
       lidP2Rating.textContent = `(${elo})`;
-      // Update role in control box if opponent is AI
       if (this.gameMode === 'pve') {
         this.dom.p2Role.textContent = elo;
       }
@@ -2195,10 +2246,21 @@ class NigerianDraughtsApp {
 
     if (this.engine.gameOver || this.isAIThinking) return;
 
-    if (this.gameMode === 'room_online' && this.onlineRoomStatus === 'waiting') {
-      sound.playError();
-      this.setBannerNotice(`⏳ Waiting for opponent to join room ${this.onlineRoomCode}. Share the room link or code to begin!`, true);
-      return;
+    if (this.gameMode === 'room_online') {
+      if (this.onlineRoomStatus === 'waiting') {
+        sound.playError();
+        this.setBannerNotice(`⏳ Waiting for opponent to join room ${this.onlineRoomCode}. Share the room link or code to begin!`, true);
+        return;
+      }
+
+      // Pre-game check: If opening move has not been played yet and Player 2 clicks
+      const hasMovesPlayed = this.engine.moveHistory.length > 0;
+      if (!hasMovesPlayed && this.onlinePlayerRole === 'p2' && this.engine.currentTurn === PLAYER_1) {
+        sound.playError();
+        this.setBannerNotice('⏳ Player 1 (White) moves first! Waiting for White to make the opening move.', true);
+        this.showToast('⏳ Player 1 (White) moves first. Waiting for White to make opening move.', 'info');
+        return;
+      }
     }
 
     // PREMOVE LOGIC: When it is opponent's turn in PvE or Online Match
@@ -3051,7 +3113,7 @@ class NigerianDraughtsApp {
   initOnlineRoomMode(roomCode, playerRole) {
     this.gameMode = 'room_online';
     this.onlineRoomCode = roomCode;
-    this.onlinePlayerRole = playerRole || null;
+    this.onlinePlayerRole = playerRole || this.onlinePlayerRole || null;
     this._appliedOnlineTheme = false;
     this._appliedOnlineHandicap = false;
     this._appliedOnlineBoardConfig = false;
@@ -3071,6 +3133,8 @@ class NigerianDraughtsApp {
     }
 
     this.setBannerNotice(`Online Room ${roomCode}. Connecting to game...`);
+    this.updatePlayerLabels();
+    this.updateUI();
 
     const hasAlreadyJoined = sessionStorage.getItem('nd_joined_room_' + roomCode) === 'true';
 
@@ -3081,7 +3145,6 @@ class NigerianDraughtsApp {
     }
 
     // If entering as Player 2 or unspecified role:
-    // First fetch current room state to verify if user should be shown the Match Challenge modal
     fetch(`api/rooms.php?action=get_state&room_code=${encodeURIComponent(roomCode)}`)
       .then(r => r.json())
       .then(data => {
@@ -3091,29 +3154,37 @@ class NigerianDraughtsApp {
         }
 
         const room = data.room;
-
-        // If current logged-in user is host, resolve role as p1
-        if (this.currentUser && room.host_id && parseInt(room.host_id, 10) === parseInt(this.currentUser.id, 10)) {
-          this.onlinePlayerRole = 'p1';
-          this.startOnlinePolling();
-          return;
-        }
-
-        // If current user is already registered as guest or has already joined this room session
-        const isReconnectingGuest = (this.currentUser && room.guest_id && parseInt(room.guest_id, 10) === parseInt(this.currentUser.id, 10)) ||
-                                    (hasAlreadyJoined && room.status === 'active');
-
-        if (isReconnectingGuest) {
-          this.onlinePlayerRole = 'p2';
-          if (!this.isBoardFlipped) this.toggleBoardFlip();
-          this.startOnlinePolling();
-          return;
-        }
+        this.onlineRoomData = room;
+        this.onlineRoomStatus = room.status;
 
         // If match is already concluded
         if (room.status === 'finished' || room.status === 'abandoned') {
           this.setBannerNotice('This match has already concluded.', true);
+          this.updatePlayerLabels();
+          this.updateUI();
           this.pollOnlineRoom();
+          return;
+        }
+
+        // Only resolve as p1 if NOT explicitly visiting as p2, and current user is host
+        if (this.onlinePlayerRole !== 'p2' && playerRole !== 'p2' && this.currentUser && room.host_id && parseInt(room.host_id, 10) === parseInt(this.currentUser.id, 10)) {
+          this.onlinePlayerRole = 'p1';
+          this.updatePlayerLabels();
+          this.updateUI();
+          this.startOnlinePolling();
+          return;
+        }
+
+        // If room is already active and user is already guest or has joined
+        const isReconnectingGuest = (this.currentUser && room.guest_id && parseInt(room.guest_id, 10) === parseInt(this.currentUser.id, 10)) ||
+                                    (hasAlreadyJoined && room.status === 'active');
+
+        if (isReconnectingGuest || (room.status === 'active' && this.onlinePlayerRole === 'p2')) {
+          this.onlinePlayerRole = 'p2';
+          if (!this.isBoardFlipped) this.toggleBoardFlip();
+          this.updatePlayerLabels();
+          this.updateUI();
+          this.startOnlinePolling();
           return;
         }
 
@@ -3123,7 +3194,16 @@ class NigerianDraughtsApp {
           return;
         }
 
-        // Fresh Player 2 arrival via Invite Link: Present Challenge & Join Prompt!
+        // If visiting with role=p2 or room is waiting:
+        const hasWager = (parseInt(room.wager_coins, 10) > 0 || parseFloat(room.wager_naira) > 0);
+        if (!hasWager && (this.onlinePlayerRole === 'p2' || playerRole === 'p2')) {
+          this.onlinePlayerRole = 'p2';
+          if (!this.isBoardFlipped) this.toggleBoardFlip();
+          this.autoJoinOnlineMatch(room);
+          return;
+        }
+
+        // Fresh Player 2 arrival with stake: Present Challenge modal
         this.presentJoinMatchModal(room);
       })
       .catch(() => {
@@ -3201,12 +3281,55 @@ class NigerianDraughtsApp {
     this.dom.joinMatchAlert.textContent = msg;
   }
 
+  async autoJoinOnlineMatch(room) {
+    const roomCode = room.room_code || this.onlineRoomCode;
+    let playerName = this.currentUser ? this.currentUser.username : '';
+    if (!playerName || (room.host_name && playerName.toLowerCase() === room.host_name.toLowerCase())) {
+      playerName = 'Player 2';
+    }
+
+    try {
+      const res = await fetch('api/rooms.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'join_room',
+          room_code: roomCode,
+          player_name: playerName,
+          player_role: 'p2'
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        sessionStorage.setItem('nd_joined_room_' + roomCode, 'true');
+        this.onlinePlayerRole = 'p2';
+        this.onlineRoomStatus = 'active';
+        this.onlineRoomData = data.room || room;
+        if (!this.isBoardFlipped) {
+          this.toggleBoardFlip();
+        }
+        this.updatePlayerLabels();
+        this.updateUI();
+        sound.playMove();
+        this.showToast('⚔️ Joined match! Player 1 (White) moves first.', 'success');
+        this.startOnlinePolling();
+      } else {
+        this.presentJoinMatchModal(room);
+      }
+    } catch (err) {
+      this.presentJoinMatchModal(room);
+    }
+  }
+
   async handleAcceptJoinMatch() {
     const roomCode = this.onlineRoomCode;
     if (!roomCode) return;
 
     const pName = this.dom.joinPlayerName ? this.dom.joinPlayerName.value.trim() : '';
-    const playerName = pName || (this.currentUser ? this.currentUser.username : 'Guest Challenger');
+    let playerName = pName || (this.currentUser ? this.currentUser.username : 'Guest Challenger');
+    if (this.onlineRoomData?.host_name && playerName.toLowerCase() === this.onlineRoomData.host_name.toLowerCase()) {
+      playerName = 'Player 2';
+    }
 
     const btn = this.dom.btnAcceptJoinMatch;
     if (btn) {
@@ -3230,10 +3353,14 @@ class NigerianDraughtsApp {
       if (data.success) {
         sessionStorage.setItem('nd_joined_room_' + roomCode, 'true');
         this.onlinePlayerRole = 'p2';
+        this.onlineRoomStatus = 'active';
+        this.onlineRoomData = data.room;
         if (!this.isBoardFlipped) {
           this.toggleBoardFlip();
         }
         this.closeModal(this.dom.modalJoinMatch);
+        this.updatePlayerLabels();
+        this.updateUI();
         this.showToast('Joined match! Waiting for Player 1 to make opening move.', 'success');
         sound.playMove();
 
@@ -3263,6 +3390,7 @@ class NigerianDraughtsApp {
       if (!data.success || !data.room) return;
 
       const room = data.room;
+      this.onlineRoomData = room;
       this.onlineRoomStatus = room.status;
 
       // Auto-resolve player role if not explicit
@@ -3369,13 +3497,18 @@ class NigerianDraughtsApp {
         if (p1MobName) p1MobName.textContent = room.host_name;
       }
       if (room.guest_name) {
-        this.dom.p2Name.textContent = room.guest_name;
-        this.dom.p2Role.textContent = this.onlinePlayerRole === 'p2' ? 'Player 2 (You - Dark)' : 'Player 2 (Guest - Dark)';
+        let p2Display = room.guest_name;
+        if (room.host_name && p2Display.toLowerCase() === room.host_name.toLowerCase()) {
+          p2Display = 'Player 2';
+        }
+        this.dom.p2Name.textContent = p2Display;
+        this.dom.p2Role.textContent = this.onlinePlayerRole === 'p2' ? 'Player 2 (You - Dark)' : 'Player 2 (Dark)';
         const lidP2Name = document.getElementById('lid-meta-p2-name');
-        if (lidP2Name) lidP2Name.textContent = room.guest_name;
+        if (lidP2Name) lidP2Name.textContent = p2Display;
         const p2MobName = document.getElementById('p2-mobile-name');
-        if (p2MobName) p2MobName.textContent = room.guest_name;
+        if (p2MobName) p2MobName.textContent = p2Display;
       }
+      this.updatePlayerLabels();
 
       // Synchronize Room Clocks smoothly via single authoritative timer controller
       const isRoomUntimed = (room.player_time === 'none') || (parseInt(room.p1_time_left, 10) <= 0 && parseInt(room.p2_time_left, 10) <= 0 && room.status !== 'finished');

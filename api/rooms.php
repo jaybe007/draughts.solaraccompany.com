@@ -348,9 +348,14 @@ try {
                 jsonResponse(['success' => false, 'message' => "Room code '{$roomCode}' not found. Check code and try again."], 404);
             }
 
-            // Check if player is already host reconnecting
+            if (!empty($room['host_name']) && strcasecmp($guestName, $room['host_name']) === 0) {
+                $guestName = 'Player 2';
+            }
+
+            // Check if player is already host reconnecting (only if NOT explicitly joining as p2)
+            $requestedRole = trim($input['player_role'] ?? '');
             $guestId = $currentUser ? (int)$currentUser['id'] : null;
-            if ($room['host_id'] && $guestId && (int)$room['host_id'] === $guestId) {
+            if ($requestedRole !== 'p2' && $room['host_id'] && $guestId && (int)$room['host_id'] === $guestId) {
                 jsonResponse([
                     'success' => true,
                     'room_code' => $roomCode,
@@ -361,9 +366,9 @@ try {
             }
 
             // Check if player is guest reconnecting or entering room
-            $isGuestMatch = ($room['guest_id'] && $guestId && (int)$room['guest_id'] === $guestId)
+            $isGuestMatch = ($room['guest_id'] && $guestId && (int)$room['guest_id'] === $guestId && (int)$room['host_id'] !== $guestId)
                 || (!empty($room['guest_name']) && strcasecmp($room['guest_name'], $guestName) === 0)
-                || (!empty($input['player_role']) && $input['player_role'] === 'p2' && $room['status'] === 'active');
+                || ($requestedRole === 'p2' && $room['status'] === 'active');
 
             if ($isGuestMatch) {
                 if ($room['status'] === 'waiting') {
@@ -387,13 +392,13 @@ try {
                 jsonResponse(['success' => false, 'message' => 'This match has already concluded.'], 400);
             }
 
-            if ($room['status'] === 'active' && !empty($room['guest_name']) && $room['guest_name'] !== $guestName) {
+            if ($room['status'] === 'active' && !empty($room['guest_name']) && $room['guest_name'] !== $guestName && $requestedRole !== 'p2') {
                 jsonResponse(['success' => false, 'message' => 'Room is already full with 2 players.'], 409);
             }
 
             // Validate and deduct wager coins from joining guest (with auto-conversion if needed)
             $roomWager = (int)($room['wager_coins'] ?? 0);
-            if ($roomWager > 0) {
+            if ($roomWager > 0 && (!$guestId || (int)$room['host_id'] !== $guestId)) {
                 if (!$guestId) {
                     jsonResponse(['success' => false, 'message' => 'Please sign in to join a coin wager match.'], 401);
                 }
@@ -413,7 +418,7 @@ try {
 
             // Validate and deduct cash Naira wager from joining guest (with coins fallback for international players)
             $roomWagerNaira = (float)($room['wager_naira'] ?? 0);
-            if ($roomWagerNaira > 0) {
+            if ($roomWagerNaira > 0 && (!$guestId || (int)$room['host_id'] !== $guestId)) {
                 if (!$currentUser) {
                     jsonResponse(['success' => false, 'message' => 'Please sign in to join a cash stake match.'], 401);
                 }
