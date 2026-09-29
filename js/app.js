@@ -649,6 +649,32 @@ class NigerianDraughtsApp {
       }
     });
 
+    // Lidraughts Mobile Bottom Toolbar Button Delegations
+    document.getElementById('btn-mob-menu')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const mobDrawer = document.getElementById('lid-mobile-drawer');
+      if (mobDrawer) mobDrawer.classList.toggle('open');
+    });
+    document.getElementById('btn-mob-flip')?.addEventListener('click', () => this.toggleBoardFlip());
+    document.getElementById('btn-mob-start')?.addEventListener('click', () => {
+      document.getElementById('btn-lid-start')?.click();
+    });
+    document.getElementById('btn-mob-prev')?.addEventListener('click', () => {
+      document.getElementById('btn-lid-prev')?.click();
+    });
+    document.getElementById('btn-mob-next')?.addEventListener('click', () => {
+      document.getElementById('btn-lid-next')?.click();
+    });
+    document.getElementById('btn-mob-end')?.addEventListener('click', () => {
+      document.getElementById('btn-lid-end')?.click();
+    });
+    document.getElementById('btn-mob-theme')?.addEventListener('click', () => {
+      document.getElementById('btn-lid-theme')?.click();
+    });
+    document.getElementById('btn-mob-resign')?.addEventListener('click', () => {
+      document.getElementById('btn-lid-resign')?.click();
+    });
+
     // Mobile Navigation Drawer Toggle & Links
     const btnMobMenu = document.getElementById('btn-lid-mobile-menu');
     const mobDrawer = document.getElementById('lid-mobile-drawer');
@@ -1993,6 +2019,18 @@ class NigerianDraughtsApp {
           sq.appendChild(colLabel);
         }
 
+        if (isDark) {
+          const sqNum = r * 5 + Math.floor(c / 2) + 1;
+          const isRightEdge = (sqNum % 5 === 0);
+          const isBottomEdge = (sqNum > 45);
+          if (isRightEdge || isBottomEdge) {
+            const sqNumSpan = document.createElement('span');
+            sqNumSpan.className = 'sq-num-label';
+            sqNumSpan.textContent = sqNum;
+            sq.appendChild(sqNumSpan);
+          }
+        }
+
         sq.addEventListener('click', () => this.handleSquareClick(r, c));
         this.dom.boardInner.appendChild(sq);
       }
@@ -2047,6 +2085,21 @@ class NigerianDraughtsApp {
     }
 
     this.clearTacticalArrows();
+
+    // Update last move highlights (Lidraughts olive square tint)
+    document.querySelectorAll('.sq-last-from, .sq-last-to').forEach(el => {
+      el.classList.remove('sq-last-from', 'sq-last-to');
+    });
+    if (this.engine && this.engine.moveHistory && this.engine.moveHistory.length > 0) {
+      const lastM = this.engine.moveHistory[this.engine.moveHistory.length - 1];
+      if (lastM && lastM.from && lastM.to) {
+        const fromSq = document.getElementById(`sq-${lastM.from.r}-${lastM.from.c}`);
+        const toSq = document.getElementById(`sq-${lastM.to.r}-${lastM.to.c}`);
+        if (fromSq) fromSq.classList.add('sq-last-from');
+        if (toSq) toSq.classList.add('sq-last-to');
+      }
+    }
+
     if (this.validMovesForSelected.length > 0 && this.highlightMoves !== false) {
       for (const move of this.validMovesForSelected) {
         const destSq = document.getElementById(`sq-${move.to.r}-${move.to.c}`);
@@ -2968,6 +3021,35 @@ class NigerianDraughtsApp {
   renderMoveHistory() {
     const moves = this.engine.moveHistory;
     this.dom.moveCountBadge.textContent = `${moves.length} moves`;
+
+    // Update Mobile Move Ribbon (Lidraughts TV style horizontal stream)
+    const ribbonTrack = document.getElementById('ribbon-scroll-track');
+    if (ribbonTrack) {
+      if (moves.length === 0) {
+        ribbonTrack.innerHTML = '<span class="ribbon-empty">Match ready • White starts</span>';
+      } else {
+        let ribbonHtml = '';
+        for (let i = 0; i < moves.length; i++) {
+          const m = moves[i];
+          const turnNumber = Math.floor(i / 2) + 1;
+          const isWhite = (i % 2 === 0);
+          if (isWhite) {
+            ribbonHtml += `<span class="ribbon-turn-num">${turnNumber}.</span> `;
+          }
+          const fromSq = m.from.r * 5 + Math.floor(m.from.c / 2) + 1;
+          const toSq = m.to.r * 5 + Math.floor(m.to.c / 2) + 1;
+          const sym = m.isCapture ? 'x' : '-';
+          const cr = m.promoted ? '👑' : '';
+          const isLast = (i === moves.length - 1);
+          ribbonHtml += `<span class="ribbon-move-btn ${isLast ? 'last' : ''}">${fromSq}${sym}${toSq}${cr}</span> `;
+        }
+        ribbonTrack.innerHTML = ribbonHtml;
+        const ribbonContainer = document.getElementById('lid-mobile-moves-ribbon');
+        if (ribbonContainer) {
+          ribbonContainer.scrollLeft = ribbonContainer.scrollWidth;
+        }
+      }
+    }
 
     if (moves.length === 0) {
       this.dom.moveHistoryList.innerHTML = '<div class="history-empty">No moves yet. Make your opening move!</div>';
