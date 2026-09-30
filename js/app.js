@@ -649,31 +649,6 @@ class NigerianDraughtsApp {
       }
     });
 
-    // Lidraughts Mobile Bottom Toolbar Button Delegations
-    document.getElementById('btn-mob-menu')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const mobDrawer = document.getElementById('lid-mobile-drawer');
-      if (mobDrawer) mobDrawer.classList.toggle('open');
-    });
-    document.getElementById('btn-mob-flip')?.addEventListener('click', () => this.toggleBoardFlip());
-    document.getElementById('btn-mob-start')?.addEventListener('click', () => {
-      document.getElementById('btn-lid-start')?.click();
-    });
-    document.getElementById('btn-mob-prev')?.addEventListener('click', () => {
-      document.getElementById('btn-lid-prev')?.click();
-    });
-    document.getElementById('btn-mob-next')?.addEventListener('click', () => {
-      document.getElementById('btn-lid-next')?.click();
-    });
-    document.getElementById('btn-mob-end')?.addEventListener('click', () => {
-      document.getElementById('btn-lid-end')?.click();
-    });
-    document.getElementById('btn-mob-theme')?.addEventListener('click', () => {
-      document.getElementById('btn-lid-theme')?.click();
-    });
-    document.getElementById('btn-mob-resign')?.addEventListener('click', () => {
-      document.getElementById('btn-lid-resign')?.click();
-    });
 
     // Mobile Navigation Drawer Toggle & Links
     const btnMobMenu = document.getElementById('btn-lid-mobile-menu');
@@ -1786,6 +1761,10 @@ class NigerianDraughtsApp {
     if (mobP2Name) mobP2Name.textContent = this.dom.p2Name.textContent;
     if (mobP2Role && lidP2Rating) mobP2Role.textContent = lidP2Rating.textContent;
 
+    const lidRulesFlag = document.getElementById('lid-rules-flag');
+    const lidRulesTitle = document.getElementById('lid-rules-title');
+    const lidGameTime = document.getElementById('lid-game-time');
+
     if (lidRulesFlag && lidRulesTitle) {
       if (this.ruleMode === 'ghana') {
         lidRulesFlag.textContent = '🇬🇭';
@@ -2019,17 +1998,6 @@ class NigerianDraughtsApp {
           sq.appendChild(colLabel);
         }
 
-        if (isDark) {
-          const sqNum = r * 5 + Math.floor(c / 2) + 1;
-          const isRightEdge = (sqNum % 5 === 0);
-          const isBottomEdge = (sqNum > 45);
-          if (isRightEdge || isBottomEdge) {
-            const sqNumSpan = document.createElement('span');
-            sqNumSpan.className = 'sq-num-label';
-            sqNumSpan.textContent = sqNum;
-            sq.appendChild(sqNumSpan);
-          }
-        }
 
         sq.addEventListener('click', () => this.handleSquareClick(r, c));
         this.dom.boardInner.appendChild(sq);
@@ -2086,19 +2054,6 @@ class NigerianDraughtsApp {
 
     this.clearTacticalArrows();
 
-    // Update last move highlights (Lidraughts olive square tint)
-    document.querySelectorAll('.sq-last-from, .sq-last-to').forEach(el => {
-      el.classList.remove('sq-last-from', 'sq-last-to');
-    });
-    if (this.engine && this.engine.moveHistory && this.engine.moveHistory.length > 0) {
-      const lastM = this.engine.moveHistory[this.engine.moveHistory.length - 1];
-      if (lastM && lastM.from && lastM.to) {
-        const fromSq = document.getElementById(`sq-${lastM.from.r}-${lastM.from.c}`);
-        const toSq = document.getElementById(`sq-${lastM.to.r}-${lastM.to.c}`);
-        if (fromSq) fromSq.classList.add('sq-last-from');
-        if (toSq) toSq.classList.add('sq-last-to');
-      }
-    }
 
     if (this.validMovesForSelected.length > 0 && this.highlightMoves !== false) {
       for (const move of this.validMovesForSelected) {
@@ -2554,10 +2509,15 @@ class NigerianDraughtsApp {
     }
   }
 
-  async scheduleAIMove() {
+  async scheduleAIMove(isContinuation = false) {
     if (this.gameMode === 'room_online' || this.gameMode === 'pvp') return;
     if (this.engine.gameOver || this.isAIThinking) return;
     this.isAIThinking = true;
+
+    // Start timer on first move if not already running (e.g. EvE or AI plays first)
+    if (this.timer && !this.timer.isRunning && !this.timer.isUntimed()) {
+      this.timer.start(this.engine.currentTurn);
+    }
 
     // Show telemetry HUD (PvE only)
     if (this.dom.engineTelemetryPanel && this.gameMode !== 'pvp' && this.gameMode !== 'room_online') {
@@ -2580,9 +2540,41 @@ class NigerianDraughtsApp {
     const legalMoves = this.engine.getAllLegalMoves(mover);
     const isSingleMove = legalMoves.length === 1;
 
-    const minDelay = isSingleMove
-      ? 50
-      : (this.aiDifficulty === 'beginner' ? 100 : (this.aiDifficulty === 'intermediate' ? 150 : 120));
+    const isUntimed = !this.timer || this.timer.isUntimed();
+    let minDelay = 120;
+
+    if (isContinuation) {
+      // Continuation of a multi-jump capture sequence
+      minDelay = 220;
+    } else if (isUntimed) {
+      // Untimed casual / training game
+      minDelay = isSingleMove ? 60 : 150;
+    } else {
+      // Timed game: AI uses clock-aware thinking duration so clocks visibly count down
+      if (clockTime <= 4) {
+        minDelay = isSingleMove ? 60 : 220;
+      } else if (clockTime <= 12) {
+        minDelay = isSingleMove ? 150 : 450;
+      } else if (clockTime <= 30) {
+        minDelay = isSingleMove ? 250 : 800;
+      } else if (clockTime <= 60) {
+        minDelay = isSingleMove ? 350 : 950;
+      } else if (clockTime <= 180) {
+        minDelay = isSingleMove ? 450 : 1300;
+      } else {
+        if (isSingleMove) {
+          minDelay = 700;
+        } else {
+          const basePacing = (this.aiDifficulty === 'beginner' || this.aiDifficulty === 'easy')
+            ? 1400
+            : ((this.aiDifficulty === 'intermediate' || this.aiDifficulty === 'medium') ? 1700 : 2100);
+          minDelay = basePacing + Math.min(600, Math.floor(clockTime / 300) * 150);
+        }
+      }
+      if (this.gameMode === 'eve') {
+        minDelay = Math.min(minDelay, 900);
+      }
+    }
     const minDelayPromise = new Promise(r => setTimeout(r, minDelay));
 
     const currentEngineInstance = this.engine;
@@ -2666,7 +2658,7 @@ class NigerianDraughtsApp {
         if (!res.turnEnded) {
           // Multi-jump continues
           this.isAIThinking = false;
-          setTimeout(() => this.scheduleAIMove(), 120);
+          setTimeout(() => this.scheduleAIMove(true), 120);
         } else {
           this.isAIThinking = false;
           const prevPlayer = mover;
@@ -2716,7 +2708,7 @@ class NigerianDraughtsApp {
           return;
         }
         if (!res.turnEnded) {
-          setTimeout(() => this.scheduleAIMove(), 120);
+          setTimeout(() => this.scheduleAIMove(true), 120);
         } else {
           this.timer.switchTurn(this.engine.currentTurn, mover);
           const nextMoves = this.engine.getAllLegalMoves(this.engine.currentTurn);
@@ -3022,34 +3014,6 @@ class NigerianDraughtsApp {
     const moves = this.engine.moveHistory;
     this.dom.moveCountBadge.textContent = `${moves.length} moves`;
 
-    // Update Mobile Move Ribbon (Lidraughts TV style horizontal stream)
-    const ribbonTrack = document.getElementById('ribbon-scroll-track');
-    if (ribbonTrack) {
-      if (moves.length === 0) {
-        ribbonTrack.innerHTML = '<span class="ribbon-empty">Match ready • White starts</span>';
-      } else {
-        let ribbonHtml = '';
-        for (let i = 0; i < moves.length; i++) {
-          const m = moves[i];
-          const turnNumber = Math.floor(i / 2) + 1;
-          const isWhite = (i % 2 === 0);
-          if (isWhite) {
-            ribbonHtml += `<span class="ribbon-turn-num">${turnNumber}.</span> `;
-          }
-          const fromSq = m.from.r * 5 + Math.floor(m.from.c / 2) + 1;
-          const toSq = m.to.r * 5 + Math.floor(m.to.c / 2) + 1;
-          const sym = m.isCapture ? 'x' : '-';
-          const cr = m.promoted ? '👑' : '';
-          const isLast = (i === moves.length - 1);
-          ribbonHtml += `<span class="ribbon-move-btn ${isLast ? 'last' : ''}">${fromSq}${sym}${toSq}${cr}</span> `;
-        }
-        ribbonTrack.innerHTML = ribbonHtml;
-        const ribbonContainer = document.getElementById('lid-mobile-moves-ribbon');
-        if (ribbonContainer) {
-          ribbonContainer.scrollLeft = ribbonContainer.scrollWidth;
-        }
-      }
-    }
 
     if (moves.length === 0) {
       this.dom.moveHistoryList.innerHTML = '<div class="history-empty">No moves yet. Make your opening move!</div>';

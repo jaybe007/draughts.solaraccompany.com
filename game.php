@@ -477,21 +477,12 @@ if ($isOnlineRoom) {
           </div>
         </div>
 
-        <!-- Mobile Move History Ribbon (Lidraughts TV style single-line scroll) -->
-        <div class="lid-mobile-moves-ribbon lid-mobile-only" id="lid-mobile-moves-ribbon">
-          <div class="ribbon-scroll-track" id="ribbon-scroll-track">
-            <span class="ribbon-empty">Match ready • White starts</span>
-          </div>
-        </div>
-
         <!-- Mobile Opponent Bar (Displayed above board on mobile phones) -->
         <div class="lid-mobile-player-bar lid-mobile-top lid-mobile-only" id="lid-mobile-p2-bar">
           <div class="lid-ctrl-player-left">
             <span class="green-dot"></span>
-            <div class="lid-mobile-name-col">
-              <span class="lid-mobile-player-name" id="p2-mobile-name"><?= $initialP2Name ?></span>
-              <span class="lid-player-rating-badge" id="p2-mobile-role"><?= $initialP2Rating ?></span>
-            </div>
+            <span class="lid-mobile-player-name" id="p2-mobile-name"><?= $initialP2Name ?></span>
+            <span class="lid-player-rating-badge" id="p2-mobile-role"><?= $initialP2Rating ?></span>
           </div>
           <div class="lid-mobile-clock-wrap">
             <div class="lid-digital-clock lid-mobile-clock" id="p2-mobile-clock">10:00</div>
@@ -540,42 +531,12 @@ if ($isOnlineRoom) {
         <div class="lid-mobile-player-bar lid-mobile-bottom lid-mobile-only" id="lid-mobile-p1-bar">
           <div class="lid-ctrl-player-left">
             <span class="green-dot"></span>
-            <div class="lid-mobile-name-col">
-              <span class="lid-mobile-player-name" id="p1-mobile-name"><?= $initialP1Name ?></span>
-              <span class="lid-player-rating-badge" id="p1-mobile-role"><?= $initialP1Rating ?></span>
-            </div>
+            <span class="lid-mobile-player-name" id="p1-mobile-name"><?= $initialP1Name ?></span>
+            <span class="lid-player-rating-badge" id="p1-mobile-role"><?= $initialP1Rating ?></span>
           </div>
           <div class="lid-mobile-clock-wrap">
             <div class="lid-digital-clock active lid-mobile-clock" id="p1-mobile-clock">10:00</div>
           </div>
-        </div>
-
-        <!-- Mobile Bottom Control Toolbar (Lidraughts Replay & Board Actions) -->
-        <div class="lid-mobile-bottom-toolbar lid-mobile-only" id="lid-mobile-bottom-toolbar">
-          <button type="button" class="lid-mob-tool-btn" id="btn-mob-menu" title="Menu / Move List" aria-label="Menu">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
-          </button>
-          <button type="button" class="lid-mob-tool-btn" id="btn-mob-flip" title="Flip Board" aria-label="Flip Board">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
-          </button>
-          <button type="button" class="lid-mob-tool-btn" id="btn-mob-start" title="First Move" aria-label="First Move">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="5" width="2.5" height="14"></rect><polygon points="19,19 9,12 19,5"></polygon></svg>
-          </button>
-          <button type="button" class="lid-mob-tool-btn" id="btn-mob-prev" title="Step Back / Undo" aria-label="Step Back">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="17,19 7,12 17,5"></polygon></svg>
-          </button>
-          <button type="button" class="lid-mob-tool-btn" id="btn-mob-next" title="Step Forward" aria-label="Step Forward">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="7,5 17,12 7,19"></polygon></svg>
-          </button>
-          <button type="button" class="lid-mob-tool-btn" id="btn-mob-end" title="Last Move" aria-label="Last Move">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,5 15,12 5,19"></polygon><rect x="17.5" y="5" width="2.5" height="14"></rect></svg>
-          </button>
-          <button type="button" class="lid-mob-tool-btn" id="btn-mob-theme" title="Cycle Board Theme" aria-label="Board Theme">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2z"/></svg>
-          </button>
-          <button type="button" class="lid-mob-tool-btn resign" id="btn-mob-resign" title="Resign Match" aria-label="Resign">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-          </button>
         </div>
 
         <!-- Status Notice / Alert Banner -->

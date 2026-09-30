@@ -116,22 +116,28 @@ async function testTimerFirstMove() {
 
   // Test Case 2: When user chooses 5-minute preset in game setup
   const result5min = await evalExpr(`(async () => {
-    const app = window.app;
-    // Switch to 5-minute time control
-    app.timeControl = '5';
-    app.timer.setPreset('5', 0, 0);
-    app.updatePlayerLabels();
+    try {
+      const app = window.app;
+      // Reset to fresh game for 5-minute test
+      app.restartGame();
+      // Switch to 5-minute time control
+      app.timeControl = '5';
+      app.timer.setPreset('5', 0, 0);
+      app.updatePlayerLabels();
 
-    const p1Clock5 = document.getElementById('p1-clock')?.textContent;
-    const timeLeft5 = app.timer.timeLeft[1];
-    
-    // Play move
-    const legalMoves = app.engine.getAllLegalMoves(app.engine.currentTurn);
-    if (legalMoves.length > 0) app.executePlayerMove(legalMoves[0]);
-    await new Promise(r => setTimeout(r, 600));
+      const p1Clock5 = document.getElementById('p1-clock')?.textContent;
+      const timeLeft5 = app.timer.timeLeft[1];
+      
+      // Play move
+      const legalMoves = app.engine.getAllLegalMoves(app.engine.currentTurn);
+      if (legalMoves.length > 0) app.executePlayerMove(legalMoves[0]);
+      await new Promise(r => setTimeout(r, 600));
 
-    const p1ClockAfterMove5 = document.getElementById('p1-clock')?.textContent;
-    return { p1Clock5, timeLeft5, p1ClockAfterMove5 };
+      const p1ClockAfterMove5 = document.getElementById('p1-clock')?.textContent;
+      return { p1Clock5, timeLeft5, p1ClockAfterMove5 };
+    } catch (e) {
+      return { error: e.message, stack: e.stack };
+    }
   })()`);
 
   console.log('5-min Preset Test Result:');

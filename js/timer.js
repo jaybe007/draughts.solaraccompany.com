@@ -17,14 +17,21 @@ export class DraughtsTimer {
     this.onTick = options.onTick || (() => {});
 
     this.initialSeconds = this.getInitialSeconds(this.preset);
+    const p1Sec = this.initialSeconds + (this.initialSeconds > 0 ? this.p1Advantage : 0);
+    const p2Sec = this.initialSeconds;
     this.timeLeft = {
-      [PLAYER_1]: this.initialSeconds + this.p1Advantage,
-      [PLAYER_2]: this.initialSeconds
+      [PLAYER_1]: p1Sec,
+      [PLAYER_2]: p2Sec
+    };
+    this.timeLeftMs = {
+      [PLAYER_1]: p1Sec * 1000,
+      [PLAYER_2]: p2Sec * 1000
     };
 
     this.activePlayer = null;
     this.intervalId = null;
     this.isRunning = false;
+    this.lastTickTime = null;
   }
 
   getInitialSeconds(preset) {
@@ -56,9 +63,15 @@ export class DraughtsTimer {
   reset() {
     this.stop();
     this.initialSeconds = this.getInitialSeconds(this.preset);
+    const p1Sec = this.initialSeconds + (this.initialSeconds > 0 ? this.p1Advantage : 0);
+    const p2Sec = this.initialSeconds;
     this.timeLeft = {
-      [PLAYER_1]: this.initialSeconds + (this.initialSeconds > 0 ? this.p1Advantage : 0),
-      [PLAYER_2]: this.initialSeconds
+      [PLAYER_1]: p1Sec,
+      [PLAYER_2]: p2Sec
+    };
+    this.timeLeftMs = {
+      [PLAYER_1]: p1Sec * 1000,
+      [PLAYER_2]: p2Sec * 1000
     };
     this.activePlayer = null;
     this.lastTickTime = null;
@@ -71,26 +84,36 @@ export class DraughtsTimer {
     this.isRunning = true;
     this.lastTickTime = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
 
+    if (!this.timeLeftMs) {
+      this.timeLeftMs = {
+        [PLAYER_1]: (this.timeLeft[PLAYER_1] || 0) * 1000,
+        [PLAYER_2]: (this.timeLeft[PLAYER_2] || 0) * 1000
+      };
+    }
+
     if (this.intervalId) clearInterval(this.intervalId);
 
     this.intervalId = setInterval(() => {
       if (!this.isRunning || !this.activePlayer) return;
 
       const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
-      const elapsedSec = Math.floor((now - this.lastTickTime) / 1000);
-      if (elapsedSec >= 1) {
-        this.timeLeft[this.activePlayer] = Math.max(0, this.timeLeft[this.activePlayer] - elapsedSec);
-        this.lastTickTime += elapsedSec * 1000;
+      const elapsedMs = Math.max(0, now - this.lastTickTime);
+      this.lastTickTime = now;
+
+      if (elapsedMs > 0) {
+        this.timeLeftMs[this.activePlayer] = Math.max(0, this.timeLeftMs[this.activePlayer] - elapsedMs);
+        this.timeLeft[this.activePlayer] = Math.ceil(this.timeLeftMs[this.activePlayer] / 1000);
 
         this.onTick(this.getTimeStrings(), this.timeLeft, this.activePlayer);
 
-        if (this.timeLeft[this.activePlayer] <= 0) {
+        if (this.timeLeftMs[this.activePlayer] <= 0) {
+          this.timeLeftMs[this.activePlayer] = 0;
           this.timeLeft[this.activePlayer] = 0;
           this.stop();
           this.onTimeout(this.activePlayer);
         }
       }
-    }, 200);
+    }, 100);
 
     this.onTick(this.getTimeStrings(), this.timeLeft, this.activePlayer);
   }
@@ -98,13 +121,30 @@ export class DraughtsTimer {
   switchTurn(newPlayer, prevPlayer = null) {
     if (this.isUntimed()) return;
 
+    const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+
+    // Deduct exact elapsed milliseconds spent by mover before switching
+    const mover = prevPlayer || this.activePlayer;
+    if (mover && this.lastTickTime) {
+      const elapsedMs = Math.max(0, now - this.lastTickTime);
+      if (this.timeLeftMs) {
+        this.timeLeftMs[mover] = Math.max(0, this.timeLeftMs[mover] - elapsedMs);
+        this.timeLeft[mover] = Math.ceil(this.timeLeftMs[mover] / 1000);
+      }
+    }
+
     // Apply Fischer increment to the player who just finished their move
-    if (prevPlayer && this.increment > 0) {
-      this.timeLeft[prevPlayer] = (this.timeLeft[prevPlayer] || 0) + this.increment;
+    if (mover && this.increment > 0) {
+      if (this.timeLeftMs) {
+        this.timeLeftMs[mover] += this.increment * 1000;
+        this.timeLeft[mover] = Math.ceil(this.timeLeftMs[mover] / 1000);
+      } else {
+        this.timeLeft[mover] = (this.timeLeft[mover] || 0) + this.increment;
+      }
     }
 
     this.activePlayer = newPlayer;
-    this.lastTickTime = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+    this.lastTickTime = now;
     this.onTick(this.getTimeStrings(), this.timeLeft, this.activePlayer);
 
     if (!this.isRunning) {
@@ -114,22 +154,41 @@ export class DraughtsTimer {
 
   applyIncrement(player) {
     if (this.isUntimed() || this.increment <= 0) return;
-    this.timeLeft[player] = (this.timeLeft[player] || 0) + this.increment;
+    if (this.timeLeftMs) {
+      this.timeLeftMs[player] = (this.timeLeftMs[player] || 0) + (this.increment * 1000);
+      this.timeLeft[player] = Math.ceil(this.timeLeftMs[player] / 1000);
+    } else {
+      this.timeLeft[player] = (this.timeLeft[player] || 0) + this.increment;
+    }
     this.onTick(this.getTimeStrings(), this.timeLeft, this.activePlayer);
   }
 
   addTime(player, seconds = 15) {
     if (this.isUntimed()) return;
-    this.timeLeft[player] = (this.timeLeft[player] || 0) + seconds;
+    if (this.timeLeftMs) {
+      this.timeLeftMs[player] = (this.timeLeftMs[player] || 0) + (seconds * 1000);
+      this.timeLeft[player] = Math.ceil(this.timeLeftMs[player] / 1000);
+    } else {
+      this.timeLeft[player] = (this.timeLeft[player] || 0) + seconds;
+    }
     this.onTick(this.getTimeStrings(), this.timeLeft, this.activePlayer);
   }
 
   stop() {
+    if (this.isRunning && this.activePlayer && this.lastTickTime) {
+      const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+      const elapsedMs = Math.max(0, now - this.lastTickTime);
+      if (this.timeLeftMs) {
+        this.timeLeftMs[this.activePlayer] = Math.max(0, this.timeLeftMs[this.activePlayer] - elapsedMs);
+        this.timeLeft[this.activePlayer] = Math.ceil(this.timeLeftMs[this.activePlayer] / 1000);
+      }
+    }
     this.isRunning = false;
     if (this.intervalId) {
       clearInterval(this.intervalId);
       this.intervalId = null;
     }
+    this.lastTickTime = null;
     this.onTick(this.getTimeStrings(), this.timeLeft, null);
   }
 
@@ -155,8 +214,14 @@ export class DraughtsTimer {
   }
 
   setTimeLeft(p1Sec, p2Sec) {
-    this.timeLeft[PLAYER_1] = Math.max(0, parseInt(p1Sec, 10) || 0);
-    this.timeLeft[PLAYER_2] = Math.max(0, parseInt(p2Sec, 10) || 0);
+    const s1 = Math.max(0, parseInt(p1Sec, 10) || 0);
+    const s2 = Math.max(0, parseInt(p2Sec, 10) || 0);
+    this.timeLeft[PLAYER_1] = s1;
+    this.timeLeft[PLAYER_2] = s2;
+    this.timeLeftMs = {
+      [PLAYER_1]: s1 * 1000,
+      [PLAYER_2]: s2 * 1000
+    };
     this.lastTickTime = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
     this.onTick(this.getTimeStrings(), this.timeLeft, this.isRunning ? this.activePlayer : null);
   }
