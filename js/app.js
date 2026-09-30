@@ -16,6 +16,7 @@ import { MatchReplayController } from './replay.js';
 import { BoardAnalysisController } from './analysis.js';
 import { StreetChatController } from './chat.js';
 import { TrapAcademyController } from './traps.js';
+import { rcToSq } from './engine50.js';
 
 class NigerianDraughtsApp {
   constructor() {
@@ -578,6 +579,25 @@ class NigerianDraughtsApp {
     });
     document.getElementById('btn-lid-end')?.addEventListener('click', () => {
       if (this.replayController && this.replayController.isOpen) this.replayController.goToEnd();
+    });
+
+    // Mobile Bottom Toolbar Buttons (Matching Lidraughts Mobile UI)
+    document.getElementById('btn-mob-menu')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('lid-mobile-drawer')?.classList.toggle('open');
+    });
+    document.getElementById('btn-mob-flip')?.addEventListener('click', () => {
+      this.toggleBoardFlip();
+    });
+    document.getElementById('btn-mob-prev')?.addEventListener('click', () => {
+      if (this.replayController && this.replayController.isOpen) this.replayController.prevMove();
+      else this.undoMove();
+    });
+    document.getElementById('btn-mob-next')?.addEventListener('click', () => {
+      if (this.replayController && this.replayController.isOpen) this.replayController.nextMove();
+    });
+    document.getElementById('btn-lid-mobile-theme')?.addEventListener('click', () => {
+      document.getElementById('btn-lid-theme')?.click();
     });
     document.getElementById('btn-lid-resign')?.addEventListener('click', () => {
       if (this.engine.gameOver) return;
@@ -1998,6 +2018,30 @@ class NigerianDraughtsApp {
           sq.appendChild(colLabel);
         }
 
+        // Lidraughts Edge Square Numbers for Dark Squares (Right edge 5..45, Bottom edge 46..50)
+        if (isDark) {
+          let edgeNum = null;
+          if (!isNigerian) {
+            if (c === 9 && r % 2 === 0) {
+              edgeNum = (r / 2) * 10 + 5;
+            } else if (r === 9 && c % 2 === 0) {
+              edgeNum = 46 + (c / 2);
+            }
+          } else {
+            if (c === 8 && r % 2 === 0) {
+              edgeNum = (r / 2) * 10 + 5;
+            } else if (r === 9 && c % 2 === 1) {
+              edgeNum = 46 + Math.floor(c / 2);
+            }
+          }
+          if (edgeNum !== null) {
+            const sqNumLabel = document.createElement('span');
+            sqNumLabel.className = 'sq-num-label';
+            sqNumLabel.textContent = edgeNum;
+            sq.appendChild(sqNumLabel);
+          }
+        }
+
 
         sq.addEventListener('click', () => this.handleSquareClick(r, c));
         this.dom.boardInner.appendChild(sq);
@@ -2053,6 +2097,20 @@ class NigerianDraughtsApp {
     }
 
     this.clearTacticalArrows();
+
+    // Soft olive last move square highlights
+    document.querySelectorAll('.square.sq-last-from, .square.sq-last-to').forEach(el => {
+      el.classList.remove('sq-last-from', 'sq-last-to');
+    });
+    if (this.engine && this.engine.moveHistory && this.engine.moveHistory.length > 0) {
+      const lastMove = this.engine.moveHistory[this.engine.moveHistory.length - 1];
+      if (lastMove && lastMove.from && lastMove.to) {
+        const fromEl = document.getElementById(`sq-${lastMove.from.r}-${lastMove.from.c}`);
+        const toEl = document.getElementById(`sq-${lastMove.to.r}-${lastMove.to.c}`);
+        if (fromEl) fromEl.classList.add('sq-last-from');
+        if (toEl) toEl.classList.add('sq-last-to');
+      }
+    }
 
 
     if (this.validMovesForSelected.length > 0 && this.highlightMoves !== false) {
@@ -2953,6 +3011,19 @@ class NigerianDraughtsApp {
 
     this.updateEvaluationBar(stats);
     this.evaluateTrapRadar();
+
+    this.renderCapturedTray(this.dom.p1CapturedTray, this.engine.capturedPieces[PLAYER_1], 2);
+    this.renderCapturedTray(this.dom.p2CapturedTray, this.engine.capturedPieces[PLAYER_2], 1);
+
+    this.renderMoveHistory();
+
+    if (this.dom.engineTelemetryPanel) {
+      if (this.gameMode === 'pvp') {
+        this.dom.engineTelemetryPanel.classList.add('hidden');
+      } else {
+        this.dom.engineTelemetryPanel.classList.remove('hidden');
+      }
+    }
   }
 
   evaluateTrapRadar() {
@@ -2984,19 +3055,6 @@ class NigerianDraughtsApp {
       });
     } else {
       radarBtn.innerHTML = '⚡ Radar: Active';
-    }
-
-    this.renderCapturedTray(this.dom.p1CapturedTray, this.engine.capturedPieces[PLAYER_1], 2);
-    this.renderCapturedTray(this.dom.p2CapturedTray, this.engine.capturedPieces[PLAYER_2], 1);
-
-    this.renderMoveHistory();
-
-    if (this.dom.engineTelemetryPanel) {
-      if (this.gameMode === 'pvp') {
-        this.dom.engineTelemetryPanel.classList.add('hidden');
-      } else {
-        this.dom.engineTelemetryPanel.classList.remove('hidden');
-      }
     }
   }
 
@@ -3036,6 +3094,34 @@ class NigerianDraughtsApp {
     });
 
     this.dom.moveHistoryList.scrollTop = this.dom.moveHistoryList.scrollHeight;
+
+    // Synchronize Mobile Horizontal Moves Ribbon
+    const ribbonTrack = document.getElementById('ribbon-scroll-track');
+    const ribbonWrap = document.getElementById('lid-mobile-moves-ribbon');
+    if (ribbonTrack) {
+      if (moves.length === 0) {
+        ribbonTrack.innerHTML = '<span class="ribbon-empty-text">Game started. Make your opening move!</span>';
+      } else {
+        const isNigerian = this.engine && typeof this.engine.isDarkSquare === 'function' ? !this.engine.isDarkSquare(9, 0) : true;
+        let ribbonHtml = '';
+        moves.forEach((m, idx) => {
+          const moveNum = Math.floor(idx / 2) + 1;
+          const isWhite = idx % 2 === 0;
+          if (isWhite) {
+            ribbonHtml += `<span class="ribbon-move-num">${moveNum}.</span> `;
+          }
+          const fromSq = (m.fromSq || (typeof rcToSq === 'function' ? rcToSq(m.from.r, m.from.c, !isNigerian) : 0)) || `${String.fromCharCode(65 + m.from.c)}${this.boardSize - m.from.r}`;
+          const toSq = (m.toSq || (typeof rcToSq === 'function' ? rcToSq(m.to.r, m.to.c, !isNigerian) : 0)) || `${String.fromCharCode(65 + m.to.c)}${this.boardSize - m.to.r}`;
+          const sym = m.isCapture ? 'x' : '-';
+          const isCurrent = idx === moves.length - 1;
+          ribbonHtml += `<span class="ribbon-move-text ${isCurrent ? 'current' : ''}">${fromSq}${sym}${toSq}</span> `;
+        });
+        ribbonTrack.innerHTML = ribbonHtml;
+        if (ribbonWrap) {
+          ribbonWrap.scrollLeft = ribbonWrap.scrollWidth;
+        }
+      }
+    }
   }
 
   setBannerNotice(text, variant = 'normal') {

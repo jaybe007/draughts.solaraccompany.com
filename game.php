@@ -121,6 +121,10 @@ if ($isOnlineRoom) {
 
     <!-- ================= TOP NAVIGATION BAR (AFRODRAUGHT-STYLE) ================= -->
     <header class="app-header">
+      <button type="button" class="btn btn-icon lid-mobile-menu-toggle lid-mobile-only" id="btn-lid-mobile-menu" aria-label="Toggle navigation menu" title="Menu">
+        <span class="icon">☰</span>
+      </button>
+
       <div class="nav-brand-container">
         <a href="index.php" class="brand-link">
           <div class="flag-stripes">
@@ -129,8 +133,8 @@ if ($isOnlineRoom) {
             <span class="stripe green"></span>
           </div>
           <div class="brand-text">
-            <span class="game-title">NAIJA DRAUGHTS</span>
-            <span class="game-subtitle">PRO NIGERIAN 10x10 BOARD ARENA</span>
+            <span class="game-title">👑 Naija Draughts</span>
+            <span class="game-subtitle" id="mobile-header-subtitle">10+0 • Casual • Rapid</span>
           </div>
         </a>
       </div>
@@ -239,8 +243,8 @@ if ($isOnlineRoom) {
         <button id="btn-flip-board" class="btn btn-icon" title="Flip Board Perspective">
           <span class="icon">🔄</span>
         </button>
-        <button type="button" class="btn btn-icon lid-mobile-menu-toggle lid-mobile-only" id="btn-lid-mobile-menu" aria-label="Toggle navigation menu" title="Menu">
-          <span class="icon">☰</span>
+        <button type="button" class="btn btn-icon lid-mobile-theme-btn lid-mobile-only" id="btn-lid-mobile-theme" aria-label="Toggle Board Theme" title="Theme">
+          <svg width="20" height="20" viewBox="0 0 24 24"><rect x="3" y="3" width="9" height="9" fill="#f0d9b5"/><rect x="12" y="3" width="9" height="9" fill="#b58863"/><rect x="3" y="12" width="9" height="9" fill="#b58863"/><rect x="12" y="12" width="9" height="9" fill="#f0d9b5"/></svg>
         </button>
       </div>
     </header>
@@ -477,12 +481,21 @@ if ($isOnlineRoom) {
           </div>
         </div>
 
+        <!-- Mobile Moves Ribbon (Single-line horizontal move strip matching Lidraughts) -->
+        <div class="lid-mobile-moves-ribbon lid-mobile-only" id="lid-mobile-moves-ribbon">
+          <div class="ribbon-scroll-track" id="ribbon-scroll-track">
+            <span class="ribbon-empty-text">Game started. Make your opening move!</span>
+          </div>
+        </div>
+
         <!-- Mobile Opponent Bar (Displayed above board on mobile phones) -->
         <div class="lid-mobile-player-bar lid-mobile-top lid-mobile-only" id="lid-mobile-p2-bar">
           <div class="lid-ctrl-player-left">
             <span class="green-dot"></span>
-            <span class="lid-mobile-player-name" id="p2-mobile-name"><?= $initialP2Name ?></span>
-            <span class="lid-player-rating-badge" id="p2-mobile-role"><?= $initialP2Rating ?></span>
+            <div class="lid-mobile-name-col">
+              <span class="lid-mobile-player-name" id="p2-mobile-name"><?= $initialP2Name ?></span>
+              <span class="lid-player-rating-badge" id="p2-mobile-role"><?= $initialP2Rating ?></span>
+            </div>
           </div>
           <div class="lid-mobile-clock-wrap">
             <div class="lid-digital-clock lid-mobile-clock" id="p2-mobile-clock">10:00</div>
@@ -531,12 +544,30 @@ if ($isOnlineRoom) {
         <div class="lid-mobile-player-bar lid-mobile-bottom lid-mobile-only" id="lid-mobile-p1-bar">
           <div class="lid-ctrl-player-left">
             <span class="green-dot"></span>
-            <span class="lid-mobile-player-name" id="p1-mobile-name"><?= $initialP1Name ?></span>
-            <span class="lid-player-rating-badge" id="p1-mobile-role"><?= $initialP1Rating ?></span>
+            <div class="lid-mobile-name-col">
+              <span class="lid-mobile-player-name" id="p1-mobile-name"><?= $initialP1Name ?></span>
+              <span class="lid-player-rating-badge" id="p1-mobile-role"><?= $initialP1Rating ?></span>
+            </div>
           </div>
           <div class="lid-mobile-clock-wrap">
             <div class="lid-digital-clock active lid-mobile-clock" id="p1-mobile-clock">10:00</div>
           </div>
+        </div>
+
+        <!-- Mobile Bottom Toolbar (4 icons matching Lidraughts: Menu, Flip, Back, Forward) -->
+        <div class="lid-mobile-bottom-toolbar lid-mobile-only" id="lid-mobile-bottom-toolbar">
+          <button type="button" class="mob-tool-btn" id="btn-mob-menu" aria-label="Navigation Menu" title="Menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/></svg>
+          </button>
+          <button type="button" class="mob-tool-btn" id="btn-mob-flip" aria-label="Flip Board" title="Flip Board">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          </button>
+          <button type="button" class="mob-tool-btn" id="btn-mob-prev" aria-label="Step Back / Undo" title="Undo / Step Back">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="11,19 2,12 11,5"></polygon><polygon points="20,19 11,12 20,5"></polygon></svg>
+          </button>
+          <button type="button" class="mob-tool-btn" id="btn-mob-next" aria-label="Step Forward" title="Step Forward">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="4,5 13,12 4,19"></polygon><polygon points="13,5 22,12 13,19"></polygon></svg>
+          </button>
         </div>
 
         <!-- Status Notice / Alert Banner -->

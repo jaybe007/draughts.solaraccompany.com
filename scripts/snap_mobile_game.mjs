@@ -73,8 +73,10 @@ async function captureMobile(url, outPath) {
 }
 
 async function main() {
-  const currentArtifactDir = 'C:\\Users\\ayoad\\.gemini\\antigravity-ide\\brain\\bbe56566-9975-47e9-bb50-4683acd8b47c';
-  await captureMobile('http://127.0.0.1:8000/game.php', `${currentArtifactDir}\\game_mobile_snap.png`);
+  const currentArtifactDir = 'C:\\Users\\ayoad\\.gemini\\antigravity-ide\\brain\\f7c2cc30-ab9b-4e8f-aecc-337dbd803492';
+  const url = process.argv[2] || 'http://localhost/nigerian-draughts/game.php';
+  const out = process.argv[3] || `${currentArtifactDir}\\mobile_snap.png`;
+  await captureMobile(url, out);
 }
 
 main().catch(console.error);
