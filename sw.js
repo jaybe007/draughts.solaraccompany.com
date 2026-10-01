@@ -3,7 +3,7 @@
  * Caches essential static assets for fast loading and offline play.
  */
 
-const CACHE_NAME = 'naija-draughts-v2.6';
+const CACHE_NAME = 'naija-draughts-v2.7';
 const STATIC_ASSETS = [
   './',
   './index.php',

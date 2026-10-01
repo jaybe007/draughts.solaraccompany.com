@@ -235,7 +235,31 @@ class PuzzleTrainer {
       lidChartDot: document.getElementById('lid-chart-dot'),
       lidEvalScores: document.getElementById('lid-eval-scores'),
       coordsRight: document.getElementById('lid-coords-right'),
-      coordsBottom: document.getElementById('lid-coords-bottom')
+      coordsBottom: document.getElementById('lid-coords-bottom'),
+
+      // Mobile Lidraughts Elements
+      btnPuzzleMobileMenu: document.getElementById('btn-puzzle-mobile-menu'),
+      puzzleMobileDrawer: document.getElementById('puzzle-mobile-drawer'),
+      btnPuzzleMobileTheme: document.getElementById('btn-puzzle-mobile-theme'),
+      drawerBtnCoups: document.getElementById('drawer-btn-coups'),
+      drawerBtnFilters: document.getElementById('drawer-btn-filters'),
+
+      puzzleRibbonTrack: document.getElementById('puzzle-ribbon-scroll-track'),
+      puzzleRibbonWrap: document.getElementById('lid-puzzle-moves-ribbon'),
+
+      mobPuzzleIdLabel: document.getElementById('mob-puzzle-id-label'),
+      mobPuzzleThemeLabel: document.getElementById('mob-puzzle-theme-label'),
+      mobPuzzleRatingBadge: document.getElementById('mob-puzzle-rating-badge'),
+
+      mobSolverTurnDisc: document.getElementById('mob-solver-turn-disc'),
+      mobSolverTitle: document.getElementById('mob-solver-title'),
+      mobSolverPrompt: document.getElementById('mob-solver-prompt'),
+      mobUserRatingVal: document.getElementById('mob-user-rating-val'),
+
+      btnPuzzleMobMenu: document.getElementById('btn-puzzle-mob-menu'),
+      btnPuzzleMobFlip: document.getElementById('btn-puzzle-mob-flip'),
+      btnPuzzleMobPrev: document.getElementById('btn-puzzle-mob-prev'),
+      btnPuzzleMobNext: document.getElementById('btn-puzzle-mob-next')
     };
   }
 
@@ -330,6 +354,90 @@ class PuzzleTrainer {
     this.dom.btnStepPrev?.addEventListener('click', () => this.jumpToHistoryStep(this.activeHistoryIdx - 1));
     this.dom.btnStepNext?.addEventListener('click', () => this.jumpToHistoryStep(this.activeHistoryIdx + 1));
     this.dom.btnStepLast?.addEventListener('click', () => this.jumpToHistoryStep(this.boardSnapshots.length - 1));
+
+    // Mobile Drawer Toggle
+    const mobDrawer = this.dom.puzzleMobileDrawer || document.getElementById('puzzle-mobile-drawer');
+    const btnMobMenu = this.dom.btnPuzzleMobileMenu || document.getElementById('btn-puzzle-mobile-menu');
+    if (btnMobMenu && mobDrawer) {
+      btnMobMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mobDrawer.classList.toggle('open');
+      });
+      document.addEventListener('click', (e) => {
+        if (!mobDrawer.contains(e.target) && e.target !== btnMobMenu) {
+          mobDrawer.classList.remove('open');
+        }
+      });
+    }
+
+    // Mobile Bottom Toolbar Buttons
+    const btnPuzzleMobMenu = this.dom.btnPuzzleMobMenu || document.getElementById('btn-puzzle-mob-menu');
+    if (btnPuzzleMobMenu && mobDrawer) {
+      btnPuzzleMobMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mobDrawer.classList.toggle('open');
+      });
+    }
+
+    const btnPuzzleMobFlip = this.dom.btnPuzzleMobFlip || document.getElementById('btn-puzzle-mob-flip');
+    if (btnPuzzleMobFlip) {
+      btnPuzzleMobFlip.addEventListener('click', () => {
+        this.isFlipped = !this.isFlipped;
+        this.renderBoard();
+        this.renderPieces();
+      });
+    }
+
+    const btnPuzzleMobPrev = this.dom.btnPuzzleMobPrev || document.getElementById('btn-puzzle-mob-prev');
+    if (btnPuzzleMobPrev) {
+      btnPuzzleMobPrev.addEventListener('click', () => {
+        this.jumpToHistoryStep(this.activeHistoryIdx - 1);
+      });
+    }
+
+    const btnPuzzleMobNext = this.dom.btnPuzzleMobNext || document.getElementById('btn-puzzle-mob-next');
+    if (btnPuzzleMobNext) {
+      btnPuzzleMobNext.addEventListener('click', () => {
+        if (this.activeHistoryIdx < this.boardSnapshots.length - 1) {
+          this.jumpToHistoryStep(this.activeHistoryIdx + 1);
+        } else if (this.puzzles[this.currentPuzzleIdx] && this.solvedSet.has(this.puzzles[this.currentPuzzleIdx].id)) {
+          this.handleNextClick();
+        } else {
+          this.handleHintClick();
+        }
+      });
+    }
+
+    // Mobile Header Theme Button (cycles board themes)
+    const btnMobTheme = this.dom.btnPuzzleMobileTheme || document.getElementById('btn-puzzle-mobile-theme');
+    if (btnMobTheme && this.dom.selectBoardTheme) {
+      btnMobTheme.addEventListener('click', () => {
+        const sel = this.dom.selectBoardTheme;
+        sel.selectedIndex = (sel.selectedIndex + 1) % sel.options.length;
+        sel.dispatchEvent(new Event('change'));
+      });
+    }
+
+    // Mobile Drawer Shortcuts (32 Coups and Filters)
+    const drawerBtnCoups = this.dom.drawerBtnCoups || document.getElementById('drawer-btn-coups');
+    if (drawerBtnCoups) {
+      drawerBtnCoups.addEventListener('click', () => {
+        mobDrawer?.classList.remove('open');
+        this.openCoupsModal();
+      });
+    }
+
+    const drawerBtnFilters = this.dom.drawerBtnFilters || document.getElementById('drawer-btn-filters');
+    if (drawerBtnFilters) {
+      drawerBtnFilters.addEventListener('click', () => {
+        mobDrawer?.classList.remove('open');
+        const filterDetails = document.querySelector('.lid-filters-details');
+        if (filterDetails) {
+          filterDetails.open = true;
+          filterDetails.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    }
 
     // Global Keyboard Shortcuts (Lidraughts standard)
     window.addEventListener('keydown', (e) => {
@@ -721,6 +829,12 @@ class PuzzleTrainer {
 
     if (this.dom.puzzleIdLabel) this.dom.puzzleIdLabel.textContent = `Puzzle ${this.currentPuzzleIdx + 1}`;
     if (this.dom.puzzleRatingBadge) this.dom.puzzleRatingBadge.textContent = `Rating: ${rating}`;
+    if (this.dom.mobPuzzleIdLabel) this.dom.mobPuzzleIdLabel.textContent = `Puzzle ${this.currentPuzzleIdx + 1}`;
+    if (this.dom.mobPuzzleThemeLabel) {
+      const coupName = puzzle.themeName || puzzle.category || 'Coup Royal';
+      this.dom.mobPuzzleThemeLabel.textContent = `${coupName} • ${diffName}`;
+    }
+    if (this.dom.mobPuzzleRatingBadge) this.dom.mobPuzzleRatingBadge.textContent = `${rating}`;
     if (this.dom.puzzlePlayedLabel) {
       const simulatedPlayed = 11602 + (this.currentPuzzleIdx * 197) % 4321;
       this.dom.puzzlePlayedLabel.textContent = `Played ${simulatedPlayed.toLocaleString()} times`;
@@ -902,6 +1016,19 @@ class PuzzleTrainer {
       const colorName = player === PLAYER_1 ? 'White' : 'Black';
       this.dom.turnPrompt.textContent = promptText || (player === this.playerColor ? `Find the best move for ${colorName}.` : 'Waiting for response...');
     }
+
+    // Synchronize Mobile Bottom Solver Bar
+    if (this.dom.mobSolverTurnDisc) {
+      this.dom.mobSolverTurnDisc.className = `turn-disc ${player === PLAYER_1 ? 'white' : 'dark'}`;
+      this.dom.mobSolverTurnDisc.style.background = player === PLAYER_1 ? '#ffffff' : '#1e1e1e';
+    }
+    if (this.dom.mobSolverTitle) {
+      this.dom.mobSolverTitle.textContent = player === this.playerColor ? 'YOUR TURN' : 'OPPONENT TURN';
+    }
+    if (this.dom.mobSolverPrompt) {
+      const colorName = player === PLAYER_1 ? 'White' : 'Black';
+      this.dom.mobSolverPrompt.textContent = promptText || (player === this.playerColor ? `Find best move for ${colorName}` : 'Waiting for response...');
+    }
   }
 
   setFeedback({ icon, title, desc, statusClass = 'normal', rewards = null, actions = [] }) {
@@ -971,7 +1098,7 @@ class PuzzleTrainer {
         sq.dataset.col = c;
         sq.id = `puzzle-sq-${r}-${c}`;
 
-        // 1-50 Notation Number Badge
+        // 1-50 Notation Number Badge (Desktop coords toggle)
         if (isDark && this.showNotationNumbers) {
           const isIntl = this.engine && (this.engine.ruleMode === 'international' || this.engine.ruleMode === 'tournament' || this.engine.ruleMode === 'fmjd');
           const sqNum = rcToSq(r, c, isIntl);
@@ -980,6 +1107,46 @@ class PuzzleTrainer {
             numBadge.className = 'sq-draughts-num';
             numBadge.textContent = sqNum;
             sq.appendChild(numBadge);
+          }
+        }
+
+        // Lidraughts Edge Square Numbers for Dark Squares (Right edge 5..45, Bottom edge 46..50)
+        if (isDark) {
+          let edgeNum = null;
+          if (!this.isFlipped) {
+            if (!isNigerian) {
+              if (c === 9 && r % 2 === 0) {
+                edgeNum = (r / 2) * 10 + 5;
+              } else if (r === 9 && c % 2 === 0) {
+                edgeNum = 46 + (c / 2);
+              }
+            } else {
+              if (c === 8 && r % 2 === 0) {
+                edgeNum = (r / 2) * 10 + 5;
+              } else if (r === 9 && c % 2 === 1) {
+                edgeNum = 46 + Math.floor(c / 2);
+              }
+            }
+          } else {
+            if (!isNigerian) {
+              if (c === 0 && r % 2 === 1) {
+                edgeNum = 46 - ((9 - r) / 2) * 10;
+              } else if (r === 0 && c % 2 === 1) {
+                edgeNum = 5 - Math.floor((9 - c) / 2);
+              }
+            } else {
+              if (c === 1 && r % 2 === 1) {
+                edgeNum = 46 - ((9 - r) / 2) * 10;
+              } else if (r === 0 && c % 2 === 0) {
+                edgeNum = 5 - ((9 - c) / 2);
+              }
+            }
+          }
+          if (edgeNum !== null) {
+            const sqNumLabel = document.createElement('span');
+            sqNumLabel.className = 'sq-num-label';
+            sqNumLabel.textContent = edgeNum;
+            sq.appendChild(sqNumLabel);
           }
         }
 
@@ -1962,6 +2129,7 @@ class PuzzleTrainer {
 
   updatePerformanceHUD() {
     if (this.dom.userRating) this.dom.userRating.textContent = `${this.userRating}`;
+    if (this.dom.mobUserRatingVal) this.dom.mobUserRatingVal.textContent = `${this.userRating}`;
     if (this.dom.userStreak) this.dom.userStreak.textContent = `🔥 Streak: ${this.streak}`;
     if (this.dom.userSolvedRatio) {
       this.dom.userSolvedRatio.textContent = `Solved: ${this.solvedSet.size}/${this.puzzles.length}`;
@@ -2311,6 +2479,43 @@ class PuzzleTrainer {
 
     this.highlightActiveNotationCell(this.activeHistoryIdx);
     this.updateEvalStrip();
+
+    // Synchronize Mobile Horizontal Moves Ribbon
+    if (this.dom.puzzleRibbonTrack) {
+      if (this.moveHistory.length === 0) {
+        this.dom.puzzleRibbonTrack.innerHTML = '<span class="ribbon-empty-text">Puzzle loaded. Find the winning move!</span>';
+      } else {
+        let ribbonHtml = '';
+        let ribMoveNum = 1;
+        this.moveHistory.forEach((move, idx) => {
+          const snapshotIdx = idx + 1;
+          const isWhite = (move.mover === PLAYER_1);
+          if (isWhite) {
+            ribbonHtml += `<span class="ribbon-move-num">${ribMoveNum}.</span> `;
+          } else if (idx === 0) {
+            ribbonHtml += `<span class="ribbon-move-num">${ribMoveNum}.</span> <span class="ribbon-move-text">...</span> `;
+          }
+          const isCurrent = (snapshotIdx === this.activeHistoryIdx);
+          ribbonHtml += `<span class="ribbon-move-text ${isCurrent ? 'current' : ''}" data-snap="${snapshotIdx}">${move.notation}</span> `;
+          if (!isWhite) {
+            ribMoveNum++;
+          }
+        });
+        this.dom.puzzleRibbonTrack.innerHTML = ribbonHtml;
+
+        // Add click events to ribbon moves
+        this.dom.puzzleRibbonTrack.querySelectorAll('.ribbon-move-text[data-snap]').forEach(el => {
+          el.addEventListener('click', () => {
+            const snap = parseInt(el.dataset.snap, 10);
+            if (!isNaN(snap)) this.jumpToHistoryStep(snap);
+          });
+        });
+
+        if (this.dom.puzzleRibbonWrap) {
+          this.dom.puzzleRibbonWrap.scrollLeft = this.dom.puzzleRibbonWrap.scrollWidth;
+        }
+      }
+    }
   }
 
   updateEvalStrip() {
@@ -2323,11 +2528,18 @@ class PuzzleTrainer {
   }
 
   highlightActiveNotationCell(historyIdx) {
-    if (!this.dom.notationTableBody) return;
-    this.dom.notationTableBody.querySelectorAll('.notation-move-cell').forEach(cell => {
-      const cellSnapIdx = parseInt(cell.dataset.snapshotIdx, 10);
-      cell.classList.toggle('active-step', cellSnapIdx === historyIdx);
-    });
+    if (this.dom.notationTableBody) {
+      this.dom.notationTableBody.querySelectorAll('.notation-move-cell').forEach(cell => {
+        const cellSnapIdx = parseInt(cell.dataset.snapshotIdx, 10);
+        cell.classList.toggle('active-step', cellSnapIdx === historyIdx);
+      });
+    }
+    if (this.dom.puzzleRibbonTrack) {
+      this.dom.puzzleRibbonTrack.querySelectorAll('.ribbon-move-text[data-snap]').forEach(el => {
+        const snap = parseInt(el.dataset.snap, 10);
+        el.classList.toggle('current', snap === historyIdx);
+      });
+    }
   }
 
   updateNotationControls() {

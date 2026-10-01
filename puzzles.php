@@ -34,6 +34,10 @@ if ($currentUser) {
 
     <!-- ================= TOP HEADER NAVIGATION ================= -->
     <header class="app-header">
+      <button type="button" class="btn btn-icon lid-mobile-menu-toggle lid-mobile-only" id="btn-puzzle-mobile-menu" aria-label="Toggle navigation menu" title="Menu">
+        <span class="icon">☰</span>
+      </button>
+
       <div class="nav-brand-container">
         <a href="index.php" class="brand-link">
           <div class="flag-stripes">
@@ -42,8 +46,8 @@ if ($currentUser) {
             <span class="stripe green"></span>
           </div>
           <div class="brand-text">
-            <span class="game-title">NAIJA DRAUGHTS</span>
-            <span class="game-subtitle">TACTICAL TRAINING PORTAL</span>
+            <span class="game-title">👑 Naija Draughts</span>
+            <span class="game-subtitle" id="mobile-header-subtitle">Tactical Training • Puzzles</span>
           </div>
         </a>
       </div>
@@ -104,8 +108,23 @@ if ($currentUser) {
         <button id="btn-sound-toggle" class="btn btn-icon" title="Toggle Sound Effects">
           <span class="icon" id="sound-icon">🔊</span>
         </button>
+        <button type="button" class="btn btn-icon lid-mobile-theme-btn lid-mobile-only" id="btn-puzzle-mobile-theme" aria-label="Toggle Board Theme" title="Theme">
+          <svg width="20" height="20" viewBox="0 0 24 24"><rect x="3" y="3" width="9" height="9" fill="#f0d9b5"/><rect x="12" y="3" width="9" height="9" fill="#b58863"/><rect x="3" y="12" width="9" height="9" fill="#b58863"/><rect x="12" y="12" width="9" height="9" fill="#f0d9b5"/></svg>
+        </button>
       </div>
     </header>
+
+    <!-- ================= MOBILE NAVIGATION DRAWER ================= -->
+    <nav class="lid-mobile-drawer" id="puzzle-mobile-drawer">
+      <a href="index.php" class="nav-link"><span class="nav-icon">🏠</span> HOME</a>
+      <a href="dashboard.php" class="nav-link"><span class="nav-icon">👑</span> DASHBOARD</a>
+      <a href="game.php" class="nav-link"><span class="nav-icon">🎮</span> PLAY</a>
+      <a href="puzzles.php" class="nav-link active"><span class="nav-icon">🧩</span> PUZZLES</a>
+      <a href="game.php?view=analysis" class="nav-link"><span class="nav-icon">🔬</span> ANALYSIS</a>
+      <a href="game.php?view=tournaments" class="nav-link"><span class="nav-icon">🏆</span> TOURNAMENTS</a>
+      <button type="button" class="nav-link" id="drawer-btn-coups"><span class="nav-icon">📖</span> 32 CLASSICAL COUPS</button>
+      <button type="button" class="nav-link" id="drawer-btn-filters"><span class="nav-icon">⚙️</span> PUZZLE FILTERS</button>
+    </nav>
 
     <!-- ================= LIDRAUGHTS-STYLE PUZZLE TRAINING ARENA ================= -->
     <main class="puzzle-training-arena">
@@ -250,6 +269,27 @@ if ($currentUser) {
         <!-- ================= COLUMN 2: CENTER BOARD (10x10 WOOD BOARD WITH COORDINATES) ================= -->
         <section class="lid-board-center">
           
+          <!-- Mobile Moves Ribbon (Single-line horizontal move strip matching Lidraughts) -->
+          <div class="lid-mobile-moves-ribbon lid-mobile-only" id="lid-puzzle-moves-ribbon">
+            <div class="ribbon-scroll-track" id="puzzle-ribbon-scroll-track">
+              <span class="ribbon-empty-text">Puzzle loaded. Find the winning move!</span>
+            </div>
+          </div>
+
+          <!-- Mobile Top Puzzle Bar (Displayed above board on mobile phones, like opponent bar in game.php) -->
+          <div class="lid-mobile-player-bar lid-mobile-top lid-mobile-only" id="lid-mobile-puzzle-bar">
+            <div class="lid-ctrl-player-left">
+              <span class="green-dot"></span>
+              <div class="lid-mobile-name-col">
+                <span class="lid-mobile-player-name" id="mob-puzzle-id-label">Puzzle #1</span>
+                <span class="lid-player-rating-badge" id="mob-puzzle-theme-label">Coup Royal</span>
+              </div>
+            </div>
+            <div class="lid-mobile-clock-wrap">
+              <div class="lid-digital-clock lid-mobile-clock mob-puzzle-rating-pill" id="mob-puzzle-rating-badge">1500</div>
+            </div>
+          </div>
+
           <!-- Clean Board Header -->
           <div class="lid-board-header">
             <div class="puzzle-variant-tag" id="puzzle-variant-tag">
@@ -318,6 +358,36 @@ if ($currentUser) {
               <span>49</span>
               <span>50</span>
             </div>
+          </div>
+
+          <!-- Mobile Bottom Solver Bar (Displayed below board on mobile phones, like player bar in game.php) -->
+          <div class="lid-mobile-player-bar lid-mobile-bottom lid-mobile-only" id="lid-mobile-solver-bar">
+            <div class="lid-ctrl-player-left">
+              <div class="turn-disc white" id="mob-solver-turn-disc" style="width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.4); background: #ffffff;"></div>
+              <div class="lid-mobile-name-col">
+                <span class="lid-mobile-player-name" id="mob-solver-title">YOUR TURN</span>
+                <span class="lid-player-rating-badge" id="mob-solver-prompt">Find the winning move</span>
+              </div>
+            </div>
+            <div class="lid-mobile-clock-wrap">
+              <div class="lid-digital-clock active lid-mobile-clock" id="mob-user-rating-val">1500</div>
+            </div>
+          </div>
+
+          <!-- Mobile Bottom 4-Icon Toolbar (Matches Lidraughts: Menu/Filters, Flip, Step Back, Step Forward/Solution) -->
+          <div class="lid-mobile-bottom-toolbar lid-mobile-only" id="lid-puzzle-mobile-toolbar">
+            <button type="button" class="mob-tool-btn" id="btn-puzzle-mob-menu" aria-label="Puzzle Menu & Filters" title="Filters & Browser">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/></svg>
+            </button>
+            <button type="button" class="mob-tool-btn" id="btn-puzzle-mob-flip" aria-label="Flip Board" title="Flip Board">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            </button>
+            <button type="button" class="mob-tool-btn" id="btn-puzzle-mob-prev" aria-label="Previous Step / Retry" title="Previous Step">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="11,19 2,12 11,5"></polygon><polygon points="20,19 11,12 20,5"></polygon></svg>
+            </button>
+            <button type="button" class="mob-tool-btn" id="btn-puzzle-mob-next" aria-label="Next Step / Solution" title="Next Step">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="4,5 13,12 4,19"></polygon><polygon points="13,5 22,12 13,19"></polygon></svg>
+            </button>
           </div>
 
           <!-- Horizontal Move Evaluation Strip Below Board (Matching Lidraughts) -->

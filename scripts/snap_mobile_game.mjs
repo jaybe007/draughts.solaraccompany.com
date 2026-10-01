@@ -4,8 +4,8 @@ import fs from 'fs';
 const edgePath = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
 
 async function captureMobile(url, outPath) {
-  const port = 9345;
-  const userDataDir = `C:\\Users\\ayoad\\.gemini\\antigravity-ide\\brain\\bbe56566-9975-47e9-bb50-4683acd8b47c\\scratch\\edge_snap_${Date.now()}`;
+  const port = 9400 + Math.floor(Math.random() * 400);
+  const userDataDir = `C:\\Users\\ayoad\\.gemini\\antigravity-ide\\brain\\f7c2cc30-ab9b-4e8f-aecc-337dbd803492\\scratch\\edge_snap_${Date.now()}`;
   
   const browserProc = spawn(edgePath, [
     `--remote-debugging-port=${port}`,
@@ -62,13 +62,15 @@ async function captureMobile(url, outPath) {
   });
 
   ws.close();
-  browserProc.kill();
+  try { browserProc.kill('SIGKILL'); } catch {}
 
   if (screenshotBase64) {
     fs.writeFileSync(outPath, Buffer.from(screenshotBase64, 'base64'));
     console.log(`Saved screenshot to ${outPath}`);
+    process.exit(0);
   } else {
     console.error('Failed to capture screenshot');
+    process.exit(1);
   }
 }
 
@@ -79,4 +81,7 @@ async function main() {
   await captureMobile(url, out);
 }
 
-main().catch(console.error);
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});
