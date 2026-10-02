@@ -1,13 +1,13 @@
 {
-  "name": "Naija Draughts — Authentic 10x10 Nigerian Checkers",
+  "name": "Naija Draughts — Authentic 10x10 & 8x8 Checkers Arena",
   "short_name": "Naija Draughts",
-  "description": "Authentic Nigerian Draughts platform featuring 10x10 Flying Kings, tactical puzzles, multiplayer tournaments, and grandmaster AI bot engines.",
-  "start_url": "./index.php",
+  "description": "Authentic Nigerian Draughts platform featuring 10x10 Flying Kings, tactical puzzles, multi-currency tournaments, and real-time cash wagers.",
+  "start_url": "./dashboard.php",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#0d1117",
-  "theme_color": "#10b981",
+  "background_color": "#0a0f1d",
+  "theme_color": "#f59e0b",
   "categories": ["games", "entertainment", "sports"],
   "icons": [
     {
@@ -31,6 +31,36 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Play Arena Match",
+      "short_name": "Play Match",
+      "description": "Launch the 10x10 Draughts Game Arena",
+      "url": "./game.php",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Tournaments Hub",
+      "short_name": "Tournaments",
+      "description": "Browse and join live tournaments",
+      "url": "./dashboard.php?tab=tournaments",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Tactical Street Traps",
+      "short_name": "Puzzles",
+      "description": "Solve street draughts traps and puzzle challenges",
+      "url": "./puzzles.php",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Wallet & Cashout",
+      "short_name": "Wallet",
+      "description": "View balances, fund wallet, and request payouts",
+      "url": "./dashboard.php?tab=wallet",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

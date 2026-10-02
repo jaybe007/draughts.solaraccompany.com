@@ -572,12 +572,6 @@ if ($currentUser) {
   </div>
 
   <script type="module" src="js/puzzle_trainer.js?v=<?= filemtime(__DIR__ . '/js/puzzle_trainer.js') ?>"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=<?= filemtime(__DIR__ . "/sw.js") ?>').catch(() => {});
-      });
-    }
-  </script>
+  <script src="js/pwa.js?v=<?= filemtime(__DIR__ . '/js/pwa.js') ?>"></script>
 </body>
 </html>

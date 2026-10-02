@@ -1367,12 +1367,6 @@ if ($isOnlineRoom) {
     window.INITIAL_USER = <?= $currentUser ? json_encode(['id' => (int)$currentUser['id'], 'username' => $currentUser['username'], 'rating' => (int)($currentUser['rating'] ?? 1500)]) : 'null' ?>;
   </script>
   <script type="module" src="js/app.js?v=<?= filemtime(__DIR__ . '/js/app.js') ?>"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=<?= filemtime(__DIR__ . "/sw.js") ?>').catch(() => {});
-      });
-    }
-  </script>
+  <script src="js/pwa.js?v=<?= filemtime(__DIR__ . '/js/pwa.js') ?>"></script>
 </body>
 </html>

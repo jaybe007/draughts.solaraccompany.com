@@ -224,6 +224,13 @@ $pkgBadge = getPackageBadge($package);
             </button>
           </li>
 
+          <!-- PWA INSTALL APP BUTTON -->
+          <li id="nav-item-pwa-install" style="display:none;">
+            <button type="button" class="dash-nav-btn" id="btn-pwa-install" onclick="triggerPwaInstall()" style="background: linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.15)); border: 1px solid rgba(245,158,11,0.6); color: #fde68a; font-weight: 800; display: none; align-items: center; gap: 6px; box-shadow: 0 0 12px rgba(245,158,11,0.25);" title="Install Naija Draughts App on your device">
+              <span class="icon">📲</span> <span class="btn-text">INSTALL APP</span>
+            </button>
+          </li>
+
           <!-- 6. ACTION DROPDOWN (QUICK ACCESS TO FUNDING, MESSAGING, TOURNAMENTS & SOCIAL) -->
           <li class="nav-dropdown-item">
             <button type="button" class="dash-nav-btn dropdown-toggle" id="btn-dropdown-actions" aria-haspopup="true">
@@ -231,6 +238,11 @@ $pkgBadge = getPackageBadge($package);
               <span class="nav-counter-badge" id="nav-invites-counter" style="display:none;">0</span>
             </button>
             <ul class="dropdown-menu" id="menu-actions">
+              <li>
+                <button type="button" class="dropdown-link highlight-gold" onclick="triggerPwaInstall()">
+                  <span class="icon">📲</span> Install Mobile App
+                </button>
+              </li>
               <li>
                 <button type="button" class="dropdown-link highlight-green" onclick="openDepositModal()">
                   <span class="icon">💳</span> Fund Naira Wallet
@@ -1886,12 +1898,6 @@ $pkgBadge = getPackageBadge($package);
 
   <!-- Client-side Logic Script -->
   <script src="js/dashboard.js?v=<?= filemtime(__DIR__ . '/js/dashboard.js') ?>"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
-      });
-    }
-  </script>
+  <script src="js/pwa.js?v=<?= filemtime(__DIR__ . '/js/pwa.js') ?>"></script>
 </body>
 </html>

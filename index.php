@@ -51,6 +51,9 @@ $currentUser = getCurrentUser();
       </ul>
 
       <div class="nav-user-area" id="top-user-pill">
+        <button type="button" class="btn btn-outline btn-small" id="btn-pwa-install" onclick="triggerPwaInstall()" style="display:none; color:#fde68a; border-color:#f59e0b; margin-right:8px; font-weight:700;">
+          📲 Install App
+        </button>
         <?php if ($currentUser): ?>
           <a href="dashboard.php" class="user-pill" style="text-decoration:none;" title="Open Player Dashboard">
             <span class="user-pill-avatar">👑</span>
@@ -725,12 +728,6 @@ $currentUser = getCurrentUser();
   </div>
 
   <script src="js/home.js?v=<?= filemtime(__DIR__ . '/js/home.js') ?>"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
-      });
-    }
-  </script>
+  <script src="js/pwa.js?v=<?= filemtime(__DIR__ . '/js/pwa.js') ?>"></script>
 </body>
 </html>
