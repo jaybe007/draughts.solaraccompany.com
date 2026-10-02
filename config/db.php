@@ -26,9 +26,9 @@ if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
 
 define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
 define('DB_PORT', getenv('DB_PORT') ?: '3306');
-define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : '');
-define('DB_NAME', getenv('DB_NAME') ?: 'naija_draughts');
+define('DB_USER', getenv('DB_USER') ?: (getenv('DB_USERNAME') ?: 'root'));
+define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : (getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : ''));
+define('DB_NAME', getenv('DB_NAME') ?: (getenv('DB_DATABASE') ?: 'naija_draughts'));
 
 /**
  * Returns a PDO instance connected to the MySQL database.

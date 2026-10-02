@@ -7,7 +7,21 @@
 if (!function_exists('loadEnv')) {
     function loadEnv($envPath = null) {
         if ($envPath === null) {
-            $envPath = dirname(__DIR__) . '/.env';
+            $candidates = [
+                dirname(__DIR__) . '/.env',
+                dirname(__DIR__) . '/env',
+                __DIR__ . '/.env',
+                __DIR__ . '/env'
+            ];
+            foreach ($candidates as $cand) {
+                if (file_exists($cand) && is_readable($cand)) {
+                    $envPath = $cand;
+                    break;
+                }
+            }
+            if ($envPath === null) {
+                $envPath = dirname(__DIR__) . '/.env';
+            }
         }
 
         if (!file_exists($envPath) || !is_readable($envPath)) {
