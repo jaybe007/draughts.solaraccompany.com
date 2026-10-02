@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/solajmrx/draughts.solaraccompany.com/
+    - /bin/cp -R * $DEPLOYPATH
