@@ -89,6 +89,7 @@ function suggestErrorSolution($message, $category = 'general', $file = '', $line
 
 /**
  * Centrally logs any system error, exception, or anomaly into the database.
+ * Supports intelligent deduplication: identical active unresolved errors increment occurrence_count.
  */
 function logSystemError($errorLevel, $category, $message, $file = null, $line = null, $stackTrace = null, $context = []) {
     try {
@@ -106,20 +107,45 @@ function logSystemError($errorLevel, $category, $message, $file = null, $line = 
             ];
         }
 
+        $cleanFile = $file ? substr($file, 0, 255) : null;
+        $cleanLine = $line ? (int)$line : null;
+
+        // Check for identical active unresolved error in the last 24 hours to deduplicate
+        $dupStmt = $db->prepare("
+            SELECT id, occurrence_count 
+            FROM system_error_reports 
+            WHERE message = ? AND file <=> ? AND line <=> ? AND status = 'unresolved'
+            ORDER BY id DESC LIMIT 1
+        ");
+        $dupStmt->execute([$message, $cleanFile, $cleanLine]);
+        $existing = $dupStmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($existing) {
+            $updateStmt = $db->prepare("
+                UPDATE system_error_reports 
+                SET occurrence_count = occurrence_count + 1,
+                    last_seen_at = NOW(),
+                    context_json = ?
+                WHERE id = ?
+            ");
+            $updateStmt->execute([json_encode($context), (int)$existing['id']]);
+            return (int)$existing['id'];
+        }
+
         $suggestedSolution = suggestErrorSolution($message, $category, $file, (int)$line);
 
         $stmt = $db->prepare("
             INSERT INTO system_error_reports 
-            (error_level, category, message, file, line, stack_trace, context_json, suggested_solution, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'unresolved')
+            (error_level, category, message, file, line, stack_trace, context_json, suggested_solution, status, occurrence_count, last_seen_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'unresolved', 1, NOW())
         ");
 
         $stmt->execute([
             substr($errorLevel, 0, 20),
             substr($category, 0, 50),
             $message,
-            $file ? substr($file, 0, 255) : null,
-            $line ? (int)$line : null,
+            $cleanFile,
+            $cleanLine,
             $stackTrace,
             json_encode($context),
             $suggestedSolution
@@ -127,7 +153,7 @@ function logSystemError($errorLevel, $category, $message, $file = null, $line = 
 
         return (int)$db->lastInsertId();
 
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         // Fallback to error_log if database is temporarily down
         error_log("[NaijaDraughts Error Logger Failed] " . $e->getMessage() . " | Original Error: " . $message);
         return false;
@@ -152,6 +178,14 @@ function registerGlobalErrorMonitoring() {
             $e->getLine(),
             $e->getTraceAsString()
         );
+    });
+
+    // Recoverable Engine Errors
+    set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+        if ($errno & (E_USER_ERROR | E_RECOVERABLE_ERROR)) {
+            logSystemError('error', 'php_engine', $errstr, $errfile, $errline);
+        }
+        return false;
     });
 
     // Fatal Errors on script termination

@@ -23,15 +23,34 @@ try {
             context_json LONGTEXT NULL,
             suggested_solution TEXT NOT NULL,
             status VARCHAR(20) NOT NULL DEFAULT 'unresolved',
+            occurrence_count INT DEFAULT 1,
             resolved_by VARCHAR(50) NULL,
             resolved_at DATETIME NULL,
+            last_seen_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             INDEX idx_status (status),
             INDEX idx_category (category),
-            INDEX idx_created (created_at)
+            INDEX idx_created (created_at),
+            INDEX idx_last_seen (last_seen_at)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
     echo "  ✓ Created / verified 'system_error_reports' table.\n";
+
+    // Add occurrence_count column if missing
+    try {
+        $db->exec("ALTER TABLE system_error_reports ADD COLUMN occurrence_count INT DEFAULT 1 AFTER status");
+        echo "  ✓ Added 'occurrence_count' column.\n";
+    } catch (Exception $e) {
+        // Already exists
+    }
+
+    // Add last_seen_at column if missing
+    try {
+        $db->exec("ALTER TABLE system_error_reports ADD COLUMN last_seen_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER resolved_at");
+        echo "  ✓ Added 'last_seen_at' column.\n";
+    } catch (Exception $e) {
+        // Already exists
+    }
 
     // Seed a sample diagnostic record to demonstrate the system
     $count = (int)$db->query("SELECT COUNT(*) FROM system_error_reports")->fetchColumn();

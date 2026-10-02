@@ -52,6 +52,12 @@ function getAvailablePermissionsList() {
             'title' => 'Security Audit Trails',
             'category' => 'System',
             'description' => 'View chronological immutable log of all administrative actions and security events.'
+        ],
+        'manage_diagnostics' => [
+            'key' => 'manage_diagnostics',
+            'title' => 'System Diagnostics & Error Reports',
+            'category' => 'System',
+            'description' => 'Inspect live runtime exceptions, resolve diagnostic reports, and test error remediation workflows.'
         ]
     ];
 }

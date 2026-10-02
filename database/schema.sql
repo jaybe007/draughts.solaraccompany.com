@@ -335,3 +335,29 @@ CREATE TABLE IF NOT EXISTS `system_settings` (
   `updated_by` VARCHAR(50) NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- -----------------------------------------------------------------------------
+-- 13. System Error Reports & Diagnostics (Automated Failure Remediation)
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `system_error_reports` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `error_level` VARCHAR(20) NOT NULL DEFAULT 'error',
+  `category` VARCHAR(50) NOT NULL DEFAULT 'general',
+  `message` TEXT NOT NULL,
+  `file` VARCHAR(255) NULL,
+  `line` INT NULL,
+  `stack_trace` TEXT NULL,
+  `context_json` LONGTEXT NULL,
+  `suggested_solution` TEXT NOT NULL,
+  `status` VARCHAR(20) NOT NULL DEFAULT 'unresolved',
+  `occurrence_count` INT DEFAULT 1,
+  `resolved_by` VARCHAR(50) NULL,
+  `resolved_at` DATETIME NULL,
+  `last_seen_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX `idx_status` (`status`),
+  INDEX `idx_category` (`category`),
+  INDEX `idx_created` (`created_at`),
+  INDEX `idx_last_seen` (`last_seen_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+

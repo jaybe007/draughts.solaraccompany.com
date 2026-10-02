@@ -307,7 +307,7 @@ $adminPerms = json_decode($adminUser['permissions_json'] ?? '[]', true) ?: [];
       </button>
       <?php endif; ?>
 
-      <?php if ($isSuperAdmin || in_array('manage_settings', $adminPerms) || in_array('view_audit_logs', $adminPerms)): ?>
+      <?php if ($isSuperAdmin || in_array('manage_settings', $adminPerms) || in_array('manage_diagnostics', $adminPerms) || in_array('view_audit_logs', $adminPerms)): ?>
       <button type="button" class="admin-nav-item" data-panel="panel-errors">
         <div class="nav-label-wrap">
           <span class="nav-icon">🚨</span>
@@ -413,6 +413,12 @@ $adminPerms = json_decode($adminUser['permissions_json'] ?? '[]', true) ?: [];
           <?php if ($isSuperAdmin || in_array('manage_tournaments', $adminPerms)): ?>
           <button type="button" class="btn-admin btn-admin-secondary" onclick="adminApp.openCreateTournamentModal()">
             <span>🏆 Host Official Championship</span>
+          </button>
+          <?php endif; ?>
+          <?php if ($isSuperAdmin || in_array('manage_settings', $adminPerms) || in_array('manage_diagnostics', $adminPerms) || in_array('view_audit_logs', $adminPerms)): ?>
+          <button type="button" class="btn-admin btn-admin-secondary" onclick="adminApp.switchTab('panel-errors')">
+            <span>🚨 System Diagnostics</span>
+            <span class="nav-badge-pill badge-danger" id="overview-badge-errors" style="display:none; margin-left:6px;">0</span>
           </button>
           <?php endif; ?>
         </div>
@@ -872,7 +878,7 @@ $adminPerms = json_decode($adminUser['permissions_json'] ?? '[]', true) ?: [];
     <?php endif; ?>
 
     <!-- ================= PANEL 9: SYSTEM ERROR REPORTS & DIAGNOSTICS ================= -->
-    <?php if ($isSuperAdmin || in_array('manage_settings', $adminPerms) || in_array('view_audit_logs', $adminPerms)): ?>
+    <?php if ($isSuperAdmin || in_array('manage_settings', $adminPerms) || in_array('manage_diagnostics', $adminPerms) || in_array('view_audit_logs', $adminPerms)): ?>
     <section class="admin-view-panel" id="panel-errors">
       <!-- Error Summary KPI Grid -->
       <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 20px;">

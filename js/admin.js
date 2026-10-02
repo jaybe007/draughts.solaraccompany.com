@@ -143,6 +143,16 @@ class AdminApp {
         }
       }
 
+      const ovErrBadge = document.getElementById('overview-badge-errors');
+      if (ovErrBadge) {
+        if (s.unresolved_errors_count > 0) {
+          ovErrBadge.textContent = s.unresolved_errors_count;
+          ovErrBadge.style.display = 'inline-block';
+        } else {
+          ovErrBadge.style.display = 'none';
+        }
+      }
+
       // Render Recent Pending Withdrawals
       const pendingListEl = document.getElementById('overview-pending-withdrawals-list');
       if (pendingListEl) {
@@ -1410,7 +1420,7 @@ class AdminApp {
         this.setText('kpi-errors-unresolved', Number(data.stats.unresolved || 0).toLocaleString());
         this.setText('kpi-errors-investigating', Number(data.stats.investigating || 0).toLocaleString());
         this.setText('kpi-errors-resolved', Number(data.stats.resolved || 0).toLocaleString());
-        this.setText('kpi-errors-critical', Number((data.stats.fatal || 0) + (data.stats.payment || 0)).toLocaleString());
+        this.setText('kpi-errors-critical', Number(data.stats.critical || 0).toLocaleString());
 
         // Update nav badge
         const badge = document.getElementById('badge-unresolved-errors');
@@ -1464,6 +1474,9 @@ class AdminApp {
 
         const filename = r.file ? r.file.split(/[\\/]/).pop() : 'System';
         const fileLoc = r.file ? `${filename}:${r.line || 0}` : 'Global Runtime';
+        const countBadge = Number(r.occurrence_count || 1) > 1 
+          ? `<span style="background:rgba(239,68,68,0.22); color:#fca5a5; font-size:0.72rem; padding:1px 6px; border-radius:10px; margin-left:6px; font-weight:700; border:1px solid rgba(239,68,68,0.35);">${r.occurrence_count}x</span>` 
+          : '';
 
         return `
           <tr style="${r.status === 'resolved' ? 'opacity: 0.65;' : ''}">
@@ -1472,6 +1485,7 @@ class AdminApp {
             <td style="max-width: 260px;">
               <div style="font-weight: 600; color: #ffffff; font-size: 0.84rem; margin-bottom: 2px; word-break: break-word;">
                 ${this.escape(r.message)}
+                ${countBadge}
               </div>
               <div style="font-family: monospace; font-size: 0.72rem; color: var(--gold-400);">
                 📁 ${this.escape(fileLoc)}
@@ -1484,7 +1498,8 @@ class AdminApp {
             </td>
             <td>${statBadge}</td>
             <td style="font-size: 0.74rem; color: var(--text-muted); white-space: nowrap;">
-              ${this.escape(r.created_at)}
+              <div>${this.escape(r.last_seen_at || r.created_at)}</div>
+              ${Number(r.occurrence_count || 1) > 1 ? `<div style="font-size:0.68rem; color:#f59e0b;">First: ${this.escape(r.created_at)}</div>` : ''}
             </td>
             <td style="text-align: right; white-space: nowrap;">
               <div style="display:inline-flex; gap:4px;">
@@ -1539,7 +1554,10 @@ class AdminApp {
     this.currentErrorReport = report;
 
     this.setText('modal-error-title', `[${report.error_level.toUpperCase()}] ${report.category}`);
-    this.setText('modal-error-subtitle', `Report #${report.id} • Logged at ${report.created_at} • Status: ${report.status}`);
+    const occTxt = Number(report.occurrence_count || 1) > 1 
+      ? `Occurred ${report.occurrence_count} times • Last: ${report.last_seen_at || report.created_at} (First: ${report.created_at})` 
+      : `Logged at ${report.created_at}`;
+    this.setText('modal-error-subtitle', `Report #${report.id} • ${occTxt} • Status: ${report.status}`);
     this.setText('modal-error-solution', report.suggested_solution || 'No automatic diagnosis generated.');
     this.setText('modal-error-message', report.message);
     this.setValue('modal-error-file', report.file || 'N/A');

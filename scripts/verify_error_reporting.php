@@ -89,4 +89,18 @@ assert($clientRecord['category'] === 'frontend_js', "Category must be frontend_j
 
 echo "✓ Frontend client error simulation passed.\n\n";
 
+echo "=== 5. Testing Intelligent Error Deduplication ===\n";
+
+$dup1 = logSystemError('error', 'payment', 'Unique webhook timeout error message for test', 'api/webhook.php', 99);
+$dup2 = logSystemError('error', 'payment', 'Unique webhook timeout error message for test', 'api/webhook.php', 99);
+
+echo "First report ID: {$dup1}, Second report ID: {$dup2}\n";
+assert($dup1 === $dup2, "Identical unresolved errors must return same ID");
+
+$dupRecord = $db->query("SELECT occurrence_count, last_seen_at FROM system_error_reports WHERE id = {$dup1}")->fetch(PDO::FETCH_ASSOC);
+echo "Occurrence Count: {$dupRecord['occurrence_count']}, Last Seen: {$dupRecord['last_seen_at']}\n";
+assert((int)$dupRecord['occurrence_count'] >= 2, "Occurrence count must be at least 2");
+
+echo "✓ Intelligent deduplication passed.\n\n";
+
 echo "=== ALL ERROR REPORTING TESTS PASSED SUCCESSFULLY! ===\n";

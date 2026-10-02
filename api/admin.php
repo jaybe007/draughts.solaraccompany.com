@@ -1168,8 +1168,8 @@ try {
 
         // ================= SYSTEM ERROR REPORTS & DIAGNOSTICS ================= //
         case 'list_error_reports':
-            if (!hasAdminPermission($adminUser, 'manage_settings') && !hasAdminPermission($adminUser, 'view_audit_logs')) {
-                jsonResp(['success' => false, 'message' => 'Permission denied: manage_settings or view_audit_logs required.'], 403);
+            if (!hasAdminPermission($adminUser, 'manage_settings') && !hasAdminPermission($adminUser, 'manage_diagnostics') && !hasAdminPermission($adminUser, 'view_audit_logs')) {
+                jsonResp(['success' => false, 'message' => 'Permission denied: manage_settings or manage_diagnostics required.'], 403);
             }
 
             $statusFilter = trim($_GET['status'] ?? '');
@@ -1205,6 +1205,7 @@ try {
             $unresolvedCount = (int)$db->query("SELECT COUNT(*) FROM system_error_reports WHERE status = 'unresolved'")->fetchColumn();
             $investigatingCount = (int)$db->query("SELECT COUNT(*) FROM system_error_reports WHERE status = 'investigating'")->fetchColumn();
             $resolvedCount = (int)$db->query("SELECT COUNT(*) FROM system_error_reports WHERE status = 'resolved'")->fetchColumn();
+            $criticalCount = (int)$db->query("SELECT COUNT(*) FROM system_error_reports WHERE (error_level IN ('fatal', 'critical') OR category = 'payment') AND status != 'resolved'")->fetchColumn();
             $fatalCount = (int)$db->query("SELECT COUNT(*) FROM system_error_reports WHERE error_level = 'fatal' AND status != 'resolved'")->fetchColumn();
             $paymentCount = (int)$db->query("SELECT COUNT(*) FROM system_error_reports WHERE category = 'payment' AND status != 'resolved'")->fetchColumn();
             $dbCount = (int)$db->query("SELECT COUNT(*) FROM system_error_reports WHERE category = 'database' AND status != 'resolved'")->fetchColumn();
@@ -1230,6 +1231,7 @@ try {
                     'unresolved' => $unresolvedCount,
                     'investigating' => $investigatingCount,
                     'resolved' => $resolvedCount,
+                    'critical' => $criticalCount,
                     'fatal' => $fatalCount,
                     'payment' => $paymentCount,
                     'database' => $dbCount,
@@ -1245,8 +1247,8 @@ try {
             break;
 
         case 'resolve_error_report':
-            if (!hasAdminPermission($adminUser, 'manage_settings') && !hasAdminPermission($adminUser, 'view_audit_logs')) {
-                jsonResp(['success' => false, 'message' => 'Permission denied: manage_settings required.'], 403);
+            if (!hasAdminPermission($adminUser, 'manage_settings') && !hasAdminPermission($adminUser, 'manage_diagnostics') && !hasAdminPermission($adminUser, 'view_audit_logs')) {
+                jsonResp(['success' => false, 'message' => 'Permission denied: manage_settings or manage_diagnostics required.'], 403);
             }
 
             $reportId = (int)($input['id'] ?? 0);
@@ -1279,8 +1281,8 @@ try {
             break;
 
         case 'delete_error_report':
-            if (!hasAdminPermission($adminUser, 'manage_settings')) {
-                jsonResp(['success' => false, 'message' => 'Permission denied: manage_settings required.'], 403);
+            if (!hasAdminPermission($adminUser, 'manage_settings') && !hasAdminPermission($adminUser, 'manage_diagnostics')) {
+                jsonResp(['success' => false, 'message' => 'Permission denied: manage_settings or manage_diagnostics required.'], 403);
             }
 
             $reportId = (int)($input['id'] ?? 0);
@@ -1301,8 +1303,8 @@ try {
             break;
 
         case 'clear_resolved_errors':
-            if (!hasAdminPermission($adminUser, 'manage_settings')) {
-                jsonResp(['success' => false, 'message' => 'Permission denied: manage_settings required.'], 403);
+            if (!hasAdminPermission($adminUser, 'manage_settings') && !hasAdminPermission($adminUser, 'manage_diagnostics')) {
+                jsonResp(['success' => false, 'message' => 'Permission denied: manage_settings or manage_diagnostics required.'], 403);
             }
 
             $cleared = $db->exec("DELETE FROM system_error_reports WHERE status = 'resolved'");
@@ -1321,8 +1323,8 @@ try {
             break;
 
         case 'simulate_test_error':
-            if (!hasAdminPermission($adminUser, 'manage_settings')) {
-                jsonResp(['success' => false, 'message' => 'Permission denied: manage_settings required.'], 403);
+            if (!hasAdminPermission($adminUser, 'manage_settings') && !hasAdminPermission($adminUser, 'manage_diagnostics')) {
+                jsonResp(['success' => false, 'message' => 'Permission denied: manage_settings or manage_diagnostics required.'], 403);
             }
 
             $type = trim($input['type'] ?? 'database');
