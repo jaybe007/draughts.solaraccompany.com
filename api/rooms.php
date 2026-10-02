@@ -762,6 +762,18 @@ try {
                         }
                     }
 
+                    // Deduct Fair Play reputation score if flagged for repeated tab-switching during active turns
+                    if ($fairPlayFlag === 'flagged_tab_switches') {
+                        if ($p1Switches >= 5 && !empty($room['host_id'])) {
+                            $db->prepare("UPDATE users SET cheat_warnings_count = cheat_warnings_count + 1, fair_play_score = GREATEST(0, fair_play_score - 10) WHERE id = ?")
+                               ->execute([(int)$room['host_id']]);
+                        }
+                        if ($p2Switches >= 5 && !empty($room['guest_id'])) {
+                            $db->prepare("UPDATE users SET cheat_warnings_count = cheat_warnings_count + 1, fair_play_score = GREATEST(0, fair_play_score - 10) WHERE id = ?")
+                               ->execute([(int)$room['guest_id']]);
+                        }
+                    }
+
                     // 1. Cash Naira Wager Payout with Platform House Rake
                     $wagerNaira = (float)($room['wager_naira'] ?? 0);
                     if ($wagerNaira > 0) {

@@ -679,13 +679,18 @@ class AdminApp {
       tbody.innerHTML = data.users.map(u => {
         const isBanned = !!u.is_banned;
         const isVerified = !!u.is_verified;
+        const fpScore = parseInt(u.fair_play_score !== undefined ? u.fair_play_score : 100);
+        const cheatWarns = parseInt(u.cheat_warnings_count || 0);
+        const fpIndicator = cheatWarns > 0
+          ? `<span style="font-size:0.68rem; color:#f87171; font-weight:700;" title="Fair Play Score: ${fpScore}/100 (${cheatWarns} warnings)">⚠️ FP: ${fpScore}%</span>`
+          : `<span style="font-size:0.68rem; color:#4ade80;" title="Fair Play Score: 100% (Clean)">🛡️ 100%</span>`;
 
         return `
           <tr>
             <td>
               <div>
                 <strong style="color:#ffffff;">${this.escape(u.username)}</strong>
-                <div style="font-size:0.75rem; color:#64748b;">${this.escape(u.email)}</div>
+                <div style="font-size:0.75rem; color:#64748b;">${this.escape(u.email)} • ${fpIndicator}</div>
               </div>
             </td>
             <td><strong>${u.rating || 1200}</strong></td>

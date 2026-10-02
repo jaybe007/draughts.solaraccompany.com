@@ -2306,7 +2306,7 @@ class NigerianDraughtsApp {
           isDragging = true;
           // Select source square if not already selected to highlight legal moves
           if (!this.selectedPieceSquare || this.selectedPieceSquare.r !== r || this.selectedPieceSquare.c !== c) {
-            this.handleSquareClick(r, c);
+            this.handleSquareClick(r, c, moveEv);
           }
           pieceEl.classList.add('dragging');
           pieceEl.style.zIndex = '9999';
@@ -2341,7 +2341,7 @@ class NigerianDraughtsApp {
             const tr = parseInt(targetSq.dataset.row, 10);
             const tc = parseInt(targetSq.dataset.col, 10);
             if (tr !== r || tc !== c) {
-              this.handleSquareClick(tr, tc);
+              this.handleSquareClick(tr, tc, upEv);
               return;
             }
           }
@@ -3410,6 +3410,10 @@ class NigerianDraughtsApp {
     this._appliedOnlineTimerInit = false;
     this._hasNotifiedOpponentJoined = false;
     this.timer?.stop?.();
+
+    // Reset Fair Play monitoring for fresh room
+    this.tabSwitchesCount = 0;
+    this.lastTurnStartTime = Date.now();
 
     if (this.dom.onlineRoomBanner) {
       this.dom.onlineRoomBanner.style.display = 'flex';

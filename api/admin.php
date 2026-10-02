@@ -534,7 +534,8 @@ try {
 
             $sql = "
                 SELECT id, username, email, title, rating, coins, wallet_balance, package, role, 
-                       is_banned, ban_reason, is_verified, wins, losses, draws, created_at 
+                       is_banned, ban_reason, is_verified, wins, losses, draws, created_at,
+                       fair_play_score, cheat_warnings_count 
                 FROM users 
                 WHERE {$whereClause} 
                 ORDER BY id DESC 
