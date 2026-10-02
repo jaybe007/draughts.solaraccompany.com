@@ -153,14 +153,47 @@ $pkgBadge = getPackageBadge($package);
             </ul>
           </li>
 
-          <!-- 2. TOURNAMENTS DROPDOWN -->
-          <li class="nav-dropdown-item">
+          <!-- 2. TOURNAMENTS DROPDOWN (ORGANIZED WITH ALL 7 ACTIONS) -->
+          <li class="nav-dropdown-item" id="nav-dropdown-tournaments-item">
             <button type="button" class="dash-nav-btn dropdown-toggle" id="btn-dropdown-tournaments" aria-haspopup="true">
               <span class="icon">🏆</span> TOURNAMENTS <span class="arrow">▾</span>
             </button>
             <ul class="dropdown-menu" id="menu-tournaments">
-              <li><button type="button" class="dropdown-link highlight-gold" onclick="openHostTournamentModal()"><span class="icon">🏆</span> Host Official Tournament</button></li>
-              <li><button type="button" class="dropdown-link" onclick="activateMainTab('tournaments')"><span class="icon">🏅</span> Browse & Join Tournaments</button></li>
+              <li>
+                <button type="button" class="dropdown-link highlight-gold" onclick="navToTournament('create')">
+                  <span class="icon">➕</span> Create Tournament
+                </button>
+              </li>
+              <li>
+                <button type="button" class="dropdown-link" onclick="navToTournament('new')">
+                  <span class="icon">🆕</span> New Tournaments
+                </button>
+              </li>
+              <li>
+                <button type="button" class="dropdown-link" onclick="navToTournament('started')">
+                  <span class="icon">🔴</span> Tournament Started
+                </button>
+              </li>
+              <li>
+                <button type="button" class="dropdown-link" onclick="navToTournament('over')">
+                  <span class="icon">🏁</span> Tournament Over
+                </button>
+              </li>
+              <li>
+                <button type="button" class="dropdown-link" onclick="navToTournament('most_viewed')">
+                  <span class="icon">🔥</span> Most Viewed
+                </button>
+              </li>
+              <li>
+                <button type="button" class="dropdown-link" onclick="navToTournament('all')">
+                  <span class="icon">🌐</span> All Tournaments
+                </button>
+              </li>
+              <li>
+                <button type="button" class="dropdown-link highlight-guide" onclick="navToTournament('guide')">
+                  <span class="icon">📄</span> How to Guide (PDF)
+                </button>
+              </li>
             </ul>
           </li>
 
@@ -209,8 +242,8 @@ $pkgBadge = getPackageBadge($package);
                 </button>
               </li>
               <li>
-                <button type="button" class="dropdown-link highlight-gold" onclick="openHostTournamentModal()">
-                  <span class="icon">🏆</span> Host Official Tournament
+                <button type="button" class="dropdown-link highlight-gold" onclick="navToTournament('create')">
+                  <span class="icon">🏆</span> Create Tournament
                 </button>
               </li>
               <li>

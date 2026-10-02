@@ -1306,6 +1306,18 @@ select.form-control option {
   padding-left: 18px;
 }
 
+.dropdown-link.highlight-guide {
+  color: #fde047;
+  background: rgba(234, 179, 8, 0.12);
+  font-weight: 700;
+  border-left: 3px solid #eab308;
+}
+.dropdown-link.highlight-guide:hover {
+  background: rgba(234, 179, 8, 0.28);
+  color: #ffffff;
+  padding-left: 18px;
+}
+
 .dropdown-link.whatsapp-link {
   color: #25D366;
 }

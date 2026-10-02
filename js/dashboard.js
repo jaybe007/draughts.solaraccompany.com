@@ -37,25 +37,45 @@ function toggleMobileNav() {
   if (btn) btn.classList.toggle('active', isOpen);
 }
 
+function closeAllDropdowns() {
+  document.querySelectorAll('.nav-dropdown-item').forEach(item => item.classList.remove('open'));
+  const nav = document.getElementById('dash-main-nav');
+  const toggleBtn = document.getElementById('btn-mobile-nav');
+  if (nav && nav.classList.contains('mobile-open')) {
+    nav.classList.remove('mobile-open');
+    toggleBtn?.classList.remove('active');
+  }
+}
+
 function setupDropdowns() {
+  // Toggle dropdown on header button click
   document.querySelectorAll('.dropdown-toggle').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const parent = btn.closest('.nav-dropdown-item');
-      const wasOpen = parent.classList.contains('open');
+      const wasOpen = parent ? parent.classList.contains('open') : false;
       
-      // Close all others
+      // Close all other dropdowns
       document.querySelectorAll('.nav-dropdown-item').forEach(item => item.classList.remove('open'));
       
-      if (!wasOpen) {
+      if (!wasOpen && parent) {
         parent.classList.add('open');
       }
     });
   });
 
+  // Close dropdowns immediately when any dropdown link or item is clicked
+  document.querySelectorAll('.dropdown-menu .dropdown-link, .dropdown-menu button, .dropdown-menu a').forEach(link => {
+    link.addEventListener('click', () => {
+      closeAllDropdowns();
+    });
+  });
+
   // Close dropdowns & mobile menu when clicking outside
   document.addEventListener('click', (e) => {
-    document.querySelectorAll('.nav-dropdown-item').forEach(item => item.classList.remove('open'));
+    if (!e.target.closest('.nav-dropdown-item')) {
+      document.querySelectorAll('.nav-dropdown-item').forEach(item => item.classList.remove('open'));
+    }
     const nav = document.getElementById('dash-main-nav');
     const toggleBtn = document.getElementById('btn-mobile-nav');
     if (nav && nav.classList.contains('mobile-open')) {
@@ -69,14 +89,32 @@ function setupDropdowns() {
   // Auto-close mobile nav when any navigation action button/link is clicked
   document.querySelectorAll('.dash-nav-links .dropdown-link, .dash-nav-links .dash-nav-btn:not(.dropdown-toggle), .dash-nav-links .nav-wallet-pill').forEach(el => {
     el.addEventListener('click', () => {
-      const nav = document.getElementById('dash-main-nav');
-      const toggleBtn = document.getElementById('btn-mobile-nav');
-      if (nav && nav.classList.contains('mobile-open')) {
-        nav.classList.remove('mobile-open');
-        toggleBtn?.classList.remove('active');
-      }
+      closeAllDropdowns();
     });
   });
+}
+
+// Navigation direct action helper for tournaments menu
+function navToTournament(action) {
+  closeAllDropdowns();
+  activateMainTab('tournaments');
+
+  if (action === 'create') {
+    openHostTournamentModal();
+  } else if (action === 'guide') {
+    openTournamentGuideModal();
+  } else {
+    // action is 'all', 'new', 'started', 'over', 'most_viewed'
+    switchTournamentFilter(action);
+  }
+
+  // Smooth scroll to tournament layout
+  setTimeout(() => {
+    const target = document.getElementById('panel-tournaments');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 100);
 }
 
 // ================= TAB MANAGEMENT ================= //
@@ -85,9 +123,6 @@ function activateMainTab(tabName) {
   document.querySelectorAll('.dash-tab-btn').forEach(btn => {
     const isActive = btn.dataset.tab === tabName;
     btn.classList.toggle('active', isActive);
-    if (isActive) {
-      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
-    }
   });
 
   // Update Panels
@@ -107,11 +142,14 @@ function activateMainTab(tabName) {
   } else if (tabName === 'wallet') {
     loadWalletSummary();
   } else if (tabName === 'tournaments') {
-    loadTournamentsList();
+    loadTournamentsList(currentTournamentFilter);
   }
 
-  // Scroll smoothly to tabs area
-  document.querySelector('.dash-tabs-nav')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  // Smoothly scroll active tab button into view on mobile
+  const activeBtn = document.querySelector(`.dash-tab-btn[data-tab="${tabName}"]`);
+  if (activeBtn) {
+    activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+  }
 }
 
 // ================= AVATAR PICTURE UPLOAD ================= //
@@ -200,7 +238,7 @@ function switchGameLobbyFilter(filterKey) {
   currentLobbyFilter = filterKey;
   activateMainTab('lobby');
 
-  document.querySelectorAll('.filter-pill').forEach(pill => {
+  document.querySelectorAll('#panel-lobby .filter-pill').forEach(pill => {
     pill.classList.toggle('active', pill.dataset.filter === filterKey);
   });
 
@@ -1549,6 +1587,13 @@ function openTournamentGuideModal() {
 
 function switchTournamentFilter(filterName) {
   currentTournamentFilter = filterName || 'all';
+
+  // Ensure Tournaments tab panel is active if user triggered filter from outside or menu
+  const tournPanel = document.getElementById('panel-tournaments');
+  if (tournPanel && !tournPanel.classList.contains('active')) {
+    activateMainTab('tournaments');
+  }
+
   document.querySelectorAll('#tournament-filter-pills .filter-pill').forEach(pill => {
     pill.classList.toggle('active', pill.dataset.filter === currentTournamentFilter);
   });
