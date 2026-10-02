@@ -853,12 +853,19 @@ class AdminApp {
         const amt = Math.abs(parseFloat(w.amount));
         const isPending = w.status === 'pending';
 
+        const flaggedCount = parseInt(w.flagged_games_count || 0);
+        const maxSwitches = parseInt(w.max_tab_switches || 0);
+        const fairPlayBadge = flaggedCount > 0 
+          ? `<div style="margin-top:3px;"><span style="display:inline-block; font-size:0.68rem; background:rgba(239,68,68,0.2); color:#fca5a5; padding:2px 6px; border-radius:4px; border:1px solid rgba(239,68,68,0.4);" title="${flaggedCount} flagged game(s), peak ${maxSwitches} tab-switches">⚠️ Fair Play Flag (${flaggedCount})</span></div>`
+          : `<div style="margin-top:3px;"><span style="display:inline-block; font-size:0.68rem; background:rgba(16,185,129,0.15); color:#6ee7b7; padding:2px 6px; border-radius:4px;" title="Clean gameplay record">🛡️ Fair Play: Clean</span></div>`;
+
         return `
           <tr>
             <td>#${w.id}</td>
             <td>
               <strong style="color:#ffffff;">${this.escape(w.username)}</strong>
               <div style="font-size:0.75rem; color:#64748b;">${this.escape(w.email)}</div>
+              ${fairPlayBadge}
             </td>
             <td>
               <div style="font-size:0.85rem; color:#cbd5e1;">${this.escape(w.description)}</div>

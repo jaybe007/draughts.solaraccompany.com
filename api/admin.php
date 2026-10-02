@@ -741,7 +741,9 @@ try {
 
             $status = trim($_GET['status'] ?? 'pending'); // 'pending', 'completed', 'cancelled', 'all'
             $sql = "
-                SELECT w.*, u.username, u.email, u.wallet_balance AS current_balance
+                SELECT w.*, u.username, u.email, u.wallet_balance AS current_balance,
+                       (SELECT COUNT(*) FROM game_rooms gr WHERE (gr.host_id = u.id OR gr.guest_id = u.id) AND gr.fair_play_flag = 'flagged_tab_switches') AS flagged_games_count,
+                       (SELECT COALESCE(MAX(CASE WHEN gr.host_id = u.id THEN gr.p1_tab_switches ELSE gr.p2_tab_switches END), 0) FROM game_rooms gr WHERE gr.host_id = u.id OR gr.guest_id = u.id) AS max_tab_switches
                 FROM wallet_transactions w
                 JOIN users u ON u.id = w.user_id
                 WHERE w.type = 'withdrawal_request'

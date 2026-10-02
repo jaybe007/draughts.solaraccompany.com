@@ -873,6 +873,20 @@ try {
                 } catch (Exception $e) {}
             }
 
+            $tabSwitches = max(0, (int)($input['tab_switches'] ?? 0));
+            $p1Switches = (int)($room['p1_tab_switches'] ?? 0);
+            $p2Switches = (int)($room['p2_tab_switches'] ?? 0);
+            if ($playerRole === 'p1') {
+                $p1Switches = max($p1Switches, $tabSwitches);
+            } else {
+                $p2Switches = max($p2Switches, $tabSwitches);
+            }
+
+            $fairPlayFlag = $room['fair_play_flag'] ?? 'clean';
+            if ($p1Switches >= 5 || $p2Switches >= 5) {
+                $fairPlayFlag = 'flagged_tab_switches';
+            }
+
             $updateStmt = $db->prepare("
                 UPDATE game_rooms SET
                     current_turn = ?,
@@ -886,6 +900,9 @@ try {
                     win_reason = ?,
                     board_state_json = ?,
                     move_history_json = ?,
+                    p1_tab_switches = ?,
+                    p2_tab_switches = ?,
+                    fair_play_flag = ?,
                     updated_at = NOW()
                 WHERE id = ?
             ");
@@ -901,6 +918,9 @@ try {
                 $winReason,
                 $boardStateJson,
                 $moveHistoryJson,
+                $p1Switches,
+                $p2Switches,
+                $fairPlayFlag,
                 $room['id']
             ]);
 

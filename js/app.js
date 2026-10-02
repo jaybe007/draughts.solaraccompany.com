@@ -564,6 +564,26 @@ class NigerianDraughtsApp {
       }
     });
 
+    // Fair Play & Anti-Cheat Monitor (Tab Switch & Focus Detection)
+    this.tabSwitchesCount = 0;
+    this.lastTurnStartTime = Date.now();
+    document.addEventListener('visibilitychange', () => {
+      if (this.gameMode === 'room_online' && this.onlineRoomStatus === 'active') {
+        const isMyTurn = (
+          (this.onlinePlayerRole === 'p1' && this.engine.currentTurn === PLAYER_1) ||
+          (this.onlinePlayerRole === 'p2' && this.engine.currentTurn === PLAYER_2)
+        );
+        if (document.visibilityState === 'hidden' && isMyTurn) {
+          this.tabSwitchesCount++;
+          if (this.tabSwitchesCount === 2) {
+            this.showToast('⚠️ Fair Play Notice: Leaving match window during your turn is monitored.', 'warning');
+          } else if (this.tabSwitchesCount === 5) {
+            this.showToast('⚠️ Fair Play Alert: Repeated tab switches recorded for referee review.', 'error');
+          }
+        }
+      }
+    });
+
     // Lidraughts Interactive Controls (Matching Screenshot Actions)
     document.getElementById('btn-lid-flip')?.addEventListener('click', () => this.toggleBoardFlip());
     document.getElementById('btn-lid-start')?.addEventListener('click', () => {
@@ -2043,7 +2063,7 @@ class NigerianDraughtsApp {
         }
 
 
-        sq.addEventListener('click', () => this.handleSquareClick(r, c));
+        sq.addEventListener('click', (e) => this.handleSquareClick(r, c, e));
         this.dom.boardInner.appendChild(sq);
       }
     }
@@ -2341,7 +2361,14 @@ class NigerianDraughtsApp {
     });
   }
 
-  handleSquareClick(r, c) {
+  handleSquareClick(r, c, event = null) {
+    // Fair Play Protection: Reject programmatic / simulated clicks
+    if (event && event.isTrusted === false) {
+      console.warn('[FairPlay] Synthetic robot click rejected!');
+      this.showToast('⚠️ Security Notice: Automated script clicks are blocked.', 'error');
+      return;
+    }
+
     // If analysis mode is active, forward click to analysis palette
     if (this.analysisController && this.analysisController.isActive) {
       this.analysisController.handleSquareClick(r, c);
@@ -3959,6 +3986,8 @@ class NigerianDraughtsApp {
     try {
       const isGameOver = res.gameOver || this.engine.gameOver;
       const winnerRole = this.engine.winner === PLAYER_1 ? 'p1' : (this.engine.winner === PLAYER_2 ? 'p2' : (this.engine.winner === 'draw' ? 'draw' : null));
+      const moveDuration = Date.now() - (this.lastTurnStartTime || Date.now());
+      this.lastTurnStartTime = Date.now();
 
       await fetch('api/rooms.php', {
         method: 'POST',
@@ -3972,7 +4001,9 @@ class NigerianDraughtsApp {
           turn_ended: res.turnEnded !== false,
           is_game_over: isGameOver,
           winner_role: winnerRole,
-          win_reason: res.winReason || this.engine.winReason || ''
+          win_reason: res.winReason || this.engine.winReason || '',
+          tab_switches: this.tabSwitchesCount || 0,
+          move_duration_ms: moveDuration
         })
       });
     } catch (e) {}

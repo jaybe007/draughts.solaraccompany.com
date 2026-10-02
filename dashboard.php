@@ -977,15 +977,15 @@ $pkgBadge = getPackageBadge($package);
               <label for="create-player-time" style="font-weight: 600;">Player Time</label>
               <select id="create-player-time" class="form-control">
                 <option value="none">None</option>
-                <option value="1">1 min</option>
-                <option value="3">3 min</option>
+                <option value="1">1 min (Bullet)</option>
+                <option value="3" selected>3 min ⚡ Blitz (Anti-Cheat Recommended)</option>
                 <option value="4">4 min</option>
-                <option value="5" selected>5 min</option>
+                <option value="5">5 min (Rapid)</option>
                 <option value="6">6 min</option>
                 <option value="7">7 min</option>
                 <option value="8">8 min</option>
                 <option value="9">9 min</option>
-                <option value="10">10 min</option>
+                <option value="10">10 min (Classical)</option>
                 <option value="15">15 min</option>
                 <option value="20">20 min</option>
                 <option value="30">30 minute</option>
