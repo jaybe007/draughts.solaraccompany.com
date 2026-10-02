@@ -5,6 +5,10 @@
  */
 require_once __DIR__ . '/../config/db.php';
 
+if (!headers_sent()) {
+    header('Content-Type: text/plain; charset=utf-8');
+}
+
 try {
     $db = getDB();
     echo "========================================================\n";
