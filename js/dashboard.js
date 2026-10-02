@@ -1210,9 +1210,32 @@ function handleCustomDeposit(e) {
   }
 }
 
+window.cachedWithdrawalChannels = null;
+
+async function fetchWithdrawalChannels() {
+  if (window.cachedWithdrawalChannels) return window.cachedWithdrawalChannels;
+  try {
+    const res = await fetch('api/wallet.php?action=get_withdrawal_channels');
+    const data = await res.json();
+    if (data.success && data.channels) {
+      window.cachedWithdrawalChannels = {};
+      data.channels.forEach(ch => {
+        window.cachedWithdrawalChannels[ch.id] = ch;
+      });
+      return window.cachedWithdrawalChannels;
+    }
+  } catch (e) {
+    console.warn('Could not fetch dynamic withdrawal channels', e);
+  }
+  return null;
+}
+
 function openWithdrawModal() {
   switchWithdrawChannel('nigerian_bank');
   openModal('modal-withdraw');
+  fetchWithdrawalChannels().then(() => {
+    updateWithdrawEstimate();
+  });
 }
 
 function switchWithdrawChannel(channel) {
@@ -1238,18 +1261,25 @@ function updateWithdrawEstimate() {
   }
 
   box.style.display = 'block';
+  const chData = window.cachedWithdrawalChannels ? window.cachedWithdrawalChannels[channel] : null;
+  const rate = chData && chData.rate_to_naira ? parseFloat(chData.rate_to_naira) : null;
+
   if (channel === 'usdt_crypto') {
-    const usdt = (amt / 1500.0).toFixed(2);
-    val.textContent = `~${usdt} USDT (at ₦1,500/$) • Instant TRC-20 Payout`;
+    const r = rate || 1500.0;
+    const usdt = (amt / r).toFixed(2);
+    val.textContent = `~${usdt} USDT (at ₦${r.toLocaleString()}/$) • Instant TRC-20 Payout`;
   } else if (channel === 'ghana_momo') {
-    const ghs = (amt / 100.0).toFixed(2);
-    val.textContent = `~GH₵${ghs} (at ₦100/GH₵) • Direct to Mobile Money`;
+    const r = rate || 100.0;
+    const ghs = (amt / r).toFixed(2);
+    val.textContent = `~GH₵${ghs} (at ₦${r.toLocaleString()}/GH₵) • Direct to Mobile Money`;
   } else if (channel === 'kenya_mpesa') {
-    const kes = (amt / 12.0).toFixed(2);
-    val.textContent = `~KSh${kes} (at ₦12/KSh) • Direct to M-Pesa`;
+    const r = rate || 12.0;
+    const kes = (amt / r).toFixed(2);
+    val.textContent = `~KSh${kes} (at ₦${r.toLocaleString()}/KSh) • Direct to M-Pesa`;
   } else if (channel === 'paypal') {
-    const usd = (amt / 1500.0).toFixed(2);
-    val.textContent = `~$${usd} USD • Transfer to PayPal email`;
+    const r = rate || 1500.0;
+    const usd = (amt / r).toFixed(2);
+    val.textContent = `~$${usd} USD (at ₦${r.toLocaleString()}/$) • Transfer to PayPal email`;
   }
 }
 

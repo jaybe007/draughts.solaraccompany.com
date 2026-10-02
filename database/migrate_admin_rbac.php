@@ -86,7 +86,13 @@ try {
         'min_withdrawal_naira' => ['1000.00', 'Minimum bank payout withdrawal amount in Naira (₦)'],
         'maintenance_mode' => ['0', 'Platform maintenance mode: 0 = active, 1 = offline for maintenance'],
         'maintenance_message' => ['Naija Draughts is currently undergoing scheduled system upgrades. Arena will reopen shortly.', 'Maintenance banner display message'],
-        'global_announcement' => ['🏆 Welcome to Naija Draughts! National 10x10 Knockout Championship is now live with ₦50,000 in cash prizes!', 'Global notification banner text across Arena and Dashboard']
+        'global_announcement' => ['🏆 Welcome to Naija Draughts! National 10x10 Knockout Championship is now live with ₦50,000 in cash prizes!', 'Global notification banner text across Arena and Dashboard'],
+        'fx_rate_usd' => ['1500.00', 'US Dollar (USD) and USDT exchange rate: ₦ per $1.00 USD'],
+        'fx_rate_eur' => ['1650.00', 'Euro (EUR) exchange rate: ₦ per €1.00 EUR'],
+        'fx_rate_gbp' => ['1950.00', 'British Pound (GBP) exchange rate: ₦ per £1.00 GBP'],
+        'fx_rate_ghs' => ['100.00', 'Ghana Cedi (GHS) Mobile Money exchange rate: ₦ per GH₵1.00 GHS'],
+        'fx_rate_kes' => ['12.00', 'Kenya Shilling (KES) M-Pesa exchange rate: ₦ per KSh1.00 KES'],
+        'fx_withdrawal_spread_percent' => ['0', 'Additional international cashout spread / processing fee percentage (0 = 0%)']
     ];
 
     $checkStmt = $db->prepare("SELECT COUNT(*) FROM system_settings WHERE setting_key = ?");

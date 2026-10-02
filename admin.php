@@ -714,7 +714,60 @@ $adminPerms = json_decode($adminUser['permissions_json'] ?? '[]', true) ?: [];
             </div>
           </div>
 
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
+          <!-- Multi-Currency FX Rates & International Cashout Margins -->
+          <div style="background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.25); border-radius:12px; padding:18px 20px; margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+              <div>
+                <h3 style="margin:0; font-size:1.05rem; color:#38bdf8; display:flex; align-items:center; gap:8px;">
+                  <span>🌐</span> Multi-Currency FX Rates & International Cashout Margins
+                </h3>
+                <p style="margin:4px 0 0; font-size:0.82rem; color:#94a3b8;">
+                  Define international exchange rates and cashout spread. Foreign players fund and cash out seamlessly via USDT, MoMo, M-Pesa, and PayPal!
+                </p>
+              </div>
+              <div id="fx-rates-indicator" style="font-size:0.8rem; background:rgba(56,189,248,0.15); color:#bae6fd; padding:6px 14px; border-radius:20px; font-weight:600;">
+                $1 = ₦1,500 | GH₵1 = ₦100 | KSh1 = ₦12
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+              <div class="form-group-admin">
+                <label for="set-fx-usd">USD & USDT Rate (₦ per $1.00 USD)</label>
+                <input type="number" id="set-fx-usd" name="fx_rate_usd" class="form-control-admin" step="1" min="100" value="1500" required oninput="adminApp.updateFxRatesPreview()">
+                <small style="color:#94a3b8; font-size:0.75rem;">USDT / PayPal: <strong id="preview-fx-usd" style="color:#38bdf8;">₦1,500.00</strong></small>
+              </div>
+
+              <div class="form-group-admin">
+                <label for="set-fx-ghs">Ghana Cedi Rate (₦ per GH₵1.00 GHS)</label>
+                <input type="number" id="set-fx-ghs" name="fx_rate_ghs" class="form-control-admin" step="0.5" min="1" value="100" required oninput="adminApp.updateFxRatesPreview()">
+                <small style="color:#94a3b8; font-size:0.75rem;">Ghana MoMo: <strong id="preview-fx-ghs" style="color:#22c55e;">₦100.00</strong></small>
+              </div>
+
+              <div class="form-group-admin">
+                <label for="set-fx-kes">Kenya Shilling Rate (₦ per KSh1.00 KES)</label>
+                <input type="number" id="set-fx-kes" name="fx_rate_kes" class="form-control-admin" step="0.1" min="0.1" value="12" required oninput="adminApp.updateFxRatesPreview()">
+                <small style="color:#94a3b8; font-size:0.75rem;">Kenya M-Pesa: <strong id="preview-fx-kes" style="color:#a855f7;">₦12.00</strong></small>
+              </div>
+
+              <div class="form-group-admin">
+                <label for="set-fx-eur">Euro Rate (₦ per €1.00 EUR)</label>
+                <input type="number" id="set-fx-eur" name="fx_rate_eur" class="form-control-admin" step="1" min="100" value="1650" required oninput="adminApp.updateFxRatesPreview()">
+                <small style="color:#94a3b8; font-size:0.75rem;">European Union: <strong id="preview-fx-eur" style="color:#fde047;">₦1,650.00</strong></small>
+              </div>
+
+              <div class="form-group-admin">
+                <label for="set-fx-gbp">British Pound Rate (₦ per £1.00 GBP)</label>
+                <input type="number" id="set-fx-gbp" name="fx_rate_gbp" class="form-control-admin" step="1" min="100" value="1950" required oninput="adminApp.updateFxRatesPreview()">
+                <small style="color:#94a3b8; font-size:0.75rem;">United Kingdom: <strong id="preview-fx-gbp" style="color:#f43f5e;">₦1,950.00</strong></small>
+              </div>
+
+              <div class="form-group-admin">
+                <label for="set-fx-spread">International Cashout Margin / Fee (%)</label>
+                <input type="number" id="set-fx-spread" name="fx_withdrawal_spread_percent" class="form-control-admin" step="0.5" min="0" max="30" value="0" required oninput="adminApp.updateFxRatesPreview()">
+                <small style="color:#94a3b8; font-size:0.75rem;">Direct cashout spread: <strong id="preview-fx-spread" style="color:#f59e0b;">0% (Coin spread active)</strong></small>
+              </div>
+            </div>
+          </div>
             <div class="form-group-admin">
               <label for="set-match-rake">Legacy Cash Naira House Rake (%)</label>
               <input type="number" id="set-match-rake" name="platform_match_rake" class="form-control-admin" step="0.5" min="0" max="30" required>

@@ -40,13 +40,13 @@ if ($action === 'get_banks') {
     jsonResponse([
         'success' => true,
         'banks' => getNigerianBanks(),
-        'withdrawal_channels' => getWithdrawalChannels()
+        'withdrawal_channels' => getWithdrawalChannels($db)
     ]);
 }
 if ($action === 'get_withdrawal_channels') {
     jsonResponse([
         'success' => true,
-        'channels' => getWithdrawalChannels(),
+        'channels' => getWithdrawalChannels($db),
         'banks' => getNigerianBanks()
     ]);
 }
@@ -245,6 +245,22 @@ try {
             $desc = '';
             $payoutSummary = '';
 
+            $currencies = getSupportedCurrencies($db);
+            $usdRate = $currencies['USD']['rate_to_naira'] ?? 1500.0;
+            $ghsRate = $currencies['GHS']['rate_to_naira'] ?? 100.0;
+            $kesRate = $currencies['KES']['rate_to_naira'] ?? 12.0;
+
+            $spreadPercent = 0.0;
+            try {
+                $spVal = $db->query("SELECT setting_value FROM system_settings WHERE setting_key = 'fx_withdrawal_spread_percent'")->fetchColumn();
+                if ($spVal !== false && is_numeric($spVal)) {
+                    $spreadPercent = max(0.0, min(50.0, (float)$spVal));
+                }
+            } catch (Exception $e) {}
+
+            $payoutFactor = max(0.01, 1.0 - ($spreadPercent / 100.0));
+            $spreadNote = $spreadPercent > 0 ? " ({$spreadPercent}% cashout fee applied)" : "";
+
             if ($channelType === 'nigerian_bank') {
                 $bankCode = trim($input['bank_code'] ?? '');
                 $bankName = trim($input['bank_name'] ?? '');
@@ -273,11 +289,9 @@ try {
                 if (empty($walletAddress) || strlen($walletAddress) < 20) {
                     jsonResponse(['success' => false, 'message' => 'Please enter a valid USDT wallet address.'], 400);
                 }
-                $currencies = getSupportedCurrencies($db);
-                $usdRate = $currencies['USD']['rate_to_naira'] ?? 1500.0;
-                $estUsdt = round($amountNaira / $usdRate, 2);
+                $estUsdt = round(($amountNaira / $usdRate) * $payoutFactor, 2);
 
-                $desc = "USDT Crypto Payout ({$network}): {$walletAddress} (~{$estUsdt} USDT @ ₦{$usdRate})";
+                $desc = "USDT Crypto Payout ({$network}): {$walletAddress} (~{$estUsdt} USDT @ ₦{$usdRate}/$1{$spreadNote})";
                 $payoutSummary = "~{$estUsdt} USDT ({$network}) to {$walletAddress}";
 
             } elseif ($channelType === 'ghana_momo') {
@@ -287,11 +301,9 @@ try {
                 if (empty($momoNumber) || strlen($momoNumber) < 9) {
                     jsonResponse(['success' => false, 'message' => 'Please enter a valid Ghana Mobile Money number.'], 400);
                 }
-                $currencies = getSupportedCurrencies($db);
-                $ghsRate = $currencies['GHS']['rate_to_naira'] ?? 100.0;
-                $estGhs = round($amountNaira / $ghsRate, 2);
+                $estGhs = round(($amountNaira / $ghsRate) * $payoutFactor, 2);
 
-                $desc = "Ghana MoMo Payout ({$momoNetwork}): {$momoNumber} (~GH₵{$estGhs})";
+                $desc = "Ghana MoMo Payout ({$momoNetwork}): {$momoNumber} (~GH₵{$estGhs} @ ₦{$ghsRate}/GH₵{$spreadNote})";
                 $payoutSummary = "~GH₵{$estGhs} to {$momoNetwork} ({$momoNumber})";
 
             } elseif ($channelType === 'kenya_mpesa') {
@@ -300,11 +312,9 @@ try {
                 if (empty($mpesaNumber) || strlen($mpesaNumber) < 9) {
                     jsonResponse(['success' => false, 'message' => 'Please enter a valid M-Pesa phone number.'], 400);
                 }
-                $currencies = getSupportedCurrencies($db);
-                $kesRate = $currencies['KES']['rate_to_naira'] ?? 12.0;
-                $estKes = round($amountNaira / $kesRate, 2);
+                $estKes = round(($amountNaira / $kesRate) * $payoutFactor, 2);
 
-                $desc = "Kenya M-Pesa Payout: {$mpesaNumber} (~KSh{$estKes})";
+                $desc = "Kenya M-Pesa Payout: {$mpesaNumber} (~KSh{$estKes} @ ₦{$kesRate}/KSh{$spreadNote})";
                 $payoutSummary = "~KSh{$estKes} to M-Pesa ({$mpesaNumber})";
 
             } elseif ($channelType === 'paypal') {
@@ -313,11 +323,9 @@ try {
                 if (empty($paypalEmail) || !filter_var($paypalEmail, FILTER_VALIDATE_EMAIL)) {
                     jsonResponse(['success' => false, 'message' => 'Please enter a valid PayPal account email address.'], 400);
                 }
-                $currencies = getSupportedCurrencies($db);
-                $usdRate = $currencies['USD']['rate_to_naira'] ?? 1500.0;
-                $estUsd = round($amountNaira / $usdRate, 2);
+                $estUsd = round(($amountNaira / $usdRate) * $payoutFactor, 2);
 
-                $desc = "PayPal Global Payout: {$paypalEmail} (~${$estUsd} USD)";
+                $desc = "PayPal Global Payout: {$paypalEmail} (~${$estUsd} USD @ ₦{$usdRate}/$1{$spreadNote})";
                 $payoutSummary = "~${$estUsd} USD to PayPal ({$paypalEmail})";
             } else {
                 jsonResponse(['success' => false, 'message' => 'Unsupported withdrawal channel.'], 400);

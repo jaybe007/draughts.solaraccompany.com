@@ -1180,6 +1180,14 @@ class AdminApp {
       this.setValue('set-coin-buy-rate', map.coin_buy_rate_per_100 || '1500');
       this.setValue('set-coin-sell-rate', map.coin_sell_rate_per_100 || '1350');
       this.setValue('set-coin-commission', map.coin_match_commission_percent || '0');
+
+      this.setValue('set-fx-usd', map.fx_rate_usd || '1500.00');
+      this.setValue('set-fx-ghs', map.fx_rate_ghs || '100.00');
+      this.setValue('set-fx-kes', map.fx_rate_kes || '12.00');
+      this.setValue('set-fx-eur', map.fx_rate_eur || '1650.00');
+      this.setValue('set-fx-gbp', map.fx_rate_gbp || '1950.00');
+      this.setValue('set-fx-spread', map.fx_withdrawal_spread_percent || '0');
+
       this.setValue('set-match-rake', map.platform_match_rake || '8');
       this.setValue('set-vip-rake', map.platform_vip_rake || '4');
       this.setValue('set-tourn-commission', map.platform_tourn_commission || '10');
@@ -1190,6 +1198,7 @@ class AdminApp {
       this.setValue('set-announcement', map.global_announcement || '');
 
       this.updateCoinRatesPreview();
+      this.updateFxRatesPreview();
 
     } catch (e) {
       console.error(e);
@@ -1220,6 +1229,34 @@ class AdminApp {
     }
   }
 
+  updateFxRatesPreview() {
+    const usd = parseFloat(document.getElementById('set-fx-usd')?.value || '1500');
+    const ghs = parseFloat(document.getElementById('set-fx-ghs')?.value || '100');
+    const kes = parseFloat(document.getElementById('set-fx-kes')?.value || '12');
+    const eur = parseFloat(document.getElementById('set-fx-eur')?.value || '1650');
+    const gbp = parseFloat(document.getElementById('set-fx-gbp')?.value || '1950');
+    const spread = parseFloat(document.getElementById('set-fx-spread')?.value || '0');
+
+    const pUsd = document.getElementById('preview-fx-usd');
+    const pGhs = document.getElementById('preview-fx-ghs');
+    const pKes = document.getElementById('preview-fx-kes');
+    const pEur = document.getElementById('preview-fx-eur');
+    const pGbp = document.getElementById('preview-fx-gbp');
+    const pSpread = document.getElementById('preview-fx-spread');
+    const badge = document.getElementById('fx-rates-indicator');
+
+    if (pUsd) pUsd.textContent = `₦${usd.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    if (pGhs) pGhs.textContent = `₦${ghs.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    if (pKes) pKes.textContent = `₦${kes.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    if (pEur) pEur.textContent = `₦${eur.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    if (pGbp) pGbp.textContent = `₦${gbp.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    if (pSpread) pSpread.textContent = spread === 0 ? '0% (Coin spread active)' : `${spread}% Margin`;
+
+    if (badge) {
+      badge.textContent = `$1 = ₦${usd.toLocaleString()} | GH₵1 = ₦${ghs.toLocaleString()} | KSh1 = ₦${kes.toLocaleString()}${spread > 0 ? ` | ${spread}% Fee` : ''}`;
+    }
+  }
+
   saveSettings() {
     const form = document.getElementById('form-system-settings');
     if (form) form.requestSubmit();
@@ -1231,6 +1268,12 @@ class AdminApp {
       coin_buy_rate_per_100: document.getElementById('set-coin-buy-rate')?.value || '1500',
       coin_sell_rate_per_100: document.getElementById('set-coin-sell-rate')?.value || '1350',
       coin_match_commission_percent: document.getElementById('set-coin-commission')?.value || '0',
+      fx_rate_usd: document.getElementById('set-fx-usd')?.value || '1500.00',
+      fx_rate_ghs: document.getElementById('set-fx-ghs')?.value || '100.00',
+      fx_rate_kes: document.getElementById('set-fx-kes')?.value || '12.00',
+      fx_rate_eur: document.getElementById('set-fx-eur')?.value || '1650.00',
+      fx_rate_gbp: document.getElementById('set-fx-gbp')?.value || '1950.00',
+      fx_withdrawal_spread_percent: document.getElementById('set-fx-spread')?.value || '0',
       platform_match_rake: document.getElementById('set-match-rake').value,
       platform_vip_rake: document.getElementById('set-vip-rake').value,
       platform_tourn_commission: document.getElementById('set-tourn-commission').value,

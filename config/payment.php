@@ -50,13 +50,19 @@ function getNigerianBanks() {
 /**
  * Returns supported global and African withdrawal channels.
  */
-function getWithdrawalChannels() {
+function getWithdrawalChannels($db = null) {
+    $currencies = getSupportedCurrencies($db);
+    $usdRate = $currencies['USD']['rate_to_naira'] ?? 1500.0;
+    $ghsRate = $currencies['GHS']['rate_to_naira'] ?? 100.0;
+    $kesRate = $currencies['KES']['rate_to_naira'] ?? 12.0;
+
     return [
         [
             'id' => 'nigerian_bank',
             'name' => 'Nigerian Bank Transfer (NUBAN)',
             'icon' => '🇳🇬',
             'currency' => 'NGN',
+            'rate_to_naira' => 1.0,
             'min_amount_naira' => 1000,
             'description' => 'Fast payout to 12 Nigerian commercial & fintech banks (GTBank, Zenith, Access, OPay, PalmPay, Kuda, etc.)'
         ],
@@ -65,32 +71,36 @@ function getWithdrawalChannels() {
             'name' => 'USDT Crypto (TRC-20 / BEP-20)',
             'icon' => '🌐',
             'currency' => 'USD',
+            'rate_to_naira' => $usdRate,
             'min_amount_naira' => 7500,
-            'description' => 'Instant borderless payout to any TRC-20 or BEP-20 wallet address. No banking restrictions.'
+            'description' => 'Instant borderless payout to any TRC-20 or BEP-20 wallet address (~₦' . number_format($usdRate, 0) . '/USDT).'
         ],
         [
             'id' => 'ghana_momo',
             'name' => 'Ghana Mobile Money (MTN / Telecel / AirtelTigo)',
             'icon' => '🇬🇭',
             'currency' => 'GHS',
+            'rate_to_naira' => $ghsRate,
             'min_amount_naira' => 3000,
-            'description' => 'Direct payout to Ghana Mobile Money wallets (MTN MoMo, Telecel Cash, AirtelTigo Money).'
+            'description' => 'Direct payout to Ghana Mobile Money wallets (~₦' . number_format($ghsRate, 0) . '/GH₵).'
         ],
         [
             'id' => 'kenya_mpesa',
             'name' => 'Kenya M-Pesa (Safaricom)',
             'icon' => '🇰🇪',
             'currency' => 'KES',
+            'rate_to_naira' => $kesRate,
             'min_amount_naira' => 3000,
-            'description' => 'Direct payout to Kenya Safaricom M-Pesa mobile numbers.'
+            'description' => 'Direct payout to Kenya Safaricom M-Pesa mobile numbers (~₦' . number_format($kesRate, 0) . '/KSh).'
         ],
         [
             'id' => 'paypal',
             'name' => 'PayPal Global Payout',
             'icon' => '🌍',
             'currency' => 'USD',
+            'rate_to_naira' => $usdRate,
             'min_amount_naira' => 15000,
-            'description' => 'International transfer directly to your verified PayPal account email.'
+            'description' => 'International transfer directly to your verified PayPal account email (~₦' . number_format($usdRate, 0) . '/USD).'
         ]
     ];
 }
