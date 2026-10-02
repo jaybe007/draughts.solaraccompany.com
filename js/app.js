@@ -4146,6 +4146,76 @@ class NigerianDraughtsApp {
 
     return pdn.trim();
   }
+
+  async fetchTournaments(filter = 'all') {
+    const container = document.getElementById('tournaments-container');
+    if (!container) return;
+
+    container.innerHTML = '<p class="text-center">Loading championships...</p>';
+
+    try {
+      const res = await fetch(`api/tournaments.php?action=get_tournaments&filter=${encodeURIComponent(filter)}`);
+      const data = await res.json();
+
+      if (!data.success || !data.tournaments || data.tournaments.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:24px 16px; color:#94a3b8;">
+            <p>No active championships scheduled right now.</p>
+            <a href="dashboard.php?tab=tournaments" class="btn btn-primary btn-small" style="margin-top:10px; display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
+              🏆 Open Tournaments Hub &rarr;
+            </a>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+          <div style="font-size:0.85rem; color:#fde047; font-weight:700;">
+            🏆 Official Championships (${data.tournaments.length})
+          </div>
+          <div style="display:flex; gap:8px;">
+            <a href="dashboard.php?tab=tournaments" class="btn btn-primary btn-small" style="text-decoration:none; font-size:0.8rem; padding:4px 10px;">
+              🚀 Host Tournament
+            </a>
+            <a href="download_tournament_guide.php?download=1" class="btn btn-secondary btn-small" style="text-decoration:none; font-size:0.8rem; padding:4px 10px;">
+              📥 PDF Guide
+            </a>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px;">
+          ${data.tournaments.map(t => {
+            const ruleName = (t.rule_type === 'ghana') ? '🇬🇭 Ghana' : ((t.rule_type === 'international') ? '🌍 International' : '🇳🇬 Nigeria');
+            const typeName = (t.tournament_type === 'best_of_5') ? 'Best of 5' : ((t.tournament_type === 'best_of_3') ? 'Best of 3' : ((t.tournament_type === 'league') ? 'League' : 'Knockout'));
+            const statusLabel = t.status === 'live' ? '🔴 LIVE' : (t.status === 'completed' ? '🏁 COMPLETED' : '🏆 UPCOMING');
+            const prizeDisplay = t.prize_pool_naira > 0 ? '₦' + Number(t.prize_pool_naira).toLocaleString() : (t.prize_pool || '5,000 🪙');
+
+            return `
+              <div style="background:rgba(18,24,38,0.85); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem;">
+                  <span style="font-weight:800; color:#f59e0b;">${statusLabel}</span>
+                  <span style="color:#94a3b8;">${ruleName} &bull; ${typeName}</span>
+                </div>
+                <h4 style="margin:0; font-size:0.95rem; color:#fff;">${t.name || t.title}</h4>
+                <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#94a3b8;">
+                  <span>Enrolled: <strong style="color:#fff;">${t.registered_count || 0} / ${t.max_participants || 8}</strong></span>
+                  <span>Prize: <strong style="color:#fbbf24;">${prizeDisplay}</strong></span>
+                </div>
+                <div style="display:flex; gap:6px; margin-top:4px;">
+                  <a href="dashboard.php?tab=tournaments" class="btn btn-primary btn-small btn-block" style="text-align:center; font-size:0.8rem; text-decoration:none;">
+                    Enter / Register &rarr;
+                  </a>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    } catch(err) {
+      console.error(err);
+      container.innerHTML = '<p class="text-center" style="color:#ef4444;">Failed to load tournaments.</p>';
+    }
+  }
 }
 
 // Global rulebook tab switcher helper

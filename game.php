@@ -3,6 +3,10 @@ if ((isset($_GET['mode']) && in_array($_GET['mode'], ['traps', 'puzzles'])) || (
     header('Location: puzzles.php');
     exit;
 }
+if (isset($_GET['view']) && in_array($_GET['view'], ['tournaments', 'tournament'])) {
+    header('Location: dashboard.php?tab=tournaments');
+    exit;
+}
 require_once __DIR__ . '/config/db.php';
 $currentUser = getCurrentUser();
 $db = null;

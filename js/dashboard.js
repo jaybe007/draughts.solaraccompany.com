@@ -19,6 +19,22 @@ document.addEventListener('DOMContentLoaded', () => {
   loadTournamentsList();
   checkPaymentReturnCallback();
 
+  // Check URL parameters or hash for deep linking (e.g. ?tab=tournaments&filter=new)
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialTab = urlParams.get('tab') || urlParams.get('view');
+  const initialFilter = urlParams.get('filter');
+  if (initialTab && ['lobby', 'messages', 'invitations', 'followings', 'wallet', 'tournaments'].includes(initialTab)) {
+    activateMainTab(initialTab);
+    if (initialTab === 'tournaments' && initialFilter) {
+      switchTournamentFilter(initialFilter);
+    }
+  } else if (window.location.hash) {
+    const hashTab = window.location.hash.replace('#', '').replace('panel-', '');
+    if (['lobby', 'messages', 'invitations', 'followings', 'wallet', 'tournaments'].includes(hashTab)) {
+      activateMainTab(hashTab);
+    }
+  }
+
   // Periodic updates every 6 seconds for live state
   pollInterval = setInterval(() => {
     loadUnreadCounters();
