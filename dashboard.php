@@ -782,14 +782,49 @@ $pkgBadge = getPackageBadge($package);
     <section class="dash-tab-panel" id="panel-tournaments">
       <div class="tournaments-layout">
         
+        <!-- 1. Championship Hero Action Banner -->
         <div class="tournaments-action-banner">
           <div>
             <h2>🏆 Nigerian Draughts Championships & Cups</h2>
-            <p>Compete for cash and coin prize pools under official Nigerian 10x10 knockout rules.</p>
+            <p>Compete for cash and coin prize pools under official 10x10 knockout and league rules.</p>
           </div>
-          <button type="button" class="btn btn-primary btn-large btn-host-tourn" onclick="openHostTournamentModal()">
-            <span class="icon">🏆</span> Host Official Tournament
-          </button>
+          <div class="tournaments-header-actions" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <button type="button" class="btn btn-secondary btn-large btn-guide-tourn" onclick="openTournamentGuideModal()" style="display:inline-flex; align-items:center; gap:8px; border-color:rgba(245,166,35,0.4); color:#fef08a;">
+              <span class="icon">📄</span> How to Guide (PDF)
+            </button>
+            <button type="button" class="btn btn-primary btn-large btn-host-tourn" onclick="openHostTournamentModal()">
+              <span class="icon">➕</span> Create Tournament
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Organized Tournament Category Filter Bar -->
+        <div class="tournament-filter-bar" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:18px; background:rgba(18,24,38,0.75); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 16px;">
+          <div class="filter-pills-group" id="tournament-filter-pills">
+            <button type="button" class="filter-pill active" data-filter="all" onclick="switchTournamentFilter('all')">
+              <span>🌐</span> All Tournaments <span class="filter-count-badge" id="count-tourn-all">0</span>
+            </button>
+            <button type="button" class="filter-pill" data-filter="new" onclick="switchTournamentFilter('new')">
+              <span>🆕</span> New Tournaments <span class="filter-count-badge" id="count-tourn-new">0</span>
+            </button>
+            <button type="button" class="filter-pill" data-filter="started" onclick="switchTournamentFilter('started')">
+              <span>🔴</span> Tournament Started <span class="filter-count-badge" id="count-tourn-started">0</span>
+            </button>
+            <button type="button" class="filter-pill" data-filter="over" onclick="switchTournamentFilter('over')">
+              <span>🏁</span> Tournament Over <span class="filter-count-badge" id="count-tourn-over">0</span>
+            </button>
+            <button type="button" class="filter-pill" data-filter="most_viewed" onclick="switchTournamentFilter('most_viewed')">
+              <span>🔥</span> Most Viewed <span class="filter-count-badge" id="count-tourn-viewed">0</span>
+            </button>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" class="btn btn-secondary btn-small" onclick="openTournamentGuideModal()" style="font-size:0.8rem; padding:6px 12px; display:inline-flex; align-items:center; gap:6px; border-color:rgba(234,179,8,0.4); color:#fbbf24;">
+              <span>📄</span> How to Guide (PDF)
+            </button>
+            <a href="download_tournament_guide.php?download=1" class="btn btn-secondary btn-small" title="Direct PDF Download" style="font-size:0.8rem; padding:6px 12px; text-decoration:none; display:inline-flex; align-items:center; gap:5px; border-color:rgba(34,197,94,0.4); color:#4ade80;">
+              <span>📥</span> Download PDF
+            </a>
+          </div>
         </div>
 
         <!-- International Players Welcome Banner -->
@@ -1434,44 +1469,358 @@ $pkgBadge = getPackageBadge($package);
 
   <!-- 6. HOST TOURNAMENT MODAL -->
   <div class="home-modal-overlay" id="modal-host-tournament">
-    <div class="home-modal-dialog">
+    <div class="home-modal-dialog create-game-modal-card host-tourn-modal-card">
       <div class="home-modal-header">
-        <h3 class="home-modal-title">🚀 Host Official Tournament</h3>
+        <h3 class="home-modal-title">🏆 Host Official Tournament</h3>
         <button type="button" class="btn-close-home-modal" onclick="closeModal('modal-host-tournament')">&times;</button>
       </div>
-      <div class="home-modal-body">
-        <form id="form-host-tournament" onsubmit="handleHostTournamentSubmit(event)">
-          <div class="form-group">
-            <label for="tourn-title">Tournament Name</label>
-            <input type="text" id="tourn-title" class="form-control" placeholder="e.g. Lagos Island Sunday Cup" required>
+      <form id="form-host-tournament" onsubmit="handleHostTournamentSubmit(event)" class="create-game-form-wrapper">
+        <div class="home-modal-body create-game-modal-body">
+          
+          <!-- Requirement Notice Banner -->
+          <div class="tourn-coin-req-banner" style="background: linear-gradient(135deg, rgba(234, 179, 8, 0.16), rgba(202, 138, 4, 0.08)); border: 1px solid rgba(234, 179, 8, 0.45); border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 1.6rem;">🪙</span>
+              <div>
+                <strong style="color: #fbbf24; font-size: 0.92rem; display: block;">Host Tournament Requirement</strong>
+                <span style="color: #fef08a; font-size: 0.84rem;">You required a minimum of <strong>20 coins</strong> to create a tournament.</span>
+              </div>
+            </div>
+            <div style="background: rgba(0,0,0,0.4); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(234,179,8,0.3); font-size: 0.82rem; color: #fbbf24; white-space: nowrap;">
+              Your Balance: <strong id="tourn-host-balance-span"><?= number_format($currentUser['coins'] ?? 0) ?></strong> 🪙
+            </div>
           </div>
-          <div class="form-group">
-            <label for="tourn-entry-fee">Entry Fee (Coins)</label>
-            <select id="tourn-entry-fee" class="form-control">
-              <option value="0">Free (0 Coins)</option>
-              <option value="50">50 Coins Entry</option>
-              <option value="100">100 Coins Entry</option>
-              <option value="250">250 Coins Entry</option>
-              <option value="500">500 Coins Entry</option>
-            </select>
+
+          <div class="create-game-grid">
+
+            <!-- Section 1: Tournament Name & Type -->
+            <div class="create-game-section-title">
+              <span>🏆</span> 1. Tournament Identity & Rules
+            </div>
+
+            <!-- Tournament name (required) -->
+            <div class="form-group create-game-full">
+              <label for="tourn-title" style="font-weight: 600;">Tournament name <span style="color: #ef4444;">*</span></label>
+              <input type="text" id="tourn-title" class="form-control" placeholder="Title (e.g. Lagos Mainland Championship)" required>
+            </div>
+
+            <!-- Tournament type (required) -->
+            <div class="form-group">
+              <label for="tourn-type" style="font-weight: 600;">Tournament type <span style="color: #ef4444;">*</span></label>
+              <select id="tourn-type" class="form-control" required>
+                <option value="knockout" selected>Knockout</option>
+                <option value="league">League</option>
+                <option value="best_of_5">best of 5</option>
+                <option value="best_of_3">best of 3</option>
+              </select>
+            </div>
+
+            <!-- Rule type : Nigeria , Ghana , international -->
+            <div class="form-group">
+              <label for="tourn-rule-type" style="font-weight: 600;">Rule type <span style="color: #ef4444;">*</span></label>
+              <select id="tourn-rule-type" class="form-control" required>
+                <option value="nigeria" selected>Nigeria (Free Choice, Flying Kings)</option>
+                <option value="ghana">Ghana (Damii - Immediate Crown Stop, 16-Move 3v1)</option>
+                <option value="international">international (FMJD - Strict Majority Capture)</option>
+              </select>
+            </div>
+
+            <!-- Player join type(required) -->
+            <div class="form-group create-game-full">
+              <label for="tourn-join-type" style="font-weight: 600;">Player join type <span style="color: #ef4444;">*</span></label>
+              <select id="tourn-join-type" class="form-control" required>
+                <option value="open" selected>Join tournament button (Open Registration)</option>
+                <option value="request">Request participation button (Host Approval Required)</option>
+                <option value="invite_only">invited only (Private Invitation)</option>
+              </select>
+            </div>
+
+            <!-- Section 2: Players & Coin Stakes -->
+            <div class="create-game-section-title">
+              <span>👥</span> 2. Number of Players & Entry Coins
+            </div>
+
+            <!-- Number of players (required): 4 players 8 ,16,32,64 -->
+            <div class="form-group">
+              <label for="tourn-max-players" style="font-weight: 600;">Number of players <span style="color: #ef4444;">*</span></label>
+              <select id="tourn-max-players" class="form-control" onchange="updateTournamentCostSummary()" required>
+                <option value="4">4 players</option>
+                <option value="8" selected>8 players</option>
+                <option value="16">16 players</option>
+                <option value="32">32 players</option>
+                <option value="64">64 players</option>
+              </select>
+            </div>
+
+            <!-- Entry coins (required): 100 coins , 200 ,300, 400 ,500,600,700,800,900,1000,1500,2000,2500,3000 , 5000 , 10000, 20000 coins , 30000, 40000, 50000,60000 ,70000,80000,90000,100000 coins -->
+            <div class="form-group">
+              <label for="tourn-entry-coins" style="font-weight: 600;">Entry coins <span style="color: #ef4444;">*</span></label>
+              <select id="tourn-entry-coins" class="form-control" onchange="updateTournamentCostSummary()" required>
+                <option value="100" selected>100 coins</option>
+                <option value="200">200 coins</option>
+                <option value="300">300 coins</option>
+                <option value="400">400 coins</option>
+                <option value="500">500 coins</option>
+                <option value="600">600 coins</option>
+                <option value="700">700 coins</option>
+                <option value="800">800 coins</option>
+                <option value="900">900 coins</option>
+                <option value="1000">1,000 coins</option>
+                <option value="1500">1,500 coins</option>
+                <option value="2000">2,000 coins</option>
+                <option value="2500">2,500 coins</option>
+                <option value="3000">3,000 coins</option>
+                <option value="5000">5,000 coins</option>
+                <option value="10000">10,000 coins</option>
+                <option value="20000">20,000 coins</option>
+                <option value="30000">30,000 coins</option>
+                <option value="40000">40,000 coins</option>
+                <option value="50000">50,000 coins</option>
+                <option value="60000">60,000 coins</option>
+                <option value="70000">70,000 coins</option>
+                <option value="80000">80,000 coins</option>
+                <option value="90000">90,000 coins</option>
+                <option value="100000">100,000 coins</option>
+              </select>
+            </div>
+
+            <!-- Who is paying entry coins: (required): Player ,host -->
+            <div class="form-group create-game-full">
+              <label for="tourn-payer-type" style="font-weight: 600;">Who is paying entry coins: <span style="color: #ef4444;">*</span></label>
+              <select id="tourn-payer-type" class="form-control" onchange="updateTournamentCostSummary()" required>
+                <option value="player" selected>Player (Each contender pays entry fee)</option>
+                <option value="host">host (Host sponsors/pays entry fees for all players)</option>
+              </select>
+            </div>
+
+            <!-- Cost Summary Breakdown -->
+            <div class="form-group create-game-full">
+              <div id="tourn-cost-summary-box" style="background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.85rem;">
+                <div>
+                  <span style="color:#94a3b8;">Host Creation Fee: </span><strong style="color:#fbbf24;">20 Coins</strong>
+                  <span id="tourn-host-sponsor-text" style="display:none; margin-left: 8px; color: #60a5fa;"> | Host Sponsorship: <strong id="tourn-host-sponsor-val">0 Coins</strong></span>
+                </div>
+                <div>
+                  <span style="color:#94a3b8;">Est. Prize Pot: </span><strong id="tourn-est-pot-val" style="color:#4ade80;">800 Coins</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 3: Schedule & Deadlines (in GMT) -->
+            <div class="create-game-section-title">
+              <span>📅</span> 3. Schedule & Deadlines (in GMT)
+            </div>
+
+            <!-- Start Date (in GMT) (required) -->
+            <div class="form-group">
+              <label for="tourn-start-date" style="font-weight: 600;">Start Date (in GMT) <span style="color: #ef4444;">*</span></label>
+              <input type="datetime-local" id="tourn-start-date" class="form-control" required>
+              <small style="color:#94a3b8; font-size:0.75rem; margin-top:3px; display:block;">Format: dd/mm/yyyy --:-- (GMT)</small>
+            </div>
+
+            <!-- End Date (in GMT) (required) -->
+            <div class="form-group">
+              <label for="tourn-end-date" style="font-weight: 600;">End Date (in GMT) <span style="color: #ef4444;">*</span></label>
+              <input type="datetime-local" id="tourn-end-date" class="form-control" required>
+              <small style="color:#94a3b8; font-size:0.75rem; margin-top:3px; display:block;">Format: dd/mm/yyyy --:-- (GMT)</small>
+            </div>
+
+            <!-- Deadline Date (in GMT) for joining (required) -->
+            <div class="form-group create-game-full">
+              <label for="tourn-join-deadline" style="font-weight: 600;">Deadline Date (in GMT) for joining <span style="color: #ef4444;">*</span></label>
+              <input type="datetime-local" id="tourn-join-deadline" class="form-control" required>
+              <small style="color:#94a3b8; font-size:0.75rem; margin-top:3px; display:block;">Format: dd/mm/yyyy --:-- (GMT)</small>
+            </div>
+
+            <!-- Section 4: Board type & Game modifications -->
+            <div class="create-game-section-title">
+              <span>🎨</span> 4. Board Type & Game Modifications
+            </div>
+
+            <!-- Board type: Board (required): Default -->
+            <div class="form-group">
+              <label for="tourn-board-type" style="font-weight: 600;">Board (required)</label>
+              <select id="tourn-board-type" class="form-control" required>
+                <option value="default" selected>Default</option>
+                <option value="eco_giant">Eco Giant</option>
+                <option value="golden_state">Golden State</option>
+                <option value="safari_land">Safari Land</option>
+                <option value="mineral_grove">Mineral Grove</option>
+                <option value="diamond_coast">Diamond Coast</option>
+              </select>
+            </div>
+
+            <!-- Game modifications: None , crown start left left , crown start middle middle , crown start  left middle -->
+            <div class="form-group">
+              <label for="tourn-game-modification" style="font-weight: 600;">Game modifications</label>
+              <select id="tourn-game-modification" class="form-control">
+                <option value="none" selected>None</option>
+                <option value="crown_start_left_left">crown start left left</option>
+                <option value="crown_start_middle_middle">crown start middle middle</option>
+                <option value="crown_start_left_middle">crown start  left middle</option>
+              </select>
+            </div>
+
+            <!-- Section 5: Settings -->
+            <div class="create-game-section-title">
+              <span>⚙️</span> 5. Tournament Settings
+            </div>
+
+            <!-- Settings: Undo allowed, Private tournament, To win, Disable chat, Sound on, Scheduled tournament -->
+            <div class="form-group create-game-full">
+              <div class="toggles-grid">
+                <div class="toggle-switch-item">
+                  <span class="toggle-label-text">↩️ Undo allowed</span>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="tourn-toggle-undo" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="toggle-switch-item">
+                  <span class="toggle-label-text">🔒 Private tournament</span>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="tourn-toggle-private">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="toggle-switch-item">
+                  <span class="toggle-label-text">🏆 To win</span>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="tourn-toggle-towin" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="toggle-switch-item">
+                  <span class="toggle-label-text">🔇 Disable chat</span>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="tourn-toggle-chat">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="toggle-switch-item">
+                  <span class="toggle-label-text">🔊 Sound on</span>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="tourn-toggle-sound" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="toggle-switch-item">
+                  <span class="toggle-label-text">📅 Scheduled tournament</span>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="tourn-toggle-scheduled" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
           </div>
-          <div class="form-group">
-            <label for="tourn-entry-naira">Cash Entry Stake (₦ Naira - Optional)</label>
-            <input type="number" id="tourn-entry-naira" class="form-control" placeholder="0.00 (e.g. 1000)" min="0" step="100">
+        </div>
+        <div class="home-modal-footer" style="padding: 14px 24px; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.25); display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 0.85rem; color: #94a3b8;">
+            Total Host Coins Required: <strong id="tourn-total-deduct-span" style="color: #fbbf24;">20 Coins</strong>
           </div>
-          <div class="form-group">
-            <label for="tourn-prize-naira">Cash Prize Pool (₦ Naira - Optional)</label>
-            <input type="number" id="tourn-prize-naira" class="form-control" placeholder="0.00 (e.g. 50000)" min="0" step="500">
+          <div style="display: flex; gap: 10px;">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('modal-host-tournament')">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btn-submit-host-tourn">
+              🚀 Launch Tournament &rarr;
+            </button>
           </div>
-          <div class="form-group">
-            <label for="tourn-max-players">Knockout Bracket Size</label>
-            <select id="tourn-max-players" class="form-control">
-              <option value="8">8 Players (Quarterfinals Knockout)</option>
-              <option value="16">16 Players (Championship Cup)</option>
-            </select>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6B. TOURNAMENT HOSTING GUIDE MODAL (PDF) -->
+  <div class="home-modal-overlay" id="modal-tournament-guide">
+    <div class="home-modal-dialog create-game-modal-card host-tourn-modal-card" style="max-width: 760px;">
+      <div class="home-modal-header">
+        <h3 class="home-modal-title">📖 Tournament Hosting Guide (Official NDF)</h3>
+        <button type="button" class="btn-close-home-modal" onclick="closeModal('modal-tournament-guide')">&times;</button>
+      </div>
+      <div class="create-game-form-wrapper">
+        <div class="home-modal-body create-game-modal-body" style="line-height: 1.6; color: #cbd5e1;">
+          
+          <!-- Golden Requirement Notice Banner -->
+          <div style="background: linear-gradient(135deg, rgba(234, 179, 8, 0.16), rgba(202, 138, 4, 0.08)); border: 1px solid rgba(234, 179, 8, 0.45); border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 1.6rem;">🪙</span>
+              <div>
+                <strong style="color: #fbbf24; font-size: 0.92rem; display: block;">Host Minimum Requirement: 20 Coins</strong>
+                <span style="color: #fef08a; font-size: 0.84rem;">Every host requires a minimum of <strong>20 coins</strong> to create and manage an official tournament.</span>
+              </div>
+            </div>
+            <a href="download_tournament_guide.php?download=1" class="btn btn-primary btn-small" style="white-space:nowrap; background:#fbbf24; color:#000; font-weight:800; text-decoration:none; padding:6px 12px; border-radius:6px;">
+              📥 Download PDF
+            </a>
           </div>
-          <button type="submit" class="btn btn-primary btn-block btn-large">Launch Tournament & Open Registration &rarr;</button>
-        </form>
+
+          <div style="margin-bottom: 20px;">
+            <h4 style="color:#60a5fa; margin:0 0 6px 0; font-size:1rem; display:flex; align-items:center; gap:6px;">
+              <span>1️⃣</span> Host Coin Policies & Sponsorship Options
+            </h4>
+            <p style="margin:0; font-size:0.86rem; color:#94a3b8;">
+              A 20-coin creation fee is charged to publish a tournament. Under <strong>Who is paying entry coins</strong>, selecting <em>Host</em> allows you to sponsor the entire player pot upfront (e.g. 8 players × 100 coins = 800 coins + 20 fee = 820 coins total), enabling free entry for your contenders.
+            </p>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <h4 style="color:#60a5fa; margin:0 0 6px 0; font-size:1rem; display:flex; align-items:center; gap:6px;">
+              <span>2️⃣</span> Tournament Formats & Bracket Capacities
+            </h4>
+            <p style="margin:0; font-size:0.86rem; color:#94a3b8;">
+              Choose from <strong>Knockout (Single Elimination)</strong>, <strong>League (Round-Robin)</strong>, <strong>Best of 5</strong>, or <strong>Best of 3</strong> series. Capacities supported include exactly 4, 8, 16, 32, or 64 players. Matches auto-seed once registration fills.
+            </p>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <h4 style="color:#60a5fa; margin:0 0 6px 0; font-size:1rem; display:flex; align-items:center; gap:6px;">
+              <span>3️⃣</span> Rule Types: Nigeria, Ghana & International
+            </h4>
+            <p style="margin:0; font-size:0.86rem; color:#94a3b8;">
+              • <strong>Nigeria:</strong> Free choice captures, flying kings with multi-jump directional stops.<br>
+              • <strong>Ghana (Damii):</strong> Immediate crown freeze on king row, 16-move 3v1 endgame enforcement.<br>
+              • <strong>International (FMJD):</strong> Strict majority capture across open diagonals.
+            </p>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <h4 style="color:#60a5fa; margin:0 0 6px 0; font-size:1rem; display:flex; align-items:center; gap:6px;">
+              <span>4️⃣</span> Player Join Types
+            </h4>
+            <p style="margin:0; font-size:0.86rem; color:#94a3b8;">
+              • <strong>Join tournament button:</strong> Open registration for all contenders.<br>
+              • <strong>Request participation button:</strong> Contenders apply; host approves or declines.<br>
+              • <strong>Invited only:</strong> Private tournament accessible via invitation.
+            </p>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <h4 style="color:#60a5fa; margin:0 0 6px 0; font-size:1rem; display:flex; align-items:center; gap:6px;">
+              <span>5️⃣</span> GMT Deadlines & Automated Prize Distribution
+            </h4>
+            <p style="margin:0; font-size:0.86rem; color:#94a3b8;">
+              All schedules operate in GMT / UTC. Once the championship finishes, the platform engine automatically credits <strong>70% of the prize pot to the Champion</strong> and <strong>20% to the Runner-Up</strong> instantly.
+            </p>
+          </div>
+
+        </div>
+        <div class="home-modal-footer" style="padding: 14px 24px; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; gap:10px;">
+            <a href="download_tournament_guide.php?download=1" class="btn btn-secondary" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+              <span>📥</span> Download PDF
+            </a>
+            <a href="download_tournament_guide.php" target="_blank" class="btn btn-secondary" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+              <span>🖨️</span> Printable View
+            </a>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('modal-tournament-guide')">Close</button>
+            <button type="button" class="btn btn-primary" onclick="closeModal('modal-tournament-guide'); openHostTournamentModal();">
+              <span>🚀</span> Create Tournament Now &rarr;
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

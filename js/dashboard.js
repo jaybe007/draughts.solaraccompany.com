@@ -5,6 +5,7 @@
  */
 
 let currentLobbyFilter = 'all_games';
+let currentTournamentFilter = 'all';
 let activeConversationPeer = null;
 let pollInterval = null;
 
@@ -1482,26 +1483,126 @@ async function upgradePackageTier(tier, price) {
 
 // ================= TOURNAMENTS HUB ================= //
 function openHostTournamentModal() {
+  // Pre-populate default GMT dates if empty
+  const now = new Date();
+  
+  // Start date: tomorrow at 12:00 UTC
+  const startDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 12, 0));
+  // End date: 3 days after tomorrow at 18:00 UTC
+  const endDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 4, 18, 0));
+  // Join deadline: 2 hours before start date
+  const deadlineDate = new Date(startDate.getTime() - 2 * 3600 * 1000);
+
+  const formatLocalIso = (d) => {
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}T${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
+  };
+
+  const startInput = document.getElementById('tourn-start-date');
+  const endInput = document.getElementById('tourn-end-date');
+  const deadlineInput = document.getElementById('tourn-join-deadline');
+
+  if (startInput && !startInput.value) startInput.value = formatLocalIso(startDate);
+  if (endInput && !endInput.value) endInput.value = formatLocalIso(endDate);
+  if (deadlineInput && !deadlineInput.value) deadlineInput.value = formatLocalIso(deadlineDate);
+
+  updateTournamentCostSummary();
   openModal('modal-host-tournament');
 }
 
-async function loadTournamentsList() {
+function updateTournamentCostSummary() {
+  const maxPlayers = parseInt(document.getElementById('tourn-max-players')?.value || 8, 10);
+  const entryCoins = parseInt(document.getElementById('tourn-entry-coins')?.value || 100, 10);
+  const payerType = document.getElementById('tourn-payer-type')?.value || 'player';
+
+  const creationFee = 20;
+  const isHostPaying = (payerType === 'host');
+  const sponsorCoins = isHostPaying ? (entryCoins * maxPlayers) : 0;
+  const totalHostDeduct = creationFee + sponsorCoins;
+  const estPrizePot = entryCoins * maxPlayers;
+
+  const sponsorText = document.getElementById('tourn-host-sponsor-text');
+  const sponsorVal = document.getElementById('tourn-host-sponsor-val');
+  if (sponsorText && sponsorVal) {
+    if (isHostPaying) {
+      sponsorText.style.display = 'inline';
+      sponsorVal.textContent = sponsorCoins.toLocaleString() + ' Coins';
+    } else {
+      sponsorText.style.display = 'none';
+    }
+  }
+
+  const potVal = document.getElementById('tourn-est-pot-val');
+  if (potVal) {
+    potVal.textContent = estPrizePot.toLocaleString() + ' Coins';
+  }
+
+  const totalDeductSpan = document.getElementById('tourn-total-deduct-span');
+  if (totalDeductSpan) {
+    totalDeductSpan.textContent = totalHostDeduct.toLocaleString() + ' Coins' + (isHostPaying ? ` (20 Fee + ${sponsorCoins.toLocaleString()} Entry)` : ' (Creation Fee)');
+  }
+}
+
+function openTournamentGuideModal() {
+  openModal('modal-tournament-guide');
+}
+
+function switchTournamentFilter(filterName) {
+  currentTournamentFilter = filterName || 'all';
+  document.querySelectorAll('#tournament-filter-pills .filter-pill').forEach(pill => {
+    pill.classList.toggle('active', pill.dataset.filter === currentTournamentFilter);
+  });
+  loadTournamentsList(currentTournamentFilter);
+}
+
+async function loadTournamentsList(filter = currentTournamentFilter) {
   const container = document.getElementById('tournaments-grid');
   if (!container) return;
+
+  currentTournamentFilter = filter || 'all';
+
+  // Highlight active pill
+  document.querySelectorAll('#tournament-filter-pills .filter-pill').forEach(pill => {
+    pill.classList.toggle('active', pill.dataset.filter === currentTournamentFilter);
+  });
 
   container.innerHTML = '<div class="empty-state">Loading Nigerian Draughts championships...</div>';
 
   try {
-    const res = await fetch('api/tournaments.php?action=get_tournaments');
+    const res = await fetch(`api/tournaments.php?action=get_tournaments&filter=${encodeURIComponent(currentTournamentFilter)}`);
     const data = await res.json();
 
+    // Update filter count badges
+    if (data.counts) {
+      const setBadge = (id, count) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = count !== undefined ? count : 0;
+      };
+      setBadge('count-tourn-all', data.counts.all);
+      setBadge('count-tourn-new', data.counts.new);
+      setBadge('count-tourn-started', data.counts.started);
+      setBadge('count-tourn-over', data.counts.over);
+      setBadge('count-tourn-viewed', data.counts.most_viewed);
+    }
+
     if (!data.success || !data.tournaments || data.tournaments.length === 0) {
+      let emptyMsg = 'No active championships scheduled right now.';
+      if (currentTournamentFilter === 'new') emptyMsg = 'No new open championships waiting for contenders right now.';
+      else if (currentTournamentFilter === 'started') emptyMsg = 'No active tournaments currently in progress.';
+      else if (currentTournamentFilter === 'over') emptyMsg = 'No completed tournaments in the archive yet.';
+      else if (currentTournamentFilter === 'most_viewed') emptyMsg = 'No tournament views recorded yet.';
+
       container.innerHTML = `
         <div class="empty-state">
-          <p>No active championships scheduled right now.</p>
-          <button type="button" class="btn btn-primary btn-small" onclick="openHostTournamentModal()" style="margin-top: 10px;">
-            🚀 Host the Next Tournament
-          </button>
+          <p>${escapeHtml(emptyMsg)}</p>
+          <div style="display:flex; justify-content:center; gap:10px; margin-top:14px; flex-wrap:wrap;">
+            <button type="button" class="btn btn-primary btn-small" onclick="openHostTournamentModal()">
+              🚀 Create Tournament
+            </button>
+            <button type="button" class="btn btn-secondary btn-small" onclick="openTournamentGuideModal()">
+              📄 How to Guide (PDF)
+            </button>
+          </div>
         </div>
       `;
       return;
@@ -1516,17 +1617,26 @@ async function loadTournamentsList() {
       const isUpcoming = t.status === 'upcoming';
 
       let feeDisplay = 'Free';
-      if (t.entry_fee_naira > 0) feeDisplay = '₦' + Number(t.entry_fee_naira).toLocaleString();
-      else if (t.entry_fee_coins > 0) feeDisplay = t.entry_fee_coins + ' 🪙';
+      if (t.payer_type === 'host') {
+        feeDisplay = '<span style="color:#4ade80; font-weight:700;">Host Sponsored (Free)</span>';
+      } else if (t.entry_fee_naira > 0) {
+        feeDisplay = '₦' + Number(t.entry_fee_naira).toLocaleString();
+      } else if (t.entry_fee_coins > 0) {
+        feeDisplay = Number(t.entry_fee_coins).toLocaleString() + ' 🪙';
+      }
 
       let prizeDisplay = t.prize_pool_naira > 0 ? '₦' + Number(t.prize_pool_naira).toLocaleString() : (t.prize_pool || '5,000 🪙');
 
       let statusBadge = `<span class="t-badge">🏆 UPCOMING</span>`;
       if (isLive) {
-        statusBadge = `<span class="t-badge" style="background:#ef4444; color:#fff; font-weight:800;">🔴 LIVE (${escapeHtml(t.current_round || 'Round 1')})</span>`;
+        statusBadge = `<span class="t-badge" style="background:#ef4444; color:#fff; font-weight:800; padding:2px 8px; border-radius:4px;">🔴 LIVE (${escapeHtml(t.current_round || 'Round 1')})</span>`;
       } else if (isCompleted) {
-        statusBadge = `<span class="t-badge" style="background:#22c55e; color:#000; font-weight:800;">🏁 COMPLETED</span>`;
+        statusBadge = `<span class="t-badge" style="background:#22c55e; color:#000; font-weight:800; padding:2px 8px; border-radius:4px;">🏁 COMPLETED</span>`;
       }
+
+      // Rule label
+      const ruleName = (t.rule_type === 'ghana') ? '🇬🇭 Ghana' : ((t.rule_type === 'international') ? '🌍 International' : '🇳🇬 Nigeria');
+      const typeName = (t.tournament_type === 'best_of_5') ? 'Best of 5' : ((t.tournament_type === 'best_of_3') ? 'Best of 3' : ((t.tournament_type === 'league') ? 'League' : 'Knockout'));
 
       // Check if user has an active ready match in this tournament
       let userActiveMatchRoom = null;
@@ -1539,20 +1649,63 @@ async function loadTournamentsList() {
           }
           return null;
         };
+        (t.brackets.round_of_64 || []).forEach(m => { const r = checkMatch(m); if (r) userActiveMatchRoom = r; });
+        (t.brackets.round_of_32 || []).forEach(m => { const r = checkMatch(m); if (r) userActiveMatchRoom = r; });
+        (t.brackets.round_of_16 || []).forEach(m => { const r = checkMatch(m); if (r) userActiveMatchRoom = r; });
         (t.brackets.quarter_finals || []).forEach(m => { const r = checkMatch(m); if (r) userActiveMatchRoom = r; });
         (t.brackets.semi_finals || []).forEach(m => { const r = checkMatch(m); if (r) userActiveMatchRoom = r; });
         const rFin = checkMatch(t.brackets.finals);
         if (rFin) userActiveMatchRoom = rFin;
       }
 
+      // Join button label based on join_type
+      let joinBtnText = 'Join Championship &rarr;';
+      if (t.join_type === 'request') {
+        joinBtnText = 'Request Participation &rarr;';
+      } else if (t.join_type === 'invite_only') {
+        joinBtnText = '🔒 Invited Only';
+      }
+
+      const formatDateGmt = (dStr) => {
+        if (!dStr) return null;
+        try {
+          const d = new Date(dStr.replace(' ', 'T') + 'Z');
+          if (isNaN(d.getTime())) return dStr;
+          const pad = (n) => String(n).padStart(2, '0');
+          return `${pad(d.getUTCDate())}/${pad(d.getUTCMonth() + 1)}/${d.getUTCFullYear()} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} GMT`;
+        } catch(e) { return dStr; }
+      };
+
+      const startGmt = formatDateGmt(t.start_date);
+      const deadlineGmt = formatDateGmt(t.join_deadline);
+      const viewsDisplay = Number(t.views_count || 0).toLocaleString();
+
       return `
         <div class="tournament-card">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            ${statusBadge}
-            <span style="font-size:0.75rem; color:#94a3b8;">${escapeHtml(t.format || '8-Player Knockout')}</span>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              ${statusBadge}
+              <span class="tourn-badge-pill tourn-badge-rule">${ruleName}</span>
+              <span class="tourn-badge-pill tourn-badge-type">${typeName}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:0.75rem; color:#94a3b8;">${escapeHtml(t.format || (t.max_participants + '-Player Knockout'))}</span>
+              <span style="font-size:0.75rem; color:#f59e0b; background:rgba(245,158,11,0.12); padding:2px 6px; border-radius:4px;" title="Views">👁️ ${viewsDisplay}</span>
+            </div>
           </div>
           <h3 class="t-title">${escapeHtml(t.name || t.title)}</h3>
-          <div class="t-host">Host: <strong>${escapeHtml(t.host_name || 'Naija Draughts Fed')}</strong></div>
+          <div class="t-host" style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; color:#94a3b8; margin-bottom:10px;">
+            <span>Host: <strong style="color:#e2e8f0;">${escapeHtml(t.host_name || 'Naija Draughts Fed')}</strong></span>
+            ${t.board_type && t.board_type !== 'default' ? `<span style="font-size:0.75rem; background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:4px;">🎨 ${escapeHtml(t.board_type)}</span>` : ''}
+          </div>
+
+          ${(startGmt || deadlineGmt) ? `
+            <div style="background:rgba(0,0,0,0.25); border-radius:6px; padding:6px 10px; margin-bottom:10px; font-size:0.75rem; color:#94a3b8; display:flex; flex-direction:column; gap:2px;">
+              ${startGmt ? `<div>📅 <strong>Starts:</strong> ${startGmt}</div>` : ''}
+              ${deadlineGmt ? `<div>⏱️ <strong>Registration Deadline:</strong> ${deadlineGmt}</div>` : ''}
+            </div>
+          ` : ''}
+
           <div class="t-metrics-grid">
             <div class="tm-item">
               <span class="tm-val">${feeDisplay}</span>
@@ -1584,7 +1737,7 @@ async function loadTournamentsList() {
             ${isUpcoming ? (
               isRegistered 
                 ? `<button type="button" class="btn btn-secondary btn-block disabled" disabled>✓ Registered (Seed #${t.user_seed || 1})</button>`
-                : `<button type="button" class="btn btn-primary btn-block" onclick="joinTournament(${t.id})">Join Championship &rarr;</button>`
+                : `<button type="button" class="btn btn-primary btn-block" onclick="joinTournament(${t.id})">${joinBtnText}</button>`
             ) : ''}
             <a href="game.php?view=tournaments" class="btn btn-secondary btn-block" style="text-align:center; font-size:0.82rem; text-decoration:none;">
               🏆 View Championship Bracket
@@ -1610,7 +1763,7 @@ async function joinTournament(tournId) {
     const data = await res.json();
 
     if (data.success) {
-      showToast('Successfully registered for tournament!', 'success');
+      showToast(data.message || 'Successfully registered for tournament!', 'success');
       loadTournamentsList();
       loadWalletSummary();
     } else {
@@ -1624,11 +1777,58 @@ async function joinTournament(tournId) {
 
 async function handleHostTournamentSubmit(e) {
   e.preventDefault();
-  const title = document.getElementById('tourn-title').value.trim();
-  const entryFeeCoins = parseInt(document.getElementById('tourn-entry-fee')?.value || 0, 10);
-  const entryFeeNaira = parseFloat(document.getElementById('tourn-entry-naira')?.value || 0);
-  const prizePoolNaira = parseFloat(document.getElementById('tourn-prize-naira')?.value || 0);
+
+  const title = document.getElementById('tourn-title')?.value.trim();
+  if (!title) {
+    showToast('Please enter a tournament name.', 'error');
+    return;
+  }
+
+  const tournType = document.getElementById('tourn-type')?.value || 'knockout';
+  const ruleType = document.getElementById('tourn-rule-type')?.value || 'nigeria';
+  const joinType = document.getElementById('tourn-join-type')?.value || 'open';
   const maxPlayers = parseInt(document.getElementById('tourn-max-players')?.value || 8, 10);
+  const entryCoins = parseInt(document.getElementById('tourn-entry-coins')?.value || 100, 10);
+  const payerType = document.getElementById('tourn-payer-type')?.value || 'player';
+
+  const startDate = document.getElementById('tourn-start-date')?.value || '';
+  const endDate = document.getElementById('tourn-end-date')?.value || '';
+  const joinDeadline = document.getElementById('tourn-join-deadline')?.value || '';
+
+  const boardType = document.getElementById('tourn-board-type')?.value || 'default';
+  const gameMod = document.getElementById('tourn-game-modification')?.value || 'none';
+
+  const undoAllowed = document.getElementById('tourn-toggle-undo')?.checked ? 1 : 0;
+  const isPrivate = document.getElementById('tourn-toggle-private')?.checked ? 1 : 0;
+  const toWin = document.getElementById('tourn-toggle-towin')?.checked ? 1 : 0;
+  const disableChat = document.getElementById('tourn-toggle-chat')?.checked ? 1 : 0;
+  const soundOn = document.getElementById('tourn-toggle-sound')?.checked ? 1 : 0;
+  const isScheduled = document.getElementById('tourn-toggle-scheduled')?.checked ? 1 : 0;
+
+  // Validation: Check dates
+  if (!startDate || !endDate || !joinDeadline) {
+    showToast('Please specify Start Date, End Date, and Registration Deadline.', 'error');
+    return;
+  }
+
+  const sTime = new Date(startDate).getTime();
+  const eTime = new Date(endDate).getTime();
+  const dTime = new Date(joinDeadline).getTime();
+
+  if (eTime <= sTime) {
+    showToast('End date must be after Start date.', 'error');
+    return;
+  }
+  if (dTime > sTime) {
+    showToast('Registration deadline must be on or before the tournament Start date.', 'error');
+    return;
+  }
+
+  const submitBtn = document.getElementById('btn-submit-host-tourn');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Creating Tournament...';
+  }
 
   try {
     const res = await fetch('api/tournaments.php?action=host_tournament', {
@@ -1636,24 +1836,46 @@ async function handleHostTournamentSubmit(e) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         title,
-        entry_fee_coins: entryFeeCoins,
-        entry_fee_naira: entryFeeNaira,
-        prize_pool_naira: prizePoolNaira,
-        max_participants: maxPlayers
+        name: title,
+        tournament_type: tournType,
+        rule_type: ruleType,
+        join_type: joinType,
+        number_of_players: maxPlayers,
+        max_participants: maxPlayers,
+        entry_coins: entryCoins,
+        entry_fee_coins: entryCoins,
+        payer_type: payerType,
+        start_date: startDate,
+        end_date: endDate,
+        join_deadline: joinDeadline,
+        board_type: boardType,
+        game_modification: gameMod,
+        undo_allowed: undoAllowed,
+        is_private: isPrivate,
+        to_win: toWin,
+        disable_chat: disableChat,
+        sound_on: soundOn,
+        is_scheduled: isScheduled
       })
     });
     const data = await res.json();
 
     if (data.success) {
       closeModal('modal-host-tournament');
-      showToast('Championship created successfully! Registration is now open.', 'success');
+      showToast(data.message || 'Tournament created successfully! Registration is now open.', 'success');
       loadTournamentsList();
+      loadWalletSummary();
     } else {
       showToast(data.message || 'Failed to host tournament.', 'error');
     }
   } catch (err) {
     console.error(err);
     showToast('Network error hosting tournament.', 'error');
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '🚀 Launch Tournament &rarr;';
+    }
   }
 }
 

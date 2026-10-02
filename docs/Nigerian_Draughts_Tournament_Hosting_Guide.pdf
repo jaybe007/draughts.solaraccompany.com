@@ -1,0 +1,350 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 3 0 R >>
+endobj
+2 0 obj
+<< /Type /Outlines /Count 0 >>
+endobj
+3 0 obj
+<< /Type /Pages /Kids [6 0 R] /Count 1 >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /Name /F1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /Name /F2 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Page /Parent 3 0 R /MediaBox [0 0 595.28 841.89] /Contents 7 0 R /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> >>
+endobj
+7 0 obj
+<< /Length 5096 >>
+stream
+q
+0.08 0.53 0.32 rg
+0 780 595.28 62 re f
+Q
+q
+1.00 1.00 1.00 rg
+BT
+/F2 18 Tf
+1 0 0 1 40 808 Tm
+(NAIJA DRAUGHTS FEDERATION \(NDF\)) Tj
+ET
+Q
+q
+0.95 0.95 0.95 rg
+BT
+/F1 10 Tf
+1 0 0 1 40 792 Tm
+(OFFICIAL TOURNAMENT HOSTING & CHAMPIONSHIP GUIDE) Tj
+ET
+Q
+q
+0.96 0.97 0.99 rg
+0.80 0.85 0.90 RG 1 w
+40 690 515.28 70 re B
+Q
+q
+0.10 0.20 0.40 rg
+BT
+/F2 12 Tf
+1 0 0 1 55 738 Tm
+(WELCOME TO THE OFFICIAL CHAMPIONSHIP ENGINE) Tj
+ET
+Q
+q
+0.20 0.25 0.30 rg
+BT
+/F1 10 Tf
+1 0 0 1 55 722 Tm
+(This guide provides hosts, tournament directors, and community leaders with standard) Tj
+ET
+Q
+q
+0.20 0.25 0.30 rg
+BT
+/F1 10 Tf
+1 0 0 1 55 706 Tm
+(rules, coin requirements, bracket mechanics, and automated payout schedules.) Tj
+ET
+Q
+q
+0.92 0.75 0.15 rg
+40 655 515.28 22 re f
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F2 11 Tf
+1 0 0 1 50 662 Tm
+(1. HOST REQUIREMENTS & COIN POLICIES) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 638 Tm
+(- Minimum 20 Platform Coins: Every host must maintain at least 20 coins to initiate any championship.) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 622 Tm
+(- Creation Fee: Exactly 20 coins is deducted as a platform hosting fee upon publishing registration.) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 606 Tm
+(- Host Sponsorship: If 'Who is paying' is set to Host, the host sponsors all player entry fees upfront.) Tj
+ET
+Q
+q
+0.20 0.30 0.50 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 590 Tm
+(  Example: 8 players x 100 coins = 800 coins + 20 fee = 820 coins total required from the host.) Tj
+ET
+Q
+q
+0.12 0.20 0.30 rg
+40 555 515.28 22 re f
+Q
+q
+1.00 1.00 1.00 rg
+BT
+/F2 11 Tf
+1 0 0 1 50 562 Tm
+(2. TOURNAMENT TYPES & BRACKET FORMATS) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 538 Tm
+(A. Knockout \(Single Elimination\): Traditional tournament bracket. Winners advance; losers are eliminated.) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 522 Tm
+(B. League \(Round-Robin\): Contenders battle for points across scheduled match fixtures.) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 506 Tm
+(C. Best of 5 / Best of 3: Extended series between masters to determine the undisputed winner.) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 490 Tm
+(D. Player Capacities Supported: Exactly 4, 8, 16, 32, or 64 players.) Tj
+ET
+Q
+q
+0.12 0.20 0.30 rg
+40 455 515.28 22 re f
+Q
+q
+1.00 1.00 1.00 rg
+BT
+/F2 11 Tf
+1 0 0 1 50 462 Tm
+(3. OFFICIAL RULE SETS) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 438 Tm
+(1. Nigeria: Free capture choice, flying kings with multi-jump directional stops, 10x10 board.) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 422 Tm
+(2. Ghana \(Damii\): Immediate crown freeze on king row, 16-move 3v1 endgame enforcement.) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 406 Tm
+(3. International \(FMJD\): Strict majority capture rule; king moves across open diagonals.) Tj
+ET
+Q
+q
+0.12 0.20 0.30 rg
+40 370 515.28 22 re f
+Q
+q
+1.00 1.00 1.00 rg
+BT
+/F2 11 Tf
+1 0 0 1 50 377 Tm
+(4. PLAYER PARTICIPATION & JOIN MODES) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 352 Tm
+(- Join Tournament Button: Open access for any authenticated contender with sufficient coin stake.) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 336 Tm
+(- Request Participation: Contenders apply; the host approves or rejects registrations.) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 320 Tm
+(- Invited Only: Private championship requiring a special direct invitation.) Tj
+ET
+Q
+q
+0.12 0.20 0.30 rg
+40 285 515.28 22 re f
+Q
+q
+1.00 1.00 1.00 rg
+BT
+/F2 11 Tf
+1 0 0 1 50 292 Tm
+(5. GMT SCHEDULING & REGISTRATION DEADLINES) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 268 Tm
+(- All times on the platform operate in GMT / UTC for fair global participation.) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 252 Tm
+(- Registration Deadline: Contenders must join before the deadline timestamp \(dd/mm/yyyy --:--\).) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 236 Tm
+(- Tournament Start: As soon as the bracket reaches capacity or the start timestamp triggers.) Tj
+ET
+Q
+q
+0.08 0.53 0.32 rg
+40 200 515.28 22 re f
+Q
+q
+1.00 1.00 1.00 rg
+BT
+/F2 11 Tf
+1 0 0 1 50 207 Tm
+(6. AUTOMATED PRIZE POOL DISTRIBUTION) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 182 Tm
+(- Champion \(1st Place\): 70% of total prize pot credited immediately to winner wallet/coins.) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 166 Tm
+(- Runner-Up \(2nd Place\): 20% of total prize pot credited immediately to runner-up.) Tj
+ET
+Q
+q
+0.10 0.10 0.10 rg
+BT
+/F1 9.5 Tf
+1 0 0 1 45 150 Tm
+(- Federation Platform Commission: 10% retained for escrow security, ratings, and server maintenance.) Tj
+ET
+Q
+q
+0.94 0.95 0.96 rg
+40 80 515.28 45 re f
+Q
+q
+0.20 0.20 0.20 rg
+BT
+/F2 9 Tf
+1 0 0 1 55 108 Tm
+(HOST CHECKLIST: Ensure your account has 20+ coins, specify valid start/end GMT dates,) Tj
+ET
+Q
+q
+0.30 0.30 0.30 rg
+BT
+/F1 9 Tf
+1 0 0 1 55 94 Tm
+(and notify your club members on WhatsApp to join before the registration deadline!) Tj
+ET
+Q
+q
+0.50 0.50 0.50 rg
+BT
+/F1 8 Tf
+1 0 0 1 155 45 Tm
+(Page 1 of 1 | Naija Draughts Official Federation Tournament Document) Tj
+ET
+Q
+
+endstream
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000110 00000 n 
+0000000167 00000 n 
+0000000274 00000 n 
+0000000386 00000 n 
+0000000528 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+5676
+%%EOF
