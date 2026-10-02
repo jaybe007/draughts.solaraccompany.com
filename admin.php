@@ -306,6 +306,16 @@ $adminPerms = json_decode($adminUser['permissions_json'] ?? '[]', true) ?: [];
         </div>
       </button>
       <?php endif; ?>
+
+      <?php if ($isSuperAdmin || in_array('manage_settings', $adminPerms) || in_array('view_audit_logs', $adminPerms)): ?>
+      <button type="button" class="admin-nav-item" data-panel="panel-errors">
+        <div class="nav-label-wrap">
+          <span class="nav-icon">🚨</span>
+          <span>System Diagnostics</span>
+        </div>
+        <span class="nav-badge-pill badge-danger" id="badge-unresolved-errors" style="display:none;">0</span>
+      </button>
+      <?php endif; ?>
     </nav>
 
     <div class="sidebar-footer">
@@ -860,6 +870,123 @@ $adminPerms = json_decode($adminUser['permissions_json'] ?? '[]', true) ?: [];
       </div>
     </section>
     <?php endif; ?>
+
+    <!-- ================= PANEL 9: SYSTEM ERROR REPORTS & DIAGNOSTICS ================= -->
+    <?php if ($isSuperAdmin || in_array('manage_settings', $adminPerms) || in_array('view_audit_logs', $adminPerms)): ?>
+    <section class="admin-view-panel" id="panel-errors">
+      <!-- Error Summary KPI Grid -->
+      <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 20px;">
+        <div class="kpi-card" style="border-left: 4px solid #ef4444;">
+          <div class="kpi-header">
+            <span class="kpi-title">Active Unresolved</span>
+            <div class="kpi-icon-pill" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">🚨</div>
+          </div>
+          <div class="kpi-value" id="kpi-errors-unresolved" style="color: #ef4444;">0</div>
+          <div class="kpi-subtext">Needs administrator attention</div>
+        </div>
+
+        <div class="kpi-card" style="border-left: 4px solid #f59e0b;">
+          <div class="kpi-header">
+            <span class="kpi-title">Investigating</span>
+            <div class="kpi-icon-pill" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">🔍</div>
+          </div>
+          <div class="kpi-value" id="kpi-errors-investigating" style="color: #f59e0b;">0</div>
+          <div class="kpi-subtext">In progress / triage</div>
+        </div>
+
+        <div class="kpi-card" style="border-left: 4px solid #10b981;">
+          <div class="kpi-header">
+            <span class="kpi-title">Resolved & Fixed</span>
+            <div class="kpi-icon-pill" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">✓</div>
+          </div>
+          <div class="kpi-value" id="kpi-errors-resolved" style="color: #10b981;">0</div>
+          <div class="kpi-subtext">Remediated / cleared</div>
+        </div>
+
+        <div class="kpi-card" style="border-left: 4px solid #8b5cf6;">
+          <div class="kpi-header">
+            <span class="kpi-title">Fatal & Payment Failures</span>
+            <div class="kpi-icon-pill" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6;">⚡</div>
+          </div>
+          <div class="kpi-value" id="kpi-errors-critical" style="color: #a78bfa;">0</div>
+          <div class="kpi-subtext">High priority anomalies</div>
+        </div>
+      </div>
+
+      <!-- Main Errors Card -->
+      <div class="admin-card">
+        <div class="card-header-bar" style="flex-wrap: wrap; gap: 12px;">
+          <div class="card-title-group">
+            <h2>🚨 Intelligent System Error Reports & AI Diagnostic Solutions</h2>
+            <p>Every runtime exception, gateway timeout, database error, and client desync is paired with an actionable diagnosis and fix.</p>
+          </div>
+          <div class="card-actions-group" style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn-admin btn-admin-secondary" onclick="adminApp.loadErrorReports()">
+              <span>🔄 Refresh</span>
+            </button>
+            <button type="button" class="btn-admin btn-admin-secondary" onclick="adminApp.openSimulateErrorModal()">
+              <span>⚡ Test Diagnostic</span>
+            </button>
+            <button type="button" class="btn-admin btn-admin-danger" onclick="adminApp.clearResolvedErrors()">
+              <span>🧹 Clear Resolved</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; background: rgba(0,0,0,0.2); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--admin-border-subtle); align-items: center;">
+          <div style="flex: 1; min-width: 200px;">
+            <input type="text" id="errors-search-input" class="form-control-admin" placeholder="Search message, file, or suggested solution..." oninput="adminApp.debounceErrorSearch()">
+          </div>
+          <div style="width: 170px;">
+            <select id="errors-status-filter" class="form-control-admin" onchange="adminApp.loadErrorReports()">
+              <option value="all">All Statuses</option>
+              <option value="unresolved" selected>Unresolved</option>
+              <option value="investigating">Investigating</option>
+              <option value="resolved">Resolved</option>
+            </select>
+          </div>
+          <div style="width: 170px;">
+            <select id="errors-category-filter" class="form-control-admin" onchange="adminApp.loadErrorReports()">
+              <option value="all">All Categories</option>
+              <option value="database">Database & SQL</option>
+              <option value="payment">Payment & Webhooks</option>
+              <option value="wallet">Wallet & Payouts</option>
+              <option value="gameplay">Game Engine & Rooms</option>
+              <option value="auth">Auth & Sessions</option>
+              <option value="frontend_js">Frontend Browser JS</option>
+              <option value="php_exception">PHP Exceptions</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Errors Responsive Table -->
+        <div class="admin-table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="width: 75px;">Level</th>
+                <th style="width: 110px;">Category</th>
+                <th>Error Message & Location</th>
+                <th style="width: 300px;">💡 Recommended Diagnostic & Solution</th>
+                <th style="width: 110px;">Status</th>
+                <th style="width: 120px;">Time</th>
+                <th style="width: 130px; text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="errors-table-body">
+              <tr><td colspan="7" style="text-align:center; padding: 24px;">Loading system error logs...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+          <span style="font-size:0.82rem; color:var(--text-muted);" id="errors-pagination-info">Showing error reports</span>
+          <div style="display:flex; gap:6px;" id="errors-pagination-controls"></div>
+        </div>
+      </div>
+    </section>
+    <?php endif; ?>
   </main>
 
   <!-- ================= MODALS ================= -->
@@ -1345,6 +1472,97 @@ $adminPerms = json_decode($adminUser['permissions_json'] ?? '[]', true) ?: [];
           <button type="submit" class="btn-admin btn-admin-primary">Launch Tournament & Open Registration</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal 7: Error Details & Diagnostics Inspector -->
+  <div class="admin-modal-backdrop" id="modal-error-details">
+    <div class="admin-modal-box" style="max-width: 720px;">
+      <div class="admin-modal-header">
+        <div>
+          <h3 id="modal-error-title">🚨 System Diagnostic Inspector</h3>
+          <p id="modal-error-subtitle" style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;"></p>
+        </div>
+        <button type="button" class="btn-close-modal" onclick="adminApp.closeModal('modal-error-details')">&times;</button>
+      </div>
+      <div class="admin-modal-body">
+        <!-- Intelligent Solution Banner -->
+        <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 16px;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; color:#10b981; font-weight:700; font-size:0.9rem;">
+            <span>💡 Proferred Solution & Diagnostic Advice</span>
+          </div>
+          <div id="modal-error-solution" style="font-size:0.88rem; color:var(--text-primary); line-height:1.5;"></div>
+        </div>
+
+        <!-- Raw Error Message -->
+        <div class="form-group-admin">
+          <label>Raw Error Message</label>
+          <div id="modal-error-message" style="background: rgba(0,0,0,0.3); border: 1px solid var(--admin-border-subtle); padding: 10px 12px; border-radius: var(--radius-sm); font-family: monospace; font-size:0.82rem; color:#fca5a5; word-break: break-all;"></div>
+        </div>
+
+        <!-- File & Line -->
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:12px;">
+          <div class="form-group-admin">
+            <label>Source File</label>
+            <input type="text" id="modal-error-file" class="form-control-admin" readonly style="font-family: monospace; font-size:0.8rem;">
+          </div>
+          <div class="form-group-admin">
+            <label>Line Number</label>
+            <input type="text" id="modal-error-line" class="form-control-admin" readonly style="font-family: monospace; font-size:0.8rem;">
+          </div>
+        </div>
+
+        <!-- Stack Trace -->
+        <div class="form-group-admin">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <label style="margin-bottom:0;">Stack Trace</label>
+            <button type="button" class="btn-admin btn-admin-secondary" style="padding:2px 8px; font-size:0.75rem;" onclick="adminApp.copyErrorStackTrace()">📋 Copy Trace</button>
+          </div>
+          <pre id="modal-error-stack" style="background:#090d16; border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: var(--radius-sm); font-family: monospace; font-size: 0.78rem; max-height: 180px; overflow-y: auto; color: var(--text-secondary); white-space: pre-wrap; margin:0;"></pre>
+        </div>
+
+        <!-- Request Context JSON -->
+        <div class="form-group-admin">
+          <label>Request Context (IP, User, URL)</label>
+          <pre id="modal-error-context" style="background:#090d16; border: 1px solid rgba(255,255,255,0.08); padding: 10px 12px; border-radius: var(--radius-sm); font-family: monospace; font-size: 0.78rem; max-height: 120px; overflow-y: auto; color: var(--gold-400); white-space: pre-wrap; margin:0;"></pre>
+        </div>
+      </div>
+      <div class="admin-modal-footer">
+        <button type="button" class="btn-admin btn-admin-secondary" onclick="adminApp.closeModal('modal-error-details')">Close</button>
+        <button type="button" class="btn-admin btn-admin-warning" id="modal-btn-investigate" onclick="adminApp.markSelectedError('investigating')">Mark Investigating</button>
+        <button type="button" class="btn-admin btn-admin-primary" id="modal-btn-resolve" onclick="adminApp.markSelectedError('resolved')">✓ Mark Resolved</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 8: Simulate Error Diagnostic Test -->
+  <div class="admin-modal-backdrop" id="modal-simulate-error">
+    <div class="admin-modal-box" style="max-width: 480px;">
+      <div class="admin-modal-header">
+        <div>
+          <h3>⚡ Test Error Diagnostics Engine</h3>
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">Trigger a safe simulated anomaly to verify real-time logging & automated resolution matching.</p>
+        </div>
+        <button type="button" class="btn-close-modal" onclick="adminApp.closeModal('modal-simulate-error')">&times;</button>
+      </div>
+      <div class="admin-modal-body">
+        <div class="form-group-admin">
+          <label for="sim-error-type">Select Failure Scenario to Simulate</label>
+          <select id="sim-error-type" class="form-control-admin">
+            <option value="database">Database Connection Refused (MySQL Port 3306)</option>
+            <option value="payment">Paystack Webhook Signature Verification Failure</option>
+            <option value="gameplay">Game Room Turn Desynchronization (Move Conflict)</option>
+            <option value="php_exception">Unhandled Fatal PHP Engine Exception</option>
+          </select>
+        </div>
+        <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.4;">
+          This creates a safe test entry in the database with contextual call frames and displays how the AI diagnostic engine suggests step-by-step instructions.
+        </p>
+      </div>
+      <div class="admin-modal-footer">
+        <button type="button" class="btn-admin btn-admin-secondary" onclick="adminApp.closeModal('modal-simulate-error')">Cancel</button>
+        <button type="button" class="btn-admin btn-admin-primary" onclick="adminApp.runSimulateError()">Trigger Test &rarr;</button>
+      </div>
     </div>
   </div>
 

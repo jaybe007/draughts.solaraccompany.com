@@ -82,3 +82,8 @@ function jsonResponse($data, $statusCode = 200) {
 function getCurrentUser() {
     return isset($_SESSION['user']) ? $_SESSION['user'] : null;
 }
+
+// Automatically register global error & exception diagnostic monitoring
+require_once __DIR__ . '/error_handler.php';
+registerGlobalErrorMonitoring();
+

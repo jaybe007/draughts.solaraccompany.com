@@ -10,6 +10,10 @@ class AdminApp {
     this.currentAdmin = null;
     this.activeTab = 'panel-overview';
     this.searchTimer = null;
+    this.currentErrorReport = null;
+    this.currentErrorPage = 1;
+    this.errorSearchTimer = null;
+    this.errorReportsCache = [];
   }
 
   async init() {
@@ -74,7 +78,8 @@ class AdminApp {
       'panel-tournaments': 'Tournaments & Knockout Championships',
       'panel-rooms': 'Live Arena & Match Room Monitor',
       'panel-settings': 'Global Platform Governance Settings',
-      'panel-audit': 'Immutable Administrative Audit Trails'
+      'panel-audit': 'Immutable Administrative Audit Trails',
+      'panel-errors': 'System Error Reports & AI Diagnostic Solutions'
     };
     const headingEl = document.getElementById('panel-heading-title');
     if (headingEl) headingEl.textContent = titleMap[panelId] || 'Command Center';
@@ -88,6 +93,7 @@ class AdminApp {
     else if (panelId === 'panel-rooms') this.loadRooms();
     else if (panelId === 'panel-settings') this.loadSettings();
     else if (panelId === 'panel-audit') this.loadAuditLogs(1);
+    else if (panelId === 'panel-errors') this.loadErrorReports(1);
   }
 
   // ================= 1. OVERVIEW DASHBOARD ================= //
@@ -124,6 +130,16 @@ class AdminApp {
           roomBadge.style.display = 'inline-block';
         } else {
           roomBadge.style.display = 'none';
+        }
+      }
+
+      const errBadge = document.getElementById('badge-unresolved-errors');
+      if (errBadge) {
+        if (s.unresolved_errors_count > 0) {
+          errBadge.textContent = s.unresolved_errors_count;
+          errBadge.style.display = 'inline-block';
+        } else {
+          errBadge.style.display = 'none';
         }
       }
 
@@ -1362,6 +1378,316 @@ class AdminApp {
     } catch (e) {
       console.error(e);
       tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#f43f5e;">${this.escape(e.message)}</td></tr>`;
+    }
+  }
+
+  // ================= 9. SYSTEM ERROR REPORTS & DIAGNOSTICS ================= //
+  debounceErrorSearch() {
+    clearTimeout(this.errorSearchTimer);
+    this.errorSearchTimer = setTimeout(() => this.loadErrorReports(1), 300);
+  }
+
+  async loadErrorReports(page = 1) {
+    this.currentErrorPage = page;
+    const tbody = document.getElementById('errors-table-body');
+    if (!tbody) return;
+
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 24px; color: var(--text-muted);">Scanning system error logs...</td></tr>';
+
+    const status = encodeURIComponent(document.getElementById('errors-status-filter')?.value || 'all');
+    const category = encodeURIComponent(document.getElementById('errors-category-filter')?.value || 'all');
+    const search = encodeURIComponent(document.getElementById('errors-search-input')?.value || '');
+
+    try {
+      const res = await fetch(`api/admin.php?action=list_error_reports&page=${page}&limit=15&status=${status}&category=${category}&search=${search}`);
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      this.errorReportsCache = data.reports || [];
+
+      // Update KPI counters
+      if (data.stats) {
+        this.setText('kpi-errors-unresolved', Number(data.stats.unresolved || 0).toLocaleString());
+        this.setText('kpi-errors-investigating', Number(data.stats.investigating || 0).toLocaleString());
+        this.setText('kpi-errors-resolved', Number(data.stats.resolved || 0).toLocaleString());
+        this.setText('kpi-errors-critical', Number((data.stats.fatal || 0) + (data.stats.payment || 0)).toLocaleString());
+
+        // Update nav badge
+        const badge = document.getElementById('badge-unresolved-errors');
+        if (badge) {
+          if (data.stats.unresolved > 0) {
+            badge.textContent = data.stats.unresolved;
+            badge.style.display = 'inline-block';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      }
+
+      if (this.errorReportsCache.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 32px; color: #10b981;">✓ All systems nominal. No error reports match current filters.</td></tr>';
+        const pInfo = document.getElementById('errors-pagination-info');
+        if (pInfo) pInfo.textContent = 'Showing 0 error reports';
+        const pControls = document.getElementById('errors-pagination-controls');
+        if (pControls) pControls.innerHTML = '';
+        return;
+      }
+
+      const levelBadges = {
+        fatal: '<span class="status-badge" style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.4);">FATAL</span>',
+        critical: '<span class="status-badge" style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.4);">CRITICAL</span>',
+        error: '<span class="status-badge" style="background:rgba(244,63,94,0.2); color:#fda4af; border:1px solid rgba(244,63,94,0.4);">ERROR</span>',
+        warning: '<span class="status-badge" style="background:rgba(245,158,11,0.2); color:#fcd34d; border:1px solid rgba(245,158,11,0.4);">WARN</span>',
+        info: '<span class="status-badge" style="background:rgba(59,130,246,0.2); color:#93c5fd; border:1px solid rgba(59,130,246,0.4);">INFO</span>'
+      };
+
+      const categoryIcons = {
+        database: '🗄️ Database',
+        payment: '💳 Payment',
+        wallet: '🏦 Wallet',
+        gameplay: '⚔️ Gameplay',
+        auth: '🔐 Auth',
+        frontend_js: '🌐 Browser JS',
+        php_exception: '🐘 PHP Fatal'
+      };
+
+      const statusBadges = {
+        unresolved: '<span class="status-badge" style="background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3);">Unresolved</span>',
+        investigating: '<span class="status-badge" style="background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3);">Investigating</span>',
+        resolved: '<span class="status-badge" style="background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.3);">✓ Resolved</span>'
+      };
+
+      tbody.innerHTML = this.errorReportsCache.map(r => {
+        const lvlBadge = levelBadges[r.error_level.toLowerCase()] || `<span class="status-badge">${this.escape(r.error_level)}</span>`;
+        const catLabel = categoryIcons[r.category.toLowerCase()] || `⚙️ ${this.escape(r.category)}`;
+        const statBadge = statusBadges[r.status] || `<span class="status-badge">${this.escape(r.status)}</span>`;
+
+        const filename = r.file ? r.file.split(/[\\/]/).pop() : 'System';
+        const fileLoc = r.file ? `${filename}:${r.line || 0}` : 'Global Runtime';
+
+        return `
+          <tr style="${r.status === 'resolved' ? 'opacity: 0.65;' : ''}">
+            <td>${lvlBadge}</td>
+            <td><strong style="font-size:0.78rem; color:#cbd5e1;">${catLabel}</strong></td>
+            <td style="max-width: 260px;">
+              <div style="font-weight: 600; color: #ffffff; font-size: 0.84rem; margin-bottom: 2px; word-break: break-word;">
+                ${this.escape(r.message)}
+              </div>
+              <div style="font-family: monospace; font-size: 0.72rem; color: var(--gold-400);">
+                📁 ${this.escape(fileLoc)}
+              </div>
+            </td>
+            <td style="max-width: 320px;">
+              <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 4px; padding: 6px 10px; font-size: 0.78rem; line-height: 1.4; color: #a7f3d0;">
+                💡 ${this.escape(r.suggested_solution || 'Inspect call stack to diagnose.')}
+              </div>
+            </td>
+            <td>${statBadge}</td>
+            <td style="font-size: 0.74rem; color: var(--text-muted); white-space: nowrap;">
+              ${this.escape(r.created_at)}
+            </td>
+            <td style="text-align: right; white-space: nowrap;">
+              <div style="display:inline-flex; gap:4px;">
+                <button type="button" class="btn-admin btn-admin-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="adminApp.viewErrorDetailsById(${r.id})" title="Inspect Full Diagnostic & Stack Trace">
+                  🔍 Inspect
+                </button>
+                ${r.status !== 'resolved' ? `
+                  <button type="button" class="btn-admin btn-admin-primary" style="padding:4px 8px; font-size:0.75rem; background:rgba(16,185,129,0.2); border-color:#10b981; color:#10b981;" onclick="adminApp.quickResolveError(${r.id}, 'resolved')" title="Mark Resolved">
+                    ✓
+                  </button>
+                ` : `
+                  <button type="button" class="btn-admin btn-admin-secondary" style="padding:4px 8px; font-size:0.75rem; color:#f59e0b;" onclick="adminApp.quickResolveError(${r.id}, 'unresolved')" title="Reopen Error">
+                    ↺
+                  </button>
+                `}
+                <button type="button" class="btn-admin btn-admin-secondary" style="padding:4px 6px; font-size:0.75rem; color:#ef4444;" onclick="adminApp.deleteErrorReport(${r.id})" title="Delete Log">
+                  ✕
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Pagination
+      const pInfo = document.getElementById('errors-pagination-info');
+      if (pInfo) {
+        pInfo.textContent = `Page ${data.pagination.page} of ${data.pagination.total_pages || 1} (${data.pagination.total} reports)`;
+      }
+
+      const pControls = document.getElementById('errors-pagination-controls');
+      if (pControls) {
+        let btns = '';
+        if (page > 1) {
+          btns += `<button class="btn-admin btn-admin-secondary" style="padding:2px 8px;" onclick="adminApp.loadErrorReports(${page - 1})">&larr; Prev</button>`;
+        }
+        if (page < data.pagination.total_pages) {
+          btns += `<button class="btn-admin btn-admin-secondary" style="padding:2px 8px;" onclick="adminApp.loadErrorReports(${page + 1})">Next &rarr;</button>`;
+        }
+        pControls.innerHTML = btns;
+      }
+
+    } catch (e) {
+      console.error(e);
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px; color:#ef4444;">Failed to load error reports: ${this.escape(e.message)}</td></tr>`;
+    }
+  }
+
+  viewErrorDetailsById(reportId) {
+    const report = this.errorReportsCache.find(r => Number(r.id) === Number(reportId));
+    if (!report) return;
+    this.currentErrorReport = report;
+
+    this.setText('modal-error-title', `[${report.error_level.toUpperCase()}] ${report.category}`);
+    this.setText('modal-error-subtitle', `Report #${report.id} • Logged at ${report.created_at} • Status: ${report.status}`);
+    this.setText('modal-error-solution', report.suggested_solution || 'No automatic diagnosis generated.');
+    this.setText('modal-error-message', report.message);
+    this.setValue('modal-error-file', report.file || 'N/A');
+    this.setValue('modal-error-line', report.line || 'N/A');
+
+    const stackEl = document.getElementById('modal-error-stack');
+    if (stackEl) stackEl.textContent = report.stack_trace || 'No call stack captured.';
+
+    const ctxEl = document.getElementById('modal-error-context');
+    if (ctxEl) {
+      try {
+        const parsed = JSON.parse(report.context_json || '{}');
+        ctxEl.textContent = JSON.stringify(parsed, null, 2);
+      } catch (err) {
+        ctxEl.textContent = report.context_json || '{}';
+      }
+    }
+
+    // Configure action buttons inside modal
+    const invBtn = document.getElementById('modal-btn-investigate');
+    const resBtn = document.getElementById('modal-btn-resolve');
+    if (report.status === 'resolved') {
+      if (invBtn) invBtn.style.display = 'none';
+      if (resBtn) {
+        resBtn.textContent = '↺ Reopen Error';
+        resBtn.className = 'btn-admin btn-admin-warning';
+        resBtn.onclick = () => this.markSelectedError('unresolved');
+      }
+    } else {
+      if (invBtn) {
+        invBtn.style.display = (report.status === 'investigating') ? 'none' : 'inline-block';
+        invBtn.onclick = () => this.markSelectedError('investigating');
+      }
+      if (resBtn) {
+        resBtn.textContent = '✓ Mark Resolved';
+        resBtn.className = 'btn-admin btn-admin-primary';
+        resBtn.onclick = () => this.markSelectedError('resolved');
+      }
+    }
+
+    this.openModal('modal-error-details');
+  }
+
+  copyErrorStackTrace() {
+    const stackEl = document.getElementById('modal-error-stack');
+    if (!stackEl) return;
+    navigator.clipboard.writeText(stackEl.textContent).then(() => {
+      this.showToast('Stack trace copied to clipboard.', 'success');
+    }).catch(() => {
+      this.showToast('Unable to copy to clipboard.', 'error');
+    });
+  }
+
+  async markSelectedError(status) {
+    if (!this.currentErrorReport) return;
+    await this.quickResolveError(this.currentErrorReport.id, status);
+    this.closeModal('modal-error-details');
+  }
+
+  async quickResolveError(reportId, status) {
+    try {
+      const res = await fetch('api/admin.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'resolve_error_report',
+          id: reportId,
+          status: status
+        })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      this.showToast(data.message, 'success');
+      this.loadErrorReports(this.currentErrorPage);
+    } catch (e) {
+      this.showToast(e.message, 'error');
+    }
+  }
+
+  async deleteErrorReport(reportId) {
+    if (!confirm(`Are you sure you want to permanently delete error report #${reportId}?`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch('api/admin.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'delete_error_report',
+          id: reportId
+        })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      this.showToast(data.message, 'success');
+      this.loadErrorReports(this.currentErrorPage);
+    } catch (e) {
+      this.showToast(e.message, 'error');
+    }
+  }
+
+  async clearResolvedErrors() {
+    if (!confirm('Clear all resolved error reports from the database? This cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const res = await fetch('api/admin.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'clear_resolved_errors' })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      this.showToast(data.message, 'success');
+      this.loadErrorReports(1);
+    } catch (e) {
+      this.showToast(e.message, 'error');
+    }
+  }
+
+  openSimulateErrorModal() {
+    this.openModal('modal-simulate-error');
+  }
+
+  async runSimulateError() {
+    const type = document.getElementById('sim-error-type')?.value || 'database';
+    try {
+      const res = await fetch('api/admin.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'simulate_test_error',
+          type: type
+        })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      this.closeModal('modal-simulate-error');
+      this.showToast(data.message, 'success');
+      this.loadErrorReports(1);
+    } catch (e) {
+      this.showToast(e.message, 'error');
     }
   }
 

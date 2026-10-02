@@ -401,4 +401,47 @@
   `;
   document.head?.appendChild(style);
 
+  // 9. Client Error Telemetry for Admin Diagnostic Engine
+  let clientErrorsSent = 0;
+  window.addEventListener('error', function (evt) {
+    if (clientErrorsSent >= 3) return;
+    clientErrorsSent++;
+    try {
+      fetch('api/log_client_error.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: evt.message || 'Script Error',
+          source: evt.filename || window.location.href,
+          lineno: evt.lineno || 0,
+          colno: evt.colno || 0,
+          stack: evt.error ? evt.error.stack : '',
+          url: window.location.href
+        })
+      }).catch(function () {});
+    } catch (e) {}
+  });
+
+  window.addEventListener('unhandledrejection', function (evt) {
+    if (clientErrorsSent >= 3) return;
+    clientErrorsSent++;
+    try {
+      var reason = evt.reason;
+      var msg = reason ? (reason.message || String(reason)) : 'Unhandled Promise Rejection';
+      var stack = reason && reason.stack ? reason.stack : '';
+      fetch('api/log_client_error.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: msg,
+          source: window.location.href,
+          lineno: 0,
+          stack: stack,
+          url: window.location.href
+        })
+      }).catch(function () {});
+    } catch (e) {}
+  });
+
 })();
+

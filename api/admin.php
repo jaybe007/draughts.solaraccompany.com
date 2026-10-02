@@ -13,6 +13,7 @@
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../config/admin_helper.php';
 require_once __DIR__ . '/../config/tournament_helper.php';
+require_once __DIR__ . '/../config/error_handler.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -109,7 +110,8 @@ try {
                     'tourn_rake_naira' => $tournRakeNaira,
                     'total_matches' => $totalMatches,
                     'live_rooms' => $liveRooms,
-                    'active_tournaments' => $activeTournaments
+                    'active_tournaments' => $activeTournaments,
+                    'unresolved_errors_count' => (int)$db->query("SELECT COUNT(*) FROM system_error_reports WHERE status != 'resolved'")->fetchColumn()
                 ],
                 'settings' => $settings,
                 'recent_audit' => $recentAudit,
@@ -1161,6 +1163,222 @@ try {
                     'total' => $total,
                     'total_pages' => ceil($total / $limit)
                 ]
+            ]);
+            break;
+
+        // ================= SYSTEM ERROR REPORTS & DIAGNOSTICS ================= //
+        case 'list_error_reports':
+            if (!hasAdminPermission($adminUser, 'manage_settings') && !hasAdminPermission($adminUser, 'view_audit_logs')) {
+                jsonResp(['success' => false, 'message' => 'Permission denied: manage_settings or view_audit_logs required.'], 403);
+            }
+
+            $statusFilter = trim($_GET['status'] ?? '');
+            $categoryFilter = trim($_GET['category'] ?? '');
+            $search = trim($_GET['search'] ?? '');
+            $page = max(1, (int)($_GET['page'] ?? 1));
+            $limit = min(100, max(5, (int)($_GET['limit'] ?? 20)));
+            $offset = ($page - 1) * $limit;
+
+            $where = ["1=1"];
+            $params = [];
+
+            if ($statusFilter !== '' && $statusFilter !== 'all') {
+                $where[] = "status = ?";
+                $params[] = $statusFilter;
+            }
+
+            if ($categoryFilter !== '' && $categoryFilter !== 'all') {
+                $where[] = "category = ?";
+                $params[] = $categoryFilter;
+            }
+
+            if ($search !== '') {
+                $where[] = "(message LIKE ? OR suggested_solution LIKE ? OR file LIKE ?)";
+                $params[] = "%{$search}%";
+                $params[] = "%{$search}%";
+                $params[] = "%{$search}%";
+            }
+
+            $whereClause = implode(' AND ', $where);
+
+            // Fetch summary statistics
+            $unresolvedCount = (int)$db->query("SELECT COUNT(*) FROM system_error_reports WHERE status = 'unresolved'")->fetchColumn();
+            $investigatingCount = (int)$db->query("SELECT COUNT(*) FROM system_error_reports WHERE status = 'investigating'")->fetchColumn();
+            $resolvedCount = (int)$db->query("SELECT COUNT(*) FROM system_error_reports WHERE status = 'resolved'")->fetchColumn();
+            $fatalCount = (int)$db->query("SELECT COUNT(*) FROM system_error_reports WHERE error_level = 'fatal' AND status != 'resolved'")->fetchColumn();
+            $paymentCount = (int)$db->query("SELECT COUNT(*) FROM system_error_reports WHERE category = 'payment' AND status != 'resolved'")->fetchColumn();
+            $dbCount = (int)$db->query("SELECT COUNT(*) FROM system_error_reports WHERE category = 'database' AND status != 'resolved'")->fetchColumn();
+
+            $totalStmt = $db->prepare("SELECT COUNT(*) FROM system_error_reports WHERE {$whereClause}");
+            $totalStmt->execute($params);
+            $totalFiltered = (int)$totalStmt->fetchColumn();
+
+            $sql = "
+                SELECT * FROM system_error_reports 
+                WHERE {$whereClause} 
+                ORDER BY id DESC 
+                LIMIT {$limit} OFFSET {$offset}
+            ";
+            $dataStmt = $db->prepare($sql);
+            $dataStmt->execute($params);
+            $reports = $dataStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            jsonResp([
+                'success' => true,
+                'reports' => $reports,
+                'stats' => [
+                    'unresolved' => $unresolvedCount,
+                    'investigating' => $investigatingCount,
+                    'resolved' => $resolvedCount,
+                    'fatal' => $fatalCount,
+                    'payment' => $paymentCount,
+                    'database' => $dbCount,
+                    'total_active' => $unresolvedCount + $investigatingCount
+                ],
+                'pagination' => [
+                    'page' => $page,
+                    'limit' => $limit,
+                    'total' => $totalFiltered,
+                    'total_pages' => ceil($totalFiltered / $limit)
+                ]
+            ]);
+            break;
+
+        case 'resolve_error_report':
+            if (!hasAdminPermission($adminUser, 'manage_settings') && !hasAdminPermission($adminUser, 'view_audit_logs')) {
+                jsonResp(['success' => false, 'message' => 'Permission denied: manage_settings required.'], 403);
+            }
+
+            $reportId = (int)($input['id'] ?? 0);
+            $newStatus = trim($input['status'] ?? 'resolved');
+
+            if (!in_array($newStatus, ['unresolved', 'investigating', 'resolved'])) {
+                jsonResp(['success' => false, 'message' => 'Invalid error status.'], 400);
+            }
+
+            $stmt = $db->prepare("
+                UPDATE system_error_reports 
+                SET status = ?, 
+                    resolved_by = ?, 
+                    resolved_at = " . ($newStatus === 'resolved' ? 'NOW()' : 'NULL') . "
+                WHERE id = ?
+            ");
+            $stmt->execute([$newStatus, $adminUser['username'], $reportId]);
+
+            logAdminAudit(
+                $db,
+                $adminUser['id'],
+                $adminUser['username'],
+                'update_error_report',
+                'system_error_report',
+                $reportId,
+                "Changed error status to '{$newStatus}'"
+            );
+
+            jsonResp(['success' => true, 'message' => "Error report #{$reportId} status updated to '{$newStatus}'."]);
+            break;
+
+        case 'delete_error_report':
+            if (!hasAdminPermission($adminUser, 'manage_settings')) {
+                jsonResp(['success' => false, 'message' => 'Permission denied: manage_settings required.'], 403);
+            }
+
+            $reportId = (int)($input['id'] ?? 0);
+            $stmt = $db->prepare("DELETE FROM system_error_reports WHERE id = ?");
+            $stmt->execute([$reportId]);
+
+            logAdminAudit(
+                $db,
+                $adminUser['id'],
+                $adminUser['username'],
+                'delete_error_report',
+                'system_error_report',
+                $reportId,
+                "Deleted error report #{$reportId}"
+            );
+
+            jsonResp(['success' => true, 'message' => "Error report #{$reportId} deleted successfully."]);
+            break;
+
+        case 'clear_resolved_errors':
+            if (!hasAdminPermission($adminUser, 'manage_settings')) {
+                jsonResp(['success' => false, 'message' => 'Permission denied: manage_settings required.'], 403);
+            }
+
+            $cleared = $db->exec("DELETE FROM system_error_reports WHERE status = 'resolved'");
+
+            logAdminAudit(
+                $db,
+                $adminUser['id'],
+                $adminUser['username'],
+                'clear_resolved_errors',
+                'system_error_reports',
+                null,
+                "Cleared {$cleared} resolved error reports"
+            );
+
+            jsonResp(['success' => true, 'cleared_count' => $cleared, 'message' => "Cleared {$cleared} resolved error reports."]);
+            break;
+
+        case 'simulate_test_error':
+            if (!hasAdminPermission($adminUser, 'manage_settings')) {
+                jsonResp(['success' => false, 'message' => 'Permission denied: manage_settings required.'], 403);
+            }
+
+            $type = trim($input['type'] ?? 'database');
+            $simId = 0;
+
+            switch ($type) {
+                case 'database':
+                    $simId = logSystemError(
+                        'error',
+                        'database',
+                        "SQLSTATE[HY000] [2002] Connection refused (Port 3306)",
+                        __DIR__ . '/../config/db.php',
+                        28,
+                        "#0 config/db.php(28): PDO->__construct()\n#1 api/match.php(14): getDB()\n#2 {main}",
+                        ['simulated' => true, 'admin' => $adminUser['username']]
+                    );
+                    break;
+                case 'payment':
+                    $simId = logSystemError(
+                        'critical',
+                        'payment',
+                        "Paystack API Signature Mismatch: Invalid x-paystack-signature header token",
+                        __DIR__ . '/webhook_paystack.php',
+                        45,
+                        "#0 api/webhook_paystack.php(45): verifyPaystackWebhookSignature()\n#1 {main}",
+                        ['simulated' => true, 'admin' => $adminUser['username']]
+                    );
+                    break;
+                case 'gameplay':
+                    $simId = logSystemError(
+                        'warning',
+                        'gameplay',
+                        "Turn Desynchronization: Player client sent move while opponent clock was active",
+                        __DIR__ . '/match.php',
+                        188,
+                        "#0 api/match.php(188): processPlayerMove()\n#1 {main}",
+                        ['simulated' => true, 'admin' => $adminUser['username']]
+                    );
+                    break;
+                default:
+                    $simId = logSystemError(
+                        'fatal',
+                        'php_exception',
+                        "Uncaught Error: Call to undefined method NaijaDraughts\\Engine::computeAntiCheat()",
+                        __DIR__ . '/../config/tournament_helper.php',
+                        104,
+                        "#0 config/tournament_helper.php(104): autoAdvanceRound()\n#1 {main}",
+                        ['simulated' => true, 'admin' => $adminUser['username']]
+                    );
+                    break;
+            }
+
+            jsonResp([
+                'success' => true,
+                'report_id' => $simId,
+                'message' => "Simulated {$type} error logged with automatic diagnosis and suggested solution."
             ]);
             break;
 
