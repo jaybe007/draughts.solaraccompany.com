@@ -968,7 +968,7 @@ $pkgBadge = getPackageBadge($package);
                 <input type="number" id="create-custom-coins-val" class="form-control" placeholder="Enter coin amount (e.g. 250)" min="1" max="100000">
               </div>
               <small class="form-hint" style="margin-top: 6px; display: block; color: var(--gold-400); font-size: 0.82rem;">
-                💡 <em>Universal Stakes: Coins allow domestic (₦) and international ($/€/£/GH₵/KSh/Crypto) players to wager together fairly. Any coin shortfall converts automatically from your Naira balance (₦1 = 1 Coin)!</em>
+                💡 <em>Universal Stakes: Coins allow domestic (₦) and international ($/€/£/GH₵/KSh/Crypto) players to wager together fairly. Any coin shortfall converts automatically from your Naira balance at the official platform buy rate!</em>
               </small>
             </div>
 
