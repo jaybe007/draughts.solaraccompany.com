@@ -110,6 +110,20 @@ try {
 }
 assertTest("Database trigger blocked illegal negative wallet_balance update", $triggerBlocked === true);
 
+// Attempt illegal negative balance insert
+$insertBlocked = false;
+try {
+    $db->prepare("
+        INSERT INTO users (username, email, password_hash, wallet_balance, coins)
+        VALUES ('neg_test_usr', 'neg@test.ng', 'hash', -100.00, 0)
+    ")->execute();
+} catch (Exception $e) {
+    if (strpos($e->getMessage(), 'Security Violation') !== false || strpos($e->getMessage(), 'Wallet balance cannot be negative') !== false) {
+        $insertBlocked = true;
+    }
+}
+assertTest("Database trigger blocked illegal negative wallet_balance insert", $insertBlocked === true);
+
 // Verify balance remained intact
 $balAfter = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$testUserId}")->fetchColumn();
 assertTest("Wallet balance preserved at ₦1,000 without corruption", $balAfter == 1000.00);

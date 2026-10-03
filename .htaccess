@@ -37,9 +37,9 @@ Options -Indexes -MultiViews
     # Block direct web access to internal database migration scripts
     RewriteRule ^database/.*\.sql$ - [F,L]
 
-    # Block Malicious Query Injections (SQLi, PHP Globals, Remote File Inclusion)
+    # Block Malicious Query Injections (Explicit SQLi, PHP Globals, Remote Script Inclusion)
     RewriteCond %{QUERY_STRING} (eval\(|base64_encode|base64_decode|<script|GLOBALS|mosConfig_|_REQUEST) [NC,OR]
-    RewriteCond %{QUERY_STRING} (UNION.*SELECT|SELECT.*FROM|INSERT.*INTO|DELETE.*FROM|DROP.*TABLE) [NC]
+    RewriteCond %{QUERY_STRING} (\bUNION\s+(ALL\s+)?SELECT\b|\bDROP\s+TABLE\b|\bINSERT\s+INTO\s+[a-zA-Z0-9_]+\s+VALUES|\bDELETE\s+FROM\s+[a-zA-Z0-9_]+\s+WHERE) [NC]
     RewriteRule ^(.*)$ - [F,L]
 
     # Force HTTPS when available (uncomment if SSL is active on live server)

@@ -49,12 +49,12 @@ function sendSecurityHeaders() {
     // 7. Comprehensive Content Security Policy (CSP)
     // Permissive for legitimate external payment modals, Google fonts, and WebSockets/AJAX
     $csp = "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; " .
-           "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://js.paystack.co https://checkout.flutterwave.com; " .
+           "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://*.paystack.co https://*.paystack.com https://*.flutterwave.com; " .
            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; " .
            "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; " .
            "img-src 'self' data: blob: https:; " .
-           "connect-src 'self' https: wss: ws: https://api.paystack.co https://api.flutterwave.com; " .
-           "frame-src 'self' https://js.paystack.co https://checkout.flutterwave.com; " .
+           "connect-src 'self' https: wss: ws: https://*.paystack.co https://*.paystack.com https://*.flutterwave.com; " .
+           "frame-src 'self' https://*.paystack.co https://*.paystack.com https://*.flutterwave.com; " .
            "object-src 'none'; " .
            "base-uri 'self';";
 

@@ -408,4 +408,34 @@ CREATE TABLE IF NOT EXISTS `failed_logins` (
   INDEX `idx_ip` (`ip_address`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TRIGGER IF EXISTS `trg_prevent_negative_balance_update`;
+DELIMITER $$
+CREATE TRIGGER `trg_prevent_negative_balance_update`
+BEFORE UPDATE ON `users`
+FOR EACH ROW
+BEGIN
+    IF NEW.wallet_balance < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Security Violation: Wallet balance cannot be negative.';
+    END IF;
+    IF NEW.coins < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Security Violation: Coins balance cannot be negative.';
+    END IF;
+END$$
+DELIMITER ;
+
+DROP TRIGGER IF EXISTS `trg_prevent_negative_balance_insert`;
+DELIMITER $$
+CREATE TRIGGER `trg_prevent_negative_balance_insert`
+BEFORE INSERT ON `users`
+FOR EACH ROW
+BEGIN
+    IF NEW.wallet_balance < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Security Violation: Wallet balance cannot be negative.';
+    END IF;
+    IF NEW.coins < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Security Violation: Coins balance cannot be negative.';
+    END IF;
+END$$
+DELIMITER ;
+
 

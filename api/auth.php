@@ -159,9 +159,20 @@ try {
 
         case 'verify_code':
         case 'verify_email':
+            $clientIp = getSecurityClientIp();
             $token = trim($input['token'] ?? ($_GET['token'] ?? ''));
             $email = trim($input['email'] ?? ($_GET['email'] ?? ''));
             $code  = trim($input['code'] ?? ($_GET['code'] ?? ''));
+
+            // High Security: Anti-Brute-Force OTP Throttling (max 8 attempts per 10 mins per IP/email)
+            $rateKey = !empty($email) ? "auth_verify:{$email}" : "auth_verify:{$clientIp}";
+            $otpRate = checkRateLimit('auth_verify_otp', 8, 600, $rateKey);
+            if (!$otpRate['allowed']) {
+                jsonResponse([
+                    'success' => false,
+                    'message' => "Too many verification attempts. Please wait {$otpRate['retry_after']} seconds before trying again."
+                ], 429);
+            }
 
             if (empty($token) && (empty($email) || empty($code))) {
                 jsonResponse(['success' => false, 'message' => 'Please provide the 6-digit verification code and your email.'], 400);

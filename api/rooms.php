@@ -666,21 +666,23 @@ try {
             }
 
             // High Security: Player Identity & Impersonation Defense
-            if ($currentUser) {
-                if ($playerRole === 'p1' && !empty($room['host_id']) && (int)$room['host_id'] !== (int)$currentUser['id']) {
+            if ($playerRole === 'p1' && !empty($room['host_id'])) {
+                if (!$currentUser || (int)$room['host_id'] !== (int)$currentUser['id']) {
                     logSecurityAudit('unauthorized_move_attempt', 'high', [
                         'room' => $roomCode,
                         'attempted_role' => 'p1',
-                        'user_id' => $currentUser['id'],
+                        'user_id' => $currentUser['id'] ?? null,
                         'expected_host_id' => $room['host_id']
                     ]);
                     jsonResponse(['success' => false, 'message' => 'Security Error: You are not authorized to move for Player 1.'], 403);
                 }
-                if ($playerRole === 'p2' && !empty($room['guest_id']) && (int)$room['guest_id'] !== (int)$currentUser['id']) {
+            }
+            if ($playerRole === 'p2' && !empty($room['guest_id'])) {
+                if (!$currentUser || (int)$room['guest_id'] !== (int)$currentUser['id']) {
                     logSecurityAudit('unauthorized_move_attempt', 'high', [
                         'room' => $roomCode,
                         'attempted_role' => 'p2',
-                        'user_id' => $currentUser['id'],
+                        'user_id' => $currentUser['id'] ?? null,
                         'expected_guest_id' => $room['guest_id']
                     ]);
                     jsonResponse(['success' => false, 'message' => 'Security Error: You are not authorized to move for Player 2.'], 403);

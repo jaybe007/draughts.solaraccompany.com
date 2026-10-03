@@ -69,9 +69,7 @@ try {
     echo "[Security Migration] Table 'failed_logins' ready.\n";
 
     // 4. Financial Integrity Guard (Prevent negative balance via Triggers if CHECK constraints not active)
-    $db->exec("
-        DROP TRIGGER IF EXISTS `trg_prevent_negative_balance_update`;
-    ");
+    $db->exec("DROP TRIGGER IF EXISTS `trg_prevent_negative_balance_update`;");
     $db->exec("
         CREATE TRIGGER `trg_prevent_negative_balance_update`
         BEFORE UPDATE ON `users`
@@ -86,6 +84,22 @@ try {
         END;
     ");
     echo "[Security Migration] Trigger 'trg_prevent_negative_balance_update' installed.\n";
+
+    $db->exec("DROP TRIGGER IF EXISTS `trg_prevent_negative_balance_insert`;");
+    $db->exec("
+        CREATE TRIGGER `trg_prevent_negative_balance_insert`
+        BEFORE INSERT ON `users`
+        FOR EACH ROW
+        BEGIN
+            IF NEW.wallet_balance < 0 THEN
+                SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Security Violation: Wallet balance cannot be negative.';
+            END IF;
+            IF NEW.coins < 0 THEN
+                SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Security Violation: Coins balance cannot be negative.';
+            END IF;
+        END;
+    ");
+    echo "[Security Migration] Trigger 'trg_prevent_negative_balance_insert' installed.\n";
 
     echo "[Security Migration] All security tables and integrity triggers successfully initialized!\n";
 
