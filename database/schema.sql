@@ -360,4 +360,52 @@ CREATE TABLE IF NOT EXISTS `system_error_reports` (
   INDEX `idx_last_seen` (`last_seen_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- -----------------------------------------------------------------------------
+-- 14. Security Shield, Rate Limits, Intrusion Audits & Negative Balance Trigger
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `security_rate_limits` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `rate_key` VARCHAR(128) NOT NULL,
+  `action_type` VARCHAR(64) NOT NULL,
+  `identifier` VARCHAR(128) NOT NULL,
+  `hits` INT NOT NULL DEFAULT 1,
+  `window_start` INT NOT NULL,
+  `blocked_until` INT NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY `uk_rate_key` (`rate_key`),
+  INDEX `idx_action_id` (`action_type`, `identifier`),
+  INDEX `idx_blocked` (`blocked_until`),
+  INDEX `idx_window` (`window_start`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `security_audit_flags` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `user_id` INT NULL,
+  `event_type` VARCHAR(64) NOT NULL,
+  `severity` ENUM('low', 'medium', 'high', 'critical') DEFAULT 'medium',
+  `ip_address` VARCHAR(45) NOT NULL,
+  `user_agent` VARCHAR(255) NULL,
+  `details_json` LONGTEXT NULL,
+  `status` ENUM('flagged', 'reviewed', 'dismissed', 'banned') DEFAULT 'flagged',
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX `idx_flag_user` (`user_id`),
+  INDEX `idx_flag_event` (`event_type`),
+  INDEX `idx_flag_severity` (`severity`),
+  INDEX `idx_flag_status` (`status`),
+  INDEX `idx_flag_created` (`created_at` DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `failed_logins` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `login_identifier` VARCHAR(128) NOT NULL,
+  `ip_address` VARCHAR(45) NOT NULL,
+  `failed_attempts` INT NOT NULL DEFAULT 1,
+  `first_failed_at` INT NOT NULL,
+  `last_failed_at` INT NOT NULL,
+  `locked_until` INT NULL DEFAULT NULL,
+  UNIQUE KEY `uk_login_ip` (`login_identifier`, `ip_address`),
+  INDEX `idx_locked_until` (`locked_until`),
+  INDEX `idx_ip` (`ip_address`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 

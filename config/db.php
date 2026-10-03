@@ -87,3 +87,6 @@ function getCurrentUser() {
 require_once __DIR__ . '/error_handler.php';
 registerGlobalErrorMonitoring();
 
+// Automatically activate multi-layer security shield (headers, rate limiting, anti-cheat, CSRF)
+require_once __DIR__ . '/security.php';
+

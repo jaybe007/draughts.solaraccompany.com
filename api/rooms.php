@@ -427,13 +427,17 @@ try {
             // Validate and deduct cash Naira wager from joining guest (with coins fallback for international players)
             $roomWagerNaira = (float)($room['wager_naira'] ?? 0);
             if ($roomWagerNaira > 0 && (!$guestId || (int)$room['host_id'] !== $guestId)) {
-                if (!$currentUser) {
-                    jsonResponse(['success' => false, 'message' => 'Please sign in to join a cash stake match.'], 401);
-                }
-                $availNaira = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$guestId}")->fetchColumn();
-                $availCoins = (int)$db->query("SELECT coins FROM users WHERE id = {$guestId}")->fetchColumn();
+                // High Security: Atomic Balance Lock for Wager Escrow
+                $db->beginTransaction();
+                $lockStmt = $db->prepare("SELECT wallet_balance, coins FROM users WHERE id = ? FOR UPDATE");
+                $lockStmt->execute([$guestId]);
+                $userBalRow = $lockStmt->fetch(PDO::FETCH_ASSOC);
+
+                $availNaira = (float)($userBalRow['wallet_balance'] ?? 0);
+                $availCoins = (int)($userBalRow['coins'] ?? 0);
 
                 if ($availNaira < $roomWagerNaira && $availCoins < (int)ceil($roomWagerNaira)) {
+                    $db->rollBack();
                     jsonResponse([
                         'success' => false,
                         'message' => "Insufficient balance! This match requires a ₦" . number_format($roomWagerNaira, 2) . " (or " . number_format($roomWagerNaira) . " Coins) stake. (Available: ₦" . number_format($availNaira, 2) . " / " . number_format($availCoins) . " Coins)"
@@ -441,8 +445,9 @@ try {
                 }
 
                 if ($availNaira >= $roomWagerNaira) {
-                    $db->prepare("UPDATE users SET wallet_balance = GREATEST(0, wallet_balance - ?) WHERE id = ?")->execute([$roomWagerNaira, $guestId]);
-                    $freshGuestBal = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$guestId}")->fetchColumn();
+                    $db->prepare("UPDATE users SET wallet_balance = GREATEST(0, wallet_balance - ?) WHERE id = ? AND wallet_balance >= ?")
+                       ->execute([$roomWagerNaira, $guestId, $roomWagerNaira]);
+                    $freshGuestBal = $availNaira - $roomWagerNaira;
                     $db->prepare("
                         INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, description)
                         VALUES (?, 'wager_lock', ?, 0, ?, 'completed', ?)
@@ -452,8 +457,9 @@ try {
                     }
                 } else {
                     $coinDeduct = (int)ceil($roomWagerNaira);
-                    $db->prepare("UPDATE users SET coins = GREATEST(0, coins - ?) WHERE id = ?")->execute([$coinDeduct, $guestId]);
-                    $freshCoins = (int)$db->query("SELECT coins FROM users WHERE id = {$guestId}")->fetchColumn();
+                    $db->prepare("UPDATE users SET coins = GREATEST(0, coins - ?) WHERE id = ? AND coins >= ?")
+                       ->execute([$coinDeduct, $guestId, $coinDeduct]);
+                    $freshCoins = $availCoins - $coinDeduct;
                     $db->prepare("
                         INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, description)
                         VALUES (?, 'wager_escrow', 0, ?, ?, 'completed', ?)
@@ -462,6 +468,7 @@ try {
                         $_SESSION['user']['coins'] = $freshCoins;
                     }
                 }
+                $db->commit();
             }
 
             // Join as Guest (Player 2) and activate game
@@ -650,6 +657,39 @@ try {
                 }
             } elseif ($room['status'] !== 'active') {
                 jsonResponse(['success' => false, 'message' => 'Cannot make move: match is concluded.'], 400);
+            }
+
+            // High Security: Anti-Flood Rate Limiting on Game Moves (max 35 moves per 5 seconds)
+            $moveRate = checkRateLimit('game_move', 35, 5, $roomCode . ':' . $playerRole);
+            if (!$moveRate['allowed']) {
+                jsonResponse(['success' => false, 'message' => 'Move frequency limit exceeded. Please wait a moment.'], 429);
+            }
+
+            // High Security: Player Identity & Impersonation Defense
+            if ($currentUser) {
+                if ($playerRole === 'p1' && !empty($room['host_id']) && (int)$room['host_id'] !== (int)$currentUser['id']) {
+                    logSecurityAudit('unauthorized_move_attempt', 'high', [
+                        'room' => $roomCode,
+                        'attempted_role' => 'p1',
+                        'user_id' => $currentUser['id'],
+                        'expected_host_id' => $room['host_id']
+                    ]);
+                    jsonResponse(['success' => false, 'message' => 'Security Error: You are not authorized to move for Player 1.'], 403);
+                }
+                if ($playerRole === 'p2' && !empty($room['guest_id']) && (int)$room['guest_id'] !== (int)$currentUser['id']) {
+                    logSecurityAudit('unauthorized_move_attempt', 'high', [
+                        'room' => $roomCode,
+                        'attempted_role' => 'p2',
+                        'user_id' => $currentUser['id'],
+                        'expected_guest_id' => $room['guest_id']
+                    ]);
+                    jsonResponse(['success' => false, 'message' => 'Security Error: You are not authorized to move for Player 2.'], 403);
+                }
+            }
+
+            // High Security: Real-Time Anti-Cheat Bot Velocity Telemetry
+            if (!empty($room['last_move_time'])) {
+                checkMoveVelocitySecurity($roomCode, $playerRole, (float)$room['last_move_time']);
             }
 
             // Verify turn

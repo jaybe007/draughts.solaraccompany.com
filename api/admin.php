@@ -110,8 +110,9 @@ try {
                     'tourn_rake_naira' => $tournRakeNaira,
                     'total_matches' => $totalMatches,
                     'live_rooms' => $liveRooms,
-                    'active_tournaments' => $activeTournaments,
-                    'unresolved_errors_count' => (int)$db->query("SELECT COUNT(*) FROM system_error_reports WHERE status != 'resolved'")->fetchColumn()
+                    'unresolved_errors_count' => (int)$db->query("SELECT COUNT(*) FROM system_error_reports WHERE status != 'resolved'")->fetchColumn(),
+                    'active_security_flags_count' => (int)$db->query("SELECT COUNT(*) FROM security_audit_flags WHERE status = 'flagged'")->fetchColumn(),
+                    'locked_logins_count' => (int)$db->query("SELECT COUNT(*) FROM failed_logins WHERE locked_until > UNIX_TIMESTAMP()")->fetchColumn()
                 ],
                 'settings' => $settings,
                 'recent_audit' => $recentAudit,
@@ -1382,6 +1383,157 @@ try {
                 'report_id' => $simId,
                 'message' => "Simulated {$type} error logged with automatic diagnosis and suggested solution."
             ]);
+            break;
+
+        // ================= SECURITY CENTER & THREAT DEFENSE ================= //
+        case 'list_security_flags':
+            if (!hasAdminPermission($adminUser, 'manage_security') && !hasAdminPermission($adminUser, 'view_audit_logs') && !hasAdminPermission($adminUser, 'manage_settings')) {
+                jsonResp(['success' => false, 'message' => 'Permission denied: manage_security required.'], 403);
+            }
+
+            $page = max(1, (int)($_GET['page'] ?? ($input['page'] ?? 1)));
+            $limit = max(10, min(100, (int)($_GET['limit'] ?? ($input['limit'] ?? 25))));
+            $severityFilter = trim($_GET['severity'] ?? ($input['severity'] ?? 'all'));
+            $statusFilter = trim($_GET['status'] ?? ($input['status'] ?? 'all'));
+            $offset = ($page - 1) * $limit;
+
+            $where = ["1=1"];
+            $params = [];
+
+            if ($severityFilter !== '' && $severityFilter !== 'all') {
+                $where[] = "severity = ?";
+                $params[] = $severityFilter;
+            }
+            if ($statusFilter !== '' && $statusFilter !== 'all') {
+                $where[] = "status = ?";
+                $params[] = $statusFilter;
+            }
+
+            $whereClause = implode(' AND ', $where);
+
+            $totalStmt = $db->prepare("SELECT COUNT(*) FROM security_audit_flags WHERE {$whereClause}");
+            $totalStmt->execute($params);
+            $totalFiltered = (int)$totalStmt->fetchColumn();
+
+            $sql = "
+                SELECT f.*, u.username 
+                FROM security_audit_flags f
+                LEFT JOIN users u ON u.id = f.user_id
+                WHERE {$whereClause}
+                ORDER BY f.id DESC
+                LIMIT {$limit} OFFSET {$offset}
+            ";
+            $dataStmt = $db->prepare($sql);
+            $dataStmt->execute($params);
+            $flags = $dataStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            jsonResp([
+                'success' => true,
+                'flags' => $flags,
+                'stats' => [
+                    'total' => (int)$db->query("SELECT COUNT(*) FROM security_audit_flags")->fetchColumn(),
+                    'flagged' => (int)$db->query("SELECT COUNT(*) FROM security_audit_flags WHERE status = 'flagged'")->fetchColumn(),
+                    'critical' => (int)$db->query("SELECT COUNT(*) FROM security_audit_flags WHERE severity = 'critical' AND status = 'flagged'")->fetchColumn(),
+                    'high' => (int)$db->query("SELECT COUNT(*) FROM security_audit_flags WHERE severity = 'high' AND status = 'flagged'")->fetchColumn(),
+                    'locked_ips' => (int)$db->query("SELECT COUNT(*) FROM failed_logins WHERE locked_until > UNIX_TIMESTAMP()")->fetchColumn()
+                ],
+                'pagination' => [
+                    'page' => $page,
+                    'limit' => $limit,
+                    'total' => $totalFiltered,
+                    'total_pages' => ceil($totalFiltered / $limit)
+                ]
+            ]);
+            break;
+
+        case 'resolve_security_flag':
+            if (!hasAdminPermission($adminUser, 'manage_security') && !hasAdminPermission($adminUser, 'view_audit_logs')) {
+                jsonResp(['success' => false, 'message' => 'Permission denied: manage_security required.'], 403);
+            }
+
+            $flagId = (int)($input['id'] ?? 0);
+            $newStatus = trim($input['status'] ?? 'reviewed');
+
+            if (!in_array($newStatus, ['flagged', 'reviewed', 'dismissed', 'banned'])) {
+                jsonResp(['success' => false, 'message' => 'Invalid security flag status.'], 400);
+            }
+
+            $stmt = $db->prepare("UPDATE security_audit_flags SET status = ? WHERE id = ?");
+            $stmt->execute([$newStatus, $flagId]);
+
+            logAdminAudit(
+                $db,
+                $adminUser['id'],
+                $adminUser['username'],
+                'resolve_security_flag',
+                'security_flag',
+                $flagId,
+                "Updated security flag #{$flagId} to '{$newStatus}'"
+            );
+
+            jsonResp(['success' => true, 'message' => "Security flag #{$flagId} marked as {$newStatus}."]);
+            break;
+
+        case 'list_locked_accounts':
+            if (!hasAdminPermission($adminUser, 'manage_security') && !hasAdminPermission($adminUser, 'view_audit_logs')) {
+                jsonResp(['success' => false, 'message' => 'Permission denied: manage_security required.'], 403);
+            }
+
+            $locked = $db->query("
+                SELECT * FROM failed_logins 
+                WHERE locked_until > UNIX_TIMESTAMP() 
+                ORDER BY locked_until DESC LIMIT 50
+            ")->fetchAll(PDO::FETCH_ASSOC);
+
+            jsonResp([
+                'success' => true,
+                'locked_accounts' => $locked,
+                'count' => count($locked)
+            ]);
+            break;
+
+        case 'unlock_account':
+            if (!hasAdminPermission($adminUser, 'manage_security') && !hasAdminPermission($adminUser, 'manage_users')) {
+                jsonResp(['success' => false, 'message' => 'Permission denied: manage_security or manage_users required.'], 403);
+            }
+
+            $lockId = (int)($input['id'] ?? 0);
+            $identifier = trim($input['login_identifier'] ?? '');
+
+            if ($lockId > 0) {
+                $db->prepare("DELETE FROM failed_logins WHERE id = ?")->execute([$lockId]);
+            } elseif (!empty($identifier)) {
+                $db->prepare("DELETE FROM failed_logins WHERE login_identifier = ?")->execute([$identifier]);
+            } else {
+                jsonResp(['success' => false, 'message' => 'Account ID or identifier required.'], 400);
+            }
+
+            logAdminAudit(
+                $db,
+                $adminUser['id'],
+                $adminUser['username'],
+                'unlock_account',
+                'failed_login',
+                $lockId ?: $identifier,
+                "Unlocked account or IP '{$identifier}'"
+            );
+
+            jsonResp(['success' => true, 'message' => "Account / IP lockout released successfully."]);
+            break;
+
+        case 'clear_rate_limits':
+            if (!hasAdminPermission($adminUser, 'manage_security') && !hasAdminPermission($adminUser, 'manage_settings')) {
+                jsonResp(['success' => false, 'message' => 'Permission denied: manage_security required.'], 403);
+            }
+
+            $actionType = trim($input['action_type'] ?? '');
+            if (!empty($actionType)) {
+                $cleared = $db->prepare("DELETE FROM security_rate_limits WHERE action_type = ?")->execute([$actionType]);
+            } else {
+                $cleared = $db->exec("DELETE FROM security_rate_limits WHERE blocked_until IS NULL OR blocked_until < UNIX_TIMESTAMP()");
+            }
+
+            jsonResp(['success' => true, 'message' => "Rate limits cleared successfully."]);
             break;
 
         default:

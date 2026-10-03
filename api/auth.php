@@ -21,6 +21,10 @@ try {
     $db = getDB();
 
     switch ($action) {
+        case 'csrf_token':
+            jsonResponse(['success' => true, 'csrf_token' => getCsrfToken()]);
+            break;
+
         case 'me':
             $currentUser = getCurrentUser();
             if ($currentUser) {
@@ -57,7 +61,16 @@ try {
             break;
 
         case 'register':
-            $username = trim($input['username'] ?? '');
+            // High Security: Rate limit registrations per IP (max 6 accounts per 15 mins)
+            $regRate = checkRateLimit('auth_register', 6, 900);
+            if (!$regRate['allowed']) {
+                jsonResponse([
+                    'success' => false, 
+                    'message' => "Too many registration attempts. Please wait {$regRate['retry_after']} seconds before trying again."
+                ], 429);
+            }
+
+            $username = sanitizeInputString($input['username'] ?? '', 50);
             $email    = trim($input['email'] ?? '');
             $password = $input['password'] ?? '';
 
@@ -296,11 +309,33 @@ try {
             break;
 
         case 'login':
+            $clientIp = getSecurityClientIp();
+
+            // High Security: Rate limit login attempts per IP (max 30 per 5 mins)
+            $loginRate = checkRateLimit('auth_login_general', 30, 300, $clientIp);
+            if (!$loginRate['allowed']) {
+                jsonResponse([
+                    'success' => false,
+                    'message' => "Too many login attempts. Please wait {$loginRate['retry_after']} seconds before trying again."
+                ], 429);
+            }
+
             $loginId  = trim($input['login'] ?? '');
             $password = $input['password'] ?? '';
 
             if (empty($loginId) || empty($password)) {
                 jsonResponse(['success' => false, 'message' => 'Please provide both username/email and password.'], 400);
+            }
+
+            // High Security: Anti-Brute-Force Account & IP Lockout Check
+            $lockout = checkLoginLockout($loginId, $clientIp);
+            if ($lockout['locked']) {
+                jsonResponse([
+                    'success' => false,
+                    'is_locked' => true,
+                    'retry_after' => $lockout['retry_after'],
+                    'message' => "Account temporarily locked due to multiple failed login attempts. Please wait {$lockout['retry_after']} seconds."
+                ], 429);
             }
 
             $stmt = $db->prepare("
@@ -314,8 +349,20 @@ try {
             $user = $stmt->fetch();
 
             if (!$user || !password_verify($password, $user['password_hash'])) {
-                jsonResponse(['success' => false, 'message' => 'Invalid username or password.'], 401);
+                // Record failed login attempt for brute-force defense
+                $failedCount = recordFailedLoginAttempt($loginId, $clientIp);
+                $remainingBeforeLock = max(0, 5 - $failedCount);
+                $warnText = ($remainingBeforeLock > 0)
+                    ? " ({$remainingBeforeLock} attempts remaining before temporary lockout)"
+                    : "";
+                jsonResponse(['success' => false, 'message' => 'Invalid username or password.' . $warnText], 401);
             }
+
+            // Authentication successful: clear failed login counter
+            clearLoginFailures($loginId, $clientIp);
+
+            // High Security: Prevent Session Fixation attack
+            session_regenerate_id(true);
 
             unset($user['password_hash']);
 

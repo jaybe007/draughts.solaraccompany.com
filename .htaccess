@@ -1,5 +1,5 @@
 # =============================================================================
-# NAIJA DRAUGHTS - APACHE / CPANEL SECURITY & OPTIMIZATION CONFIGURATION
+# NAIJA DRAUGHTS - HIGH SECURITY & PERFORMANCE APACHE / CPANEL CONFIGURATION
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -9,9 +9,9 @@ DirectoryIndex index.php index.html
 Options -Indexes -MultiViews
 
 # -----------------------------------------------------------------------------
-# 2. Block Access to Sensitive Files & Configuration Secrets
+# 2. Block Access to Sensitive Files, Secrets, and Source Code
 # -----------------------------------------------------------------------------
-<FilesMatch "^(\.env|\.git|\.htaccess|\.user\.ini|composer\.(json|lock)|package\.json|.*\.sql|.*\.md|.*\.log)$">
+<FilesMatch "^(\.env|\.cpanel\.yml|\.git|\.htaccess|\.user\.ini|composer\.(json|lock)|package\.json|.*\.sql|.*\.md|.*\.log|.*\.bak|.*\.sh|.*\.yml|.*\.yaml|.*\.sqlite|.*\.db)$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>
@@ -21,20 +21,34 @@ Options -Indexes -MultiViews
     </IfModule>
 </FilesMatch>
 
-# Block access to internal script & log folders directly
+# -----------------------------------------------------------------------------
+# 3. Rewrite Engine & Web Application Firewall Rules
+# -----------------------------------------------------------------------------
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Prevent direct listing of mail logs
+    # Prevent execution of any PHP scripts inside uploads or static media directories
+    RewriteRule ^uploads/.*\.php$ - [F,L]
+    RewriteRule ^assets/uploads/.*\.php$ - [F,L]
+
+    # Block direct listing or download of mail debug logs
     RewriteRule ^uploads/mail_logs/.*$ - [F,L]
 
-    # Force HTTPS when available (uncomment if SSL is active)
+    # Block direct web access to internal database migration scripts
+    RewriteRule ^database/.*\.sql$ - [F,L]
+
+    # Block Malicious Query Injections (SQLi, PHP Globals, Remote File Inclusion)
+    RewriteCond %{QUERY_STRING} (eval\(|base64_encode|base64_decode|<script|GLOBALS|mosConfig_|_REQUEST) [NC,OR]
+    RewriteCond %{QUERY_STRING} (UNION.*SELECT|SELECT.*FROM|INSERT.*INTO|DELETE.*FROM|DROP.*TABLE) [NC]
+    RewriteRule ^(.*)$ - [F,L]
+
+    # Force HTTPS when available (uncomment if SSL is active on live server)
     # RewriteCond %{HTTPS} off
     # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 </IfModule>
 
 # -----------------------------------------------------------------------------
-# 3. Security HTTP Headers
+# 4. Security HTTP Headers
 # -----------------------------------------------------------------------------
 <IfModule mod_headers.c>
     # Prevent MIME type sniffing
@@ -49,12 +63,12 @@ Options -Indexes -MultiViews
     # Strict Referrer Policy
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
 
-    # Permissions Policy
-    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    # Restrict Unused Browser Features
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(self 'https://js.paystack.co' 'https://checkout.flutterwave.com')"
 </IfModule>
 
 # -----------------------------------------------------------------------------
-# 4. Gzip / Deflate Compression
+# 5. Gzip / Deflate Compression
 # -----------------------------------------------------------------------------
 <IfModule mod_deflate.c>
     AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css
@@ -64,7 +78,7 @@ Options -Indexes -MultiViews
 </IfModule>
 
 # -----------------------------------------------------------------------------
-# 5. MIME Types & Browser Caching for Static Assets
+# 6. MIME Types & Browser Caching for Static Assets
 # -----------------------------------------------------------------------------
 <IfModule mod_mime.c>
     AddType application/manifest+json .webmanifest
@@ -84,4 +98,3 @@ Options -Indexes -MultiViews
     ExpiresByType audio/mpeg "access plus 1 month"
     ExpiresByType audio/wav "access plus 1 month"
 </IfModule>
-

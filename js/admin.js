@@ -79,7 +79,8 @@ class AdminApp {
       'panel-rooms': 'Live Arena & Match Room Monitor',
       'panel-settings': 'Global Platform Governance Settings',
       'panel-audit': 'Immutable Administrative Audit Trails',
-      'panel-errors': 'System Error Reports & AI Diagnostic Solutions'
+      'panel-errors': 'System Error Reports & AI Diagnostic Solutions',
+      'panel-security': 'Threat Defense & Platform Security Shield'
     };
     const headingEl = document.getElementById('panel-heading-title');
     if (headingEl) headingEl.textContent = titleMap[panelId] || 'Command Center';
@@ -94,6 +95,10 @@ class AdminApp {
     else if (panelId === 'panel-settings') this.loadSettings();
     else if (panelId === 'panel-audit') this.loadAuditLogs(1);
     else if (panelId === 'panel-errors') this.loadErrorReports(1);
+    else if (panelId === 'panel-security') {
+      this.loadSecurityFlags();
+      this.loadLockedAccounts();
+    }
   }
 
   // ================= 1. OVERVIEW DASHBOARD ================= //
@@ -150,6 +155,17 @@ class AdminApp {
           ovErrBadge.style.display = 'inline-block';
         } else {
           ovErrBadge.style.display = 'none';
+        }
+      }
+
+      const secBadge = document.getElementById('badge-security-threats');
+      if (secBadge) {
+        const totalThreats = Number(s.active_security_flags_count || 0) + Number(s.locked_logins_count || 0);
+        if (totalThreats > 0) {
+          secBadge.textContent = totalThreats;
+          secBadge.style.display = 'inline-block';
+        } else {
+          secBadge.style.display = 'none';
         }
       }
 
@@ -1718,6 +1734,184 @@ class AdminApp {
   closeModal(modalId) {
     const m = document.getElementById(modalId);
     if (m) m.classList.remove('open');
+  }
+
+  // ================= 10. THREAT DEFENSE & SECURITY SHIELD ================= //
+  async loadSecurityFlags() {
+    const tbody = document.getElementById('security-flags-table-body');
+    if (!tbody) return;
+
+    const severity = document.getElementById('security-severity-filter')?.value || 'all';
+    const status = document.getElementById('security-status-filter')?.value || 'all';
+
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">Scanning security threat flags...</td></tr>';
+
+    try {
+      const res = await fetch(`api/admin.php?action=list_security_flags&severity=${severity}&status=${status}`);
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      this.setText('kpi-security-flags', data.stats.flagged || 0);
+      this.setText('kpi-security-critical', data.stats.critical || 0);
+      this.setText('kpi-security-locked', data.stats.locked_ips || 0);
+
+      const flags = data.flags || [];
+      if (flags.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px; color:#10b981;">✓ Shield Secure: No intrusion or bot anomaly flags reported in this filter.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = flags.map(f => {
+        let sevColor = '#60a5fa';
+        if (f.severity === 'critical') sevColor = '#ef4444';
+        else if (f.severity === 'high') sevColor = '#f97316';
+        else if (f.severity === 'medium') sevColor = '#f59e0b';
+
+        let details = '';
+        try {
+          const parsed = JSON.parse(f.details_json);
+          details = Object.entries(parsed).map(([k, v]) => `<span style="display:inline-block; margin-right:8px; font-size:0.75rem; color:#94a3b8;"><strong style="color:#e2e8f0;">${this.escape(k)}:</strong> ${this.escape(typeof v === 'object' ? JSON.stringify(v) : v)}</span>`).join('');
+        } catch (e) {
+          details = this.escape(f.details_json || '');
+        }
+
+        const dateStr = f.created_at ? new Date(f.created_at).toLocaleString() : '';
+
+        return `
+          <tr>
+            <td>
+              <span class="badge" style="background:${sevColor}22; color:${sevColor}; border:1px solid ${sevColor}55; padding:2px 6px; font-size:0.72rem; border-radius:4px; font-weight:700; text-transform:uppercase;">
+                ${this.escape(f.severity)}
+              </span>
+            </td>
+            <td>
+              <strong style="color:#ffffff; font-size:0.86rem;">${this.escape(f.event_type)}</strong>
+              ${f.username ? `<div style="font-size:0.75rem; color:var(--gold-400);">Player: ${this.escape(f.username)}</div>` : ''}
+            </td>
+            <td>
+              <div style="font-family:monospace; font-size:0.8rem; color:#38bdf8;">${this.escape(f.ip_address)}</div>
+              <div style="margin-top:2px;">${details}</div>
+            </td>
+            <td>
+              <span class="badge" style="background:rgba(255,255,255,0.06); padding:2px 6px; font-size:0.72rem; border-radius:4px;">
+                ${this.escape(f.status)}
+              </span>
+            </td>
+            <td style="font-size:0.75rem; color:#94a3b8;">${dateStr}</td>
+            <td style="text-align:right;">
+              ${f.status === 'flagged' ? `
+                <button type="button" class="btn-admin btn-admin-secondary" style="padding:2px 8px; font-size:0.72rem;" onclick="adminApp.resolveSecurityFlag(${f.id}, 'reviewed')">Review</button>
+                <button type="button" class="btn-admin btn-admin-danger" style="padding:2px 6px; font-size:0.72rem; margin-left:3px;" onclick="adminApp.resolveSecurityFlag(${f.id}, 'dismissed')">✕</button>
+              ` : `
+                <span style="color:#10b981; font-size:0.78rem;">✓ ${this.escape(f.status)}</span>
+              `}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+    } catch (e) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#ef4444; padding:20px;">Failed to load threat flags: ${this.escape(e.message)}</td></tr>`;
+    }
+  }
+
+  async resolveSecurityFlag(id, status) {
+    try {
+      const res = await fetch('api/admin.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'resolve_security_flag', id, status })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      this.showToast(data.message, 'success');
+      this.loadSecurityFlags();
+    } catch (e) {
+      this.showToast(e.message, 'error');
+    }
+  }
+
+  async loadLockedAccounts() {
+    const listEl = document.getElementById('security-locked-accounts-list');
+    if (!listEl) return;
+
+    listEl.innerHTML = '<p class="text-muted" style="font-size:0.85rem; padding:10px 0;">Loading locked accounts...</p>';
+
+    try {
+      const res = await fetch('api/admin.php?action=list_locked_accounts');
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      const accounts = data.locked_accounts || [];
+      if (accounts.length === 0) {
+        listEl.innerHTML = '<p class="text-muted" style="font-size:0.85rem; padding:10px 0; color:#10b981;">✓ No accounts or IPs are currently locked out.</p>';
+        return;
+      }
+
+      const now = Math.floor(Date.now() / 1000);
+      listEl.innerHTML = accounts.map(a => {
+        const remainingSec = Math.max(0, (a.locked_until || 0) - now);
+        const mins = Math.ceil(remainingSec / 60);
+
+        return `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
+            <div>
+              <strong style="color:#ffffff; font-size:0.88rem;">${this.escape(a.login_identifier)}</strong>
+              <div style="font-size:0.75rem; color:#94a3b8;">
+                IP: <span style="font-family:monospace; color:#38bdf8;">${this.escape(a.ip_address)}</span> • ${a.failed_attempts} fails
+              </div>
+              <div style="font-size:0.72rem; color:#f59e0b; margin-top:2px;">
+                Locked for ~${mins} more min(s)
+              </div>
+            </div>
+            <div>
+              <button type="button" class="btn-admin btn-admin-primary" style="padding:4px 8px; font-size:0.75rem;" onclick="adminApp.unlockAccount(${a.id}, '${this.escape(a.login_identifier)}')">
+                🔓 Unlock
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+    } catch (e) {
+      listEl.innerHTML = `<p style="color:#ef4444; font-size:0.85rem;">Error: ${this.escape(e.message)}</p>`;
+    }
+  }
+
+  async unlockAccount(id, identifier) {
+    if (!confirm(`Unlock and immediately restore access for '${identifier}'?`)) return;
+
+    try {
+      const res = await fetch('api/admin.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'unlock_account', id, login_identifier: identifier })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      this.showToast(data.message, 'success');
+      this.loadLockedAccounts();
+      this.loadSecurityFlags();
+    } catch (e) {
+      this.showToast(e.message, 'error');
+    }
+  }
+
+  async clearRateLimits() {
+    if (!confirm('Clear all expired and non-permanent rate limit counters across the platform?')) return;
+
+    try {
+      const res = await fetch('api/admin.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'clear_rate_limits' })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      this.showToast(data.message, 'success');
+    } catch (e) {
+      this.showToast(e.message, 'error');
+    }
   }
 
   onRoleChange(role) {

@@ -316,6 +316,16 @@ $adminPerms = json_decode($adminUser['permissions_json'] ?? '[]', true) ?: [];
         <span class="nav-badge-pill badge-danger" id="badge-unresolved-errors" style="display:none;">0</span>
       </button>
       <?php endif; ?>
+
+      <?php if ($isSuperAdmin || in_array('manage_security', $adminPerms) || in_array('manage_settings', $adminPerms) || in_array('view_audit_logs', $adminPerms)): ?>
+      <button type="button" class="admin-nav-item" data-panel="panel-security">
+        <div class="nav-label-wrap">
+          <span class="nav-icon">🛡️</span>
+          <span>Threat & Security Shield</span>
+        </div>
+        <span class="nav-badge-pill badge-danger" id="badge-security-threats" style="display:none;">0</span>
+      </button>
+      <?php endif; ?>
     </nav>
 
     <div class="sidebar-footer">
@@ -989,6 +999,174 @@ $adminPerms = json_decode($adminUser['permissions_json'] ?? '[]', true) ?: [];
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
           <span style="font-size:0.82rem; color:var(--text-muted);" id="errors-pagination-info">Showing error reports</span>
           <div style="display:flex; gap:6px;" id="errors-pagination-controls"></div>
+        </div>
+      </div>
+    </section>
+    <?php endif; ?>
+
+    <!-- ================= PANEL 10: THREAT DEFENSE & SECURITY SHIELD ================= -->
+    <?php if ($isSuperAdmin || in_array('manage_security', $adminPerms) || in_array('manage_settings', $adminPerms) || in_array('view_audit_logs', $adminPerms)): ?>
+    <section class="admin-view-panel" id="panel-security">
+      <!-- Security KPI Cards -->
+      <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 20px;">
+        <div class="kpi-card" style="border-left: 4px solid #10b981;">
+          <div class="kpi-header">
+            <span class="kpi-title">Shield Engine Status</span>
+            <div class="kpi-icon-pill" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">🛡️</div>
+          </div>
+          <div class="kpi-value" style="color: #10b981; font-size: 1.35rem;">ARMED & ACTIVE</div>
+          <div class="kpi-subtext">CSP • Rate Limits • Concurrency</div>
+        </div>
+
+        <div class="kpi-card" style="border-left: 4px solid #ef4444;">
+          <div class="kpi-header">
+            <span class="kpi-title">Active Threat Flags</span>
+            <div class="kpi-icon-pill" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">⚠️</div>
+          </div>
+          <div class="kpi-value" id="kpi-security-flags" style="color: #ef4444;">0</div>
+          <div class="kpi-subtext">Suspected bot or tamper events</div>
+        </div>
+
+        <div class="kpi-card" style="border-left: 4px solid #f59e0b;">
+          <div class="kpi-header">
+            <span class="kpi-title">Locked Brute-Force IPs</span>
+            <div class="kpi-icon-pill" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">🔒</div>
+          </div>
+          <div class="kpi-value" id="kpi-security-locked" style="color: #f59e0b;">0</div>
+          <div class="kpi-subtext">Currently blocked by lockout</div>
+        </div>
+
+        <div class="kpi-card" style="border-left: 4px solid #3b82f6;">
+          <div class="kpi-header">
+            <span class="kpi-title">Critical Severity Flags</span>
+            <div class="kpi-icon-pill" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">🚨</div>
+          </div>
+          <div class="kpi-value" id="kpi-security-critical" style="color: #60a5fa;">0</div>
+          <div class="kpi-subtext">Double-spend / Tamper probes</div>
+        </div>
+      </div>
+
+      <!-- Security Hardening Overview Card -->
+      <div class="admin-card" style="margin-bottom: 24px;">
+        <div class="card-header-bar">
+          <div class="card-title-group">
+            <h2>🛡️ Platform Security Architecture & Defenses</h2>
+            <p>Active multi-layer controls safeguarding authentication, treasury escrows, gameplay, and server infrastructure.</p>
+          </div>
+          <div class="card-actions-group">
+            <button type="button" class="btn-admin btn-admin-secondary" onclick="adminApp.clearRateLimits()">
+              <span>🧹 Reset Rate Limit Counters</span>
+            </button>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
+          <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: var(--radius-sm); padding: 14px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <span style="color:#10b981; font-weight:800;">✓</span>
+              <strong style="color:#ffffff; font-size:0.92rem;">Fintech Concurrency Locks</strong>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-secondary); margin:0;">
+              All wallet debits, coin purchases, and match escrows use row-level <code style="color:var(--gold-400);">FOR UPDATE</code> locks inside atomic transactions with negative-balance database triggers.
+            </p>
+          </div>
+
+          <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: var(--radius-sm); padding: 14px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <span style="color:#10b981; font-weight:800;">✓</span>
+              <strong style="color:#ffffff; font-size:0.92rem;">Anti-Brute Force Lockouts</strong>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-secondary); margin:0;">
+              Logins are strictly throttled. 5 failed attempts trigger a 5-minute lockout; 10 failed attempts trigger a 30-minute lockout. Sessions regenerate ID upon login.
+            </p>
+          </div>
+
+          <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: var(--radius-sm); padding: 14px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <span style="color:#10b981; font-weight:800;">✓</span>
+              <strong style="color:#ffffff; font-size:0.92rem;">Server Anti-Cheat Velocity</strong>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-secondary); margin:0;">
+              Monitors move velocity in real time. Moves executed under 40ms or submitted out of sequence are rejected and flagged for arbiter review.
+            </p>
+          </div>
+
+          <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: var(--radius-sm); padding: 14px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <span style="color:#10b981; font-weight:800;">✓</span>
+              <strong style="color:#ffffff; font-size:0.92rem;">Hardened Headers & .htaccess</strong>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-secondary); margin:0;">
+              Enforces strict CSP, X-Frame-Options, XSS blockers, nosniff, and prohibits direct HTTP execution of PHP scripts in <code style="color:var(--gold-400);">uploads/</code>.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Threat Flags & Locked Accounts Split View -->
+      <div style="display:grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start;">
+        <!-- Left: Security Audit Flags Table -->
+        <div class="admin-card">
+          <div class="card-header-bar" style="flex-wrap: wrap; gap: 12px;">
+            <div class="card-title-group">
+              <h2>⚠️ Security Flags & Threat Events</h2>
+              <p>Real-time log of suspicious activity, brute-force spikes, and bot detections.</p>
+            </div>
+            <div class="card-actions-group">
+              <button type="button" class="btn-admin btn-admin-secondary" onclick="adminApp.loadSecurityFlags()">
+                <span>🔄 Refresh</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Filters -->
+          <div style="display:flex; gap:10px; margin-bottom:14px;">
+            <select id="security-severity-filter" class="form-control-admin" style="max-width:160px;" onchange="adminApp.loadSecurityFlags()">
+              <option value="all">All Severities</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+            <select id="security-status-filter" class="form-control-admin" style="max-width:160px;" onchange="adminApp.loadSecurityFlags()">
+              <option value="all">All Statuses</option>
+              <option value="flagged" selected>Flagged (Open)</option>
+              <option value="reviewed">Reviewed</option>
+              <option value="dismissed">Dismissed</option>
+            </select>
+          </div>
+
+          <!-- Flags Table -->
+          <div class="admin-table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th style="width:80px;">Severity</th>
+                  <th style="width:140px;">Event Type</th>
+                  <th>IP Address / Details</th>
+                  <th style="width:90px;">Status</th>
+                  <th style="width:100px;">Time</th>
+                  <th style="width:110px; text-align:right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="security-flags-table-body">
+                <tr><td colspan="6" style="text-align:center; padding:20px;">Loading security threat flags...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right: Locked Accounts & Blocked IPs -->
+        <div class="admin-card">
+          <div class="card-header-bar">
+            <div class="card-title-group">
+              <h2>🔒 Locked Accounts & IPs</h2>
+              <p>Targets under brute-force mitigation.</p>
+            </div>
+            <button type="button" class="btn-admin btn-admin-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="adminApp.loadLockedAccounts()">🔄</button>
+          </div>
+          <div id="security-locked-accounts-list">
+            <p class="text-muted" style="font-size:0.85rem; padding:10px 0;">Loading locked accounts...</p>
+          </div>
         </div>
       </div>
     </section>

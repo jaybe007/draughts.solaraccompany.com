@@ -58,6 +58,12 @@ function getAvailablePermissionsList() {
             'title' => 'System Diagnostics & Error Reports',
             'category' => 'System',
             'description' => 'Inspect live runtime exceptions, resolve diagnostic reports, and test error remediation workflows.'
+        ],
+        'manage_security' => [
+            'key' => 'manage_security',
+            'title' => 'Security Shield & Threat Defense',
+            'category' => 'Security',
+            'description' => 'Inspect intrusion flags, unlock brute-force locked IPs, review rate limit blocks, and manage defense thresholds.'
         ]
     ];
 }

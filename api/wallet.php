@@ -171,11 +171,20 @@ try {
                 jsonResponse(['success' => false, 'message' => 'Invalid deposit amount.'], 400);
             }
 
-            // Fetch current balance
-            $currentBal = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$currentUser['id']}")->fetchColumn();
-            $currentCoins = (int)$db->query("SELECT coins FROM users WHERE id = {$currentUser['id']}")->fetchColumn();
-
+            // High Security: Atomic Balance Update with Row-Level Lock
             $db->beginTransaction();
+            $userLock = $db->prepare("SELECT wallet_balance, coins FROM users WHERE id = ? FOR UPDATE");
+            $userLock->execute([$currentUser['id']]);
+            $userRow = $userLock->fetch(PDO::FETCH_ASSOC);
+
+            if (!$userRow) {
+                $db->rollBack();
+                jsonResponse(['success' => false, 'message' => 'User account not found.'], 404);
+            }
+
+            $currentBal = (float)$userRow['wallet_balance'];
+            $currentCoins = (int)$userRow['coins'];
+
             if ($coinsToAdd > 0) {
                 // Direct Global Coin Bundle purchase
                 $newCoins = $currentCoins + $coinsToAdd;
@@ -210,7 +219,9 @@ try {
             $db->commit();
 
             // Refresh user session
-            $refresh = $db->query("SELECT wallet_balance, coins FROM users WHERE id = {$currentUser['id']}")->fetch();
+            $refreshStmt = $db->prepare("SELECT wallet_balance, coins FROM users WHERE id = ?");
+            $refreshStmt->execute([$currentUser['id']]);
+            $refresh = $refreshStmt->fetch();
             $_SESSION['user']['wallet_balance'] = $refresh['wallet_balance'];
             $_SESSION['user']['coins'] = $refresh['coins'];
 
@@ -227,19 +238,20 @@ try {
 
         // ================= REQUEST MULTI-CHANNEL WITHDRAWAL ================= //
         case 'request_withdrawal':
+            // High Security: Rate limit withdrawal requests (max 5 per 10 mins per user)
+            $wdRate = checkRateLimit('wallet_withdrawal', 5, 600, (string)$currentUser['id']);
+            if (!$wdRate['allowed']) {
+                jsonResponse([
+                    'success' => false,
+                    'message' => "Too many withdrawal attempts. Please wait {$wdRate['retry_after']} seconds before submitting another request."
+                ], 429);
+            }
+
             $amountNaira = max(0, (float)($input['amount'] ?? 0));
             $channelType = trim($input['channel_type'] ?? 'nigerian_bank');
 
-            $currentBal = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$currentUser['id']}")->fetchColumn();
-
             if ($amountNaira < 1000.00) {
                 jsonResponse(['success' => false, 'message' => 'Minimum withdrawal amount is ₦1,000.00.'], 400);
-            }
-            if ($currentBal < $amountNaira) {
-                jsonResponse([
-                    'success' => false,
-                    'message' => 'Insufficient wallet balance. Available balance: ₦' . number_format($currentBal, 2)
-                ], 400);
             }
 
             $desc = '';
@@ -331,11 +343,34 @@ try {
                 jsonResponse(['success' => false, 'message' => 'Unsupported withdrawal channel.'], 400);
             }
 
+            // High Security: Atomic Concurrency Lock & Anti-Double-Spending
+            $db->beginTransaction();
+            $lockStmt = $db->prepare("SELECT wallet_balance FROM users WHERE id = ? FOR UPDATE");
+            $lockStmt->execute([$currentUser['id']]);
+            $currentBal = (float)$lockStmt->fetchColumn();
+
+            if ($currentBal < $amountNaira) {
+                $db->rollBack();
+                jsonResponse([
+                    'success' => false,
+                    'message' => 'Insufficient wallet balance. Available balance: ₦' . number_format($currentBal, 2)
+                ], 400);
+            }
+
             $newBal = $currentBal - $amountNaira;
 
-            $db->beginTransaction();
-            $db->prepare("UPDATE users SET wallet_balance = wallet_balance - ? WHERE id = ?")
-               ->execute([$amountNaira, $currentUser['id']]);
+            $deductStmt = $db->prepare("UPDATE users SET wallet_balance = wallet_balance - ? WHERE id = ? AND wallet_balance >= ?");
+            $deductStmt->execute([$amountNaira, $currentUser['id'], $amountNaira]);
+
+            if ($deductStmt->rowCount() === 0) {
+                $db->rollBack();
+                logSecurityAudit('double_spend_prevented', 'critical', [
+                    'user_id' => $currentUser['id'],
+                    'attempted_amount' => $amountNaira,
+                    'action' => 'withdrawal'
+                ]);
+                jsonResponse(['success' => false, 'message' => 'Concurrency collision detected. Please try again.'], 409);
+            }
 
             $ref = 'WD_' . date('YmdHis') . '_' . strtoupper(bin2hex(random_bytes(4)));
 
@@ -408,9 +443,21 @@ try {
             // Calculate exact Naira cost at official Buy Rate
             $nairaCost = round($coinsAmount * $rates['buy_rate_per_coin'], 2);
 
-            $currentBalance = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$currentUser['id']}")->fetchColumn();
+            $db->beginTransaction();
+            $lockStmt = $db->prepare("SELECT wallet_balance, coins FROM users WHERE id = ? FOR UPDATE");
+            $lockStmt->execute([$currentUser['id']]);
+            $userRow = $lockStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$userRow) {
+                $db->rollBack();
+                jsonResponse(['success' => false, 'message' => 'User account not found.'], 404);
+            }
+
+            $currentBalance = (float)$userRow['wallet_balance'];
+            $currentCoins = (int)$userRow['coins'];
 
             if ($currentBalance < $nairaCost) {
+                $db->rollBack();
                 $needed = $nairaCost - $currentBalance;
                 jsonResponse([
                     'success' => false,
@@ -419,9 +466,15 @@ try {
             }
 
             $newBal = round($currentBalance - $nairaCost, 2);
+            $newCoins = $currentCoins + $coinsAmount;
 
-            $db->prepare("UPDATE users SET wallet_balance = wallet_balance - ?, coins = coins + ? WHERE id = ?")
-               ->execute([$nairaCost, $coinsAmount, $currentUser['id']]);
+            $upd = $db->prepare("UPDATE users SET wallet_balance = wallet_balance - ?, coins = coins + ? WHERE id = ? AND wallet_balance >= ?");
+            $upd->execute([$nairaCost, $coinsAmount, $currentUser['id'], $nairaCost]);
+
+            if ($upd->rowCount() === 0) {
+                $db->rollBack();
+                jsonResponse(['success' => false, 'message' => 'Concurrency collision: unable to deduct balance.'], 409);
+            }
 
             $ref = 'BUY-COIN-' . strtoupper(bin2hex(random_bytes(3)));
             $desc = "Purchased {$coinsAmount} Coins for ₦" . number_format($nairaCost, 2) . " (@ ₦" . number_format($rates['buy_rate_per_100'], 2) . " / 100 Coins)";
@@ -431,14 +484,15 @@ try {
                 VALUES (?, 'coin_exchange', ?, ?, ?, 'completed', ?, ?)
             ")->execute([$currentUser['id'], -$nairaCost, $coinsAmount, $newBal, $ref, $desc]);
 
-            $refresh = $db->query("SELECT wallet_balance, coins FROM users WHERE id = {$currentUser['id']}")->fetch();
-            $_SESSION['user']['wallet_balance'] = $refresh['wallet_balance'];
-            $_SESSION['user']['coins'] = $refresh['coins'];
+            $db->commit();
+
+            $_SESSION['user']['wallet_balance'] = $newBal;
+            $_SESSION['user']['coins'] = $newCoins;
 
             jsonResponse([
                 'success' => true,
-                'wallet_balance' => (float)$refresh['wallet_balance'],
-                'coins' => (int)$refresh['coins'],
+                'wallet_balance' => (float)$newBal,
+                'coins' => (int)$newCoins,
                 'cost_naira' => $nairaCost,
                 'coins_purchased' => $coinsAmount,
                 'message' => "Successfully purchased {$coinsAmount} Coins for ₦" . number_format($nairaCost, 2) . "!"
@@ -454,11 +508,21 @@ try {
                 jsonResponse(['success' => false, 'message' => 'Minimum coin conversion amount is 10 Coins.'], 400);
             }
 
-            $userRow = $db->query("SELECT wallet_balance, coins FROM users WHERE id = {$currentUser['id']}")->fetch(PDO::FETCH_ASSOC);
+            $db->beginTransaction();
+            $lockStmt = $db->prepare("SELECT wallet_balance, coins FROM users WHERE id = ? FOR UPDATE");
+            $lockStmt->execute([$currentUser['id']]);
+            $userRow = $lockStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$userRow) {
+                $db->rollBack();
+                jsonResponse(['success' => false, 'message' => 'User account not found.'], 404);
+            }
+
             $currentCoins = (int)($userRow['coins'] ?? 0);
             $currentBalance = (float)($userRow['wallet_balance'] ?? 0.0);
 
             if ($currentCoins < $coinsToSell) {
+                $db->rollBack();
                 jsonResponse([
                     'success' => false,
                     'message' => "Insufficient coin balance. You have {$currentCoins} Coins, but tried to sell {$coinsToSell} Coins."
@@ -470,8 +534,13 @@ try {
             $newBal = round($currentBalance + $nairaPayout, 2);
             $newCoins = $currentCoins - $coinsToSell;
 
-            $db->prepare("UPDATE users SET wallet_balance = wallet_balance + ?, coins = coins - ? WHERE id = ?")
-               ->execute([$nairaPayout, $coinsToSell, $currentUser['id']]);
+            $upd = $db->prepare("UPDATE users SET wallet_balance = wallet_balance + ?, coins = coins - ? WHERE id = ? AND coins >= ?");
+            $upd->execute([$nairaPayout, $coinsToSell, $currentUser['id'], $coinsToSell]);
+
+            if ($upd->rowCount() === 0) {
+                $db->rollBack();
+                jsonResponse(['success' => false, 'message' => 'Concurrency collision: unable to deduct coins.'], 409);
+            }
 
             $ref = 'SELL-COIN-' . strtoupper(bin2hex(random_bytes(3)));
             $desc = "Cashed Out {$coinsToSell} Coins for ₦" . number_format($nairaPayout, 2) . " (@ ₦" . number_format($rates['sell_rate_per_100'], 2) . " / 100 Coins)";
@@ -480,6 +549,8 @@ try {
                 INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, reference, description)
                 VALUES (?, 'coin_sell', ?, ?, ?, 'completed', ?, ?)
             ")->execute([$currentUser['id'], $nairaPayout, -$coinsToSell, $newBal, $ref, $desc]);
+
+            $db->commit();
 
             $_SESSION['user']['wallet_balance'] = $newBal;
             $_SESSION['user']['coins'] = $newCoins;
@@ -512,9 +583,13 @@ try {
             $pkgInfo = $packagesConfig[$newPkg];
             $price = $pkgInfo['price'];
 
-            $balance = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$currentUser['id']}")->fetchColumn();
+            $db->beginTransaction();
+            $lockStmt = $db->prepare("SELECT wallet_balance FROM users WHERE id = ? FOR UPDATE");
+            $lockStmt->execute([$currentUser['id']]);
+            $balance = (float)$lockStmt->fetchColumn();
 
             if ($balance < $price) {
+                $db->rollBack();
                 $needed = $price - $balance;
                 jsonResponse([
                     'success' => false,
@@ -525,20 +600,28 @@ try {
             $newBal = $balance - $price;
             $expiry = date('Y-m-d H:i:s', strtotime('+30 days'));
 
-            $db->prepare("
+            $upd = $db->prepare("
                 UPDATE users SET
                     wallet_balance = wallet_balance - ?,
                     package = ?,
                     package_expiry = ?,
                     daily_games_left = ?,
                     updated_at = NOW()
-                WHERE id = ?
-            ")->execute([$price, $newPkg, $expiry, $pkgInfo['daily_quota'], $currentUser['id']]);
+                WHERE id = ? AND wallet_balance >= ?
+            ");
+            $upd->execute([$price, $newPkg, $expiry, $pkgInfo['daily_quota'], $currentUser['id'], $price]);
+
+            if ($upd->rowCount() === 0) {
+                $db->rollBack();
+                jsonResponse(['success' => false, 'message' => 'Transaction conflict. Please try again.'], 409);
+            }
 
             $db->prepare("
                 INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, description)
                 VALUES (?, 'package_purchase', ?, 0, ?, 'completed', ?)
             ")->execute([$currentUser['id'], -$price, $newBal, "Upgraded to {$pkgInfo['title']} (30 Days)"]);
+
+            $db->commit();
 
             $_SESSION['user']['package'] = $newPkg;
             $_SESSION['user']['daily_games_left'] = $pkgInfo['daily_quota'];
@@ -556,32 +639,47 @@ try {
 
         // ================= AWARD REWARD COINS (TRAP ACADEMY / QUESTS) ================= //
         case 'award_coins':
+            // High Security: Rate limit quest coin rewards to prevent script exploitation (max 5 per 15 mins)
+            $rewardRate = checkRateLimit('award_coins', 5, 900, (string)$currentUser['id']);
+            if (!$rewardRate['allowed']) {
+                jsonResponse([
+                    'success' => false,
+                    'message' => "Reward claim cooldown active. Please wait {$rewardRate['retry_after']} seconds."
+                ], 429);
+            }
+
             $coinsToAdd = max(0, (int)($input['coins'] ?? ($input['amount'] ?? 50)));
-            $reason = trim($input['reason'] ?? 'Trap Academy Completion Reward');
+            $reason = sanitizeInputString($input['reason'] ?? 'Trap Academy Completion Reward', 150);
 
             if ($coinsToAdd <= 0) {
                 jsonResponse(['success' => false, 'message' => 'Invalid coins amount.'], 400);
             }
 
+            // Cap single reward payout
             $coinsToAdd = min(250, $coinsToAdd);
 
-            $db->prepare("UPDATE users SET coins = coins + ? WHERE id = ?")
-               ->execute([$coinsToAdd, $currentUser['id']]);
+            $db->beginTransaction();
+            $db->prepare("UPDATE users SET coins = coins + ? WHERE id = ?")->execute([$coinsToAdd, $currentUser['id']]);
 
-            $bal = (float)$db->query("SELECT wallet_balance FROM users WHERE id = {$currentUser['id']}")->fetchColumn();
+            $lockStmt = $db->prepare("SELECT wallet_balance, coins FROM users WHERE id = ?");
+            $lockStmt->execute([$currentUser['id']]);
+            $fresh = $lockStmt->fetch(PDO::FETCH_ASSOC);
+
+            $bal = (float)$fresh['wallet_balance'];
+            $freshCoins = (int)$fresh['coins'];
 
             $db->prepare("
                 INSERT INTO wallet_transactions (user_id, type, amount, coins, balance_after, status, description)
                 VALUES (?, 'reward', 0, ?, ?, 'completed', ?)
             ")->execute([$currentUser['id'], $coinsToAdd, $bal, $reason]);
 
-            $refresh = $db->query("SELECT wallet_balance, coins FROM users WHERE id = {$currentUser['id']}")->fetch();
-            $_SESSION['user']['wallet_balance'] = $refresh['wallet_balance'];
-            $_SESSION['user']['coins'] = $refresh['coins'];
+            $db->commit();
+
+            $_SESSION['user']['coins'] = $freshCoins;
 
             jsonResponse([
                 'success' => true,
-                'coins' => (int)$refresh['coins'],
+                'coins' => $freshCoins,
                 'coins_added' => $coinsToAdd,
                 'message' => "Congratulations! Credited +{$coinsToAdd} Coins for {$reason}."
             ]);
