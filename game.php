@@ -197,6 +197,16 @@ if ($isOnlineRoom) {
               <span class="nav-icon">🧩</span> PUZZLES
             </a>
           </li>
+          <li>
+            <a href="donate.php" class="nav-link" style="color: #fbbf24; font-weight: 700;" title="Support Naija Draughts Community">
+              <span class="nav-icon">💛</span> DONATE
+            </a>
+          </li>
+          <li>
+            <a href="terms.php" class="nav-link" title="Rules, Fair Play &amp; Terms">
+              <span class="nav-icon">📜</span> TERMS
+            </a>
+          </li>
         </ul>
       </nav>
 
@@ -265,6 +275,8 @@ if ($isOnlineRoom) {
       <button id="nav-mobile-chat" class="nav-link"><span class="nav-icon">💬</span> CHAT</button>
       <button id="nav-mobile-rules" class="nav-link"><span class="nav-icon">📜</span> RULES</button>
       <a href="puzzles.php" class="nav-link"><span class="nav-icon">🧩</span> PUZZLES</a>
+      <a href="donate.php" class="nav-link" style="color: #fbbf24;"><span class="nav-icon">💛</span> DONATE</a>
+      <a href="terms.php" class="nav-link"><span class="nav-icon">📜</span> TERMS &amp; CONDITIONS</a>
     </nav>
 
     <!-- ================= FLOATING DOCKS (ANALYSIS & REPLAY) ================= -->

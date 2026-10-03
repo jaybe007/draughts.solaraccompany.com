@@ -102,15 +102,40 @@ try {
         }
     }
 
-    // Execute schema file to create all missing tables
-    $schemaFile = __DIR__ . '/database/schema.sql';
-    if (!file_exists($schemaFile)) {
-        throw new Exception("Schema file not found at " . $schemaFile);
-    }
+    // Ensure donations table exists
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS `donations` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `user_id` INT NULL,
+            `donor_name` VARCHAR(100) NOT NULL DEFAULT 'Anonymous Patron',
+            `donor_email` VARCHAR(150) NULL,
+            `amount` DECIMAL(10,2) NOT NULL,
+            `currency` VARCHAR(10) NOT NULL DEFAULT 'NGN',
+            `donation_method` ENUM('wallet_balance', 'coins', 'paystack', 'flutterwave', 'bank_transfer') NOT NULL DEFAULT 'wallet_balance',
+            `coins_amount` INT DEFAULT 0,
+            `reference` VARCHAR(100) NULL,
+            `message` TEXT NULL,
+            `is_anonymous` TINYINT(1) DEFAULT 0,
+            `status` ENUM('pending', 'completed', 'failed') NOT NULL DEFAULT 'completed',
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX `idx_donations_status` (`status`),
+            INDEX `idx_donations_created` (`created_at` DESC)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ");
+    outputMsg("Donations table synchronized successfully.");
 
-    $sql = file_get_contents($schemaFile);
-    $db->exec($sql);
-    outputMsg("All database tables synchronized successfully!");
+    // Seed inaugural patron if donations table is empty
+    $donationCount = (int)$db->query("SELECT COUNT(*) FROM donations")->fetchColumn();
+    if ($donationCount === 0) {
+        $db->exec("
+            INSERT INTO donations (donor_name, amount, currency, donation_method, message, is_anonymous, status)
+            VALUES 
+            ('Grandmaster Oba Patron', 25000.00, 'NGN', 'bank_transfer', 'For the love of Nigerian street draughts & youth talent development!', 0, 'completed'),
+            ('Lagos Draughts Heritage Club', 10000.00, 'NGN', 'wallet_balance', 'Supporting African board game masters worldwide.', 0, 'completed'),
+            ('Anonymous Elder', 5000.00, 'NGN', 'paystack', 'Kiti-kiti never dies! More power to the platform.', 1, 'completed')
+        ");
+        outputMsg("Inaugural community patrons seeded successfully.");
+    }
 
     $userCount = $db->query("SELECT COUNT(*) FROM users")->fetchColumn();
     $tournCount = $db->query("SELECT COUNT(*) FROM tournaments")->fetchColumn();

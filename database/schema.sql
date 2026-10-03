@@ -438,4 +438,25 @@ BEGIN
 END$$
 DELIMITER ;
 
+-- -----------------------------------------------------------------------------
+-- 15. Donations Table (Patrons, Grassroots Tournament Funding & Platform Support)
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `donations` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `user_id` INT NULL,
+  `donor_name` VARCHAR(100) NOT NULL DEFAULT 'Anonymous Patron',
+  `donor_email` VARCHAR(150) NULL,
+  `amount` DECIMAL(10,2) NOT NULL,
+  `currency` VARCHAR(10) NOT NULL DEFAULT 'NGN',
+  `donation_method` ENUM('wallet_balance', 'coins', 'paystack', 'flutterwave', 'bank_transfer') NOT NULL DEFAULT 'wallet_balance',
+  `coins_amount` INT DEFAULT 0,
+  `reference` VARCHAR(100) NULL,
+  `message` TEXT NULL,
+  `is_anonymous` TINYINT(1) DEFAULT 0,
+  `status` ENUM('pending', 'completed', 'failed') NOT NULL DEFAULT 'completed',
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX `idx_donations_status` (`status`),
+  INDEX `idx_donations_created` (`created_at` DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 

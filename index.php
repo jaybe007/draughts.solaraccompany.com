@@ -48,6 +48,8 @@ $currentUser = getCurrentUser();
         <li><a href="puzzles.php" class="home-nav-link nav-link-puzzles" style="color: #fde047; font-weight: 800; text-shadow: 0 0 10px rgba(245, 158, 11, 0.4);"><span style="margin-right: 4px;">🧩</span>PUZZLES</a></li>
         <li><a href="game.php?view=analysis" class="home-nav-link">ANALYSIS</a></li>
         <li><a href="#rules" class="home-nav-link">RULES</a></li>
+        <li><a href="donate.php" class="home-nav-link" style="color: #fbbf24; font-weight: 700;"><span style="margin-right: 4px;">💛</span>DONATE</a></li>
+        <li><a href="terms.php" class="home-nav-link">TERMS</a></li>
       </ul>
 
       <div class="nav-user-area" id="top-user-pill">
@@ -197,7 +199,7 @@ $currentUser = getCurrentUser();
               Create Champion Profile &rarr;
             </button>
             <p class="auth-terms-hint">
-              By joining, you agree to respectful street play & zero cheating.
+              By joining, you agree to our <a href="terms.php" target="_blank" style="color: var(--accent-gold); text-decoration: underline;">Terms &amp; Conditions</a>, Fair Play Policy &amp; zero cheating.
             </p>
           </form>
 
@@ -657,11 +659,12 @@ $currentUser = getCurrentUser();
       </div>
 
       <div class="footer-col">
-        <h4>Community</h4>
+        <h4>Community &amp; Legal</h4>
         <ul class="footer-links-list">
-          <li><a href="game.php?view=chat">Street Corner Chat</a></li>
-          <li><a href="#tournaments">Lagos Street Masters</a></li>
-          <li><a href="#tournaments">Benin Kingdom Oba Cup</a></li>
+          <li><a href="donate.php" style="color:#fde047; font-weight:700;">💛 Patronage &amp; Donations</a></li>
+          <li><a href="terms.php">Terms &amp; Conditions</a></li>
+          <li><a href="terms.php#fair-play">Fair Play &amp; Anti-Cheat</a></li>
+          <li><a href="terms.php#wagers">Rake &amp; Escrow Rules</a></li>
           <li><a href="game.php?mode=pve&diff=expert">Challenge Master AI</a></li>
         </ul>
       </div>

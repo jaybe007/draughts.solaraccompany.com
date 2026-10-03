@@ -289,6 +289,16 @@ $pkgBadge = getPackageBadge($package);
                   <span class="icon">💎</span> Manage Package
                 </button>
               </li>
+              <li>
+                <a href="donate.php" class="dropdown-link" style="color: #fbbf24; font-weight: 700;">
+                  <span class="icon">💛</span> Support / Donate
+                </a>
+              </li>
+              <li>
+                <a href="terms.php" class="dropdown-link">
+                  <span class="icon">📜</span> Terms &amp; Conditions
+                </a>
+              </li>
             </ul>
           </li>
 
@@ -300,6 +310,16 @@ $pkgBadge = getPackageBadge($package);
             </a>
           </li>
           <?php endif; ?>
+          <li class="mobile-only-user-action">
+            <a href="donate.php" class="dropdown-link" style="color: #fbbf24; font-weight: 700;">
+              <span class="icon">💛</span> Donate &amp; Support
+            </a>
+          </li>
+          <li class="mobile-only-user-action">
+            <a href="terms.php" class="dropdown-link">
+              <span class="icon">📜</span> Terms &amp; Fair Play
+            </a>
+          </li>
           <li class="mobile-only-user-action">
             <a href="game.php" class="dropdown-link highlight-green" style="font-weight: 800;">
               <span class="icon">🎮</span> Enter Game Arena &rarr;
@@ -442,6 +462,10 @@ $pkgBadge = getPackageBadge($package);
               </div>
             </form>
           </div>
+
+          <a href="donate.php" class="btn btn-secondary btn-block" style="border-color: rgba(245, 158, 11, 0.45); color: #fde047; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span class="icon">💛</span> Support Draughts (Donate)
+          </a>
 
           <button type="button" class="btn btn-secondary btn-block whatsapp-btn" onclick="openWhatsAppModal()">
             <span class="icon">💬</span> WhatsApp Masters Group
@@ -921,9 +945,19 @@ $pkgBadge = getPackageBadge($package);
         </div>
 
       </div>
-    </section>
-
   </main>
+
+  <!-- ================= DASHBOARD FOOTER ================= -->
+  <footer class="dash-footer" style="padding: 24px 20px 40px; margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center; color: #64748b; font-size: 0.85rem;">
+    <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 12px;">
+      <a href="donate.php" style="color: #fbbf24; text-decoration: none; font-weight: 700;">💛 Patronage &amp; Donations</a>
+      <a href="terms.php" style="color: #94a3b8; text-decoration: none;">📜 Terms &amp; Conditions</a>
+      <a href="terms.php#fair-play" style="color: #94a3b8; text-decoration: none;">🛡️ Fair Play &amp; Anti-Cheat</a>
+      <a href="terms.php#wagers" style="color: #94a3b8; text-decoration: none;">⚖️ Rake &amp; Escrow Policy</a>
+      <a href="puzzles.php" style="color: #94a3b8; text-decoration: none;">🧩 Tactical Puzzles</a>
+    </div>
+    <div>&copy; <?= date('Y') ?> Naija Draughts Community. Built with pride for African Board Game Champions.</div>
+  </footer>
 
   <!-- ================= MODALS SECTION ================= -->
 
