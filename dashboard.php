@@ -1002,6 +1002,9 @@ $pkgBadge = getPackageBadge($package);
                 <option value="20">20 min</option>
                 <option value="30">30 minute</option>
               </select>
+              <small class="form-hint" style="margin-top: 6px; display: block; color: #10b981; font-size: 0.8rem;">
+                🛡️ <strong>Fair Play Guarantee:</strong> Real-time anti-bot heuristics & window-switch detection actively monitor <em>all</em> time controls. 3-min Blitz is recommended for cash matches to naturally prevent external engine assistance.
+              </small>
             </div>
 
             <!-- Player 1 Short (Handicap) dropdown -->
@@ -1491,10 +1494,13 @@ $pkgBadge = getPackageBadge($package);
           <div class="form-group">
             <label for="challenge-time-control">Time Control</label>
             <select id="challenge-time-control" class="form-control">
+              <option value="blitz_3" selected>3 Minutes ⚡ Blitz (Anti-Cheat Recommended)</option>
               <option value="rapid_5">5 Minutes (Rapid)</option>
-              <option value="blitz_3">3 Minutes (Blitz)</option>
               <option value="classical_10">10 Minutes (Classical)</option>
             </select>
+            <small class="form-hint" style="margin-top: 6px; display: block; color: #10b981; font-size: 0.78rem;">
+              🛡️ Real-time Fair Play & window-switch telemetry active across all match speeds.
+            </small>
           </div>
           <div class="form-group">
             <label for="challenge-wager">Coin Wager</label>

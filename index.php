@@ -699,10 +699,13 @@ $currentUser = getCurrentUser();
           <div class="form-group">
             <label for="room-time-control">Timer Preset</label>
             <select id="room-time-control" class="form-control" style="background:#161d27; color:#fff;">
+              <option value="blitz_3" selected>Blitz (3 Minutes) ⚡ (Anti-Cheat Recommended)</option>
               <option value="rapid_5">Rapid (5 Minutes)</option>
-              <option value="blitz_3">Blitz (3 Minutes)</option>
               <option value="classical_10">Classical (10 Minutes)</option>
             </select>
+            <small style="color:#10b981; font-size:0.75rem; display:block; margin-top:4px;">
+              🛡️ Fair Play & tab-switch telemetry protects all match speeds.
+            </small>
           </div>
           <button type="submit" id="btn-submit-create-room" class="btn btn-primary btn-block btn-large">
             ⚡ Generate Room Code & Launch &rarr;
