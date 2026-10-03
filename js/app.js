@@ -582,6 +582,21 @@ class NigerianDraughtsApp {
     this.dom.btnLidJoinCode?.addEventListener('click', () => this.handleJoinByCodeInput());
     this.dom.btnSetupTypeJoin?.addEventListener('click', () => this.selectSetupGameType('join'));
     this.dom.btnSetupJoinSubmit?.addEventListener('click', () => this.handleSetupJoinSubmit());
+    this.dom.setupInputRoomCode?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        this.handleSetupJoinSubmit();
+      }
+    });
+
+    // Close casual modals when clicking backdrop overlay
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay && overlay.id !== 'game-over-modal' && overlay.id !== 'modal-join-match') {
+          this.closeModal(overlay);
+        }
+      });
+    });
 
     // Share Match Replay URL
     this.dom.btnShareMatchLink?.addEventListener('click', () => this.shareMatchLink());
@@ -1660,11 +1675,17 @@ class NigerianDraughtsApp {
   }
 
   openModal(modal) {
-    if (modal) modal.classList.add('active');
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+    }
   }
 
   closeModal(modal) {
-    if (modal) modal.classList.remove('active');
+    if (modal) {
+      modal.classList.remove('active');
+      modal.style.display = 'none';
+    }
   }
 
   getPlayerDisplayName(player) {
@@ -3476,7 +3497,9 @@ class NigerianDraughtsApp {
       .then(r => r.json())
       .then(data => {
         if (!data.success || !data.room) {
-          this.setBannerNotice(data.message || 'Match room not found.', true);
+          const msg = data.message || 'Match room not found. Please verify the room code.';
+          this.setBannerNotice(msg, true);
+          this.showToast(msg, 'error');
           return;
         }
 
@@ -3487,6 +3510,7 @@ class NigerianDraughtsApp {
         // If match is already concluded
         if (room.status === 'finished' || room.status === 'abandoned') {
           this.setBannerNotice('This match has already concluded.', true);
+          this.showToast('This match has already concluded.', 'info');
           this.updatePlayerLabels();
           this.updateUI();
           this.pollOnlineRoom();
@@ -3517,7 +3541,9 @@ class NigerianDraughtsApp {
 
         // If match is already full with another guest
         if (room.status === 'active' && room.guest_name && (!this.currentUser || parseInt(room.guest_id, 10) !== parseInt(this.currentUser.id, 10))) {
-          this.setBannerNotice('Room is already full with 2 players.', true);
+          const msg = 'Room is already full with 2 players.';
+          this.setBannerNotice(msg, true);
+          this.showToast(msg, 'error');
           return;
         }
 

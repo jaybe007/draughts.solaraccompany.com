@@ -960,7 +960,7 @@ $pkgBadge = getPackageBadge($package);
                 🏷️ Enter Opponent's Room Code:
               </label>
               <div style="display:flex; gap:8px;">
-                <input type="text" id="modal-input-room-code" class="form-control lid-code-input" placeholder="e.g. ND-XXXX" style="font-size:1.15rem; padding:10px 14px; letter-spacing:2px;">
+                <input type="text" id="modal-input-room-code" class="form-control lid-code-input" placeholder="e.g. ND-XXXX" style="font-size:1.15rem; padding:10px 14px; letter-spacing:2px;" onkeydown="if(event.key==='Enter'){event.preventDefault();joinRoomFromModalInput();}">
                 <button type="button" class="btn btn-primary" onclick="joinRoomFromModalInput()" style="white-space:nowrap; padding:10px 18px; font-weight:700;">
                   ⚔️ Join Arena
                 </button>
