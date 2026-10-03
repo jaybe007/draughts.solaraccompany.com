@@ -89,7 +89,10 @@ class AdminApp {
     if (panelId === 'panel-overview') this.loadOverview();
     else if (panelId === 'panel-admins') this.loadAdmins();
     else if (panelId === 'panel-players') this.loadPlayers(1);
-    else if (panelId === 'panel-finance') this.loadWithdrawals();
+    else if (panelId === 'panel-finance') {
+      this.loadWithdrawals();
+      this.loadDonations();
+    }
     else if (panelId === 'panel-tournaments') this.loadTournaments();
     else if (panelId === 'panel-rooms') this.loadRooms();
     else if (panelId === 'panel-settings') this.loadSettings();
@@ -990,6 +993,46 @@ class AdminApp {
       this.loadOverview();
     } catch (err) {
       this.showToast(err.message, 'error');
+    }
+  }
+
+  async loadDonations() {
+    const tbody = document.getElementById('donations-table-body');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Loading community donations...</td></tr>';
+
+    try {
+      const res = await fetch('api/donations.php?action=get_donations');
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Could not load donations');
+
+      if (!data.donations || data.donations.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#94a3b8;">No donations recorded yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.donations.map(d => {
+        const amtText = (d.currency === 'COINS' || d.donation_method === 'coins')
+          ? `${Number(d.coins_amount || 0).toLocaleString()} 🪙`
+          : `₦${Number(d.amount || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+        const anonBadge = d.is_anonymous ? ' <span class="badge-mini" style="font-size:0.7rem; color:#94a3b8;">(Anonymous)</span>' : '';
+
+        return `
+          <tr>
+            <td>#${d.id}</td>
+            <td><strong style="color:#ffffff;">${this.escape(d.donor_name || 'Anonymous Patron')}</strong>${anonBadge}</td>
+            <td style="color:#34d399; font-weight:800;">${amtText}</td>
+            <td><span class="badge-role" style="font-size:0.75rem;">${this.escape(d.donation_method || 'wallet_balance')}</span></td>
+            <td><code style="font-size:0.75rem; color:#f59e0b;">${this.escape(d.reference || 'N/A')}</code></td>
+            <td style="font-size:0.82rem; color:#cbd5e1; max-width:240px;">${d.message ? '"' + this.escape(d.message) + '"' : '<span style="color:#64748b;">—</span>'}</td>
+            <td style="font-size:0.78rem; color:#94a3b8;">${d.created_at || '—'}</td>
+            <td><span class="badge-status-chip success">COMPLETED</span></td>
+          </tr>
+        `;
+      }).join('');
+    } catch (e) {
+      console.error(e);
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#f43f5e;">${this.escape(e.message)}</td></tr>`;
     }
   }
 

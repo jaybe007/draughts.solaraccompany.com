@@ -605,6 +605,39 @@ $adminPerms = json_decode($adminUser['permissions_json'] ?? '[]', true) ?: [];
             </tbody>
           </table>
         </div>
+
+        <!-- Section: Community Donations & Patrons -->
+        <div class="card-header-bar" style="margin-top: 36px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 24px;">
+          <div class="card-title-group">
+            <h2>💛 Community Donations &amp; Grassroots Draughts Patrons</h2>
+            <p>Track community contributions, patron messages, platform donations, and grassroots prize pool funds.</p>
+          </div>
+          <div class="card-actions-group">
+            <button type="button" class="btn-admin btn-admin-secondary" onclick="adminApp.loadDonations()">
+              <span>🔄 Refresh Donations</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Donor Name</th>
+                <th>Amount / Currency</th>
+                <th>Payment Channel</th>
+                <th>Reference</th>
+                <th>Patron Message</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="donations-table-body">
+              <tr><td colspan="8" style="text-align:center;">Loading community donations...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
     <?php endif; ?>

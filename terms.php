@@ -245,6 +245,7 @@ $currentUser = getCurrentUser();
 
       <!-- Section 3 -->
       <section class="legal-section" id="section-3">
+        <span id="fair-play"></span>
         <h2><span>3.</span> Fair Play & Anti-Cheat Regulations</h2>
         <div class="legal-highlight-box">
           🛡️ <strong>Zero Tolerance for Cheating:</strong> Nigerian Draughts is founded on honour, sharp tactical vision, and street mastery. Any player found using external draughts engines, bots, browser tampering, or tab-switch assistance will be permanently banned with total forfeit of escrow.
@@ -274,6 +275,7 @@ $currentUser = getCurrentUser();
 
       <!-- Section 5 -->
       <section class="legal-section" id="section-5">
+        <span id="wagers"></span>
         <h2><span>5.</span> Real-Money Wallet, Deposits, Withdrawals & Rake</h2>
         <p>
           Players may deposit fiat currency (NGN) via licensed Central Bank of Nigeria (CBN) payment gateways (Paystack, Flutterwave) into their platform wallet:
@@ -319,6 +321,7 @@ $currentUser = getCurrentUser();
 
       <!-- Section 10 -->
       <section class="legal-section" id="section-10">
+        <span id="donations"></span>
         <h2><span>10.</span> Community Donations & Tournament Sponsorships</h2>
         <p>
           Patrons and community supporters may contribute voluntary donations via our official <a href="donate.php" style="color: #fde047; font-weight: 700;">Donation Channel</a>. Donations are non-refundable voluntary contributions dedicated towards grassroots tournament prize pools, youth coaching camps, and open server hosting.

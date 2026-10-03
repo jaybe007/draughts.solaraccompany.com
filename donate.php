@@ -6,12 +6,49 @@
  */
 
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/config/payment.php';
+
 $currentUser = getCurrentUser();
 $userBalance = $currentUser ? (float)($currentUser['wallet_balance'] ?? 0) : 0;
 $userCoins = $currentUser ? (int)($currentUser['coins'] ?? 0) : 0;
 
-$refParam = trim($_GET['reference'] ?? '');
+$refParam = trim($_GET['reference'] ?? ($_GET['trxref'] ?? ''));
 $isVerified = !empty($_GET['verified']);
+$verificationNotice = null;
+
+if (!empty($refParam)) {
+    try {
+        $db = getDB();
+        $dStmt = $db->prepare("SELECT * FROM donations WHERE reference = ?");
+        $dStmt->execute([$refParam]);
+        $donation = $dStmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($donation) {
+            if ($donation['status'] === 'pending') {
+                $verResult = verifyDepositTransaction($refParam);
+                if (!empty($verResult['success'])) {
+                    $db->prepare("UPDATE donations SET status = 'completed' WHERE id = ?")->execute([$donation['id']]);
+                    $donation['status'] = 'completed';
+                }
+            }
+            if ($donation['status'] === 'completed') {
+                $donorDisp = !empty($donation['is_anonymous']) ? 'Anonymous Patron' : $donation['donor_name'];
+                $amtDisp = number_format($donation['amount'], 2);
+                $verificationNotice = [
+                    'type' => 'success',
+                    'title' => '🎉 Contribution Confirmed!',
+                    'message' => "Ese gan! Thank you {$donorDisp} for supporting African Draughts with ₦{$amtDisp}."
+                ];
+            } else {
+                $verificationNotice = [
+                    'type' => 'error',
+                    'title' => '⏳ Payment Verification Pending',
+                    'message' => "Your payment could not be confirmed immediately. Please verify your bank debit or contact support with reference {$refParam}."
+                ];
+            }
+        }
+    } catch (Throwable $e) {}
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -234,7 +271,12 @@ $isVerified = !empty($_GET['verified']);
       </p>
     </div>
 
-    <?php if ($isVerified): ?>
+    <?php if ($verificationNotice): ?>
+      <div style="background: <?= $verificationNotice['type'] === 'success' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)' ?>; border: 1px solid <?= $verificationNotice['type'] === 'success' ? '#10b981' : '#ef4444' ?>; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; text-align: center; color: <?= $verificationNotice['type'] === 'success' ? '#34d399' : '#fca5a5' ?>;">
+        <h4 style="margin: 0 0 6px; font-size: 1.1rem;"><?= htmlspecialchars($verificationNotice['title']) ?></h4>
+        <p style="margin: 0; font-size: 0.92rem;"><?= htmlspecialchars($verificationNotice['message']) ?></p>
+      </div>
+    <?php elseif ($isVerified): ?>
       <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; border-radius: 8px; padding: 14px 20px; margin-bottom: 24px; text-align: center; color: #34d399;">
         🎉 <strong>Ese Gan! Thank you for your contribution!</strong> Your support has been recorded and dedicated to the African Draughts Prize Pool fund.
       </div>
