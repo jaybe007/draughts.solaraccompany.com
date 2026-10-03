@@ -591,8 +591,15 @@ function initOnlineRooms() {
   if (formJoin) {
     formJoin.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const playerName = document.getElementById('join-player-name').value.trim();
-      let roomCode = document.getElementById('join-room-code').value.trim().toUpperCase();
+      let rawCode = document.getElementById('join-room-code').value.trim();
+      let roomCode = rawCode.toUpperCase();
+      if (rawCode.includes('room=')) {
+        const m = rawCode.match(/[?&]room=([^&]+)/i);
+        if (m) roomCode = decodeURIComponent(m[1]).toUpperCase();
+      } else if (rawCode.includes('room_code=')) {
+        const m = rawCode.match(/[?&]room_code=([^&]+)/i);
+        if (m) roomCode = decodeURIComponent(m[1]).toUpperCase();
+      }
 
       if (!roomCode) {
         showRoomAlert('Please enter the room code.', true);

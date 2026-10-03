@@ -427,6 +427,22 @@ $pkgBadge = getPackageBadge($package);
           <button type="button" class="btn btn-secondary btn-block" onclick="openCreateGameModal()">
             <span class="icon">➕</span> Create Custom Game
           </button>
+
+          <!-- Opponent Room Code Insertion Widget -->
+          <div class="dash-quick-join-card" id="dash-quick-join-box">
+            <div class="dash-quick-join-title">
+              <span class="icon">🏷️</span> Join Match with Code
+            </div>
+            <form class="dash-quick-join-form" onsubmit="event.preventDefault(); joinRoomFromDashboardInput();">
+              <div class="dash-quick-join-row">
+                <input type="text" id="dash-join-room-code" class="dash-code-input" placeholder="ND-XXXX" maxlength="20" autocomplete="off" spellcheck="false" title="Enter room code (e.g. ND-XXXX)">
+                <button type="submit" class="btn btn-primary btn-small" id="btn-dash-join-submit">
+                  ⚔️ Join
+                </button>
+              </div>
+            </form>
+          </div>
+
           <button type="button" class="btn btn-secondary btn-block whatsapp-btn" onclick="openWhatsAppModal()">
             <span class="icon">💬</span> WhatsApp Masters Group
           </button>
@@ -524,6 +540,14 @@ $pkgBadge = getPackageBadge($package);
         </div>
 
         <div class="lobby-action-buttons">
+          <!-- Quick Code Join in Lobby -->
+          <div class="lobby-code-join-box">
+            <input type="text" id="lobby-input-room-code" class="lobby-code-input" placeholder="ND-XXXX" maxlength="20" onkeydown="if(event.key==='Enter'){event.preventDefault();joinRoomFromLobbyInput();}" title="Enter room code to join">
+            <button type="button" class="btn btn-secondary btn-small" onclick="joinRoomFromLobbyInput()" title="Join match room by code">
+              ⚔️ Join Code
+            </button>
+          </div>
+
           <button type="button" class="btn btn-primary btn-small" onclick="triggerRandomOpponentMatch()">
             <span class="icon">⚡</span> Random Opponent
           </button>
@@ -919,14 +943,31 @@ $pkgBadge = getPackageBadge($package);
               <span>🎮</span> 1. Match Format & Rules
             </div>
 
-            <!-- Game Type: 1 Player / 2 Player segmented options -->
+            <!-- Game Type: 1 Player / 2 Player / Join with Code segmented options -->
             <div class="form-group create-game-full">
               <label class="form-label-bold" style="margin-bottom: 6px; display: block; font-weight: 600;">Game Type</label>
               <div class="segmented-options" id="create-game-type-segmented">
                 <button type="button" class="segmented-btn active" data-type="1p" id="btn-type-1p" onclick="selectCreateGameType('1p')">👤 1 Player (vs AI)</button>
                 <button type="button" class="segmented-btn" data-type="2p" id="btn-type-2p" onclick="selectCreateGameType('2p')">👥 2 Player (Online Room)</button>
+                <button type="button" class="segmented-btn" data-type="join" id="btn-type-join" onclick="selectCreateGameType('join')">🏷️ Join with Code</button>
               </div>
               <input type="hidden" id="create-game-type" value="1p">
+            </div>
+
+            <!-- Opponent Code Insertion Box in Modal -->
+            <div class="form-group create-game-full" id="create-join-code-wrap" style="display:none; background:rgba(15,23,42,0.85); border:1px solid rgba(245,166,35,0.4); border-radius:8px; padding:16px; margin-top:8px;">
+              <label for="modal-input-room-code" style="font-weight:700; color:#fde047; display:block; margin-bottom:8px;">
+                🏷️ Enter Opponent's Room Code:
+              </label>
+              <div style="display:flex; gap:8px;">
+                <input type="text" id="modal-input-room-code" class="form-control lid-code-input" placeholder="e.g. ND-XXXX" style="font-size:1.15rem; padding:10px 14px; letter-spacing:2px;">
+                <button type="button" class="btn btn-primary" onclick="joinRoomFromModalInput()" style="white-space:nowrap; padding:10px 18px; font-weight:700;">
+                  ⚔️ Join Arena
+                </button>
+              </div>
+              <small style="color:#94a3b8; font-size:0.8rem; display:block; margin-top:8px;">
+                Have an invite link or code from a challenger? Paste it here to jump straight into the arena.
+              </small>
             </div>
 
             <!-- AI Engine Strength (Visible for 1-Player vs AI) -->
@@ -1895,6 +1936,57 @@ $pkgBadge = getPackageBadge($package);
           </div>
           <button type="submit" class="btn btn-primary btn-block btn-large">Send Message &rarr;</button>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROOM CREATED SUCCESS MODAL (WITH INSTANT COPY CODE & LINK) -->
+  <div class="home-modal-overlay" id="modal-room-created">
+    <div class="home-modal-dialog" style="max-width: 480px; text-align: center; border: 1px solid rgba(245, 166, 35, 0.4); box-shadow: 0 24px 60px rgba(0,0,0,0.85); background: linear-gradient(145deg, #131b26, #0d131c);">
+      <div class="home-modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px; margin-bottom: 16px;">
+        <div class="home-modal-title" style="width: 100%;">
+          <div style="font-size: 2.2rem; margin-bottom: 6px;">🎉</div>
+          <h3 style="font-size: 1.35rem; color: #f8fafc; font-weight: 800; margin: 0;">Match Room Ready!</h3>
+          <span style="color: #94a3b8; font-size: 0.88rem;">Share the code or link with your opponent to play</span>
+        </div>
+        <button type="button" class="btn-close-home-modal" onclick="closeModal('modal-room-created')">&times;</button>
+      </div>
+
+      <div class="home-modal-body" style="padding: 0 6px;">
+        <!-- Code Copy Card -->
+        <div class="room-share-item-card" style="margin-bottom: 14px;">
+          <div class="room-share-item-label">🏷️ Match Room Code (Opponent can enter this code):</div>
+          <div class="room-share-item-row">
+            <span class="room-share-code-display" id="created-room-code-val">ND-XXXX</span>
+            <button type="button" class="btn btn-primary btn-small" id="btn-copy-created-code" onclick="copyCreatedRoomCode()">
+              📋 Copy Code
+            </button>
+          </div>
+          <small style="color: #94a3b8; font-size: 0.76rem; display: block; margin-top: 6px;">
+            Opponents can insert this code into the "Join Match with Code" box on their dashboard or arena.
+          </small>
+        </div>
+
+        <!-- Link Copy Card -->
+        <div class="room-share-item-card" style="margin-bottom: 16px;">
+          <div class="room-share-item-label">🔗 Direct Invite Link:</div>
+          <div class="room-share-item-row">
+            <input type="text" class="form-control" id="created-room-link-val" readonly style="font-size: 0.82rem; background: #0f172a; color: #cbd5e1; border: 1px solid #334155; padding: 8px 10px; border-radius: 6px; width: 100%;">
+            <button type="button" class="btn btn-secondary btn-small" id="btn-copy-created-link" onclick="copyCreatedRoomLink()" style="white-space: nowrap;">
+              📋 Copy Link
+            </button>
+          </div>
+        </div>
+
+        <!-- WhatsApp Share Button -->
+        <button type="button" class="btn btn-block whatsapp-btn" id="btn-share-created-whatsapp" onclick="shareCreatedRoomWhatsApp()" style="margin-bottom: 14px; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px;">
+          <span class="icon">💬</span> Share Invite on WhatsApp
+        </button>
+
+        <!-- Live Status & Launch CTA -->
+        <button type="button" class="btn btn-primary btn-large" id="btn-launch-created-room" onclick="launchCreatedRoom()" style="width: 100%; font-size: 1rem; font-weight: 800; padding: 12px 18px;">
+          🎮 Enter Arena & Wait for Opponent &rarr;
+        </button>
       </div>
     </div>
   </div>

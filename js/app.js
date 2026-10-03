@@ -491,9 +491,25 @@ class NigerianDraughtsApp {
       onlineRoomBanner: document.getElementById('online-room-banner'),
       roomCodeDisplay: document.getElementById('room-code-display'),
       roomStatusDisplay: document.getElementById('room-status-display'),
+      btnCopyRoomCode: document.getElementById('btn-copy-room-code'),
       btnCopyRoomLink: document.getElementById('btn-copy-room-link'),
       btnResignRoom: document.getElementById('btn-resign-room'),
       modalJoinMatch: document.getElementById('modal-join-match'),
+      modalRoomWaitingShare: document.getElementById('modal-room-waiting-share'),
+      modalWaitingCodeDisplay: document.getElementById('modal-waiting-code-display'),
+      modalWaitingLinkInput: document.getElementById('modal-waiting-link-input'),
+      btnModalCopyCode: document.getElementById('btn-modal-copy-code'),
+      btnModalCopyLink: document.getElementById('btn-modal-copy-link'),
+      btnModalShareWhatsapp: document.getElementById('btn-modal-share-whatsapp'),
+      btnCloseRoomWaiting: document.getElementById('btn-close-room-waiting'),
+      btnWaitingViewBoard: document.getElementById('btn-waiting-view-board'),
+      inputLidJoinCode: document.getElementById('input-lid-join-code'),
+      btnLidJoinCode: document.getElementById('btn-lid-join-code'),
+      formLidJoinCode: document.getElementById('form-lid-join-code'),
+      btnSetupTypeJoin: document.getElementById('btn-setup-type-join'),
+      setupJoinCodeWrap: document.getElementById('setup-join-code-wrap'),
+      setupInputRoomCode: document.getElementById('setup-input-room-code'),
+      btnSetupJoinSubmit: document.getElementById('btn-setup-join-submit'),
       joinModalHost: document.getElementById('join-modal-host'),
       joinModalRules: document.getElementById('join-modal-rules'),
       joinModalTime: document.getElementById('join-modal-time'),
@@ -541,6 +557,8 @@ class NigerianDraughtsApp {
     });
 
     // Online Room Actions
+    this.dom.btnCopyRoomCode?.addEventListener('click', () => this.copyRoomCode());
+    this.dom.roomCodeDisplay?.addEventListener('click', () => this.copyRoomCode());
     this.dom.btnCopyRoomLink?.addEventListener('click', () => this.copyRoomLink());
     this.dom.btnResignRoom?.addEventListener('click', () => this.resignOnlineRoom());
     this.dom.btnAcceptJoinMatch?.addEventListener('click', () => this.handleAcceptJoinMatch());
@@ -548,6 +566,22 @@ class NigerianDraughtsApp {
       this.closeModal(this.dom.modalJoinMatch);
       window.location.href = 'index.php';
     });
+
+    // Room Waiting Share Modal
+    this.dom.btnModalCopyCode?.addEventListener('click', () => this.copyRoomCode());
+    this.dom.btnModalCopyLink?.addEventListener('click', () => this.copyRoomLink());
+    this.dom.btnModalShareWhatsapp?.addEventListener('click', () => this.shareRoomOnWhatsApp());
+    this.dom.btnCloseRoomWaiting?.addEventListener('click', () => this.closeModal(this.dom.modalRoomWaitingShare));
+    this.dom.btnWaitingViewBoard?.addEventListener('click', () => this.closeModal(this.dom.modalRoomWaitingShare));
+
+    // Opponent Join by Code (Sidebar & Modal)
+    this.dom.formLidJoinCode?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.handleJoinByCodeInput();
+    });
+    this.dom.btnLidJoinCode?.addEventListener('click', () => this.handleJoinByCodeInput());
+    this.dom.btnSetupTypeJoin?.addEventListener('click', () => this.selectSetupGameType('join'));
+    this.dom.btnSetupJoinSubmit?.addEventListener('click', () => this.handleSetupJoinSubmit());
 
     // Share Match Replay URL
     this.dom.btnShareMatchLink?.addEventListener('click', () => this.shareMatchLink());
@@ -734,19 +768,10 @@ class NigerianDraughtsApp {
       this.dom.navRules?.click();
     });
 
-    // Game Setup: 1P vs 2P segmented toggle
-    this.dom.btnSetupType1p?.addEventListener('click', () => {
-      this.dom.btnSetupType1p.classList.add('active');
-      this.dom.btnSetupType2p?.classList.remove('active');
-      if (this.dom.setupGameType) this.dom.setupGameType.value = '1p';
-      if (this.dom.setupAiDifficultyWrap) this.dom.setupAiDifficultyWrap.style.display = 'block';
-    });
-    this.dom.btnSetupType2p?.addEventListener('click', () => {
-      this.dom.btnSetupType2p.classList.add('active');
-      this.dom.btnSetupType1p?.classList.remove('active');
-      if (this.dom.setupGameType) this.dom.setupGameType.value = '2p';
-      if (this.dom.setupAiDifficultyWrap) this.dom.setupAiDifficultyWrap.style.display = 'none';
-    });
+    // Game Setup: 1P vs 2P vs Join-Code segmented toggle
+    this.dom.btnSetupType1p?.addEventListener('click', () => this.selectSetupGameType('1p'));
+    this.dom.btnSetupType2p?.addEventListener('click', () => this.selectSetupGameType('2p'));
+    this.dom.btnSetupTypeJoin?.addEventListener('click', () => this.selectSetupGameType('join'));
 
     // Game Setup: Coins dropdown custom amount toggle
     this.dom.setupCoinsRequired?.addEventListener('change', (e) => {
@@ -3435,6 +3460,12 @@ class NigerianDraughtsApp {
 
     // If entering with explicit role 'p1' (Room Creator / Host)
     if (this.onlinePlayerRole === 'p1') {
+      const shareUrl = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(roomCode)}&role=p2&rules=${encodeURIComponent(this.ruleMode)}`;
+      if (this.dom.modalWaitingCodeDisplay) this.dom.modalWaitingCodeDisplay.textContent = roomCode;
+      if (this.dom.modalWaitingLinkInput) this.dom.modalWaitingLinkInput.value = shareUrl;
+      if (this.onlineRoomStatus === 'waiting' && this.dom.modalRoomWaitingShare && !sessionStorage.getItem('nd_dismissed_waiting_' + roomCode)) {
+        this.openModal(this.dom.modalRoomWaitingShare);
+      }
       this.startOnlinePolling();
       return;
     }
@@ -3814,6 +3845,16 @@ class NigerianDraughtsApp {
         if (lidP2Name) lidP2Name.textContent = p2Display;
         const p2MobName = document.getElementById('p2-mobile-name');
         if (p2MobName) p2MobName.textContent = p2Display;
+
+        // Auto-dismiss waiting modal when opponent connects
+        if (this.onlinePlayerRole === 'p1' && !this._hasNotifiedOpponentJoined) {
+          this._hasNotifiedOpponentJoined = true;
+          if (this.dom.modalRoomWaitingShare) {
+            this.closeModal(this.dom.modalRoomWaitingShare);
+          }
+          this.showToast(`⚔️ ${room.guest_name} joined the match! You move first (White).`, 'success');
+          sound.playMove();
+        }
       }
       this.updatePlayerLabels();
 
@@ -4013,14 +4054,140 @@ class NigerianDraughtsApp {
     } catch (e) {}
   }
 
+  copyRoomCode() {
+    if (!this.onlineRoomCode) return;
+    const code = this.onlineRoomCode;
+    const btns = [this.dom.btnCopyRoomCode, this.dom.btnModalCopyCode].filter(Boolean);
+    const origTexts = btns.map(b => b.innerHTML);
+
+    const onCopied = () => {
+      btns.forEach(b => {
+        b.innerHTML = '✓ Code Copied!';
+        b.classList.add('btn-copied-success');
+      });
+      setTimeout(() => {
+        btns.forEach((b, i) => {
+          b.innerHTML = origTexts[i] || '🏷️ Copy Code';
+          b.classList.remove('btn-copied-success');
+        });
+      }, 2200);
+
+      this.showToast(`🏷️ Room Code ${code} copied! Share with your opponent.`, 'success');
+      this.setBannerNotice(`🏷️ Room Code ${code} copied to clipboard! Opponents can join using this code.`);
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(onCopied).catch(() => {
+        prompt('Copy match room code:', code);
+      });
+    } else {
+      prompt('Copy match room code:', code);
+    }
+  }
+
   copyRoomLink() {
     if (!this.onlineRoomCode) return;
     const url = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(this.onlineRoomCode)}&role=p2&rules=${encodeURIComponent(this.ruleMode)}`;
-    navigator.clipboard.writeText(url).then(() => {
+    const btns = [this.dom.btnCopyRoomLink, this.dom.btnModalCopyLink].filter(Boolean);
+    const origTexts = btns.map(b => b.innerHTML);
+
+    const onCopied = () => {
+      btns.forEach(b => {
+        b.innerHTML = '✓ Link Copied!';
+        b.classList.add('btn-copied-success');
+      });
+      setTimeout(() => {
+        btns.forEach((b, i) => {
+          b.innerHTML = origTexts[i] || '📋 Copy Invite Link';
+          b.classList.remove('btn-copied-success');
+        });
+      }, 2200);
+
+      this.showToast('📋 Match invite link copied! Send to your opponent.', 'success');
       this.setBannerNotice('📋 Invite link copied to clipboard! Send to your opponent.', false);
-    }).catch(() => {
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(onCopied).catch(() => {
+        prompt('Copy this match invite link:', url);
+      });
+    } else {
       prompt('Copy this match invite link:', url);
-    });
+    }
+  }
+
+  shareRoomOnWhatsApp() {
+    if (!this.onlineRoomCode) return;
+    const url = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(this.onlineRoomCode)}&role=p2&rules=${encodeURIComponent(this.ruleMode)}`;
+    const msg = `🇳🇬 *Naija Draughts Challenge!*\nI have created a match room and I'm waiting for you to play!\n\n🏷️ *Room Code:* ${this.onlineRoomCode}\n🔗 *Match Link:* ${url}\n\nEnter the room code on your dashboard or click the link to play!`;
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+    window.open(waUrl, '_blank');
+  }
+
+  cleanRoomCode(raw) {
+    if (!raw) return '';
+    let code = String(raw).trim();
+    if (code.includes('room=')) {
+      const m = code.match(/[?&]room=([^&]+)/i);
+      if (m) code = decodeURIComponent(m[1]);
+    } else if (code.includes('room_code=')) {
+      const m = code.match(/[?&]room_code=([^&]+)/i);
+      if (m) code = decodeURIComponent(m[1]);
+    }
+    code = code.toUpperCase().trim();
+    if (/^[A-Z0-9]{4}$/.test(code)) {
+      code = 'ND-' + code;
+    }
+    return code;
+  }
+
+  handleJoinByCodeInput() {
+    const input = document.getElementById('input-lid-join-code');
+    if (!input) return;
+    const code = this.cleanRoomCode(input.value);
+    if (!code) {
+      this.showToast('Please enter a valid room code (e.g. ND-XXXX)', 'error');
+      input.focus();
+      return;
+    }
+    window.location.href = `game.php?room=${encodeURIComponent(code)}&role=p2`;
+  }
+
+  handleSetupJoinSubmit() {
+    const input = document.getElementById('setup-input-room-code');
+    if (!input) return;
+    const code = this.cleanRoomCode(input.value);
+    if (!code) {
+      alert('Please enter a valid room code (e.g. ND-XXXX)');
+      input.focus();
+      return;
+    }
+    window.location.href = `game.php?room=${encodeURIComponent(code)}&role=p2`;
+  }
+
+  selectSetupGameType(type) {
+    if (this.dom.setupGameType) this.dom.setupGameType.value = type;
+    const btn1p = this.dom.btnSetupType1p;
+    const btn2p = this.dom.btnSetupType2p;
+    const btnJoin = this.dom.btnSetupTypeJoin;
+
+    btn1p?.classList.toggle('active', type === '1p');
+    btn2p?.classList.toggle('active', type === '2p');
+    btnJoin?.classList.toggle('active', type === 'join');
+
+    const joinWrap = this.dom.setupJoinCodeWrap;
+    const diffWrap = this.dom.setupAiDifficultyWrap;
+
+    if (joinWrap) {
+      joinWrap.style.display = type === 'join' ? 'block' : 'none';
+      if (type === 'join') {
+        const input = document.getElementById('setup-input-room-code');
+        if (input) input.focus();
+      }
+    }
+    if (diffWrap) {
+      diffWrap.style.display = type === '1p' ? 'block' : 'none';
+    }
   }
 
   async resignOnlineRoom() {

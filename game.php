@@ -320,10 +320,13 @@ if ($isOnlineRoom) {
     <div class="online-room-banner" id="online-room-banner" style="display:none;">
       <div class="room-banner-left">
         <span class="room-live-dot"></span>
-        <span class="room-code-tag" id="room-code-display">ND-XXXX</span>
+        <span class="room-code-tag clickable" id="room-code-display" title="Click to copy Room Code" onclick="window.app && window.app.copyRoomCode()">ND-XXXX</span>
         <span class="room-status-tag" id="room-status-display">Waiting for opponent to join...</span>
       </div>
       <div class="room-banner-right">
+        <button type="button" class="btn btn-small btn-secondary" id="btn-copy-room-code" title="Copy Room Code">
+          🏷️ Copy Code
+        </button>
         <button type="button" class="btn btn-small btn-secondary" id="btn-copy-room-link" title="Copy room invite link">
           📋 Copy Invite Link
         </button>
@@ -366,6 +369,20 @@ if ($isOnlineRoom) {
               <span id="lid-ruleset-flag">🇳🇬</span> <span id="lid-ruleset-title">Nigerian Rules</span>
             </div>
           </div>
+        </div>
+
+        <!-- Opponent Room Code Entry Box -->
+        <div class="lid-join-code-card" id="lid-join-code-card">
+          <div class="lid-join-code-header">
+            <span class="join-icon">⚔️</span>
+            <span class="join-title">Join Match with Code</span>
+          </div>
+          <form id="form-lid-join-code" class="lid-join-code-form" onsubmit="event.preventDefault(); window.app && window.app.handleJoinByCodeInput();">
+            <div class="lid-join-input-group">
+              <input type="text" id="input-lid-join-code" class="lid-code-input" placeholder="ND-XXXX" maxlength="20" autocomplete="off" spellcheck="false" title="Enter code given by opponent">
+              <button type="submit" id="btn-lid-join-code" class="btn btn-primary btn-small">Join</button>
+            </div>
+          </form>
         </div>
 
         <!-- Collapsible Match Tools, Engine HUD & Captured Trays -->
@@ -732,14 +749,31 @@ if ($isOnlineRoom) {
               <span>🎮</span> 1. Match Format & Rules
             </div>
 
-            <!-- Game Type: 1 Player / 2 Player segmented options -->
+            <!-- Game Type: 1 Player / 2 Player / Join by Code segmented options -->
             <div class="form-group create-game-full">
               <label class="form-label-bold" style="margin-bottom: 6px; display: block; font-weight: 600;">Game Type</label>
               <div class="segmented-options" id="setup-game-type-segmented">
                 <button type="button" class="segmented-btn active" data-type="1p" id="btn-setup-type-1p">👤 1 Player (vs AI)</button>
                 <button type="button" class="segmented-btn" data-type="2p" id="btn-setup-type-2p">👥 2 Player (Online Room)</button>
+                <button type="button" class="segmented-btn" data-type="join" id="btn-setup-type-join">🏷️ Join with Code</button>
               </div>
               <input type="hidden" id="setup-game-type" value="1p">
+            </div>
+
+            <!-- Opponent Code Insertion Box in Modal -->
+            <div class="form-group create-game-full" id="setup-join-code-wrap" style="display:none; background:rgba(15,23,42,0.85); border:1px solid rgba(245,166,35,0.4); border-radius:8px; padding:16px; margin-top:8px;">
+              <label for="setup-input-room-code" style="font-weight:700; color:#fde047; display:block; margin-bottom:8px;">
+                🏷️ Enter Opponent's Room Code:
+              </label>
+              <div style="display:flex; gap:8px;">
+                <input type="text" id="setup-input-room-code" class="form-control lid-code-input" placeholder="e.g. ND-XXXX" style="font-size:1.15rem; padding:10px 14px; letter-spacing:2px;">
+                <button type="button" class="btn btn-primary" id="btn-setup-join-submit" style="white-space:nowrap; padding:10px 18px; font-weight:700;">
+                  ⚔️ Join Arena
+                </button>
+              </div>
+              <small style="color:#94a3b8; font-size:0.8rem; display:block; margin-top:8px;">
+                Have an invite link or code from a challenger? Paste it here to jump straight into the arena.
+              </small>
             </div>
 
             <!-- AI Engine Strength (Visible for 1-Player vs AI) -->
@@ -1354,6 +1388,62 @@ if ($isOnlineRoom) {
             Decline
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10b. ROOM WAITING / SHARE MODAL FOR HOST -->
+  <div class="modal-overlay" id="modal-room-waiting-share" style="display: none; z-index: 1240;">
+    <div class="modal-card" style="max-width: 480px; text-align: center; border: 1px solid rgba(245, 166, 35, 0.4); box-shadow: 0 24px 60px rgba(0,0,0,0.85); background: linear-gradient(145deg, #131b26, #0d131c);">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px; margin-bottom: 16px;">
+        <div class="modal-title-wrap" style="width: 100%;">
+          <div style="font-size: 2.2rem; margin-bottom: 6px;">🎉</div>
+          <h2 class="modal-title" style="font-size: 1.35rem; color: #f8fafc; font-weight: 800;">Match Room Ready!</h2>
+          <span class="modal-subtitle" style="color: #94a3b8; font-size: 0.88rem;">Share the code or link with your opponent to play</span>
+        </div>
+        <button class="modal-close" id="btn-close-room-waiting" title="Close and return to board">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding: 0 6px;">
+        <!-- Code Copy Card -->
+        <div class="room-share-item-card" style="margin-bottom: 14px;">
+          <div class="room-share-item-label">🏷️ Match Room Code:</div>
+          <div class="room-share-item-row">
+            <span class="room-share-code-display" id="modal-waiting-code-display">ND-XXXX</span>
+            <button type="button" class="btn btn-primary btn-small" id="btn-modal-copy-code">
+              📋 Copy Code
+            </button>
+          </div>
+          <small style="color: #94a3b8; font-size: 0.76rem; display: block; margin-top: 6px;">
+            Opponents can insert this code into the "Join Match with Code" box on their dashboard or arena.
+          </small>
+        </div>
+
+        <!-- Link Copy Card -->
+        <div class="room-share-item-card" style="margin-bottom: 16px;">
+          <div class="room-share-item-label">🔗 Direct Invite Link:</div>
+          <div class="room-share-item-row">
+            <input type="text" class="form-control" id="modal-waiting-link-input" readonly style="font-size: 0.82rem; background: #0f172a; color: #cbd5e1; border: 1px solid #334155; padding: 8px 10px; border-radius: 6px; width: 100%;">
+            <button type="button" class="btn btn-secondary btn-small" id="btn-modal-copy-link" style="white-space: nowrap;">
+              📋 Copy Link
+            </button>
+          </div>
+        </div>
+
+        <!-- WhatsApp Share Button -->
+        <button type="button" class="btn btn-block whatsapp-btn" id="btn-modal-share-whatsapp" style="margin-bottom: 14px; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px;">
+          <span class="icon">💬</span> Share Invite on WhatsApp
+        </button>
+
+        <!-- Live Waiting Status -->
+        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; text-align: left;">
+          <span class="room-live-dot" style="flex-shrink: 0;"></span>
+          <span style="color: #34d399; font-size: 0.85rem; font-weight: 600;">Waiting for opponent to connect... The match will automatically start when they join.</span>
+        </div>
+
+        <button type="button" class="btn btn-secondary btn-large" id="btn-waiting-view-board" style="width: 100%; font-size: 0.95rem;">
+          ♟️ View Board While Waiting
+        </button>
       </div>
     </div>
   </div>

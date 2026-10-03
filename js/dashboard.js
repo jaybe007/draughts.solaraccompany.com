@@ -405,14 +405,25 @@ function selectCreateGameType(type) {
 
   const btn1p = document.getElementById('btn-type-1p');
   const btn2p = document.getElementById('btn-type-2p');
+  const btnJoin = document.getElementById('btn-type-join');
   if (btn1p && btn2p) {
     btn1p.classList.toggle('active', type === '1p');
     btn2p.classList.toggle('active', type === '2p');
+    if (btnJoin) btnJoin.classList.toggle('active', type === 'join');
   }
 
   const diffWrap = document.getElementById('create-ai-difficulty-wrap');
   if (diffWrap) {
     diffWrap.style.display = type === '1p' ? 'block' : 'none';
+  }
+
+  const joinWrap = document.getElementById('create-join-code-wrap');
+  if (joinWrap) {
+    joinWrap.style.display = type === 'join' ? 'block' : 'none';
+    if (type === 'join') {
+      const input = document.getElementById('modal-input-room-code');
+      if (input) input.focus();
+    }
   }
 }
 
@@ -524,10 +535,7 @@ async function handleCreateGameSubmit(e) {
 
     if (data.success && data.room_code) {
       closeModal('modal-create-game');
-      showToast(`Match room ${data.room_code} created! Launching arena...`, 'success');
-      setTimeout(() => {
-        window.location.href = `game.php?room=${encodeURIComponent(data.room_code)}&role=p1&rules=${encodeURIComponent(ruleType)}&mod=${encodeURIComponent(modifications)}&time=${encodeURIComponent(playerTime)}&short=${encodeURIComponent(p1Short)}&theme=${encodeURIComponent(boardType)}`;
-      }, 500);
+      showRoomCreatedSuccessModal(data.room_code, ruleType, playerTime, modifications, p1Short, boardType);
     } else {
       showToast(data.message || 'Failed to create game room.', 'error');
     }
@@ -536,6 +544,152 @@ async function handleCreateGameSubmit(e) {
     showToast('Network error creating game room.', 'error');
   }
 }
+
+// ================= ROOM CODE COPY & JOIN HELPERS ================= //
+let createdRoomRedirectUrl = '';
+let createdRoomCodeGlobal = '';
+
+function showRoomCreatedSuccessModal(roomCode, ruleType, playerTime, modifications, p1Short, boardType) {
+  createdRoomCodeGlobal = roomCode;
+  const baseUrl = `${window.location.origin}${window.location.pathname.replace('dashboard.php', '')}game.php`;
+  createdRoomRedirectUrl = `${baseUrl}?room=${encodeURIComponent(roomCode)}&role=p1&rules=${encodeURIComponent(ruleType || 'nigeria')}&mod=${encodeURIComponent(modifications || 'none')}&time=${encodeURIComponent(playerTime || '5')}&short=${encodeURIComponent(p1Short || 0)}&theme=${encodeURIComponent(boardType || 'default')}`;
+  const inviteUrl = `${baseUrl}?room=${encodeURIComponent(roomCode)}&role=p2&rules=${encodeURIComponent(ruleType || 'nigeria')}`;
+
+  const codeEl = document.getElementById('created-room-code-val');
+  const linkEl = document.getElementById('created-room-link-val');
+  if (codeEl) codeEl.textContent = roomCode;
+  if (linkEl) linkEl.value = inviteUrl;
+
+  openModal('modal-room-created');
+  showToast(`Match room ${roomCode} created! Share with opponent.`, 'success');
+}
+
+function copyCreatedRoomCode() {
+  if (!createdRoomCodeGlobal) return;
+  const code = createdRoomCodeGlobal;
+  const btn = document.getElementById('btn-copy-created-code');
+  const origText = btn ? btn.innerHTML : '';
+
+  const onCopied = () => {
+    if (btn) {
+      btn.innerHTML = '✓ Code Copied!';
+      btn.classList.add('btn-copied-success');
+      setTimeout(() => {
+        btn.innerHTML = origText || '📋 Copy Code';
+        btn.classList.remove('btn-copied-success');
+      }, 2200);
+    }
+    showToast(`🏷️ Room Code ${code} copied! Share with your opponent.`, 'success');
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(code).then(onCopied).catch(() => prompt('Copy match code:', code));
+  } else {
+    prompt('Copy match code:', code);
+  }
+}
+
+function copyCreatedRoomLink() {
+  const linkInput = document.getElementById('created-room-link-val');
+  const url = linkInput ? linkInput.value : '';
+  if (!url) return;
+  const btn = document.getElementById('btn-copy-created-link');
+  const origText = btn ? btn.innerHTML : '';
+
+  const onCopied = () => {
+    if (btn) {
+      btn.innerHTML = '✓ Link Copied!';
+      btn.classList.add('btn-copied-success');
+      setTimeout(() => {
+        btn.innerHTML = origText || '📋 Copy Link';
+        btn.classList.remove('btn-copied-success');
+      }, 2200);
+    }
+    showToast('📋 Match invite link copied to clipboard!', 'success');
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(onCopied).catch(() => prompt('Copy match link:', url));
+  } else {
+    prompt('Copy match link:', url);
+  }
+}
+
+function shareCreatedRoomWhatsApp() {
+  if (!createdRoomCodeGlobal) return;
+  const linkInput = document.getElementById('created-room-link-val');
+  const url = linkInput ? linkInput.value : '';
+  const msg = `🇳🇬 *Naija Draughts Challenge!*\nI have created a match room and I'm ready to play.\n\n🏷️ *Room Code:* ${createdRoomCodeGlobal}\n🔗 *Join Link:* ${url}\n\nEnter the room code on your dashboard or click the link to play!`;
+  const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+  window.open(waUrl, '_blank');
+}
+
+function launchCreatedRoom() {
+  if (createdRoomRedirectUrl) {
+    window.location.href = createdRoomRedirectUrl;
+  }
+}
+
+function cleanRoomCode(raw) {
+  if (!raw) return '';
+  let code = String(raw).trim();
+  if (code.includes('room=')) {
+    const m = code.match(/[?&]room=([^&]+)/i);
+    if (m) code = decodeURIComponent(m[1]);
+  } else if (code.includes('room_code=')) {
+    const m = code.match(/[?&]room_code=([^&]+)/i);
+    if (m) code = decodeURIComponent(m[1]);
+  }
+  code = code.toUpperCase().trim();
+  if (/^[A-Z0-9]{4}$/.test(code)) {
+    code = 'ND-' + code;
+  }
+  return code;
+}
+
+function joinRoomFromDashboardInput() {
+  const input = document.getElementById('dash-join-room-code');
+  if (!input) return;
+  const code = cleanRoomCode(input.value);
+  if (!code) {
+    showToast('Please enter a valid room code (e.g. ND-XXXX)', 'error');
+    input.focus();
+    return;
+  }
+  window.location.href = `game.php?room=${encodeURIComponent(code)}&role=p2`;
+}
+
+function joinRoomFromLobbyInput() {
+  const input = document.getElementById('lobby-input-room-code');
+  if (!input) return;
+  const code = cleanRoomCode(input.value);
+  if (!code) {
+    showToast('Please enter a valid room code (e.g. ND-XXXX)', 'error');
+    input.focus();
+    return;
+  }
+  window.location.href = `game.php?room=${encodeURIComponent(code)}&role=p2`;
+}
+
+function joinRoomFromModalInput() {
+  const input = document.getElementById('modal-input-room-code');
+  if (!input) return;
+  const code = cleanRoomCode(input.value);
+  if (!code) {
+    showToast('Please enter a valid room code (e.g. ND-XXXX)', 'error');
+    input.focus();
+    return;
+  }
+  window.location.href = `game.php?room=${encodeURIComponent(code)}&role=p2`;
+}
+
+window.joinRoomFromDashboardInput = joinRoomFromDashboardInput;
+window.joinRoomFromLobbyInput = joinRoomFromLobbyInput;
+window.joinRoomFromModalInput = joinRoomFromModalInput;
+window.copyCreatedRoomCode = copyCreatedRoomCode;
+window.copyCreatedRoomLink = copyCreatedRoomLink;
+window.shareCreatedRoomWhatsApp = shareCreatedRoomWhatsApp;
+window.launchCreatedRoom = launchCreatedRoom;
 
 // ================= MESSAGES INBOX ================= //
 async function loadMessagesInbox() {
