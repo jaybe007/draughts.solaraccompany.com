@@ -277,6 +277,16 @@ $adminPerms = json_decode($adminUser['permissions_json'] ?? '[]', true) ?: [];
       </button>
       <?php endif; ?>
 
+      <?php if ($isSuperAdmin || in_array('manage_puzzles', $adminPerms)): ?>
+      <button type="button" class="admin-nav-item" data-panel="panel-puzzles">
+        <div class="nav-label-wrap">
+          <span class="nav-icon">🧩</span>
+          <span>Tactical Puzzles</span>
+        </div>
+        <span class="nav-badge-pill badge-primary" id="badge-puzzles-count" style="display:none;">0</span>
+      </button>
+      <?php endif; ?>
+
       <?php if ($isSuperAdmin || in_array('manage_rooms', $adminPerms)): ?>
       <button type="button" class="admin-nav-item" data-panel="panel-rooms">
         <div class="nav-label-wrap">
@@ -675,6 +685,125 @@ $adminPerms = json_decode($adminUser['permissions_json'] ?? '[]', true) ?: [];
             </tbody>
           </table>
         </div>
+      </div>
+    </section>
+    <?php endif; ?>
+
+    <!-- ================= PANEL: TACTICAL PUZZLES & TRAPS ================= -->
+    <?php if ($isSuperAdmin || in_array('manage_puzzles', $adminPerms)): ?>
+    <section class="admin-view-panel" id="panel-puzzles">
+      <div class="admin-card">
+        <div class="card-header-bar">
+          <div class="card-title-group">
+            <h2>🧩 Tactical Draughts Puzzles &amp; Training Traps</h2>
+            <p>Create custom puzzles, manage training content, and convert puzzles across all rulesets (Nigerian Highway, International FMJD, Ghanaian Damii).</p>
+          </div>
+          <div class="card-actions-group">
+            <button type="button" class="btn-admin btn-admin-primary" onclick="adminApp.openCreatePuzzleModal()">
+              <span>➕ Add New Tactical Puzzle</span>
+            </button>
+            <a href="admin_puzzles.php" class="btn-admin btn-admin-secondary" target="_blank">
+              <span>⚙️ Generator Lab</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Puzzle Aggregate KPI Metrics -->
+        <div class="kpi-grid" style="margin-bottom: 20px;">
+          <div class="kpi-card gold">
+            <div class="kpi-header">
+              <span class="kpi-title">Total Active Puzzles</span>
+              <div class="kpi-icon-pill">🧩</div>
+            </div>
+            <div class="kpi-value gold" id="kpi-puzzles-total">0</div>
+            <div class="kpi-subtext">Across All Rulesets</div>
+          </div>
+          <div class="kpi-card emerald">
+            <div class="kpi-header">
+              <span class="kpi-title">Nigerian Highway</span>
+              <div class="kpi-icon-pill">🇳🇬</div>
+            </div>
+            <div class="kpi-value emerald" id="kpi-puzzles-nigeria">0</div>
+            <div class="kpi-subtext">Street Free-Choice Puzzles</div>
+          </div>
+          <div class="kpi-card blue">
+            <div class="kpi-header">
+              <span class="kpi-title">FMJD International</span>
+              <div class="kpi-icon-pill">🌍</div>
+            </div>
+            <div class="kpi-value" id="kpi-puzzles-international">0</div>
+            <div class="kpi-subtext">Majority Capture Puzzles</div>
+          </div>
+          <div class="kpi-card rose">
+            <div class="kpi-header">
+              <span class="kpi-title">Ghanaian Damii</span>
+              <div class="kpi-icon-pill">🇬🇭</div>
+            </div>
+            <div class="kpi-value rose" id="kpi-puzzles-ghana">0</div>
+            <div class="kpi-subtext">Immediate Crown Stop Puzzles</div>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <input type="text" id="puzzle-search-input" class="form-control-admin" placeholder="🔍 Search by Title, Coup, ID..." style="width:240px;" oninput="adminApp.handlePuzzleSearch()">
+            <select id="puzzle-ruleset-filter" class="admin-select" onchange="adminApp.loadPuzzles(1)">
+              <option value="all">⭐ All Rulesets</option>
+              <option value="nigeria">🇳🇬 Nigeria (Highway)</option>
+              <option value="international">🌍 International (FMJD)</option>
+              <option value="ghana">🇬🇭 Ghana (Damii)</option>
+            </select>
+            <select id="puzzle-tier-filter" class="admin-select" onchange="adminApp.loadPuzzles(1)">
+              <option value="all">All Difficulty Tiers</option>
+              <option value="1">Tier 1 - Novice</option>
+              <option value="2">Tier 2 - Beginner</option>
+              <option value="3">Tier 3 - Elementary</option>
+              <option value="4">Tier 4 - Intermediate</option>
+              <option value="5">Tier 5 - Advanced</option>
+              <option value="6">Tier 6 - Skilled</option>
+              <option value="7">Tier 7 - Expert</option>
+              <option value="8">Tier 8 - Candidate Master</option>
+              <option value="9">Tier 9 - Master</option>
+              <option value="10">Tier 10 - Grandmaster</option>
+              <option value="11">Tier 11 - Elite Grandmaster</option>
+              <option value="12">Tier 12 - Super Grandmaster</option>
+            </select>
+          </div>
+          <div>
+            <button type="button" class="btn-admin btn-admin-secondary" onclick="adminApp.loadPuzzles(1)">
+              <span>🔄 Refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Puzzles Table -->
+        <div class="admin-table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title / Themes</th>
+                <th>Ruleset</th>
+                <th>Difficulty / Rating</th>
+                <th>Solution Steps</th>
+                <th>Hints</th>
+                <th>Served / Solved</th>
+                <th style="text-align:right;">Actions &amp; Conversion</th>
+              </tr>
+            </thead>
+            <tbody id="puzzles-table-body">
+              <tr><td colspan="8" style="text-align:center;">Loading tactical puzzles...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+          <span style="font-size:0.82rem; color:var(--text-muted);" id="puzzles-pagination-info">Showing puzzles</span>
+          <div style="display:flex; gap:6px;" id="puzzles-pagination-controls"></div>
+        </div>
+
       </div>
     </section>
     <?php endif; ?>
@@ -1557,6 +1686,24 @@ $adminPerms = json_decode($adminUser['permissions_json'] ?? '[]', true) ?: [];
             </div>
           </div>
 
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:8px;">
+            <div class="form-group-admin">
+              <label for="edit-player-role">System Role / Clearance</label>
+              <select id="edit-player-role" class="form-control-admin">
+                <option value="player">Street Player (Default)</option>
+                <option value="creator">Tactical Puzzle Creator</option>
+                <option value="puzzle_master">Puzzle Master / Instructor</option>
+                <option value="admin">Platform Admin / Staff</option>
+              </select>
+            </div>
+            <div class="form-group-admin" style="display:flex; flex-direction:column; justify-content:center;">
+              <label style="cursor:pointer; display:flex; align-items:center; gap:8px; margin-top:18px;">
+                <input type="checkbox" id="edit-player-manage-puzzles" value="1">
+                <span style="font-weight:600; color:#34d399; font-size:0.85rem;">🧩 Allow Adding &amp; Converting Puzzles</span>
+              </label>
+            </div>
+          </div>
+
           <div class="form-group-admin" id="edit-player-ban-reason-group" style="display:none;">
             <label for="edit-player-ban-reason">Reason for Ban</label>
             <input type="text" id="edit-player-ban-reason" class="form-control-admin" placeholder="e.g. Fair play violation / multi-accounting">
@@ -1780,6 +1927,168 @@ $adminPerms = json_decode($adminUser['permissions_json'] ?? '[]', true) ?: [];
         <button type="button" class="btn-admin btn-admin-secondary" onclick="adminApp.closeModal('modal-simulate-error')">Cancel</button>
         <button type="button" class="btn-admin btn-admin-primary" onclick="adminApp.runSimulateError()">Trigger Test &rarr;</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal 9: Create / Add Tactical Puzzle (With Multi-Ruleset All-Types Conversion) -->
+  <div class="admin-modal-backdrop" id="modal-create-puzzle">
+    <div class="admin-modal-box" style="max-width: 760px; max-height: 90vh; overflow-y: auto;">
+      <div class="admin-modal-header">
+        <div>
+          <h3>🧩 Create Tactical Draughts Puzzle</h3>
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">Design, test, and convert draughts combinations across all rulesets.</p>
+        </div>
+        <button type="button" class="btn-close-modal" onclick="adminApp.closeModal('modal-create-puzzle')">&times;</button>
+      </div>
+
+      <form id="form-create-puzzle" onsubmit="adminApp.handleCreatePuzzleSubmit(event)">
+        <div class="admin-modal-body">
+          
+          <div style="display:grid; grid-template-columns: 2fr 1fr; gap:14px;">
+            <div class="form-group-admin">
+              <label for="puzzle-form-title">Puzzle Title / Combination Name *</label>
+              <input type="text" id="puzzle-form-title" class="form-control-admin" placeholder="e.g. Coup Royal Breakthrough, Ojuelegba Fork" required>
+            </div>
+            <div class="form-group-admin">
+              <label for="puzzle-form-ruleset">Base Ruleset *</label>
+              <select id="puzzle-form-ruleset" class="form-control-admin">
+                <option value="all">⭐ ALL TYPES (Auto-convert to Nigeria, FMJD &amp; Ghana)</option>
+                <option value="nigeria" selected>🇳🇬 Nigeria Highway (Street)</option>
+                <option value="international">🌍 International (FMJD)</option>
+                <option value="ghana">🇬🇭 Ghanaian Damii</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Multi-Ruleset Conversion Checkboxes -->
+          <div style="background: rgba(30,41,59,0.55); border: 1px solid rgba(52,211,153,0.3); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px;">
+            <span style="font-size:0.8rem; font-weight:700; color:#34d399; display:block; margin-bottom:6px;">Auto-Convert into ruleset types:</span>
+            <div style="display:flex; gap:16px; flex-wrap:wrap; font-size:0.82rem;">
+              <label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+                <input type="checkbox" id="admin-convert-target-international" value="international" checked> 🌍 FMJD International
+              </label>
+              <label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+                <input type="checkbox" id="admin-convert-target-nigeria" value="nigeria" checked> 🇳🇬 Nigerian Highway
+              </label>
+              <label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+                <input type="checkbox" id="admin-convert-target-ghana" value="ghana" checked> 🇬🇭 Ghanaian Damii
+              </label>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:14px;">
+            <div class="form-group-admin">
+              <label for="puzzle-form-category">Category</label>
+              <select id="puzzle-form-category" class="form-control-admin">
+                <option value="tactical" selected>Tactical Combination</option>
+                <option value="strategic">Strategic Position</option>
+                <option value="endgame">Endgame Technique</option>
+              </select>
+            </div>
+            <div class="form-group-admin">
+              <label for="puzzle-form-tier">Difficulty Tier (1-12)</label>
+              <select id="puzzle-form-tier" class="form-control-admin">
+                <option value="1">Tier 1 - Novice (~1000)</option>
+                <option value="2">Tier 2 - Beginner (~1150)</option>
+                <option value="3" selected>Tier 3 - Elementary (~1300)</option>
+                <option value="4">Tier 4 - Intermediate (~1450)</option>
+                <option value="5">Tier 5 - Advanced (~1600)</option>
+                <option value="6">Tier 6 - Skilled (~1750)</option>
+                <option value="7">Tier 7 - Expert (~1900)</option>
+                <option value="8">Tier 8 - Candidate Master (~2050)</option>
+                <option value="9">Tier 9 - Master (~2200)</option>
+                <option value="10">Tier 10 - Grandmaster (~2350)</option>
+                <option value="11">Tier 11 - Elite Grandmaster (~2500)</option>
+                <option value="12">Tier 12 - Super Grandmaster (~2650)</option>
+              </select>
+            </div>
+            <div class="form-group-admin">
+              <label for="puzzle-form-rating">Elo Rating</label>
+              <input type="number" id="puzzle-form-rating" class="form-control-admin" value="1500" min="800" max="3000">
+            </div>
+          </div>
+
+          <!-- Board Setup by Square Numbers -->
+          <div style="background: rgba(15,23,42,0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+            <div style="font-weight: 700; color: #fde047; font-size: 0.9rem; margin-bottom: 8px;">
+              ♟️ Initial 10x10 Board Setup (Squares 1 to 50):
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+              <div class="form-group-admin">
+                <label for="puzzle-white-men">⚪ White Men Squares (comma separated)</label>
+                <input type="text" id="puzzle-white-men" class="form-control-admin" placeholder="e.g. 31, 32, 33, 38, 39" required>
+              </div>
+              <div class="form-group-admin">
+                <label for="puzzle-white-kings">👑 White Kings Squares</label>
+                <input type="text" id="puzzle-white-kings" class="form-control-admin" placeholder="e.g. 45">
+              </div>
+              <div class="form-group-admin">
+                <label for="puzzle-black-men">⚫ Black Men Squares (comma separated)</label>
+                <input type="text" id="puzzle-black-men" class="form-control-admin" placeholder="e.g. 12, 18, 23, 24" required>
+              </div>
+              <div class="form-group-admin">
+                <label for="puzzle-black-kings">👑 Black Kings Squares</label>
+                <input type="text" id="puzzle-black-kings" class="form-control-admin" placeholder="e.g. 5">
+              </div>
+            </div>
+          </div>
+
+          <!-- Solution Steps Sequence -->
+          <div style="background: rgba(15,23,42,0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+              <div style="font-weight: 700; color: #34d399; font-size: 0.9rem;">
+                🎯 Solution Move Sequence:
+              </div>
+              <button type="button" class="btn-admin btn-admin-secondary" style="padding:2px 8px; font-size:0.75rem;" onclick="adminApp.addSolutionStepRow()">+ Add Move Step</button>
+            </div>
+            <div id="puzzle-solution-steps-wrap" style="display:flex; flex-direction:column; gap:8px;">
+              <!-- Default initial step -->
+              <div class="solution-step-row" style="display:grid; grid-template-columns: 80px 1fr 1fr 1fr auto; gap:8px; align-items:center;">
+                <select class="form-control-admin step-mover">
+                  <option value="1">White</option>
+                  <option value="2">Black</option>
+                </select>
+                <input type="number" class="form-control-admin step-from" placeholder="From (1-50)" min="1" max="50" required>
+                <input type="number" class="form-control-admin step-to" placeholder="To (1-50)" min="1" max="50" required>
+                <input type="text" class="form-control-admin step-notation" placeholder="Notation (e.g. 32-28)">
+                <button type="button" class="btn-admin btn-admin-danger" style="padding:4px 8px;" onclick="this.closest('.solution-step-row').remove()">&times;</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progressive Hints -->
+          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; margin-bottom: 14px;">
+            <div class="form-group-admin">
+              <label for="puzzle-hint-1">Hint Level 1 (General Idea)</label>
+              <input type="text" id="puzzle-hint-1" class="form-control-admin" placeholder="e.g. Look for a sacrifice on square 28.">
+            </div>
+            <div class="form-group-admin">
+              <label for="puzzle-hint-2">Hint Level 2 (Tactical Direction)</label>
+              <input type="text" id="puzzle-hint-2" class="form-control-admin" placeholder="e.g. Force black piece to land on 32.">
+            </div>
+            <div class="form-group-admin">
+              <label for="puzzle-hint-3">Hint Level 3 (Direct Move)</label>
+              <input type="text" id="puzzle-hint-3" class="form-control-admin" placeholder="e.g. Play 32-28!">
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+            <div class="form-group-admin">
+              <label for="puzzle-form-themes">Themes / Tactical Tags (comma separated)</label>
+              <input type="text" id="puzzle-form-themes" class="form-control-admin" placeholder="e.g. Coup Royal, Sacrifice, Flying King">
+            </div>
+            <div class="form-group-admin">
+              <label for="puzzle-form-explanation">Explanation / Tactical Walkthrough</label>
+              <input type="text" id="puzzle-form-explanation" class="form-control-admin" placeholder="White sacrifices 32-28, forcing 23x32, then unleashes a multi-capture king combination!">
+            </div>
+          </div>
+
+        </div>
+        <div class="admin-modal-footer">
+          <button type="button" class="btn-admin btn-admin-secondary" onclick="adminApp.closeModal('modal-create-puzzle')">Cancel</button>
+          <button type="submit" class="btn-admin btn-admin-primary" id="btn-submit-create-puzzle">⚡ Save &amp; Publish Puzzle &rarr;</button>
+        </div>
+      </form>
     </div>
   </div>
 

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/config/payment.php';
+require_once __DIR__ . '/config/puzzle_helper.php';
 
 $coinRates = getCoinRates(getDB());
 
@@ -86,6 +87,7 @@ function getPackageBadge($pkg) {
     }
 }
 $pkgBadge = getPackageBadge($package);
+$canManagePuzzles = canUserManagePuzzles($user);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -506,6 +508,39 @@ $pkgBadge = getPackageBadge($package);
         </div>
       </div>
     </section>
+
+    <?php if ($canManagePuzzles): ?>
+    <!-- ================= TACTICAL PUZZLE CREATOR STUDIO BANNER ================= -->
+    <section class="dash-creator-studio-banner" style="background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(6,182,212,0.12) 50%, rgba(245,158,11,0.15) 100%); border: 1px solid rgba(52,211,153,0.35); border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; box-shadow: 0 8px 24px rgba(0,0,0,0.35);">
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div style="width:52px; height:52px; border-radius:12px; background:rgba(16,185,129,0.25); border:1px solid rgba(52,211,153,0.5); display:flex; align-items:center; justify-content:center; font-size:1.8rem; box-shadow:0 0 16px rgba(16,185,129,0.3);">
+          🧩
+        </div>
+        <div>
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+            <h3 style="margin:0; font-family:'Cinzel',serif; font-size:1.15rem; color:#fde047;">Tactical Puzzle Creator Studio</h3>
+            <span style="font-size:0.7rem; font-weight:800; background:rgba(16,185,129,0.3); color:#34d399; border:1px solid rgba(16,185,129,0.5); padding:2px 8px; border-radius:12px;">AUTHORIZED CREATOR</span>
+          </div>
+          <p style="margin:0; font-size:0.85rem; color:#cbd5e1; max-width:680px;">
+            You have clearance to design tactical combinations and auto-convert across <strong>Nigerian Highway 🇳🇬</strong>, <strong>International FMJD 🌍</strong>, and <strong>Ghanaian Damii 🇬🇭</strong> rulesets.
+          </p>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <a href="puzzles.php?open_creator=1" class="btn btn-primary" style="background:linear-gradient(135deg,#10b981,#059669); border:none; font-weight:700; text-decoration:none; padding:10px 18px; display:inline-flex; align-items:center; gap:6px;">
+          <span>➕ Add Tactical Puzzle</span>
+        </a>
+        <a href="puzzles.php" class="btn btn-secondary" style="font-weight:600; text-decoration:none; padding:10px 16px;">
+          <span>🎯 Training Arena</span>
+        </a>
+        <?php if (!empty($user['role']) && in_array($user['role'], ['admin', 'super_admin'])): ?>
+        <a href="admin.php#panel-puzzles" class="btn btn-secondary" style="border-color:#f59e0b; color:#fde047; text-decoration:none; padding:10px 16px;">
+          <span>🛡️ Admin Table</span>
+        </a>
+        <?php endif; ?>
+      </div>
+    </section>
+    <?php endif; ?>
 
     <!-- ================= 2. DASHBOARD MAIN TABBED INTERFACE ================= -->
     <div class="dash-tabs-nav">

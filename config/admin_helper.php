@@ -64,6 +64,12 @@ function getAvailablePermissionsList() {
             'title' => 'Security Shield & Threat Defense',
             'category' => 'Security',
             'description' => 'Inspect intrusion flags, unlock brute-force locked IPs, review rate limit blocks, and manage defense thresholds.'
+        ],
+        'manage_puzzles' => [
+            'key' => 'manage_puzzles',
+            'title' => 'Tactical Puzzles & Traps',
+            'category' => 'Content',
+            'description' => 'Create, edit, convert across all rulesets (Nigerian Highway, International FMJD, Ghanaian Damii), and manage training puzzles.'
         ]
     ];
 }

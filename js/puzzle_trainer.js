@@ -149,6 +149,35 @@ class PuzzleTrainer {
     this.setBoardTheme(savedBoardTheme);
 
     this.loadPuzzle(initialIdx);
+    this.hydrateDatabasePuzzles(puzzleId);
+  }
+
+  async hydrateDatabasePuzzles(targetPuzzleId = null) {
+    try {
+      const res = await fetch('api/puzzles.php?action=custom_catalogue&limit=100');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.puzzles) && data.puzzles.length > 0) {
+        let addedCount = 0;
+        data.puzzles.forEach(dbPuz => {
+          if (!this.puzzles.some(p => p.id === dbPuz.id)) {
+            this.puzzles.unshift(dbPuz);
+            addedCount++;
+          }
+        });
+        if (addedCount > 0) {
+          this.updateRulesetButtons();
+          this.renderPuzzleChips();
+          if (targetPuzzleId) {
+            const tIdx = this.puzzles.findIndex(p => p.id === targetPuzzleId);
+            if (tIdx !== -1 && tIdx !== this.currentPuzzleIdx) {
+              this.loadPuzzle(tIdx);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[PuzzleTrainer] Could not hydrate database puzzles:', err);
+    }
   }
 
   cacheDOM() {
@@ -580,6 +609,323 @@ class PuzzleTrainer {
         this.loadPuzzle(matchIdx);
       }
     });
+
+    // Initialize Tactical Puzzle Creator Studio & Ruleset Converter
+    this.initCreatorStudio();
+  }
+
+  initCreatorStudio() {
+    // 1. Creator Studio Triggers
+    const btnHeaderAdd = document.getElementById('btn-header-add-puzzle');
+    const btnSidebarAdd = document.getElementById('btn-sidebar-add-puzzle');
+    const modalCreator = document.getElementById('modal-puzzle-creator-studio');
+    const btnCloseCreator = document.getElementById('btn-close-creator-modal');
+    const btnCancelCreator = document.getElementById('btn-cancel-creator-modal');
+    const btnAddStep = document.getElementById('btn-add-creator-step');
+    const formCreator = document.getElementById('form-puzzle-creator');
+
+    btnHeaderAdd?.addEventListener('click', () => this.openCreatorModal());
+    btnSidebarAdd?.addEventListener('click', () => this.openCreatorModal());
+    btnCloseCreator?.addEventListener('click', () => this.closeCreatorModal());
+    btnCancelCreator?.addEventListener('click', () => this.closeCreatorModal());
+    modalCreator?.addEventListener('click', (e) => {
+      if (e.target === modalCreator) this.closeCreatorModal();
+    });
+    btnAddStep?.addEventListener('click', () => this.addCreatorStepRow());
+    formCreator?.addEventListener('submit', (e) => this.handleCreatePuzzleSubmit(e));
+
+    // 2. Ruleset Conversion Triggers
+    const btnConvertRuleset = document.getElementById('btn-puzzle-convert-ruleset');
+    const btnMetaConvert = document.getElementById('btn-meta-convert');
+    const modalConvert = document.getElementById('modal-convert-puzzle-dialog');
+    const btnCloseConvert = document.getElementById('btn-close-convert-modal');
+    const btnCancelConvert = document.getElementById('btn-cancel-convert-modal');
+    const formConvert = document.getElementById('form-convert-puzzle');
+
+    btnConvertRuleset?.addEventListener('click', () => this.openConvertModal());
+    btnMetaConvert?.addEventListener('click', () => this.openConvertModal());
+    btnCloseConvert?.addEventListener('click', () => this.closeConvertModal());
+    btnCancelConvert?.addEventListener('click', () => this.closeConvertModal());
+    modalConvert?.addEventListener('click', (e) => {
+      if (e.target === modalConvert) this.closeConvertModal();
+    });
+    formConvert?.addEventListener('submit', (e) => this.handleConvertPuzzleSubmit(e));
+
+    // 3. Auto-open if query parameter is present (e.g. from Dashboard)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('open_creator') === '1' || urlParams.get('create') === '1') {
+      setTimeout(() => this.openCreatorModal(), 300);
+    }
+  }
+
+  openCreatorModal() {
+    const modal = document.getElementById('modal-puzzle-creator-studio');
+    if (modal) {
+      modal.style.display = 'flex';
+      document.getElementById('creator-puzzle-title')?.focus();
+    }
+  }
+
+  closeCreatorModal() {
+    const modal = document.getElementById('modal-puzzle-creator-studio');
+    if (modal) modal.style.display = 'none';
+  }
+
+  addCreatorStepRow(mover = 1, from = '', to = '', notation = '') {
+    const container = document.getElementById('creator-steps-container');
+    if (!container) return;
+    const row = document.createElement('div');
+    row.className = 'creator-step-row';
+    row.innerHTML = `
+      <select class="form-control-creator step-mover">
+        <option value="1" ${mover === 1 ? 'selected' : ''}>White</option>
+        <option value="2" ${mover === 2 ? 'selected' : ''}>Black</option>
+      </select>
+      <input type="number" class="form-control-creator step-from" placeholder="From (1-50)" min="1" max="50" value="${from}" required>
+      <input type="number" class="form-control-creator step-to" placeholder="To (1-50)" min="1" max="50" value="${to}" required>
+      <input type="text" class="form-control-creator step-notation" placeholder="Notation (e.g. 32-28)" value="${notation}">
+      <button type="button" class="btn-del-step" onclick="this.closest('.creator-step-row').remove()">&times;</button>
+    `;
+    container.appendChild(row);
+  }
+
+  async handleCreatePuzzleSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-submit-creator-puzzle');
+    const origText = btn ? btn.innerHTML : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '⚡ Publishing & Converting...';
+    }
+
+    try {
+      const title = document.getElementById('creator-puzzle-title').value.trim();
+      const baseRuleset = document.getElementById('creator-puzzle-ruleset').value;
+      const category = document.getElementById('creator-puzzle-category').value;
+      const tier = parseInt(document.getElementById('creator-puzzle-tier').value, 10);
+      const rating = parseInt(document.getElementById('creator-puzzle-rating').value, 10);
+
+      const whiteMen = document.getElementById('creator-white-men').value.trim();
+      const whiteKings = document.getElementById('creator-white-kings').value.trim();
+      const blackMen = document.getElementById('creator-black-men').value.trim();
+      const blackKings = document.getElementById('creator-black-kings').value.trim();
+
+      const hint1 = document.getElementById('creator-hint-1').value.trim();
+      const hint2 = document.getElementById('creator-hint-2').value.trim();
+      const hint3 = document.getElementById('creator-hint-3').value.trim();
+
+      const themes = document.getElementById('creator-puzzle-themes').value.trim();
+      const explanation = document.getElementById('creator-puzzle-explanation').value.trim();
+
+      // Collect target conversion checkboxes
+      const convertTargets = [];
+      if (document.getElementById('creator-convert-international')?.checked) convertTargets.push('international');
+      if (document.getElementById('creator-convert-nigeria')?.checked) convertTargets.push('nigeria');
+      if (document.getElementById('creator-convert-ghana')?.checked) convertTargets.push('ghana');
+
+      // Collect solution steps
+      const stepRows = document.querySelectorAll('#creator-steps-container .creator-step-row');
+      const steps = [];
+      stepRows.forEach(r => {
+        const mover = parseInt(r.querySelector('.step-mover')?.value || 1, 10);
+        const from = parseInt(r.querySelector('.step-from')?.value || 0, 10);
+        const to = parseInt(r.querySelector('.step-to')?.value || 0, 10);
+        const notation = r.querySelector('.step-notation')?.value.trim() || `${from}-${to}`;
+        if (from > 0 && to > 0) {
+          steps.push({
+            mover,
+            from,
+            to,
+            isOpponent: mover === 2,
+            notation
+          });
+        }
+      });
+
+      if (steps.length === 0) {
+        throw new Error('Please enter at least one solution step move.');
+      }
+
+      const payload = {
+        title,
+        ruleset: baseRuleset,
+        convert_all: convertTargets.length === 3,
+        convert_targets: convertTargets,
+        category,
+        difficulty_tier: tier,
+        rating,
+        white_pieces: whiteMen,
+        white_kings: whiteKings,
+        black_pieces: blackMen,
+        black_kings: blackKings,
+        solution: steps,
+        hints: [hint1, hint2, hint3].filter(Boolean),
+        themes,
+        explanation
+      };
+
+      const res = await fetch('api/puzzles.php?action=create_custom_puzzle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to save puzzle.');
+      }
+
+      // Fetch created and converted puzzle records into active in-memory session
+      const newItems = [];
+      if (data.puzzle_id) {
+        try {
+          const getRes = await fetch(`api/puzzles.php?action=get&id=${encodeURIComponent(data.puzzle_id)}`);
+          const getData = await getRes.json();
+          if (getData.success && getData.puzzle) {
+            newItems.push(getData.puzzle);
+          }
+        } catch (_) {}
+      }
+
+      if (data.conversion_details && data.conversion_details.variants) {
+        for (const rset in data.conversion_details.variants) {
+          const v = data.conversion_details.variants[rset];
+          if (v && v.id && v.id !== data.puzzle_id && !newItems.some(p => p.id === v.id)) {
+            try {
+              const vRes = await fetch(`api/puzzles.php?action=get&id=${encodeURIComponent(v.id)}`);
+              const vData = await vRes.json();
+              if (vData.success && vData.puzzle) {
+                newItems.push(vData.puzzle);
+              }
+            } catch (_) {}
+          }
+        }
+      }
+
+      if (newItems.length > 0) {
+        // Prepend so creator can immediately play & test their tactical masterpiece
+        this.puzzles = [...newItems, ...this.puzzles.filter(p => !newItems.some(np => np.id === p.id))];
+        this.updateRulesetButtons();
+        this.renderPuzzleChips();
+        this.loadPuzzle(0);
+      }
+
+      let successMsg = `🎉 Puzzle '${title}' created successfully!`;
+      if (data.conversion_details && data.conversion_details.converted_count > 0) {
+        successMsg += ` Auto-converted into ${data.conversion_details.converted_count} other ruleset variant(s)!`;
+      }
+      this.showCreatorToast(successMsg, 'success');
+
+      this.closeCreatorModal();
+      document.getElementById('form-puzzle-creator').reset();
+
+    } catch (err) {
+      this.showCreatorToast(err.message, 'error');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = origText;
+      }
+    }
+  }
+
+  openConvertModal() {
+    const currPuz = this.puzzles[this.currentPuzzleIdx];
+    if (!currPuz) return;
+    const modal = document.getElementById('modal-convert-puzzle-dialog');
+    const puzIdInput = document.getElementById('convert-puzzle-id');
+    const puzNameLabel = document.getElementById('convert-modal-puzzle-name');
+
+    if (puzIdInput) puzIdInput.value = currPuz.id;
+    if (puzNameLabel) {
+      puzNameLabel.textContent = `Convert "${currPuz.title || currPuz.description || currPuz.id}" (Current: ${currPuz.ruleset || 'Standard'}) across rulesets.`;
+    }
+    if (modal) modal.style.display = 'flex';
+  }
+
+  closeConvertModal() {
+    const modal = document.getElementById('modal-convert-puzzle-dialog');
+    if (modal) modal.style.display = 'none';
+  }
+
+  async handleConvertPuzzleSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-submit-convert-puzzle');
+    const origText = btn ? btn.innerHTML : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '🔄 Converting...';
+    }
+
+    try {
+      const puzzleId = document.getElementById('convert-puzzle-id')?.value;
+      const selectedRadio = document.querySelector('input[name="convert_target_ruleset"]:checked');
+      const targetRuleset = selectedRadio ? selectedRadio.value : 'all';
+
+      if (!puzzleId) throw new Error('No puzzle selected for conversion.');
+
+      const res = await fetch('api/puzzles.php?action=convert_puzzle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          puzzle_id: puzzleId,
+          target_ruleset: targetRuleset
+        })
+      });
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to convert puzzle.');
+      }
+
+      // Fetch and merge converted variants into trainer memory
+      const newVariants = [];
+      if (data.details && data.details.variants) {
+        for (const rset in data.details.variants) {
+          const v = data.details.variants[rset];
+          if (v && v.id && !this.puzzles.some(p => p.id === v.id)) {
+            try {
+              const vRes = await fetch(`api/puzzles.php?action=get&id=${encodeURIComponent(v.id)}`);
+              const vData = await vRes.json();
+              if (vData.success && vData.puzzle) {
+                newVariants.push(vData.puzzle);
+              }
+            } catch (_) {}
+          }
+        }
+      }
+
+      if (newVariants.length > 0) {
+        this.puzzles = [...newVariants, ...this.puzzles];
+        this.updateRulesetButtons();
+        this.renderPuzzleChips();
+      }
+
+      this.showCreatorToast(data.message || 'Puzzle converted successfully!', 'success');
+      this.closeConvertModal();
+
+    } catch (err) {
+      this.showCreatorToast(err.message, 'error');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = origText;
+      }
+    }
+  }
+
+  showCreatorToast(msg, type = 'success') {
+    const existing = document.querySelector('.creator-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = `creator-toast ${type}`;
+    toast.innerHTML = `<span>${type === 'success' ? '✓' : '⚠️'}</span> <span>${msg}</span>`;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(10px)';
+      toast.style.transition = 'all 0.3s ease';
+      setTimeout(() => toast.remove(), 350);
+    }, 4500);
   }
 
   getPuzzleTier(p) {
@@ -804,7 +1150,7 @@ class PuzzleTrainer {
 
     const ruleMode = puzzle.ruleset || 'nigeria';
 
-    const steps = puzzle.steps || puzzle.solution?.steps || [];
+    const steps = puzzle.steps || (Array.isArray(puzzle.solution) ? puzzle.solution : puzzle.solution?.steps) || [];
     const lastStep = steps.length > 0 ? steps[steps.length - 1] : null;
 
     // Detect who the solver (player) is:

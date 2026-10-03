@@ -15,6 +15,7 @@
  */
 
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/puzzle_helper.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -631,6 +632,273 @@ try {
             break;
         }
 
+        // =====================================================================
+        // 9.5. CHECK PUZZLE MANAGEMENT PERMISSIONS
+        // =====================================================================
+        case 'check_permission': {
+            $canManage = canUserManagePuzzles($currentUser);
+            jsonResponse([
+                'success' => true,
+                'can_manage' => $canManage,
+                'user' => $currentUser ? [
+                    'id' => (int)$currentUser['id'],
+                    'username' => $currentUser['username'] ?? '',
+                    'role' => $currentUser['role'] ?? 'player'
+                ] : null
+            ]);
+            break;
+        }
+
+        // =====================================================================
+        // 10. CREATE CUSTOM PUZZLE (WITH MULTI-RULESET / ALL TYPES CONVERSION)
+        // =====================================================================
+        case 'create_custom_puzzle':
+        case 'create_puzzle': {
+            if (!canUserManagePuzzles($currentUser)) {
+                jsonResponse(['success' => false, 'message' => 'Unauthorized: Administrator or puzzle manager permission required.'], 403);
+            }
+
+            $rawInput = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+            $title = trim($rawInput['title'] ?? '');
+            if (empty($title)) {
+                jsonResponse(['success' => false, 'message' => 'Puzzle title is required.'], 400);
+            }
+
+            $requestedRuleset = strtolower(trim($rawInput['ruleset'] ?? 'nigeria'));
+            $convertToAll = !empty($rawInput['convert_all']) || !empty($rawInput['auto_convert_all']) || $requestedRuleset === 'all';
+            $convertTargets = $rawInput['convert_targets'] ?? ($rawInput['target_rulesets'] ?? null);
+            if (empty($convertTargets) && !empty($rawInput['auto_convert']) && is_array($rawInput['target_rulesets'] ?? null)) {
+                $convertTargets = $rawInput['target_rulesets'];
+            }
+            $singleTarget = !empty($rawInput['target_ruleset']) ? strtolower(trim($rawInput['target_ruleset'])) : null;
+            
+            // Base ruleset to create first
+            $baseRuleset = ($requestedRuleset === 'all' || empty($requestedRuleset)) ? 'nigeria' : $requestedRuleset;
+            if (!in_array($baseRuleset, ['nigeria', 'international', 'ghana'])) {
+                $baseRuleset = 'nigeria';
+            }
+            $rawInput['ruleset'] = $baseRuleset;
+
+            $newId = saveFullPuzzleRecord($db, $rawInput);
+
+            $conversionResult = null;
+            if ($convertToAll) {
+                $conversionResult = convertPuzzleToAllTypes($db, $newId);
+            } elseif (!empty($convertTargets) && is_array($convertTargets)) {
+                $conversionResult = convertPuzzleToSpecificTypes($db, $newId, $convertTargets);
+            } elseif (!empty($singleTarget) && $singleTarget !== $baseRuleset) {
+                $conversionResult = convertPuzzleToRuleset($db, $newId, $singleTarget);
+            }
+
+            $isConverted = ($conversionResult && !empty($conversionResult['converted_count']));
+
+            jsonResponse([
+                'success' => true,
+                'message' => $isConverted 
+                    ? "Tactical puzzle '{$title}' created and converted across ruleset types (International, Nigeria, Ghana)!" 
+                    : "Tactical puzzle '{$title}' created successfully!",
+                'puzzle_id' => $newId,
+                'base_ruleset' => $baseRuleset,
+                'converted' => $isConverted,
+                'conversion_details' => $conversionResult
+            ]);
+            break;
+        }
+
+        // =====================================================================
+        // 11. CONVERT EXISTING PUZZLE TO ALL TYPES OR SPECIFIC TYPE
+        // =====================================================================
+        case 'convert_all_types':
+        case 'convert_puzzle': {
+            if (!canUserManagePuzzles($currentUser)) {
+                jsonResponse(['success' => false, 'message' => 'Unauthorized: Administrator or puzzle manager permission required.'], 403);
+            }
+
+            $rawInput = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+            $puzzleId = trim($rawInput['puzzle_id'] ?? ($_GET['puzzle_id'] ?? ''));
+            $targetRuleset = strtolower(trim($rawInput['target_ruleset'] ?? ($_GET['target_ruleset'] ?? 'all')));
+            $convertTargets = $rawInput['convert_targets'] ?? null;
+
+            if (empty($puzzleId)) {
+                jsonResponse(['success' => false, 'message' => 'Puzzle ID is required for conversion.'], 400);
+            }
+
+            if (!empty($convertTargets) && is_array($convertTargets)) {
+                $res = convertPuzzleToSpecificTypes($db, $puzzleId, $convertTargets);
+                $msg = "Puzzle successfully converted to selected ruleset types!";
+            } elseif ($targetRuleset === 'all' || empty($targetRuleset)) {
+                $res = convertPuzzleToAllTypes($db, $puzzleId);
+                $msg = "Puzzle successfully converted across Nigerian, International (FMJD), and Ghanaian Damii rulesets!";
+            } else {
+                $res = convertPuzzleToRuleset($db, $puzzleId, $targetRuleset);
+                $msg = "Puzzle successfully converted to " . ucfirst($targetRuleset) . " ruleset!";
+            }
+
+            jsonResponse([
+                'success' => true,
+                'message' => $msg,
+                'details' => $res
+            ]);
+            break;
+        }
+
+        // =====================================================================
+        // 12. UPDATE PUZZLE
+        // =====================================================================
+        case 'update_puzzle': {
+            if (!canUserManagePuzzles($currentUser)) {
+                jsonResponse(['success' => false, 'message' => 'Unauthorized: Administrator or puzzle manager permission required.'], 403);
+            }
+
+            $rawInput = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+            $puzzleId = trim($rawInput['id'] ?? '');
+
+            if (empty($puzzleId)) {
+                jsonResponse(['success' => false, 'message' => 'Puzzle ID is required.'], 400);
+            }
+
+            $updatedId = saveFullPuzzleRecord($db, $rawInput);
+            jsonResponse([
+                'success' => true,
+                'message' => 'Puzzle updated successfully!',
+                'puzzle_id' => $updatedId
+            ]);
+            break;
+        }
+
+        // =====================================================================
+        // 13. DELETE PUZZLE
+        // =====================================================================
+        case 'delete_puzzle': {
+            if (!canUserManagePuzzles($currentUser)) {
+                jsonResponse(['success' => false, 'message' => 'Unauthorized: Administrator or puzzle manager permission required.'], 403);
+            }
+
+            $rawInput = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+            $puzzleId = trim($rawInput['puzzle_id'] ?? ($rawInput['id'] ?? ($_GET['puzzle_id'] ?? '')));
+
+            if (empty($puzzleId)) {
+                jsonResponse(['success' => false, 'message' => 'Puzzle ID is required.'], 400);
+            }
+
+            $deleted = deleteFullPuzzleRecord($db, $puzzleId);
+            jsonResponse([
+                'success' => true,
+                'message' => $deleted ? 'Puzzle deleted successfully.' : 'Puzzle not found or already deleted.'
+            ]);
+            break;
+        }
+
+        // =====================================================================
+        // 14. LIST PUZZLES FOR ADMIN / INSTRUCTOR MANAGEMENT
+        // =====================================================================
+        case 'list_admin_puzzles': {
+            if (!canUserManagePuzzles($currentUser)) {
+                jsonResponse(['success' => false, 'message' => 'Unauthorized: Administrator or puzzle manager permission required.'], 403);
+            }
+
+            $page = max(1, (int)($_GET['page'] ?? 1));
+            $limit = max(1, min(100, (int)($_GET['limit'] ?? 20)));
+            $offset = ($page - 1) * $limit;
+
+            $ruleset = trim($_GET['ruleset'] ?? 'all');
+            $tier = trim($_GET['tier'] ?? 'all');
+            $search = trim($_GET['q'] ?? '');
+
+            $where = ["1=1"];
+            $params = [];
+
+            if ($ruleset !== 'all' && in_array($ruleset, ['nigeria', 'ghana', 'international'])) {
+                $where[] = "ruleset = :ruleset";
+                $params[':ruleset'] = $ruleset;
+            }
+
+            if ($tier !== 'all' && is_numeric($tier)) {
+                $where[] = "difficulty_tier = :tier";
+                $params[':tier'] = (int)$tier;
+            }
+
+            if (!empty($search)) {
+                $where[] = "(description LIKE :q OR explanation LIKE :q OR id LIKE :q)";
+                $params[':q'] = "%{$search}%";
+            }
+
+            $whereSql = implode(' AND ', $where);
+
+            // Count
+            $countStmt = $db->prepare("SELECT COUNT(*) FROM puzzles WHERE {$whereSql}");
+            $countStmt->execute($params);
+            $totalCount = (int)$countStmt->fetchColumn();
+
+            // Rows
+            $sql = "
+                SELECT p.*,
+                       (SELECT COUNT(*) FROM puzzle_solutions ps WHERE ps.puzzle_id = p.id) as solution_steps_count,
+                       (SELECT COUNT(*) FROM puzzle_hints ph WHERE ph.puzzle_id = p.id) as hints_count,
+                       (SELECT GROUP_CONCAT(theme SEPARATOR ', ') FROM puzzle_themes pt WHERE pt.puzzle_id = p.id) as themes_list
+                FROM puzzles p
+                WHERE {$whereSql}
+                ORDER BY p.created_at DESC, p.id DESC
+                LIMIT {$limit} OFFSET {$offset}
+            ";
+
+            $stmt = $db->prepare($sql);
+            $stmt->execute($params);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Fetch aggregate stats
+            $stats = [
+                'total' => (int)$db->query("SELECT COUNT(*) FROM puzzles")->fetchColumn(),
+                'nigeria' => (int)$db->query("SELECT COUNT(*) FROM puzzles WHERE ruleset = 'nigeria'")->fetchColumn(),
+                'international' => (int)$db->query("SELECT COUNT(*) FROM puzzles WHERE ruleset = 'international'")->fetchColumn(),
+                'ghana' => (int)$db->query("SELECT COUNT(*) FROM puzzles WHERE ruleset = 'ghana'")->fetchColumn()
+            ];
+
+            jsonResponse([
+                'success' => true,
+                'puzzles' => $rows,
+                'total' => $totalCount,
+                'page' => $page,
+                'limit' => $limit,
+                'pages' => ceil($totalCount / $limit),
+                'stats' => $stats
+            ]);
+            break;
+        }
+
+        // =====================================================================
+        // 15. CUSTOM & CONVERTED CATALOGUE FOR FRONTEND TRAINER
+        // =====================================================================
+        case 'custom_catalogue':
+        case 'catalogue': {
+            $limit = min(200, max(1, (int)($_GET['limit'] ?? 100)));
+            $ruleset = trim($_GET['ruleset'] ?? 'all');
+            
+            $where = ["1=1"];
+            $params = [];
+            if ($ruleset !== 'all' && in_array($ruleset, ['nigeria', 'international', 'ghana'])) {
+                $where[] = "ruleset = :ruleset";
+                $params[':ruleset'] = $ruleset;
+            }
+            $whereSql = implode(' AND ', $where);
+
+            $stmt = $db->prepare("SELECT * FROM puzzles WHERE {$whereSql} ORDER BY created_at DESC, id DESC LIMIT {$limit}");
+            $stmt->execute($params);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $formatted = [];
+            foreach ($rows as $row) {
+                $formatted[] = formatFullPuzzle($db, $row);
+            }
+
+            jsonResponse([
+                'success' => true,
+                'count' => count($formatted),
+                'puzzles' => $formatted
+            ]);
+            break;
+        }
+
         default:
             jsonResponse(['success' => false, 'message' => "Unknown action '{$action}'"], 400);
     }
@@ -645,70 +913,72 @@ try {
 /**
  * Formats a full puzzle record with solution, hints, and tags.
  */
-function formatFullPuzzle(PDO $db, array $p): array {
-    $pid = $p['id'];
+if (!function_exists('formatFullPuzzle')) {
+    function formatFullPuzzle(PDO $db, array $p): array {
+        $pid = $p['id'];
 
-    // Fetch solution steps
-    $solStmt = $db->prepare("SELECT * FROM puzzle_solutions WHERE puzzle_id = :id ORDER BY step_number ASC");
-    $solStmt->execute([':id' => $pid]);
-    $solRows = $solStmt->fetchAll();
+        // Fetch solution steps
+        $solStmt = $db->prepare("SELECT * FROM puzzle_solutions WHERE puzzle_id = :id ORDER BY step_number ASC");
+        $solStmt->execute([':id' => $pid]);
+        $solRows = $solStmt->fetchAll();
 
-    $solution = [];
-    $opponentBlunder = null;
+        $solution = [];
+        $opponentBlunder = null;
 
-    foreach ($solRows as $r) {
-        $stepData = [
-            'step' => (int)$r['step_number'],
-            'mover' => (int)$r['mover'],
-            'from' => (int)$r['from_sq'],
-            'to' => (int)$r['to_sq'],
-            'hops' => json_decode($r['hops_json'] ?: '[]', true),
-            'notation' => $r['notation'],
-            'note' => $r['note'],
-            'isOpponent' => (bool)$r['is_opponent']
-        ];
-        $solution[] = $stepData;
+        foreach ($solRows as $r) {
+            $stepData = [
+                'step' => (int)$r['step_number'],
+                'mover' => (int)$r['mover'],
+                'from' => (int)$r['from_sq'],
+                'to' => (int)$r['to_sq'],
+                'hops' => json_decode($r['hops_json'] ?: '[]', true),
+                'notation' => $r['notation'],
+                'note' => $r['note'],
+                'isOpponent' => (bool)$r['is_opponent']
+            ];
+            $solution[] = $stepData;
 
-        if ($r['is_opponent'] && $opponentBlunder === null) {
-            $opponentBlunder = $stepData;
+            if ($r['is_opponent'] && $opponentBlunder === null) {
+                $opponentBlunder = $stepData;
+            }
         }
+
+        // Fetch progressive hints
+        $hintStmt = $db->prepare("SELECT level, hint_text FROM puzzle_hints WHERE puzzle_id = :id ORDER BY level ASC");
+        $hintStmt->execute([':id' => $pid]);
+        $hintRows = $hintStmt->fetchAll();
+        $hints = [1 => '', 2 => '', 3 => ''];
+        foreach ($hintRows as $h) {
+            $hints[(int)$h['level']] = $h['hint_text'];
+        }
+
+        // Fetch themes
+        $thmStmt = $db->prepare("SELECT theme FROM puzzle_themes WHERE puzzle_id = :id");
+        $thmStmt->execute([':id' => $pid]);
+        $themes = $thmStmt->fetchAll(PDO::FETCH_COLUMN);
+
+        $initialBoard = json_decode($p['position_json'] ?: '[]', true);
+
+        return [
+            'id' => $p['id'],
+            'ruleset' => $p['ruleset'],
+            'title' => $p['description'],
+            'description' => $p['description'],
+            'explanation' => $p['explanation'],
+            'category' => $p['category'],
+            'difficulty_tier' => (int)$p['difficulty_tier'],
+            'rating' => (int)$p['rating'],
+            'human_score' => (int)$p['human_score'],
+            'quality_score' => (int)$p['quality_score'],
+            'fen' => $p['fen'],
+            'initialBoard' => $initialBoard,
+            'solution' => $solution,
+            'opponentBlunder' => $opponentBlunder,
+            'hints' => $hints,
+            'hint' => $hints[1] ?: ($hints[2] ?: $hints[3]),
+            'themes' => $themes,
+            'times_served' => (int)$p['times_served'],
+            'times_solved' => (int)$p['times_solved']
+        ];
     }
-
-    // Fetch progressive hints
-    $hintStmt = $db->prepare("SELECT level, hint_text FROM puzzle_hints WHERE puzzle_id = :id ORDER BY level ASC");
-    $hintStmt->execute([':id' => $pid]);
-    $hintRows = $hintStmt->fetchAll();
-    $hints = [1 => '', 2 => '', 3 => ''];
-    foreach ($hintRows as $h) {
-        $hints[(int)$h['level']] = $h['hint_text'];
-    }
-
-    // Fetch themes
-    $thmStmt = $db->prepare("SELECT theme FROM puzzle_themes WHERE puzzle_id = :id");
-    $thmStmt->execute([':id' => $pid]);
-    $themes = $thmStmt->fetchAll(PDO::FETCH_COLUMN);
-
-    $initialBoard = json_decode($p['position_json'] ?: '[]', true);
-
-    return [
-        'id' => $p['id'],
-        'ruleset' => $p['ruleset'],
-        'title' => $p['description'],
-        'description' => $p['description'],
-        'explanation' => $p['explanation'],
-        'category' => $p['category'],
-        'difficulty_tier' => (int)$p['difficulty_tier'],
-        'rating' => (int)$p['rating'],
-        'human_score' => (int)$p['human_score'],
-        'quality_score' => (int)$p['quality_score'],
-        'fen' => $p['fen'],
-        'initialBoard' => $initialBoard,
-        'solution' => $solution,
-        'opponentBlunder' => $opponentBlunder,
-        'hints' => $hints,
-        'hint' => $hints[1] ?: ($hints[2] ?: $hints[3]),
-        'themes' => $themes,
-        'times_served' => (int)$p['times_served'],
-        'times_solved' => (int)$p['times_solved']
-    ];
 }

@@ -76,6 +76,7 @@ class AdminApp {
       'panel-players': 'Player Directory & Profile Management',
       'panel-finance': 'Financial Cashier & Bank Payouts',
       'panel-tournaments': 'Tournaments & Knockout Championships',
+      'panel-puzzles': 'Tactical Puzzles & Training Content Management',
       'panel-rooms': 'Live Arena & Match Room Monitor',
       'panel-settings': 'Global Platform Governance Settings',
       'panel-audit': 'Immutable Administrative Audit Trails',
@@ -94,6 +95,7 @@ class AdminApp {
       this.loadDonations();
     }
     else if (panelId === 'panel-tournaments') this.loadTournaments();
+    else if (panelId === 'panel-puzzles') this.loadPuzzles(1);
     else if (panelId === 'panel-rooms') this.loadRooms();
     else if (panelId === 'panel-settings') this.loadSettings();
     else if (panelId === 'panel-audit') this.loadAuditLogs(1);
@@ -808,6 +810,16 @@ class AdminApp {
       document.getElementById('edit-player-verified').value = u.is_verified ? '1' : '0';
       document.getElementById('edit-player-banned').value = u.is_banned ? '1' : '0';
       document.getElementById('edit-player-ban-reason').value = u.ban_reason || '';
+
+      const roleElem = document.getElementById('edit-player-role');
+      if (roleElem) roleElem.value = u.role || 'player';
+      const managePuzElem = document.getElementById('edit-player-manage-puzzles');
+      if (managePuzElem) {
+        const hasPuzzlePerm = ['admin', 'super_admin', 'creator', 'puzzle_master'].includes(u.role) ||
+          (u.permissions_json && u.permissions_json.includes('manage_puzzles')) ||
+          (u.permissions && u.permissions.includes('manage_puzzles'));
+        managePuzElem.checked = Boolean(hasPuzzlePerm);
+      }
       
       this.onBanStatusChange(u.is_banned ? '1' : '0');
       this.openModal('modal-edit-player');
@@ -831,6 +843,8 @@ class AdminApp {
     const isVerified = document.getElementById('edit-player-verified').value === '1';
     const isBanned = document.getElementById('edit-player-banned').value === '1';
     const banReason = document.getElementById('edit-player-ban-reason').value.trim();
+    const role = document.getElementById('edit-player-role')?.value || 'player';
+    const canManagePuzzles = document.getElementById('edit-player-manage-puzzles')?.checked;
 
     try {
       const res = await fetch('api/admin.php?action=update_user', {
@@ -844,7 +858,9 @@ class AdminApp {
           package: pkg,
           is_verified: isVerified,
           is_banned: isBanned,
-          ban_reason: banReason
+          ban_reason: banReason,
+          role,
+          can_manage_puzzles: canManagePuzzles
         })
       });
       const data = await res.json();
@@ -1257,6 +1273,284 @@ class AdminApp {
       this.showToast(data.message, 'success');
       this.loadRooms();
       this.loadOverview();
+    } catch (err) {
+      this.showToast(err.message, 'error');
+    }
+  }
+
+  // ================= TACTICAL PUZZLES & TRAPS ================= //
+  async loadPuzzles(page = 1) {
+    const tbody = document.getElementById('puzzles-table-body');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Loading tactical puzzles...</td></tr>';
+
+    const ruleset = document.getElementById('puzzle-ruleset-filter')?.value || 'all';
+    const tier = document.getElementById('puzzle-tier-filter')?.value || 'all';
+    const q = encodeURIComponent(document.getElementById('puzzle-search-input')?.value || '');
+
+    try {
+      const res = await fetch(`api/admin.php?action=list_puzzles&page=${page}&ruleset=${ruleset}&tier=${tier}&q=${q}`);
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      // Update KPI metrics
+      if (data.stats) {
+        this.setText('kpi-puzzles-total', Number(data.stats.total || 0).toLocaleString());
+        this.setText('kpi-puzzles-nigeria', Number(data.stats.nigeria || 0).toLocaleString());
+        this.setText('kpi-puzzles-international', Number(data.stats.international || 0).toLocaleString());
+        this.setText('kpi-puzzles-ghana', Number(data.stats.ghana || 0).toLocaleString());
+        const badge = document.getElementById('badge-puzzles-count');
+        if (badge) {
+          badge.textContent = data.stats.total || 0;
+          badge.style.display = 'inline-block';
+        }
+      }
+
+      if (!data.puzzles || data.puzzles.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#94a3b8;">No puzzles found matching criteria. Click "Add New Tactical Puzzle" above to create one.</td></tr>';
+        return;
+      }
+
+      const flags = { 'nigeria': '🇳🇬 Nigeria', 'international': '🌍 FMJD', 'ghana': '🇬🇭 Ghana' };
+
+      tbody.innerHTML = data.puzzles.map(p => {
+        const flagText = flags[p.ruleset] || p.ruleset;
+        const steps = parseInt(p.solution_steps_count || 0);
+        const hints = parseInt(p.hints_count || 0);
+        const served = parseInt(p.times_served || 0);
+        const solved = parseInt(p.times_solved || 0);
+        const themes = p.themes_list ? `<div style="font-size:0.75rem; color:#f59e0b; margin-top:3px;">${this.escape(p.themes_list)}</div>` : '';
+
+        return `
+          <tr>
+            <td><code style="font-size:0.75rem; color:#60a5fa;">${this.escape(p.id)}</code></td>
+            <td>
+              <strong style="color:#ffffff;">${this.escape(p.description)}</strong>
+              ${themes}
+            </td>
+            <td><span class="badge-role">${flagText}</span></td>
+            <td>
+              <strong>Tier ${p.difficulty_tier}</strong>
+              <div style="font-size:0.75rem; color:#34d399;">${p.rating} Elo</div>
+            </td>
+            <td style="color:#fde047; font-weight:700;">${steps} step${steps === 1 ? '' : 's'}</td>
+            <td><span style="font-size:0.78rem; color:#cbd5e1;">${hints} hint${hints === 1 ? '' : 's'}</span></td>
+            <td style="font-size:0.8rem; color:#94a3b8;">${served} / <span style="color:#22c55e;">${solved}</span></td>
+            <td style="text-align:right; white-space:nowrap;">
+              <button type="button" class="btn-admin btn-admin-primary" style="padding:2px 8px; font-size:0.72rem; margin-right:4px;" title="Convert & Generate for Nigeria, International & Ghana" onclick="adminApp.convertPuzzleToAllRulesets('${this.escape(p.id)}')">
+                🔄 Convert All
+              </button>
+              <button type="button" class="btn-admin btn-admin-danger" style="padding:2px 8px; font-size:0.72rem;" title="Delete puzzle" onclick="adminApp.deletePuzzle('${this.escape(p.id)}', '${this.escape(p.description)}')">
+                🗑️
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Render Pagination
+      this.renderPuzzlePagination(data.page, data.pages, data.total);
+
+    } catch (e) {
+      console.error(e);
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#f43f5e;">${this.escape(e.message)}</td></tr>`;
+    }
+  }
+
+  handlePuzzleSearch() {
+    clearTimeout(this.puzzleSearchTimer);
+    this.puzzleSearchTimer = setTimeout(() => this.loadPuzzles(1), 350);
+  }
+
+  renderPuzzlePagination(page, totalPages, totalItems) {
+    const info = document.getElementById('puzzles-pagination-info');
+    const controls = document.getElementById('puzzles-pagination-controls');
+    if (!info || !controls) return;
+
+    info.textContent = `Showing page ${page} of ${Math.max(1, totalPages)} (${totalItems} total puzzles)`;
+    controls.innerHTML = '';
+
+    if (totalPages <= 1) return;
+
+    if (page > 1) {
+      const prev = document.createElement('button');
+      prev.className = 'btn-admin btn-admin-secondary';
+      prev.style.padding = '2px 8px';
+      prev.textContent = '← Prev';
+      prev.onclick = () => this.loadPuzzles(page - 1);
+      controls.appendChild(prev);
+    }
+
+    if (page < totalPages) {
+      const next = document.createElement('button');
+      next.className = 'btn-admin btn-admin-secondary';
+      next.style.padding = '2px 8px';
+      next.textContent = 'Next →';
+      next.onclick = () => this.loadPuzzles(page + 1);
+      controls.appendChild(next);
+    }
+  }
+
+  openCreatePuzzleModal() {
+    this.openModal('modal-create-puzzle');
+  }
+
+  addSolutionStepRow() {
+    const container = document.getElementById('puzzle-solution-steps-wrap');
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'solution-step-row';
+    row.style = 'display:grid; grid-template-columns: 80px 1fr 1fr 1fr auto; gap:8px; align-items:center;';
+    row.innerHTML = `
+      <select class="form-control-admin step-mover">
+        <option value="1">White</option>
+        <option value="2">Black</option>
+      </select>
+      <input type="number" class="form-control-admin step-from" placeholder="From (1-50)" min="1" max="50" required>
+      <input type="number" class="form-control-admin step-to" placeholder="To (1-50)" min="1" max="50" required>
+      <input type="text" class="form-control-admin step-notation" placeholder="Notation">
+      <button type="button" class="btn-admin btn-admin-danger" style="padding:4px 8px;" onclick="this.closest('.solution-step-row').remove()">&times;</button>
+    `;
+    container.appendChild(row);
+  }
+
+  async handleCreatePuzzleSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-submit-create-puzzle');
+    const orig = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = 'Publishing & Converting...';
+
+    const title = document.getElementById('puzzle-form-title').value.trim();
+    const ruleset = document.getElementById('puzzle-form-ruleset').value;
+    const category = document.getElementById('puzzle-form-category').value;
+    const tier = parseInt(document.getElementById('puzzle-form-tier').value, 10);
+    const rating = parseInt(document.getElementById('puzzle-form-rating').value, 10);
+
+    const whiteMen = document.getElementById('puzzle-white-men').value.trim();
+    const whiteKings = document.getElementById('puzzle-white-kings').value.trim();
+    const blackMen = document.getElementById('puzzle-black-men').value.trim();
+    const blackKings = document.getElementById('puzzle-black-kings').value.trim();
+
+    const hint1 = document.getElementById('puzzle-hint-1').value.trim();
+    const hint2 = document.getElementById('puzzle-hint-2').value.trim();
+    const hint3 = document.getElementById('puzzle-hint-3').value.trim();
+
+    const themes = document.getElementById('puzzle-form-themes').value.trim();
+    const explanation = document.getElementById('puzzle-form-explanation').value.trim();
+
+    // Collect solution steps
+    const stepRows = document.querySelectorAll('#puzzle-solution-steps-wrap .solution-step-row');
+    const steps = [];
+    stepRows.forEach(r => {
+      const mover = parseInt(r.querySelector('.step-mover')?.value || 1, 10);
+      const from = parseInt(r.querySelector('.step-from')?.value || 0, 10);
+      const to = parseInt(r.querySelector('.step-to')?.value || 0, 10);
+      const notat = r.querySelector('.step-notation')?.value.trim() || `${from}-${to}`;
+      if (from > 0 && to > 0) {
+        steps.push({
+          mover,
+          from,
+          to,
+          isOpponent: mover === 2,
+          notation: notat
+        });
+      }
+    });
+
+    if (steps.length === 0) {
+      alert('Please add at least one solution step move.');
+      btn.disabled = false;
+      btn.innerHTML = orig;
+      return;
+    }
+
+    // Collect target conversion checkboxes
+    const convertTargets = [];
+    if (document.getElementById('admin-convert-target-international')?.checked) convertTargets.push('international');
+    if (document.getElementById('admin-convert-target-nigeria')?.checked) convertTargets.push('nigeria');
+    if (document.getElementById('admin-convert-target-ghana')?.checked) convertTargets.push('ghana');
+
+    try {
+      const payload = {
+        title,
+        ruleset,
+        convert_all: (ruleset === 'all' || convertTargets.length === 3),
+        convert_targets: convertTargets,
+        category,
+        difficulty_tier: tier,
+        rating,
+        white_pieces: whiteMen,
+        white_kings: whiteKings,
+        black_pieces: blackMen,
+        black_kings: blackKings,
+        solution: steps,
+        hints: [hint1, hint2, hint3].filter(Boolean),
+        themes,
+        explanation
+      };
+
+      const res = await fetch('api/admin.php?action=create_puzzle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      this.showToast(data.message, 'success');
+      this.closeModal('modal-create-puzzle');
+      document.getElementById('form-create-puzzle').reset();
+      this.loadPuzzles(1);
+
+    } catch (err) {
+      this.showToast(err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = orig;
+    }
+  }
+
+  async convertPuzzleToAllRulesets(puzzleId) {
+    const choice = prompt(`Select target ruleset conversion for puzzle '${puzzleId}':\n\n1 = ALL RULES (Nigeria 🇳🇬, International FMJD 🌍, Ghana Damii 🇬🇭)\n2 = FMJD International 🌍\n3 = Nigerian Highway 🇳🇬\n4 = Ghanaian Damii 🇬🇭\n\nEnter 1, 2, 3, or 4:`, '1');
+    if (!choice) return;
+
+    let targetRuleset = 'all';
+    if (choice === '2') targetRuleset = 'international';
+    else if (choice === '3') targetRuleset = 'nigeria';
+    else if (choice === '4') targetRuleset = 'ghana';
+
+    try {
+      const res = await fetch('api/admin.php?action=convert_puzzle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ puzzle_id: puzzleId, target_ruleset: targetRuleset })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      this.showToast(data.message, 'success');
+      this.loadPuzzles(1);
+    } catch (err) {
+      this.showToast(err.message, 'error');
+    }
+  }
+
+  async deletePuzzle(puzzleId, title) {
+    if (!confirm(`Are you sure you want to permanently delete puzzle '${title || puzzleId}'?`)) return;
+
+    try {
+      const res = await fetch('api/admin.php?action=delete_puzzle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ puzzle_id: puzzleId })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      this.showToast(data.message, 'success');
+      this.loadPuzzles(1);
     } catch (err) {
       this.showToast(err.message, 'error');
     }

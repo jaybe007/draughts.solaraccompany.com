@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/config/puzzle_helper.php';
 $currentUser = getCurrentUser();
+$canManagePuzzles = canUserManagePuzzles($currentUser);
 $walletBalance = 0.00;
 $coins = 0;
 if ($currentUser) {
@@ -97,6 +99,11 @@ if ($currentUser) {
               <span class="user-pill-name"><?= htmlspecialchars($currentUser['username']) ?></span>
               <span class="user-pill-rating"><?= (int)$currentUser['rating'] ?> Elo</span>
             </a>
+            <?php if ($canManagePuzzles): ?>
+            <button type="button" class="btn btn-small" id="btn-header-add-puzzle" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-weight: 700; border: none; box-shadow: 0 2px 8px rgba(16,185,129,0.35); cursor: pointer;" title="Create and convert tactical draughts puzzles across rulesets">
+              ➕ Add Puzzle
+            </button>
+            <?php endif; ?>
             <a href="dashboard.php" class="btn btn-small btn-primary" title="Command Portal">Dashboard</a>
           <?php else: ?>
             <a href="index.php#auth-card" class="btn btn-primary btn-small" title="Sign in or register">
@@ -143,6 +150,15 @@ if ($currentUser) {
               <option value="draughts-image">📸 DRAUGHTS IMAGE Series (131)</option>
             </select>
           </div>
+
+          <?php if ($canManagePuzzles): ?>
+          <!-- Authorized Puzzle Creator Quick Trigger -->
+          <div style="margin-bottom: 12px;">
+            <button type="button" class="btn btn-primary" id="btn-sidebar-add-puzzle" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; font-size: 0.86rem; padding: 10px 14px; background: linear-gradient(135deg, #10b981 0%, #047857 100%); border: 1px solid rgba(52,211,153,0.4); border-radius: 8px; box-shadow: 0 4px 12px rgba(16,185,129,0.25); cursor: pointer;" title="Create new tactical puzzle and convert across International, Nigeria, and Ghana rulesets">
+              <span>➕ Add New Tactical Puzzle</span>
+            </button>
+          </div>
+          <?php endif; ?>
 
           <!-- Puzzle Info Card (Bullseye, ID, Rating, Played Count) -->
           <div class="lid-card lid-puzzle-info-card">
@@ -204,6 +220,11 @@ if ($currentUser) {
               <button type="button" class="btn btn-secondary btn-small" id="btn-open-coups-modal" title="Explore 32 Classical Draughts Combinations & Themes">
                 📖 32 Classical Coups
               </button>
+              <?php if ($canManagePuzzles): ?>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-meta-convert" style="color: #fde047; border-color: rgba(253, 224, 71, 0.45); font-weight: 700;" title="Convert this puzzle across International, Nigeria, and Ghana rulesets">
+                🔄 Convert Ruleset
+              </button>
+              <?php endif; ?>
             </div>
           </div>
 
@@ -512,7 +533,7 @@ if ($currentUser) {
             <button type="button" class="lid-step-btn" id="btn-step-last" title="Jump to End (▶|)">▶|</button>
           </div>
 
-          <!-- Auxiliary Tools Toolbar (Hint, Solution, Retry) -->
+          <!-- Auxiliary Tools Toolbar (Hint, Solution, Retry, and Ruleset Conversion) -->
           <div class="lid-aux-toolbar">
             <button type="button" class="lid-aux-btn" id="btn-puzzle-hint" title="Show progressive hint">
               💡 Hint
@@ -523,6 +544,11 @@ if ($currentUser) {
             <button type="button" class="lid-aux-btn" id="btn-puzzle-reset" title="Reset puzzle to start">
               🔄 Retry
             </button>
+            <?php if ($canManagePuzzles): ?>
+            <button type="button" class="lid-aux-btn" id="btn-puzzle-convert-ruleset" style="color: #fde047; border-color: rgba(253, 224, 71, 0.45);" title="Convert this puzzle into International, Nigeria, or Ghana ruleset">
+              🔄 Convert
+            </button>
+            <?php endif; ?>
           </div>
 
           <!-- Hidden Preserved Elements for JS Compatibility -->
@@ -570,6 +596,238 @@ if ($currentUser) {
       </div>
     </div>
   </div>
+
+  <?php if ($canManagePuzzles): ?>
+  <!-- ================= TACTICAL PUZZLE CREATOR STUDIO MODAL ================= -->
+  <div class="creator-modal-backdrop" id="modal-puzzle-creator-studio" style="display: none;">
+    <div class="creator-modal-dialog">
+      <div class="creator-modal-header">
+        <div>
+          <h3>🧩 Tactical Draughts Puzzle Creator Studio</h3>
+          <p>Design tactical draughts combinations and auto-convert across Nigerian Highway, FMJD International, and Ghanaian Damii.</p>
+        </div>
+        <button type="button" class="creator-modal-close" id="btn-close-creator-modal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="form-puzzle-creator">
+        <div class="creator-modal-body">
+          
+          <div style="display:grid; grid-template-columns: 2fr 1fr; gap:14px;">
+            <div class="form-group-creator">
+              <label for="creator-puzzle-title">Puzzle Title / Combination Name *</label>
+              <input type="text" id="creator-puzzle-title" class="form-control-creator" placeholder="e.g. Coup Royal Breakthrough, Ojuelegba Ambush" required>
+            </div>
+            <div class="form-group-creator">
+              <label for="creator-puzzle-ruleset">Base Ruleset *</label>
+              <select id="creator-puzzle-ruleset" class="form-control-creator">
+                <option value="nigeria" selected>🇳🇬 Nigerian Highway (Street)</option>
+                <option value="international">🌍 FMJD International</option>
+                <option value="ghana">🇬🇭 Ghanaian Damii</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Multi-Ruleset Conversion Options (International, Nigeria, Ghana) -->
+          <div style="background: rgba(30, 41, 59, 0.65); border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+            <div style="font-weight: 700; color: #34d399; font-size: 0.88rem; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+              <span>🔄 Ruleset Conversion Options:</span>
+            </div>
+            <p style="font-size: 0.78rem; color: #94a3b8; margin: 0 0 10px 0;">
+              Automatically convert and publish this combination into authentic playable variants for other draughts rulesets.
+            </p>
+            <div style="display: flex; gap: 18px; flex-wrap: wrap; align-items: center;">
+              <label style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600;">
+                <input type="checkbox" name="convert_types" class="creator-convert-type-cb" id="creator-convert-international" value="international" checked>
+                <span>🌍 FMJD International</span>
+              </label>
+              <label style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600;">
+                <input type="checkbox" name="convert_types" class="creator-convert-type-cb" id="creator-convert-nigeria" value="nigeria" checked>
+                <span>🇳🇬 Nigerian Highway</span>
+              </label>
+              <label style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600;">
+                <input type="checkbox" name="convert_types" class="creator-convert-type-cb" id="creator-convert-ghana" value="ghana" checked>
+                <span>🇬🇭 Ghanaian Damii</span>
+              </label>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:14px;">
+            <div class="form-group-creator">
+              <label for="creator-puzzle-category">Tactical Category</label>
+              <select id="creator-puzzle-category" class="form-control-creator">
+                <option value="tactical" selected>Tactical Combination</option>
+                <option value="strategic">Strategic Position</option>
+                <option value="endgame">Endgame Technique</option>
+              </select>
+            </div>
+            <div class="form-group-creator">
+              <label for="creator-puzzle-tier">Difficulty Tier (1-12)</label>
+              <select id="creator-puzzle-tier" class="form-control-creator">
+                <option value="1">Tier 1 - Novice (~1000)</option>
+                <option value="2">Tier 2 - Beginner (~1150)</option>
+                <option value="3" selected>Tier 3 - Elementary (~1300)</option>
+                <option value="4">Tier 4 - Intermediate (~1450)</option>
+                <option value="5">Tier 5 - Advanced (~1600)</option>
+                <option value="6">Tier 6 - Skilled (~1750)</option>
+                <option value="7">Tier 7 - Expert (~1900)</option>
+                <option value="8">Tier 8 - Candidate Master (~2050)</option>
+                <option value="9">Tier 9 - Master (~2200)</option>
+                <option value="10">Tier 10 - Grandmaster (~2350)</option>
+                <option value="11">Tier 11 - Elite Grandmaster (~2500)</option>
+                <option value="12">Tier 12 - Super Grandmaster (~2650)</option>
+              </select>
+            </div>
+            <div class="form-group-creator">
+              <label for="creator-puzzle-rating">Target Elo Rating</label>
+              <input type="number" id="creator-puzzle-rating" class="form-control-creator" value="1500" min="800" max="3000">
+            </div>
+          </div>
+
+          <!-- Board Setup by Square Numbers 1-50 -->
+          <div style="background: rgba(15,23,42,0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+            <div style="font-weight: 700; color: #fde047; font-size: 0.88rem; margin-bottom: 8px;">
+              ♟️ Initial 10x10 Board Setup (Dark Squares 1 to 50):
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+              <div class="form-group-creator">
+                <label for="creator-white-men">⚪ White Men Squares (comma separated)</label>
+                <input type="text" id="creator-white-men" class="form-control-creator" placeholder="e.g. 31, 32, 33, 38, 39" required>
+              </div>
+              <div class="form-group-creator">
+                <label for="creator-white-kings">👑 White Kings Squares</label>
+                <input type="text" id="creator-white-kings" class="form-control-creator" placeholder="e.g. 45">
+              </div>
+              <div class="form-group-creator">
+                <label for="creator-black-men">⚫ Black Men Squares (comma separated)</label>
+                <input type="text" id="creator-black-men" class="form-control-creator" placeholder="e.g. 12, 18, 23, 24" required>
+              </div>
+              <div class="form-group-creator">
+                <label for="creator-black-kings">👑 Black Kings Squares</label>
+                <input type="text" id="creator-black-kings" class="form-control-creator" placeholder="e.g. 5">
+              </div>
+            </div>
+          </div>
+
+          <!-- Solution Steps Sequence -->
+          <div style="background: rgba(15,23,42,0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+              <div style="font-weight: 700; color: #34d399; font-size: 0.88rem;">
+                🎯 Solution Move Sequence:
+              </div>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-add-creator-step" style="padding:3px 10px; font-size:0.75rem;">+ Add Move Step</button>
+            </div>
+            <div id="creator-steps-container" style="display:flex; flex-direction:column; gap:8px;">
+              <!-- Initial Step -->
+              <div class="creator-step-row">
+                <select class="form-control-creator step-mover">
+                  <option value="1">White</option>
+                  <option value="2">Black</option>
+                </select>
+                <input type="number" class="form-control-creator step-from" placeholder="From (1-50)" min="1" max="50" required>
+                <input type="number" class="form-control-creator step-to" placeholder="To (1-50)" min="1" max="50" required>
+                <input type="text" class="form-control-creator step-notation" placeholder="Notation (e.g. 32-28)">
+                <button type="button" class="btn-del-step" onclick="this.closest('.creator-step-row').remove()">&times;</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progressive Hints -->
+          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; margin-bottom: 14px;">
+            <div class="form-group-creator">
+              <label for="creator-hint-1">Hint Level 1 (Idea)</label>
+              <input type="text" id="creator-hint-1" class="form-control-creator" placeholder="e.g. Look for a sacrifice on 28.">
+            </div>
+            <div class="form-group-creator">
+              <label for="creator-hint-2">Hint Level 2 (Direction)</label>
+              <input type="text" id="creator-hint-2" class="form-control-creator" placeholder="e.g. Force piece to land on 32.">
+            </div>
+            <div class="form-group-creator">
+              <label for="creator-hint-3">Hint Level 3 (Direct Move)</label>
+              <input type="text" id="creator-hint-3" class="form-control-creator" placeholder="e.g. Play 32-28!">
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+            <div class="form-group-creator">
+              <label for="creator-puzzle-themes">Themes / Tactical Tags (comma separated)</label>
+              <input type="text" id="creator-puzzle-themes" class="form-control-creator" placeholder="e.g. Coup Royal, Sacrifice, Flying King">
+            </div>
+            <div class="form-group-creator">
+              <label for="creator-puzzle-explanation">Explanation / Walkthrough</label>
+              <input type="text" id="creator-puzzle-explanation" class="form-control-creator" placeholder="White sacrifices 32-28, forcing 23x32, then delivers a winning multi-jump combination.">
+            </div>
+          </div>
+
+        </div>
+        <div class="creator-modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-creator-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-creator-puzzle" style="background:linear-gradient(135deg,#10b981,#059669); font-weight:700;">
+            ⚡ Save &amp; Publish Puzzle &rarr;
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= ONE-CLICK CONVERT RULESET MODAL ================= -->
+  <div class="creator-modal-backdrop" id="modal-convert-puzzle-dialog" style="display: none;">
+    <div class="creator-modal-dialog" style="max-width: 520px;">
+      <div class="creator-modal-header">
+        <div>
+          <h3>🔄 Convert Tactical Puzzle</h3>
+          <p id="convert-modal-puzzle-name">Convert to International, Nigerian, or Ghanaian ruleset.</p>
+        </div>
+        <button type="button" class="creator-modal-close" id="btn-close-convert-modal" aria-label="Close">&times;</button>
+      </div>
+      <form id="form-convert-puzzle">
+        <input type="hidden" id="convert-puzzle-id">
+        <div class="creator-modal-body">
+          <div style="margin-bottom: 16px;">
+            <p style="font-size: 0.88rem; color: #cbd5e1; margin-top: 0;">
+              Select which ruleset variant(s) you would like to generate from this puzzle position:
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <label style="cursor: pointer; display: flex; align-items: center; gap: 10px; background: rgba(30,41,59,0.7); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                <input type="radio" name="convert_target_ruleset" value="all" checked>
+                <div>
+                  <div style="font-weight: 700; color: #fde047;">⭐ ALL TYPES (Auto-convert to all 3)</div>
+                  <div style="font-size: 0.75rem; color: #94a3b8;">Creates/updates variants for Nigeria 🇳🇬, International FMJD 🌍, and Ghana Damii 🇬🇭.</div>
+                </div>
+              </label>
+              <label style="cursor: pointer; display: flex; align-items: center; gap: 10px; background: rgba(30,41,59,0.7); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                <input type="radio" name="convert_target_ruleset" value="international">
+                <div>
+                  <div style="font-weight: 700; color: #60a5fa;">🌍 FMJD International Ruleset</div>
+                  <div style="font-size: 0.75rem; color: #94a3b8;">Enforces FMJD Majority Capture and international combination rules.</div>
+                </div>
+              </label>
+              <label style="cursor: pointer; display: flex; align-items: center; gap: 10px; background: rgba(30,41,59,0.7); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                <input type="radio" name="convert_target_ruleset" value="nigeria">
+                <div>
+                  <div style="font-weight: 700; color: #34d399;">🇳🇬 Nigerian Highway Ruleset</div>
+                  <div style="font-size: 0.75rem; color: #94a3b8;">Free-choice street captures &amp; flying king highway combinations.</div>
+                </div>
+              </label>
+              <label style="cursor: pointer; display: flex; align-items: center; gap: 10px; background: rgba(30,41,59,0.7); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                <input type="radio" name="convert_target_ruleset" value="ghana">
+                <div>
+                  <div style="font-weight: 700; color: #f87171;">🇬🇭 Ghanaian Damii Ruleset</div>
+                  <div style="font-size: 0.75rem; color: #94a3b8;">Authentic Damii mechanics with immediate crown stop on final square.</div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="creator-modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-convert-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-convert-puzzle" style="background:linear-gradient(135deg,#f59e0b,#d97706); border:none; font-weight:700;">
+            🔄 Convert &amp; Save Variants &rarr;
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <?php endif; ?>
 
   <script type="module" src="js/puzzle_trainer.js?v=<?= filemtime(__DIR__ . '/js/puzzle_trainer.js') ?>"></script>
   <script src="js/pwa.js?v=<?= filemtime(__DIR__ . '/js/pwa.js') ?>"></script>

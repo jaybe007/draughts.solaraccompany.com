@@ -14,6 +14,7 @@ require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../config/admin_helper.php';
 require_once __DIR__ . '/../config/tournament_helper.php';
 require_once __DIR__ . '/../config/error_handler.php';
+require_once __DIR__ . '/../config/puzzle_helper.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -642,14 +643,44 @@ try {
                 ]);
             }
 
+            // Role & Permissions assignment support (e.g. puzzle creators, admins)
+            $newRole = $existing['role'];
+            if (isset($input['role']) && !empty($input['role'])) {
+                $candidateRole = trim($input['role']);
+                if ($candidateRole === 'super_admin' && $adminUser['role'] !== 'super_admin') {
+                    $candidateRole = 'admin';
+                }
+                $newRole = $candidateRole;
+            }
+
+            $existingPerms = json_decode($existing['permissions_json'] ?? '[]', true) ?: [];
+            $permsUpdated = false;
+            if (isset($input['can_manage_puzzles'])) {
+                if (!empty($input['can_manage_puzzles'])) {
+                    if (!in_array('manage_puzzles', $existingPerms)) {
+                        $existingPerms[] = 'manage_puzzles';
+                    }
+                } else {
+                    $existingPerms = array_values(array_diff($existingPerms, ['manage_puzzles']));
+                }
+                $permsUpdated = true;
+            }
+            if (isset($input['permissions']) && is_array($input['permissions'])) {
+                $existingPerms = array_values($input['permissions']);
+                $permsUpdated = true;
+            }
+            $newPermsJson = $permsUpdated ? json_encode($existingPerms) : $existing['permissions_json'];
+
             $db->prepare("
                 UPDATE users SET 
                     wallet_balance = ?, coins = ?, rating = ?, package = ?, 
-                    is_banned = ?, ban_reason = ?, is_verified = ?
+                    is_banned = ?, ban_reason = ?, is_verified = ?,
+                    role = ?, permissions_json = ?
                 WHERE id = ?
             ")->execute([
                 $newBalance, $newCoins, $newRating, $newPackage,
-                $isBanned, $banReason, $isVerified, $uid
+                $isBanned, $banReason, $isVerified,
+                $newRole, $newPermsJson, $uid
             ]);
 
             logAdminAudit($db, $adminUser['id'], $adminUser['username'], 'update_user', 'user', $uid, [
@@ -657,6 +688,8 @@ try {
                 'balance_before' => $existing['wallet_balance'],
                 'balance_after' => $newBalance,
                 'package' => $newPackage,
+                'role' => $newRole,
+                'can_manage_puzzles' => in_array('manage_puzzles', $existingPerms),
                 'is_banned' => $isBanned,
                 'ban_reason' => $banReason
             ]);
@@ -1535,6 +1568,229 @@ try {
 
             jsonResp(['success' => true, 'message' => "Rate limits cleared successfully."]);
             break;
+
+        // ================= TACTICAL PUZZLES & TRAPS MANAGEMENT ================= //
+        case 'list_puzzles': {
+            if (!$isSuperAdmin && !in_array('manage_puzzles', $adminPerms)) {
+                jsonResp(['success' => false, 'message' => 'Unauthorized: manage_puzzles permission required.'], 403);
+            }
+
+            $page = max(1, (int)($_GET['page'] ?? 1));
+            $limit = max(1, min(100, (int)($_GET['limit'] ?? 15)));
+            $offset = ($page - 1) * $limit;
+
+            $ruleset = trim($_GET['ruleset'] ?? 'all');
+            $tier = trim($_GET['tier'] ?? 'all');
+            $search = trim($_GET['q'] ?? '');
+
+            $where = ["1=1"];
+            $params = [];
+
+            if ($ruleset !== 'all' && in_array($ruleset, ['nigeria', 'ghana', 'international'])) {
+                $where[] = "ruleset = :ruleset";
+                $params[':ruleset'] = $ruleset;
+            }
+
+            if ($tier !== 'all' && is_numeric($tier)) {
+                $where[] = "difficulty_tier = :tier";
+                $params[':tier'] = (int)$tier;
+            }
+
+            if (!empty($search)) {
+                $where[] = "(description LIKE :q OR explanation LIKE :q OR id LIKE :q)";
+                $params[':q'] = "%{$search}%";
+            }
+
+            $whereSql = implode(' AND ', $where);
+
+            $countStmt = $db->prepare("SELECT COUNT(*) FROM puzzles WHERE {$whereSql}");
+            $countStmt->execute($params);
+            $totalCount = (int)$countStmt->fetchColumn();
+
+            $sql = "
+                SELECT p.*,
+                       (SELECT COUNT(*) FROM puzzle_solutions ps WHERE ps.puzzle_id = p.id) as solution_steps_count,
+                       (SELECT COUNT(*) FROM puzzle_hints ph WHERE ph.puzzle_id = p.id) as hints_count,
+                       (SELECT GROUP_CONCAT(theme SEPARATOR ', ') FROM puzzle_themes pt WHERE pt.puzzle_id = p.id) as themes_list
+                FROM puzzles p
+                WHERE {$whereSql}
+                ORDER BY p.created_at DESC, p.id DESC
+                LIMIT {$limit} OFFSET {$offset}
+            ";
+
+            $stmt = $db->prepare($sql);
+            $stmt->execute($params);
+            $puzzles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $stats = [
+                'total' => (int)$db->query("SELECT COUNT(*) FROM puzzles")->fetchColumn(),
+                'nigeria' => (int)$db->query("SELECT COUNT(*) FROM puzzles WHERE ruleset = 'nigeria'")->fetchColumn(),
+                'international' => (int)$db->query("SELECT COUNT(*) FROM puzzles WHERE ruleset = 'international'")->fetchColumn(),
+                'ghana' => (int)$db->query("SELECT COUNT(*) FROM puzzles WHERE ruleset = 'ghana'")->fetchColumn()
+            ];
+
+            jsonResp([
+                'success' => true,
+                'puzzles' => $puzzles,
+                'total' => $totalCount,
+                'page' => $page,
+                'limit' => $limit,
+                'pages' => ceil($totalCount / $limit),
+                'stats' => $stats
+            ]);
+            break;
+        }
+
+        case 'create_puzzle': {
+            if (!$isSuperAdmin && !in_array('manage_puzzles', $adminPerms)) {
+                jsonResp(['success' => false, 'message' => 'Unauthorized: manage_puzzles permission required.'], 403);
+            }
+
+            $title = trim($input['title'] ?? '');
+            if (empty($title)) {
+                jsonResp(['success' => false, 'message' => 'Puzzle title is required.'], 400);
+            }
+
+            $requestedRuleset = strtolower(trim($input['ruleset'] ?? 'nigeria'));
+            $convertToAll = !empty($input['convert_all']) || !empty($input['auto_convert_all']) || $requestedRuleset === 'all';
+            $convertTargets = $input['convert_targets'] ?? ($input['target_rulesets'] ?? null);
+            if (empty($convertTargets) && !empty($input['auto_convert']) && is_array($input['target_rulesets'] ?? null)) {
+                $convertTargets = $input['target_rulesets'];
+            }
+            $singleTarget = !empty($input['target_ruleset']) ? strtolower(trim($input['target_ruleset'])) : null;
+            
+            $baseRuleset = ($requestedRuleset === 'all' || empty($requestedRuleset)) ? 'nigeria' : $requestedRuleset;
+            if (!in_array($baseRuleset, ['nigeria', 'international', 'ghana'])) {
+                $baseRuleset = 'nigeria';
+            }
+            $input['ruleset'] = $baseRuleset;
+
+            $newId = saveFullPuzzleRecord($db, $input);
+
+            $conversionResult = null;
+            if ($convertToAll) {
+                $conversionResult = convertPuzzleToAllTypes($db, $newId);
+            } elseif (!empty($convertTargets) && is_array($convertTargets)) {
+                $conversionResult = convertPuzzleToSpecificTypes($db, $newId, $convertTargets);
+            } elseif (!empty($singleTarget) && $singleTarget !== $baseRuleset) {
+                $conversionResult = convertPuzzleToRuleset($db, $newId, $singleTarget);
+            }
+
+            $isConverted = ($conversionResult && !empty($conversionResult['converted_count']));
+
+            logAdminAudit($db, $adminUser['id'], $adminUser['username'], 'create_puzzle', 'puzzles', $newId, json_encode([
+                'title' => $title,
+                'ruleset' => $input['ruleset'],
+                'converted_all' => $convertToAll,
+                'targets' => $convertTargets ?: $singleTarget
+            ]));
+
+            jsonResp([
+                'success' => true,
+                'message' => $isConverted 
+                    ? "Tactical puzzle '{$title}' created and converted across rulesets (International, Nigeria, Ghana)!" 
+                    : "Tactical puzzle '{$title}' created successfully!",
+                'puzzle_id' => $newId,
+                'base_ruleset' => $baseRuleset,
+                'converted' => $isConverted,
+                'conversion_details' => $conversionResult
+            ]);
+            break;
+        }
+
+        case 'convert_puzzle': {
+            if (!$isSuperAdmin && !in_array('manage_puzzles', $adminPerms)) {
+                jsonResp(['success' => false, 'message' => 'Unauthorized: manage_puzzles permission required.'], 403);
+            }
+
+            $puzzleId = trim($input['puzzle_id'] ?? ($_GET['puzzle_id'] ?? ''));
+            $targetRuleset = strtolower(trim($input['target_ruleset'] ?? ($_GET['target_ruleset'] ?? 'all')));
+            $convertTargets = $input['convert_targets'] ?? null;
+
+            if (empty($puzzleId)) {
+                jsonResp(['success' => false, 'message' => 'Puzzle ID is required.'], 400);
+            }
+
+            if (!empty($convertTargets) && is_array($convertTargets)) {
+                $res = convertPuzzleToSpecificTypes($db, $puzzleId, $convertTargets);
+                $msg = "Puzzle successfully converted to selected ruleset types!";
+            } elseif ($targetRuleset === 'all' || empty($targetRuleset)) {
+                $res = convertPuzzleToAllTypes($db, $puzzleId);
+                $msg = "Puzzle successfully converted across Nigerian, International (FMJD), and Ghanaian Damii rulesets!";
+            } else {
+                $res = convertPuzzleToRuleset($db, $puzzleId, $targetRuleset);
+                $msg = "Puzzle successfully converted to " . ucfirst($targetRuleset) . " ruleset!";
+            }
+
+            logAdminAudit($db, $adminUser['id'], $adminUser['username'], 'convert_puzzle', 'puzzles', $puzzleId, json_encode($res));
+
+            jsonResp([
+                'success' => true,
+                'message' => $msg,
+                'details' => $res
+            ]);
+            break;
+        }
+
+        case 'get_puzzle_details': {
+            if (!$isSuperAdmin && !in_array('manage_puzzles', $adminPerms)) {
+                jsonResp(['success' => false, 'message' => 'Unauthorized: manage_puzzles permission required.'], 403);
+            }
+
+            $puzzleId = trim($_GET['puzzle_id'] ?? ($input['puzzle_id'] ?? ''));
+            if (empty($puzzleId)) {
+                jsonResp(['success' => false, 'message' => 'Puzzle ID is required.'], 400);
+            }
+
+            $stmt = $db->prepare("SELECT * FROM puzzles WHERE id = ?");
+            $stmt->execute([$puzzleId]);
+            $puzzle = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$puzzle) {
+                jsonResp(['success' => false, 'message' => 'Puzzle not found.'], 404);
+            }
+
+            $solStmt = $db->prepare("SELECT * FROM puzzle_solutions WHERE puzzle_id = ? ORDER BY step_number ASC");
+            $solStmt->execute([$puzzleId]);
+            $solutions = $solStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $hintStmt = $db->prepare("SELECT level, hint_text FROM puzzle_hints WHERE puzzle_id = ? ORDER BY level ASC");
+            $hintStmt->execute([$puzzleId]);
+            $hints = $hintStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $thmStmt = $db->prepare("SELECT theme FROM puzzle_themes WHERE puzzle_id = ?");
+            $thmStmt->execute([$puzzleId]);
+            $themes = $thmStmt->fetchAll(PDO::FETCH_COLUMN);
+
+            jsonResp([
+                'success' => true,
+                'puzzle' => $puzzle,
+                'solutions' => $solutions,
+                'hints' => $hints,
+                'themes' => $themes
+            ]);
+            break;
+        }
+
+        case 'delete_puzzle': {
+            if (!$isSuperAdmin && !in_array('manage_puzzles', $adminPerms)) {
+                jsonResp(['success' => false, 'message' => 'Unauthorized: manage_puzzles permission required.'], 403);
+            }
+
+            $puzzleId = trim($input['puzzle_id'] ?? ($_GET['puzzle_id'] ?? ''));
+            if (empty($puzzleId)) {
+                jsonResp(['success' => false, 'message' => 'Puzzle ID is required.'], 400);
+            }
+
+            $deleted = deleteFullPuzzleRecord($db, $puzzleId);
+
+            logAdminAudit($db, $adminUser['id'], $adminUser['username'], 'delete_puzzle', 'puzzles', $puzzleId, null);
+
+            jsonResp([
+                'success' => true,
+                'message' => $deleted ? 'Puzzle deleted successfully.' : 'Puzzle not found or already deleted.'
+            ]);
+            break;
+        }
 
         default:
             jsonResp(['success' => false, 'message' => "Unknown admin action '{$action}'."], 400);
